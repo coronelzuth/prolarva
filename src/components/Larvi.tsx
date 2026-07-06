@@ -146,18 +146,12 @@ const tree: Record<string, ConversationNode> = {
   },
 };
 
-const LarviSVG = ({ width = 36 }: { width?: number }) => (
-  <svg viewBox="0 0 50 34" width={width} height={Math.round(width * 0.68)} fill="none" xmlns="http://www.w3.org/2000/svg">
-    <circle cx="6" cy="17" r="5.5" fill="#f5f0e0" stroke="#d4c8a0" strokeWidth="0.8"/>
-    <circle cx="17" cy="17" r="7.5" fill="#f5f0e0" stroke="#d4c8a0" strokeWidth="0.8"/>
-    <circle cx="30" cy="17" r="7.5" fill="#f0ead8" stroke="#d4c8a0" strokeWidth="0.8"/>
-    <circle cx="42" cy="17" r="7" fill="#e8e0c0" stroke="#c8ba88" strokeWidth="0.8"/>
-    <circle cx="39.5" cy="13" r="2.2" fill="#2a1b0f"/>
-    <circle cx="40.3" cy="12.2" r="0.7" fill="white"/>
-    <circle cx="44.5" cy="13" r="2.2" fill="#2a1b0f"/>
-    <circle cx="45.3" cy="12.2" r="0.7" fill="white"/>
-    <path d="M38 19.5 Q42 24 46 19.5" stroke="#2a1b0f" strokeWidth="1.3" strokeLinecap="round"/>
-  </svg>
+const LarviSVG = ({ size = 40 }: { size?: number }) => (
+  <img
+    src="/larvi-mascota.png"
+    alt="Larvi"
+    style={{ width: size, height: size, objectFit: 'contain', display: 'block' }}
+  />
 );
 
 export default function Larvi() {
@@ -204,7 +198,7 @@ export default function Larvi() {
         }}>
           {/* Header */}
           <div style={{ padding: '12px 16px', borderBottom: '1px solid rgba(34,197,94,0.2)', display: 'flex', alignItems: 'center', gap: 10, background: 'rgba(34,197,94,0.08)' }}>
-            <LarviSVG width={32} />
+            <LarviSVG size={36} />
             <div>
               <div style={{ fontWeight: 700, fontSize: 14, color: '#4ade80' }}>Larvi</div>
               <div style={{ fontSize: 11, color: '#64748b' }}>Asistente BSF</div>
@@ -276,7 +270,7 @@ export default function Larvi() {
         }}
         title="Hablar con Larvi"
       >
-        <LarviSVG width={38} />
+        <LarviSVG size={46} />
       </button>
     </>
   );

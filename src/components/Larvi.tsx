@@ -191,7 +191,7 @@ export default function Larvi() {
     <>
       {open && (
         <div style={{
-          position: 'fixed', bottom: 90, right: 20, width: 320, maxHeight: 490,
+          position: 'fixed', bottom: 90, right: 20, width: 'min(320px, calc(100vw - 32px))', maxHeight: 490,
           background: '#0d1b2a', border: '1px solid rgba(34,197,94,0.3)',
           borderRadius: 16, display: 'flex', flexDirection: 'column',
           boxShadow: '0 8px 32px rgba(0,0,0,0.5)', zIndex: 1000, overflow: 'hidden',

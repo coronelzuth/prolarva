@@ -46,7 +46,7 @@ export default function ConocimientoPage() {
       </div>
 
       {/* Grid 3 x 3 */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginBottom: 28 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: 12, marginBottom: 28 }}>
         {stages.map((stage) => {
           const isSelected = expanded === stage.id;
           const viewed = progress.stagesViewed.includes(stage.id);
@@ -145,7 +145,7 @@ export default function ConocimientoPage() {
             )}
 
             {/* Tips y Alertas */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16 }}>
               <div>
                 <div style={{ fontSize: 11, fontWeight: 700, color: '#10b981', marginBottom: 8, letterSpacing: 1 }}>✅ CONSEJOS</div>
                 {activeStage.tips.map((tip, i) => (

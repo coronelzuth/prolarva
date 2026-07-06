@@ -71,7 +71,7 @@ export default function PreparacionPage() {
           </p>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 28 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16, marginBottom: 28 }}>
           {result.ready.length > 0 && (
             <div style={{ background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.25)', borderRadius: 12, padding: 18 }}>
               <div style={{ fontWeight: 700, color: '#10b981', marginBottom: 10, fontSize: 13 }}>✅ YA TIENES</div>

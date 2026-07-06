@@ -146,11 +146,11 @@ const tree: Record<string, ConversationNode> = {
   },
 };
 
-const LarviSVG = ({ size = 40 }: { size?: number }) => (
+const LarviSVG = ({ size = 40, style = {} }: { size?: number; style?: React.CSSProperties }) => (
   <img
     src="/larvi-mascota.png"
     alt="Larvi"
-    style={{ width: size, height: size, objectFit: 'contain', display: 'block' }}
+    style={{ width: size, height: size, objectFit: 'contain', display: 'block', ...style }}
   />
 );
 
@@ -270,7 +270,7 @@ export default function Larvi() {
         }}
         title="Hablar con Larvi"
       >
-        <LarviSVG size={46} />
+        <LarviSVG size={54} style={{ transform: 'translate(-3px, -5px)' }} />
       </button>
     </>
   );

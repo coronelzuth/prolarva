@@ -10,6 +10,7 @@ export interface Stage {
   tips: string[];
   alerts: string[];
   isHarvestStage?: boolean;
+  photos?: string[];
 }
 
 export const stages: Stage[] = [

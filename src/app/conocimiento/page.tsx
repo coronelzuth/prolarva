@@ -28,14 +28,14 @@ export default function ConocimientoPage() {
         <Link href="/" style={{ fontSize: 13, color: '#64748b', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 4, marginBottom: 16 }}>
           ← Inicio
         </Link>
-        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(14,165,233,0.1)', border: '1px solid rgba(14,165,233,0.3)', borderRadius: 20, padding: '5px 14px', marginBottom: 16, marginLeft: 12 }}>
-          <span style={{ fontSize: 12, color: '#38bdf8', fontWeight: 600 }}>Módulo 1</span>
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.3)', borderRadius: 20, padding: '5px 14px', marginBottom: 16, marginLeft: 12 }}>
+          <span style={{ fontSize: 12, color: '#4ade80', fontWeight: 600 }}>Módulo 1</span>
         </div>
         <h1 style={{ fontSize: 'clamp(24px,4vw,36px)', fontWeight: 900, marginBottom: 10 }}>
           🧠 Conocimiento General
         </h1>
         <p style={{ fontSize: 15, color: '#94a3b8', lineHeight: 1.6, maxWidth: 600 }}>
-          Aprende el ciclo completo de la <strong style={{ color: '#38bdf8' }}>Mosca Soldado Negra (BSF)</strong>. Son 8 etapas — toca cada una para ver detalles, temperatura, cuidados y alertas.
+          Aprende el ciclo completo de la <strong style={{ color: '#4ade80' }}>Mosca Soldado Negra (BSF)</strong>. Son 8 etapas — toca cada una para ver detalles, temperatura, cuidados y alertas.
         </p>
 
         <div style={{ marginTop: 16, display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -43,7 +43,7 @@ export default function ConocimientoPage() {
             {progress.stagesViewed.length} / {stages.length} etapas vistas
           </div>
           <div style={{ width: 100, height: 4, background: '#1e3050', borderRadius: 2 }}>
-            <div style={{ width: `${(progress.stagesViewed.length / stages.length) * 100}%`, height: '100%', background: '#0ea5e9', borderRadius: 2, transition: 'width 0.3s' }} />
+            <div style={{ width: `${(progress.stagesViewed.length / stages.length) * 100}%`, height: '100%', background: '#22c55e', borderRadius: 2, transition: 'width 0.3s' }} />
           </div>
         </div>
       </div>
@@ -58,7 +58,7 @@ export default function ConocimientoPage() {
               flex: '0 0 auto', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4,
               padding: '10px 14px', borderRadius: 10,
               background: expanded === stage.id ? `${stage.color}20` : progress.stagesViewed.includes(stage.id) ? 'rgba(30,48,80,0.8)' : 'rgba(21,32,53,0.6)',
-              border: `1px solid ${expanded === stage.id ? stage.color + '80' : progress.stagesViewed.includes(stage.id) ? stage.color + '40' : 'rgba(14,165,233,0.15)'}`,
+              border: `1px solid ${expanded === stage.id ? stage.color + '80' : progress.stagesViewed.includes(stage.id) ? stage.color + '40' : 'rgba(34,197,94,0.15)'}`,
               cursor: 'pointer', transition: 'all 0.15s',
               fontFamily: 'Montserrat, sans-serif',
             }}
@@ -84,7 +84,7 @@ export default function ConocimientoPage() {
               key={stage.id}
               style={{
                 borderRadius: 12, overflow: 'hidden',
-                border: `1px solid ${isOpen ? stage.color + '60' : viewed ? stage.color + '30' : 'rgba(14,165,233,0.15)'}`,
+                border: `1px solid ${isOpen ? stage.color + '60' : viewed ? stage.color + '30' : 'rgba(34,197,94,0.15)'}`,
                 background: isOpen ? `${stage.color}08` : 'rgba(21,32,53,0.6)',
                 transition: 'all 0.2s',
               }}
@@ -102,7 +102,7 @@ export default function ConocimientoPage() {
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 2 }}>
                     <span style={{ fontSize: 15, fontWeight: 800, color: '#f1f5f9' }}>{stage.name}</span>
                     {stage.isHarvestStage && (
-                      <span style={{ fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 6, background: 'rgba(14,165,233,0.2)', color: '#38bdf8' }}>COSECHA</span>
+                      <span style={{ fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 6, background: 'rgba(34,197,94,0.2)', color: '#4ade80' }}>COSECHA</span>
                     )}
                     {viewed && !isOpen && <span style={{ fontSize: 11, color: '#10b981' }}>✓</span>}
                   </div>
@@ -146,7 +146,7 @@ export default function ConocimientoPage() {
       </div>
 
       {/* Complete module CTA */}
-      <div style={{ marginTop: 40, padding: 24, background: 'rgba(14,165,233,0.08)', border: '1px solid rgba(14,165,233,0.25)', borderRadius: 16, textAlign: 'center' }}>
+      <div style={{ marginTop: 40, padding: 24, background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.25)', borderRadius: 16, textAlign: 'center' }}>
         {progress.modulesCompleted.includes('conocimiento') ? (
           <div>
             <div style={{ fontSize: 20, marginBottom: 8 }}>✅</div>
@@ -161,7 +161,7 @@ export default function ConocimientoPage() {
             <div style={{ fontSize: 13, color: '#64748b', marginBottom: 16 }}>Marca el módulo como completado para llevar tu progreso</div>
             <button
               onClick={handleComplete}
-              style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'linear-gradient(135deg,#0ea5e9,#06b6d4)', color: 'white', padding: '12px 24px', borderRadius: 10, border: 'none', cursor: 'pointer', fontWeight: 700, fontSize: 14, fontFamily: 'Montserrat, sans-serif', marginRight: 12 }}
+              style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'linear-gradient(135deg,#22c55e,#16a34a)', color: 'white', padding: '12px 24px', borderRadius: 10, border: 'none', cursor: 'pointer', fontWeight: 700, fontSize: 14, fontFamily: 'Montserrat, sans-serif', marginRight: 12 }}
             >
               ✓ Completar Módulo 1
             </button>

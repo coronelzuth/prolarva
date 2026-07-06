@@ -94,7 +94,7 @@ export default function MetasPage() {
                     style={{
                       borderRadius: 10, overflow: 'hidden',
                       background: isOpen ? `rgba(${hexToRgb(currentMeta.color)},0.08)` : 'rgba(30,48,80,0.5)',
-                      border: `1px solid ${isOpen ? currentMeta.borderColor : 'rgba(14,165,233,0.12)'}`,
+                      border: `1px solid ${isOpen ? currentMeta.borderColor : 'rgba(34,197,94,0.12)'}`,
                       transition: 'all 0.15s',
                     }}
                   >
@@ -112,7 +112,7 @@ export default function MetasPage() {
                       <div style={{ padding: '0 18px 16px 60px' }}>
                         <p style={{ fontSize: 13, color: '#cbd5e1', lineHeight: 1.7, marginBottom: step.tip || step.warning ? 12 : 0 }}>{step.description}</p>
                         {step.tip && (
-                          <div style={{ padding: '8px 12px', background: 'rgba(14,165,233,0.08)', border: '1px solid rgba(14,165,233,0.2)', borderRadius: 8, fontSize: 12, color: '#38bdf8', lineHeight: 1.5 }}>
+                          <div style={{ padding: '8px 12px', background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.2)', borderRadius: 8, fontSize: 12, color: '#38bdf8', lineHeight: 1.5 }}>
                             💡 {step.tip}
                           </div>
                         )}
@@ -129,7 +129,7 @@ export default function MetasPage() {
             </div>
 
             {/* Resources */}
-            <div style={{ marginTop: 24, padding: '16px 18px', background: 'rgba(30,48,80,0.5)', borderRadius: 12, border: '1px solid rgba(14,165,233,0.12)' }}>
+            <div style={{ marginTop: 24, padding: '16px 18px', background: 'rgba(30,48,80,0.5)', borderRadius: 12, border: '1px solid rgba(34,197,94,0.12)' }}>
               <div style={{ fontWeight: 700, color: '#94a3b8', fontSize: 12, marginBottom: 10 }}>🧰 MATERIALES NECESARIOS</div>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
                 {currentMeta.resources.map((res, i) => (

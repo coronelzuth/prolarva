@@ -71,11 +71,13 @@ const tree: Record<string, ConversationNode> = {
   },
   prob_comida: {
     message: 'Si el clima está bien, revisa la cantidad y calidad de alimento. Evita alimentos muy ácidos (limón, vinagre) o muy salados. Restos de frutas y verduras funcionan muy bien.',
-    options: [{ label: 'Gracias Larvi 👍', action: 'end' }],
+    link: '/conocimiento',
+    options: [{ label: 'Ver etapas de alimentación →', action: 'end' }],
   },
   prob_temp: {
     message: 'La temperatura es crítica. Con < 22°C el crecimiento se paraliza casi por completo. Considera un cuarto cerrado, bombillo de calor o manta térmica. La BSF necesita 26–32°C.',
-    options: [{ label: 'Entendido, gracias 👍', action: 'end' }],
+    link: '/conocimiento',
+    options: [{ label: 'Ver rangos de temperatura →', action: 'end' }],
   },
   prob_olor: {
     message: 'Olor fuerte = exceso de alimento húmedo que se pudre antes de ser consumido. Reduce la cantidad de alimento y mezcla con material seco (aserrín/afrecho). La relación ideal es 70% húmedo / 30% seco.',
@@ -94,7 +96,8 @@ const tree: Record<string, ConversationNode> = {
   },
   prepupa_info: {
     message: '¡No te preocupes! Las larvas marrones, más firmes y quietas son prepupas. Es una etapa normal del ciclo — están en transición a pupa. Dales zona oscura y sustrato seco.',
-    options: [{ label: 'Excelente, gracias 👍', action: 'end' }],
+    link: '/conocimiento',
+    options: [{ label: 'Ver etapa de prepupa →', action: 'end' }],
   },
   muerte_seria: {
     message: 'Posibles causas: alimento con pesticidas/jabón/sal en exceso, temperatura extrema (> 40°C o < 10°C), o falta de oxígeno. Revisa qué les estás dando de comer y ventilación del espacio.',
@@ -102,9 +105,10 @@ const tree: Record<string, ConversationNode> = {
   },
   cosecha: {
     message: 'Cosecha cuando las larvas están en L5: blancas-crema, gordas, ~2cm y muy activas. Si empiezan a oscurecerse y quietarse, ya están pasando a prepupa — todavía sirven pero baja el valor proteico.',
+    link: '/conocimiento',
     options: [
       { label: '¿Qué hacer después de cosechar?', action: 'post_cosecha' },
-      { label: 'Gracias, perfecto 👍', action: 'end' },
+      { label: 'Ver etapa L5 en detalle →', action: 'end' },
     ],
   },
   post_cosecha: {
@@ -114,6 +118,7 @@ const tree: Record<string, ConversationNode> = {
   },
   meta_ayuda: {
     message: 'Las 3 metas son: 🐔 Alimentar animales (más fácil, sin procesamiento), 🌾 Producir harina (más rentable, requiere equipos), ♻️ Ciclo cerrado (más complejo, requiere insectario). ¿Qué buscas?',
+    link: '/metas',
     options: [
       { label: 'Quiero lo más sencillo', action: 'meta_sencillo' },
       { label: 'Quiero vender', action: 'meta_venta' },
@@ -140,6 +145,20 @@ const tree: Record<string, ConversationNode> = {
     options: [{ label: 'Hacer otra pregunta', action: 'start' }],
   },
 };
+
+const LarviSVG = ({ width = 36 }: { width?: number }) => (
+  <svg viewBox="0 0 50 34" width={width} height={Math.round(width * 0.68)} fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="6" cy="17" r="5.5" fill="#f5f0e0" stroke="#d4c8a0" strokeWidth="0.8"/>
+    <circle cx="17" cy="17" r="7.5" fill="#f5f0e0" stroke="#d4c8a0" strokeWidth="0.8"/>
+    <circle cx="30" cy="17" r="7.5" fill="#f0ead8" stroke="#d4c8a0" strokeWidth="0.8"/>
+    <circle cx="42" cy="17" r="7" fill="#e8e0c0" stroke="#c8ba88" strokeWidth="0.8"/>
+    <circle cx="39.5" cy="13" r="2.2" fill="#2a1b0f"/>
+    <circle cx="40.3" cy="12.2" r="0.7" fill="white"/>
+    <circle cx="44.5" cy="13" r="2.2" fill="#2a1b0f"/>
+    <circle cx="45.3" cy="12.2" r="0.7" fill="white"/>
+    <path d="M38 19.5 Q42 24 46 19.5" stroke="#2a1b0f" strokeWidth="1.3" strokeLinecap="round"/>
+  </svg>
+);
 
 export default function Larvi() {
   const [open, setOpen] = useState(false);
@@ -178,27 +197,36 @@ export default function Larvi() {
     <>
       {open && (
         <div style={{
-          position: 'fixed', bottom: 90, right: 20, width: 320, maxHeight: 440,
-          background: '#0d1b2a', border: '1px solid rgba(14,165,233,0.3)',
+          position: 'fixed', bottom: 90, right: 20, width: 320, maxHeight: 490,
+          background: '#0d1b2a', border: '1px solid rgba(34,197,94,0.3)',
           borderRadius: 16, display: 'flex', flexDirection: 'column',
           boxShadow: '0 8px 32px rgba(0,0,0,0.5)', zIndex: 1000, overflow: 'hidden',
         }}>
-          <div style={{ padding: '12px 16px', borderBottom: '1px solid rgba(14,165,233,0.2)', display: 'flex', alignItems: 'center', gap: 8, background: 'rgba(14,165,233,0.08)' }}>
-            <span style={{ fontSize: 20 }}>🪲</span>
+          {/* Header */}
+          <div style={{ padding: '12px 16px', borderBottom: '1px solid rgba(34,197,94,0.2)', display: 'flex', alignItems: 'center', gap: 10, background: 'rgba(34,197,94,0.08)' }}>
+            <LarviSVG width={32} />
             <div>
-              <div style={{ fontWeight: 700, fontSize: 14, color: '#38bdf8' }}>Larvi</div>
+              <div style={{ fontWeight: 700, fontSize: 14, color: '#4ade80' }}>Larvi</div>
               <div style={{ fontSize: 11, color: '#64748b' }}>Asistente BSF</div>
             </div>
             <button onClick={() => setOpen(false)} style={{ marginLeft: 'auto', background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', fontSize: 18, lineHeight: 1 }}>×</button>
           </div>
 
+          {/* Quick links */}
+          <div style={{ padding: '8px 12px', display: 'flex', gap: 6, borderBottom: '1px solid rgba(34,197,94,0.12)', flexWrap: 'wrap' }}>
+            <a href="/conocimiento" style={{ fontSize: 11, padding: '4px 10px', background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.25)', borderRadius: 12, color: '#4ade80', textDecoration: 'none', fontWeight: 600 }}>🧠 Ciclo BSF</a>
+            <a href="/preparacion" style={{ fontSize: 11, padding: '4px 10px', background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.25)', borderRadius: 12, color: '#f59e0b', textDecoration: 'none', fontWeight: 600 }}>🛠️ Diagnóstico</a>
+            <a href="/metas" style={{ fontSize: 11, padding: '4px 10px', background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.25)', borderRadius: 12, color: '#10b981', textDecoration: 'none', fontWeight: 600 }}>🎯 Mi Meta</a>
+          </div>
+
+          {/* Messages */}
           <div style={{ flex: 1, overflowY: 'auto', padding: 12, display: 'flex', flexDirection: 'column', gap: 8 }}>
             {messages.map((msg, i) => (
               <div key={i} style={{ display: 'flex', justifyContent: msg.from === 'user' ? 'flex-end' : 'flex-start' }}>
                 <div style={{
                   maxWidth: '85%', padding: '8px 12px', borderRadius: msg.from === 'larvi' ? '4px 12px 12px 12px' : '12px 4px 12px 12px',
-                  background: msg.from === 'larvi' ? 'rgba(14,165,233,0.12)' : 'rgba(14,165,233,0.25)',
-                  border: '1px solid rgba(14,165,233,0.2)',
+                  background: msg.from === 'larvi' ? 'rgba(34,197,94,0.1)' : 'rgba(34,197,94,0.22)',
+                  border: '1px solid rgba(34,197,94,0.2)',
                   fontSize: 13, lineHeight: 1.5, color: '#e2e8f0',
                 }}>
                   {msg.text}
@@ -207,10 +235,17 @@ export default function Larvi() {
             ))}
           </div>
 
+          {/* Options */}
           {current.options && current.options.length > 0 && (
-            <div style={{ padding: '8px 12px', borderTop: '1px solid rgba(14,165,233,0.15)', display: 'flex', flexDirection: 'column', gap: 6 }}>
+            <div style={{ padding: '8px 12px', borderTop: '1px solid rgba(34,197,94,0.15)', display: 'flex', flexDirection: 'column', gap: 6 }}>
               {current.link && (
-                <a href={current.link} style={{ fontSize: 12, color: '#38bdf8', textDecoration: 'none', padding: '6px 10px', background: 'rgba(14,165,233,0.15)', borderRadius: 6, textAlign: 'center', fontWeight: 600 }}>
+                <a href={current.link} style={{
+                  fontSize: 13, color: 'white', textDecoration: 'none',
+                  padding: '9px 14px',
+                  background: 'linear-gradient(135deg,#22c55e,#16a34a)',
+                  borderRadius: 8, textAlign: 'center', fontWeight: 700,
+                  display: 'block',
+                }}>
                   Ir ahora →
                 </a>
               )}
@@ -218,7 +253,7 @@ export default function Larvi() {
                 <button
                   key={i}
                   onClick={() => handleOption(opt)}
-                  style={{ padding: '7px 10px', background: 'rgba(30,48,80,0.8)', border: '1px solid rgba(14,165,233,0.25)', borderRadius: 8, color: '#cbd5e1', fontSize: 12, cursor: 'pointer', textAlign: 'left', fontFamily: 'Montserrat, sans-serif', fontWeight: 500 }}
+                  style={{ padding: '7px 10px', background: 'rgba(30,48,80,0.8)', border: '1px solid rgba(34,197,94,0.2)', borderRadius: 8, color: '#cbd5e1', fontSize: 12, cursor: 'pointer', textAlign: 'left', fontFamily: 'Montserrat, sans-serif', fontWeight: 500 }}
                 >
                   {opt.label}
                 </button>
@@ -228,18 +263,20 @@ export default function Larvi() {
         </div>
       )}
 
+      {/* Floating larva button */}
       <button
         onClick={startChat}
         style={{
-          position: 'fixed', bottom: 20, right: 20, width: 56, height: 56,
-          borderRadius: '50%', background: 'linear-gradient(135deg,#0ea5e9,#06b6d4)',
-          border: 'none', cursor: 'pointer', fontSize: 24, zIndex: 1000,
-          boxShadow: pulse ? '0 0 0 8px rgba(14,165,233,0.2), 0 4px 16px rgba(14,165,233,0.4)' : '0 4px 16px rgba(14,165,233,0.3)',
+          position: 'fixed', bottom: 20, right: 20, width: 60, height: 60,
+          borderRadius: '50%', background: 'linear-gradient(135deg,#22c55e,#16a34a)',
+          border: 'none', cursor: 'pointer', zIndex: 1000,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          boxShadow: pulse ? '0 0 0 8px rgba(34,197,94,0.2), 0 4px 16px rgba(34,197,94,0.4)' : '0 4px 16px rgba(34,197,94,0.3)',
           transition: 'box-shadow 0.3s',
         }}
         title="Hablar con Larvi"
       >
-        🪲
+        <LarviSVG width={38} />
       </button>
     </>
   );
@@ -253,5 +290,4 @@ function getContextGreeting(pathname: string, progress: UserProgress): string | 
   return null;
 }
 
-// Type import fix
 import type { UserProgress } from '@/hooks/useProgress';

@@ -11,7 +11,7 @@ const modules = [
     title: 'Conocimiento General',
     subtitle: 'El ciclo completo de la BSF',
     description: 'Aprende las 8 etapas del ciclo de vida: desde el huevo hasta el adulto. Temperatura ideal, duración, cuidados y alertas por etapa.',
-    color: '#0ea5e9',
+    color: '#22c55e',
     time: '15 min',
     tag: 'Módulo 1',
   },
@@ -57,13 +57,13 @@ export default function Home() {
   return (
     <div style={{ maxWidth: 1000, margin: '0 auto', padding: '40px 20px 80px' }}>
       <div style={{ textAlign: 'center', marginBottom: 56 }}>
-        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(14,165,233,0.1)', border: '1px solid rgba(14,165,233,0.3)', borderRadius: 20, padding: '6px 16px', marginBottom: 20 }}>
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.3)', borderRadius: 20, padding: '6px 16px', marginBottom: 20 }}>
           <span>🪲</span>
-          <span style={{ fontSize: 13, color: '#38bdf8', fontWeight: 600 }}>Mosca Soldado Negra · BSF</span>
+          <span style={{ fontSize: 13, color: '#4ade80', fontWeight: 600 }}>Mosca Soldado Negra · BSF</span>
         </div>
         <h1 style={{ fontSize: 'clamp(26px,5vw,42px)', fontWeight: 900, lineHeight: 1.15, marginBottom: 16 }}>
           Tu ruta de aprendizaje{' '}
-          <span style={{ background: 'linear-gradient(135deg,#38bdf8,#06b6d4)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+          <span style={{ background: 'linear-gradient(135deg,#4ade80,#16a34a)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
             BSF completa
           </span>
         </h1>
@@ -73,16 +73,16 @@ export default function Home() {
         {loaded && overallPercent > 0 && (
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 12, background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.3)', borderRadius: 12, padding: '10px 20px' }}>
             <div style={{ width: 120, height: 6, background: '#1e3050', borderRadius: 3 }}>
-              <div style={{ width: `${overallPercent}%`, height: '100%', background: 'linear-gradient(90deg,#10b981,#06b6d4)', borderRadius: 3, transition: 'width 0.5s' }} />
+              <div style={{ width: `${overallPercent}%`, height: '100%', background: 'linear-gradient(90deg,#10b981,#16a34a)', borderRadius: 3, transition: 'width 0.5s' }} />
             </div>
             <span style={{ fontSize: 13, fontWeight: 700, color: '#10b981' }}>{overallPercent}% completado</span>
           </div>
         )}
         {loaded && progress.selectedMeta && (
           <div style={{ marginTop: 12, fontSize: 13, color: '#64748b' }}>
-            Meta actual: <strong style={{ color: '#38bdf8' }}>{metaNames[progress.selectedMeta]}</strong>
+            Meta actual: <strong style={{ color: '#4ade80' }}>{metaNames[progress.selectedMeta]}</strong>
             {' · '}
-            <Link href="/metas" style={{ color: '#0ea5e9', textDecoration: 'none' }}>ver guía →</Link>
+            <Link href="/metas" style={{ color: '#22c55e', textDecoration: 'none' }}>ver guía →</Link>
           </div>
         )}
       </div>
@@ -94,7 +94,7 @@ export default function Home() {
             <div
               key={mod.id}
               style={{
-                background: 'rgba(21,32,53,0.7)', border: `1px solid ${status === 'completed' ? mod.color + '60' : 'rgba(14,165,233,0.15)'}`,
+                background: 'rgba(21,32,53,0.7)', border: `1px solid ${status === 'completed' ? mod.color + '60' : 'rgba(34,197,94,0.15)'}`,
                 borderRadius: 16, padding: 24, position: 'relative', overflow: 'hidden', cursor: 'pointer',
               }}
             >
@@ -115,7 +115,7 @@ export default function Home() {
                 <div style={{ fontSize: 13, color: mod.color, fontWeight: 600, marginBottom: 10 }}>{mod.subtitle}</div>
                 <p style={{ fontSize: 13, color: '#94a3b8', lineHeight: 1.6 }}>{mod.description}</p>
               </div>
-              <div style={{ marginTop: 20, height: 1, background: 'rgba(14,165,233,0.1)', marginBottom: 16 }} />
+              <div style={{ marginTop: 20, height: 1, background: 'rgba(34,197,94,0.1)', marginBottom: 16 }} />
               <Link
                 href={mod.href}
                 style={{
@@ -140,9 +140,9 @@ export default function Home() {
           { icon: '📋', value: '3 metas', label: 'Para elegir' },
           { icon: '🤖', value: 'Larvi', label: 'Asistente 24/7' },
         ].map((stat, i) => (
-          <div key={i} style={{ textAlign: 'center', padding: '16px 12px', background: 'rgba(21,32,53,0.5)', borderRadius: 12, border: '1px solid rgba(14,165,233,0.1)' }}>
+          <div key={i} style={{ textAlign: 'center', padding: '16px 12px', background: 'rgba(21,32,53,0.5)', borderRadius: 12, border: '1px solid rgba(34,197,94,0.1)' }}>
             <div style={{ fontSize: 20, marginBottom: 4 }}>{stat.icon}</div>
-            <div style={{ fontSize: 16, fontWeight: 800, color: '#38bdf8' }}>{stat.value}</div>
+            <div style={{ fontSize: 16, fontWeight: 800, color: '#4ade80' }}>{stat.value}</div>
             <div style={{ fontSize: 11, color: '#64748b' }}>{stat.label}</div>
           </div>
         ))}

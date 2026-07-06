@@ -60,9 +60,9 @@ export default function PreparacionPage() {
             {pct >= 75 ? '🚀' : pct >= 50 ? '🌱' : '📋'}
           </div>
           <h1 style={{ fontSize: 28, fontWeight: 900, marginBottom: 8 }}>Tu Diagnóstico</h1>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 10, background: 'rgba(14,165,233,0.1)', border: '1px solid rgba(14,165,233,0.3)', borderRadius: 12, padding: '10px 24px' }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 10, background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.3)', borderRadius: 12, padding: '10px 24px' }}>
             <div style={{ width: 140, height: 6, background: '#1e3050', borderRadius: 3 }}>
-              <div style={{ width: `${pct}%`, height: '100%', background: pct >= 75 ? 'linear-gradient(90deg,#10b981,#06b6d4)' : pct >= 50 ? 'linear-gradient(90deg,#f59e0b,#0ea5e9)' : 'linear-gradient(90deg,#ef4444,#f59e0b)', borderRadius: 3 }} />
+              <div style={{ width: `${pct}%`, height: '100%', background: pct >= 75 ? 'linear-gradient(90deg,#10b981,#16a34a)' : pct >= 50 ? 'linear-gradient(90deg,#f59e0b,#22c55e)' : 'linear-gradient(90deg,#ef4444,#f59e0b)', borderRadius: 3 }} />
             </div>
             <span style={{ fontWeight: 800, color: pct >= 75 ? '#10b981' : pct >= 50 ? '#f59e0b' : '#ef4444', fontSize: 16 }}>{pct}% listo</span>
           </div>
@@ -84,7 +84,7 @@ export default function PreparacionPage() {
           )}
 
           {(result.needsWork.length > 0 || result.missing.length > 0) && (
-            <div style={{ background: 'rgba(21,32,53,0.6)', border: '1px solid rgba(14,165,233,0.15)', borderRadius: 12, padding: 18 }}>
+            <div style={{ background: 'rgba(21,32,53,0.6)', border: '1px solid rgba(34,197,94,0.15)', borderRadius: 12, padding: 18 }}>
               {result.needsWork.length > 0 && (
                 <>
                   <div style={{ fontWeight: 700, color: '#f59e0b', marginBottom: 10, fontSize: 13 }}>⚡ MEJORAR</div>
@@ -110,7 +110,7 @@ export default function PreparacionPage() {
         </div>
 
         {/* Smart CTA */}
-        <div style={{ background: 'rgba(14,165,233,0.08)', border: '1px solid rgba(14,165,233,0.25)', borderRadius: 16, padding: 24, marginBottom: 20 }}>
+        <div style={{ background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.25)', borderRadius: 16, padding: 24, marginBottom: 20 }}>
           <div style={{ fontWeight: 800, color: '#f1f5f9', fontSize: 15, marginBottom: 6 }}>
             {result.knowledgeGap ? '🧠 Primero aprende el ciclo BSF' : selectedMeta ? `🎯 Ya sabes qué quieres: ${metaLabels[selectedMeta]}` : '¿Listo para elegir tu meta?'}
           </div>
@@ -123,17 +123,17 @@ export default function PreparacionPage() {
           </p>
           <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
             {result.knowledgeGap && (
-              <Link href="/conocimiento" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'linear-gradient(135deg,#0ea5e9,#06b6d4)', color: 'white', padding: '11px 22px', borderRadius: 10, textDecoration: 'none', fontWeight: 700, fontSize: 13 }}>
+              <Link href="/conocimiento" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'linear-gradient(135deg,#22c55e,#16a34a)', color: 'white', padding: '11px 22px', borderRadius: 10, textDecoration: 'none', fontWeight: 700, fontSize: 13 }}>
                 🧠 Ir al Módulo 1 →
               </Link>
             )}
-            <Link href="/metas" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: selectedMeta ? 'linear-gradient(135deg,#10b981,#06b6d4)' : 'rgba(16,185,129,0.15)', color: selectedMeta ? 'white' : '#10b981', padding: '11px 22px', borderRadius: 10, textDecoration: 'none', fontWeight: 700, fontSize: 13, border: selectedMeta ? 'none' : '1px solid rgba(16,185,129,0.3)' }}>
+            <Link href="/metas" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: selectedMeta ? 'linear-gradient(135deg,#10b981,#16a34a)' : 'rgba(16,185,129,0.15)', color: selectedMeta ? 'white' : '#10b981', padding: '11px 22px', borderRadius: 10, textDecoration: 'none', fontWeight: 700, fontSize: 13, border: selectedMeta ? 'none' : '1px solid rgba(16,185,129,0.3)' }}>
               🎯 {selectedMeta ? `Ver guía: ${metaLabels[selectedMeta]}` : 'Elegir mi meta'} →
             </Link>
           </div>
         </div>
 
-        <button onClick={restart} style={{ background: 'none', border: '1px solid rgba(14,165,233,0.2)', color: '#64748b', padding: '8px 16px', borderRadius: 8, cursor: 'pointer', fontFamily: 'Montserrat, sans-serif', fontSize: 13 }}>
+        <button onClick={restart} style={{ background: 'none', border: '1px solid rgba(34,197,94,0.2)', color: '#64748b', padding: '8px 16px', borderRadius: 8, cursor: 'pointer', fontFamily: 'Montserrat, sans-serif', fontSize: 13 }}>
           Repetir diagnóstico
         </button>
       </div>
@@ -157,13 +157,13 @@ export default function PreparacionPage() {
       {/* Progress */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 32 }}>
         <div style={{ flex: 1, height: 4, background: '#1e3050', borderRadius: 2 }}>
-          <div style={{ width: `${progressPct}%`, height: '100%', background: 'linear-gradient(90deg,#f59e0b,#0ea5e9)', borderRadius: 2, transition: 'width 0.3s' }} />
+          <div style={{ width: `${progressPct}%`, height: '100%', background: 'linear-gradient(90deg,#f59e0b,#22c55e)', borderRadius: 2, transition: 'width 0.3s' }} />
         </div>
         <span style={{ fontSize: 12, color: '#64748b', fontWeight: 600, flexShrink: 0 }}>{currentIdx + 1} / {totalQ}</span>
       </div>
 
       {/* Question card */}
-      <div style={{ background: 'rgba(21,32,53,0.8)', border: '1px solid rgba(14,165,233,0.2)', borderRadius: 16, padding: 28, marginBottom: 20 }}>
+      <div style={{ background: 'rgba(21,32,53,0.8)', border: '1px solid rgba(34,197,94,0.2)', borderRadius: 16, padding: 28, marginBottom: 20 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
           <span style={{ fontSize: 20 }}>{currentQ.categoryIcon}</span>
           <span style={{ fontSize: 12, fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: 1 }}>{currentQ.category}</span>
@@ -172,7 +172,7 @@ export default function PreparacionPage() {
           {currentQ.question}
         </h2>
         {currentQ.detail && (
-          <p style={{ fontSize: 13, color: '#64748b', marginBottom: 20, lineHeight: 1.5, borderLeft: '2px solid rgba(14,165,233,0.3)', paddingLeft: 12 }}>
+          <p style={{ fontSize: 13, color: '#64748b', marginBottom: 20, lineHeight: 1.5, borderLeft: '2px solid rgba(34,197,94,0.3)', paddingLeft: 12 }}>
             {currentQ.detail}
           </p>
         )}
@@ -186,20 +186,20 @@ export default function PreparacionPage() {
                 onClick={() => handleAnswer(opt.value)}
                 style={{
                   display: 'flex', alignItems: 'center', gap: 14, padding: '14px 18px', borderRadius: 12,
-                  background: selected ? 'rgba(14,165,233,0.15)' : 'rgba(30,48,80,0.5)',
-                  border: `1px solid ${selected ? 'rgba(14,165,233,0.5)' : 'rgba(14,165,233,0.15)'}`,
+                  background: selected ? 'rgba(34,197,94,0.15)' : 'rgba(30,48,80,0.5)',
+                  border: `1px solid ${selected ? 'rgba(34,197,94,0.5)' : 'rgba(34,197,94,0.15)'}`,
                   cursor: 'pointer', textAlign: 'left', transition: 'all 0.15s',
                   fontFamily: 'Montserrat, sans-serif',
                 }}
               >
                 <span style={{ fontSize: 22, flexShrink: 0 }}>{opt.emoji}</span>
                 <div>
-                  <div style={{ fontSize: 14, fontWeight: 600, color: selected ? '#38bdf8' : '#e2e8f0' }}>{opt.label}</div>
+                  <div style={{ fontSize: 14, fontWeight: 600, color: selected ? '#4ade80' : '#e2e8f0' }}>{opt.label}</div>
                   {opt.tip && !selected && (
                     <div style={{ fontSize: 11, color: '#64748b', marginTop: 2 }}>{opt.tip}</div>
                   )}
                 </div>
-                {selected && <span style={{ marginLeft: 'auto', color: '#38bdf8', fontSize: 16 }}>✓</span>}
+                {selected && <span style={{ marginLeft: 'auto', color: '#4ade80', fontSize: 16 }}>✓</span>}
               </button>
             );
           })}
@@ -211,7 +211,7 @@ export default function PreparacionPage() {
         <button
           onClick={() => setCurrentIdx(i => Math.max(0, i - 1))}
           disabled={currentIdx === 0}
-          style={{ background: 'none', border: '1px solid rgba(14,165,233,0.2)', color: currentIdx === 0 ? '#334155' : '#64748b', padding: '8px 16px', borderRadius: 8, cursor: currentIdx === 0 ? 'default' : 'pointer', fontFamily: 'Montserrat, sans-serif', fontSize: 13 }}
+          style={{ background: 'none', border: '1px solid rgba(34,197,94,0.2)', color: currentIdx === 0 ? '#334155' : '#64748b', padding: '8px 16px', borderRadius: 8, cursor: currentIdx === 0 ? 'default' : 'pointer', fontFamily: 'Montserrat, sans-serif', fontSize: 13 }}
         >
           ← Anterior
         </button>
@@ -221,7 +221,7 @@ export default function PreparacionPage() {
         {answers[currentQ.id] && currentIdx < totalQ - 1 && (
           <button
             onClick={() => setCurrentIdx(i => i + 1)}
-            style={{ background: 'rgba(14,165,233,0.15)', border: '1px solid rgba(14,165,233,0.3)', color: '#38bdf8', padding: '8px 16px', borderRadius: 8, cursor: 'pointer', fontFamily: 'Montserrat, sans-serif', fontSize: 13, fontWeight: 600 }}
+            style={{ background: 'rgba(34,197,94,0.15)', border: '1px solid rgba(34,197,94,0.3)', color: '#4ade80', padding: '8px 16px', borderRadius: 8, cursor: 'pointer', fontFamily: 'Montserrat, sans-serif', fontSize: 13, fontWeight: 600 }}
           >
             Siguiente →
           </button>

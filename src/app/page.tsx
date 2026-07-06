@@ -61,12 +61,15 @@ export default function Home() {
           <span>🪲</span>
           <span style={{ fontSize: 13, color: '#4ade80', fontWeight: 600 }}>Mosca Soldado Negra · BSF</span>
         </div>
-        <h1 style={{ fontSize: 'clamp(26px,5vw,42px)', fontWeight: 900, lineHeight: 1.15, marginBottom: 16 }}>
-          Tu ruta de aprendizaje{' '}
-          <span style={{ background: 'linear-gradient(135deg,#4ade80,#16a34a)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-            BSF completa
-          </span>
-        </h1>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 16, marginBottom: 16 }}>
+          <img src="/larvi-mascota.png" alt="Larvi" style={{ width: 80, height: 80, objectFit: 'contain', flexShrink: 0 }} />
+          <h1 style={{ fontSize: 'clamp(26px,5vw,42px)', fontWeight: 900, lineHeight: 1.15, margin: 0, textAlign: 'left' }}>
+            Tu ruta de aprendizaje{' '}
+            <span style={{ background: 'linear-gradient(135deg,#4ade80,#16a34a)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+              BSF completa
+            </span>
+          </h1>
+        </div>
         <p style={{ fontSize: 16, color: '#94a3b8', maxWidth: 520, margin: '0 auto 24px', lineHeight: 1.6 }}>
           Desde cero hasta tu primera cosecha. Aprende el ciclo, diagnostica tu preparación y elige tu ruta de producción.
         </p>

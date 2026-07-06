@@ -270,7 +270,7 @@ export default function Larvi() {
         }}
         title="Hablar con Larvi"
       >
-        <LarviSVG size={54} style={{ transform: 'translate(-3px, -5px)' }} />
+        <LarviSVG size={54} style={{ transform: 'translate(0px, -5px)' }} />
       </button>
     </>
   );

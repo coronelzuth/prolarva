@@ -5,15 +5,18 @@ import { usePathname } from 'next/navigation';
 import { useProgress } from '@/hooks/useProgress';
 
 const navLinks = [
-  { href: '/', label: 'Inicio', icon: '🏠' },
-  { href: '/conocimiento', label: 'Conocimiento', icon: '🧠' },
-  { href: '/preparacion', label: 'Preparación', icon: '🛠️' },
-  { href: '/metas', label: 'Mi Meta', icon: '🎯' },
+  { href: '/',            label: 'Inicio',       icon: '🏠' },
+  { href: '/conocimiento',label: 'Conocimiento',  icon: '🧠' },
+  { href: '/preparacion', label: 'Preparación',   icon: '🛠️' },
+  { href: '/metas',       label: 'Mi Meta',       icon: '🎯' },
+  { href: '/calculadora', label: 'Calculadora',   icon: '🧮' },
 ];
 
 export default function Navbar() {
   const pathname = usePathname();
   const { progress, overallPercent } = useProgress();
+
+  const isSocios = pathname.startsWith('/socios');
 
   return (
     <nav style={{ background: 'rgba(13,27,42,0.95)', borderBottom: '1px solid rgba(14,165,233,0.2)', backdropFilter: 'blur(12px)', position: 'sticky', top: 0, zIndex: 50 }}>
@@ -29,7 +32,7 @@ export default function Navbar() {
         <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
           {navLinks.map(link => {
             const active = pathname === link.href;
-            const isCompleted = link.href !== '/' && progress.modulesCompleted.includes(link.href.replace('/', ''));
+            const isCompleted = link.href !== '/' && link.href !== '/calculadora' && progress.modulesCompleted.includes(link.href.replace('/', ''));
             return (
               <Link
                 key={link.href}
@@ -50,6 +53,25 @@ export default function Navbar() {
               </Link>
             );
           })}
+
+          {/* Zona de Socios */}
+          <Link
+            href="/socios"
+            style={{
+              display: 'flex', alignItems: 'center', gap: 6,
+              padding: '6px 16px', borderRadius: 8, marginLeft: 8,
+              textDecoration: 'none', fontSize: 13, fontWeight: 700,
+              background: isSocios
+                ? 'linear-gradient(135deg,#22c55e,#16a34a)'
+                : 'rgba(34,197,94,0.12)',
+              color: isSocios ? '#fff' : '#4ade80',
+              border: `1px solid ${isSocios ? 'transparent' : 'rgba(34,197,94,0.35)'}`,
+              transition: 'all 0.15s',
+            }}
+          >
+            <span>🔐</span>
+            <span>Socios</span>
+          </Link>
         </div>
 
         {overallPercent > 0 && (

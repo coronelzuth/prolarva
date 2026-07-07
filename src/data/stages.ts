@@ -34,6 +34,15 @@ export const stages: Stage[] = [
       'Temperaturas < 20°C detienen el desarrollo',
       'Exceso de humedad genera hongos',
     ],
+    photos: [
+      '/fotos/huevos.msn.jpg',
+      '/fotos/huevos.mns.2.jpg',
+      '/fotos/huevos.mns.3.jpg',
+    ],
+    videos: [
+      { title: 'Huevos BSF — Vista 1', url: '/fotos/huevos.mp4' },
+      { title: 'Huevos BSF — Vista 2', url: '/fotos/huevos2_web.mp4' },
+    ],
   },
   {
     id: 'larva-joven',

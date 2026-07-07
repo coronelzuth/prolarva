@@ -122,43 +122,69 @@ export default function ConocimientoPage() {
             <button onClick={() => setExpanded(null)} style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', fontSize: 20, lineHeight: 1, padding: 4 }}>×</button>
           </div>
 
-          <div style={{ padding: '20px 24px' }}>
+          <div className="detail-body">
             <p style={{ fontSize: 14, color: '#cbd5e1', lineHeight: 1.7, marginBottom: 20 }}>{activeStage.description}</p>
 
-            {/* Fotos */}
-            {activeStage.photos && activeStage.photos.length > 0 ? (
-              <div style={{ marginBottom: 20 }}>
-                <div style={{ fontSize: 11, fontWeight: 700, color: '#64748b', marginBottom: 10, letterSpacing: 1 }}>📸 FOTOS</div>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))', gap: 8 }}>
-                  {activeStage.photos.map((photo, i) => (
-                    <img key={i} src={photo} alt={`${activeStage.name} ${i + 1}`}
-                      style={{ width: '100%', height: 110, objectFit: 'cover', borderRadius: 10, border: `1px solid ${activeStage.color}30` }}
-                    />
-                  ))}
-                </div>
+            {/* Galería fotos + videos */}
+            {(activeStage.photos?.length || activeStage.videos?.length) ? (
+              <div style={{ marginBottom: 24 }}>
+                {/* Fotos */}
+                {activeStage.photos && activeStage.photos.length > 0 && (
+                  <div style={{ marginBottom: 16 }}>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: '#64748b', marginBottom: 10, letterSpacing: 1 }}>📸 FOTOS</div>
+                    <div className="foto-grid">
+                      {activeStage.photos.map((photo, i) => (
+                        <div key={i} style={{ borderRadius: 12, overflow: 'hidden', border: `1px solid ${activeStage.color}30`, aspectRatio: '4/3', position: 'relative' }}>
+                          <img
+                            src={photo}
+                            alt={`${activeStage.name} ${i + 1}`}
+                            style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transition: 'transform 0.25s' }}
+                            onMouseEnter={e => (e.currentTarget.style.transform = 'scale(1.04)')}
+                            onMouseLeave={e => (e.currentTarget.style.transform = 'scale(1)')}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Videos */}
+                {activeStage.videos && activeStage.videos.length > 0 && (
+                  <div>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: '#64748b', marginBottom: 10, letterSpacing: 1 }}>🎬 VIDEOS</div>
+                    <div className="video-grid">
+                      {activeStage.videos.map((video, i) => {
+                        const isLocal = video.url.endsWith('.mp4') || video.url.startsWith('/');
+                        return isLocal ? (
+                          <div key={i} style={{ borderRadius: 12, overflow: 'hidden', border: `1px solid ${activeStage.color}30`, background: '#0a1628' }}>
+                            <video
+                              src={video.url}
+                              controls
+                              muted
+                              playsInline
+                              preload="metadata"
+                              style={{ width: '100%', display: 'block', maxHeight: 220 }}
+                            />
+                            <div style={{ padding: '8px 12px', fontSize: 11, color: '#94a3b8', fontWeight: 600 }}>{video.title}</div>
+                          </div>
+                        ) : (
+                          <a key={i} href={video.url} target="_blank" rel="noopener noreferrer"
+                            style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', background: 'rgba(30,48,80,0.6)', borderRadius: 10, border: `1px solid ${activeStage.color}30`, textDecoration: 'none' }}
+                          >
+                            <span style={{ fontSize: 20 }}>▶️</span>
+                            <span style={{ fontSize: 13, color: '#e2e8f0', fontWeight: 600 }}>{video.title}</span>
+                            <span style={{ marginLeft: 'auto', fontSize: 11, color: '#64748b' }}>ver →</span>
+                          </a>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
               </div>
             ) : (
               <div style={{ marginBottom: 20, padding: '14px 16px', background: 'rgba(30,48,80,0.5)', borderRadius: 10, border: '1px dashed rgba(100,116,139,0.3)', display: 'flex', alignItems: 'center', gap: 10 }}>
                 <span style={{ fontSize: 18 }}>📷</span>
                 <span style={{ fontSize: 12, color: '#475569' }}>Sin fotos aún — podés agregar fotos de esta etapa en <code style={{ fontSize: 11, background: 'rgba(0,0,0,0.3)', padding: '1px 5px', borderRadius: 4 }}>data/stages.ts</code></span>
-              </div>
-            )}
-
-            {/* Videos */}
-            {activeStage.videos && activeStage.videos.length > 0 && (
-              <div style={{ marginBottom: 20 }}>
-                <div style={{ fontSize: 11, fontWeight: 700, color: '#64748b', marginBottom: 10, letterSpacing: 1 }}>🎬 VIDEOS</div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                  {activeStage.videos.map((video, i) => (
-                    <a key={i} href={video.url} target="_blank" rel="noopener noreferrer"
-                      style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', background: 'rgba(30,48,80,0.6)', borderRadius: 10, border: `1px solid ${activeStage.color}30`, textDecoration: 'none', transition: 'border-color 0.15s' }}
-                    >
-                      <span style={{ fontSize: 20, flexShrink: 0 }}>▶️</span>
-                      <span style={{ fontSize: 13, color: '#e2e8f0', fontWeight: 600 }}>{video.title}</span>
-                      <span style={{ marginLeft: 'auto', fontSize: 11, color: '#64748b' }}>ver →</span>
-                    </a>
-                  ))}
-                </div>
               </div>
             )}
 
@@ -208,6 +234,17 @@ export default function ConocimientoPage() {
           </div>
         )}
       </div>
+      <style>{`
+        .detail-body { padding: 20px 24px; }
+        .foto-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 8px; }
+        .video-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; }
+
+        @media (max-width: 480px) {
+          .detail-body { padding: 14px 14px; }
+          .foto-grid { grid-template-columns: repeat(2, 1fr); gap: 6px; }
+          .video-grid { grid-template-columns: 1fr; gap: 8px; }
+        }
+      `}</style>
     </div>
   );
 }

@@ -692,9 +692,9 @@ export default function SociosPage() {
   const activeView = view === 'lote-detail' ? 'lotes' : view;
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh' }}>
+    <div className="socios-wrap" style={{ display: 'flex', minHeight: '100vh' }}>
       {/* Sidebar */}
-      <aside style={{ width: 220, background: S.navy2, borderRight: `1px solid ${S.border}`, display: 'flex', flexDirection: 'column', flexShrink: 0, position: 'sticky', top: 60, height: 'calc(100vh - 60px)', zIndex: 40 }}>
+      <aside className="socios-sidebar" style={{ width: 220, background: S.navy2, borderRight: `1px solid ${S.border}`, display: 'flex', flexDirection: 'column', flexShrink: 0, position: 'sticky', top: 60, height: 'calc(100vh - 60px)', zIndex: 40 }}>
         <div style={{ padding: '20px 18px', borderBottom: `1px solid ${S.border}` }}>
           <div style={{ fontSize: 15, fontWeight: 900 }}>
             Pro<span style={{ background: 'linear-gradient(135deg,#4ade80,#22c55e)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Larva</span>
@@ -731,7 +731,12 @@ export default function SociosPage() {
       </aside>
 
       {/* Main */}
-      <main style={{ flex: 1, padding: '2rem', minWidth: 0 }}>
+      <main className="socios-main" style={{ flex: 1, padding: '2rem', minWidth: 0 }}>
+        {/* Mobile only: user + logout bar */}
+        <div className="socios-mobile-header">
+          <span style={{ fontSize: 13, fontWeight: 700, color: S.text }}>👤 {db.session.name}</span>
+          <button onClick={db.logout} style={{ ...btnOutline, fontSize: 11, padding: '4px 12px' }}>Salir</button>
+        </div>
         {view === 'dashboard' && (
           <Dashboard
             lotes={db.lotes} feeds={db.feeds} cosechas={db.cosechas}
@@ -761,6 +766,61 @@ export default function SociosPage() {
         )}
         {view === 'guia' && <GuiaView />}
       </main>
+
+      {/* Mobile bottom nav */}
+      <nav className="socios-mobile-nav">
+        {navItems.map(item => {
+          const active = activeView === item.key;
+          return (
+            <div key={item.key} onClick={() => navTo(item.key)} className={`socios-tab${active ? ' socios-tab-active' : ''}`}>
+              <span style={{ fontSize: 20 }}>{item.icon}</span>
+              <span>{item.label}</span>
+            </div>
+          );
+        })}
+      </nav>
+
+      <style>{`
+        .socios-mobile-header { display: none; }
+        .socios-mobile-nav { display: none; }
+        @media (max-width: 768px) {
+          .socios-wrap { display: block !important; }
+          .socios-sidebar { display: none !important; }
+          .socios-main { padding: 1rem 1rem 80px !important; }
+          .socios-mobile-header {
+            display: flex !important;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding: 10px 14px;
+            background: rgba(21,32,53,0.7);
+            border-radius: 10px;
+            border: 1px solid rgba(34,197,94,0.2);
+          }
+          .socios-mobile-nav {
+            display: flex !important;
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            background: #0f1e30;
+            border-top: 1px solid rgba(34,197,94,0.25);
+            z-index: 100;
+            padding: 6px 0 max(10px, env(safe-area-inset-bottom));
+          }
+          .socios-tab {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            padding: 4px 2px;
+            cursor: pointer;
+            color: #64748b;
+            font-family: Montserrat, sans-serif;
+          }
+          .socios-tab span:last-child { font-size: 9px; font-weight: 700; text-align: center; line-height: 1.2; }
+          .socios-tab-active { color: #4ade80 !important; }
+        }
+      `}</style>
 
       {/* Modal: Nuevo Lote */}
       <Modal open={modalLote} onClose={() => setModalLote(false)} title="📦 Nuevo Lote BSF">

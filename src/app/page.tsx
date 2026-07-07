@@ -62,9 +62,9 @@ export default function Home() {
           <span>🪲</span>
           <span style={{ fontSize: 13, color: '#4ade80', fontWeight: 600 }}>Mosca Soldado Negra · BSF</span>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 16, marginBottom: 16 }}>
-          <img src="/larvi-mascota.png" alt="Larvi" style={{ width: 80, height: 80, objectFit: 'contain', flexShrink: 0 }} />
-          <h1 style={{ fontSize: 'clamp(26px,5vw,42px)', fontWeight: 900, lineHeight: 1.15, margin: 0, textAlign: 'left' }}>
+        <div className="hero-row" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 16, marginBottom: 16 }}>
+          <img src="/larvi-mascota.png" alt="Larvi" className="hero-mascot" style={{ width: 80, height: 80, objectFit: 'contain', flexShrink: 0 }} />
+          <h1 className="hero-title" style={{ fontSize: 'clamp(26px,5vw,42px)', fontWeight: 900, lineHeight: 1.15, margin: 0, textAlign: 'left' }}>
             Tu ruta de aprendizaje{' '}
             <span style={{ background: 'linear-gradient(135deg,#4ade80,#16a34a)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
               BSF completa
@@ -154,6 +154,13 @@ export default function Home() {
           </div>
         ))}
       </div>
+      <style>{`
+        @media (max-width: 480px) {
+          .hero-row { flex-direction: column; gap: 8px; }
+          .hero-mascot { width: 64px !important; height: 64px !important; }
+          .hero-title { text-align: center !important; font-size: clamp(22px,6vw,32px) !important; }
+        }
+      `}</style>
     </div>
   );
 }

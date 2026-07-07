@@ -305,7 +305,7 @@ export default function CalculadoraPage() {
 
             {/* Beneficios */}
             <CardSection icon="🌱" iconBg={C.green} title="Más allá del bolsillo">
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+              <div className="beneficios-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
                 {[
                   { ic: '🌟', tx: 'Piel más amarilla = mejor precio de venta' },
                   { ic: '💉', tx: 'Menos gastos en veterinario por ciclo' },
@@ -381,6 +381,9 @@ export default function CalculadoraPage() {
         input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 22px; height: 22px; border-radius: 50%; background: #22c55e; border: 3px solid #0d1b2a; box-shadow: 0 2px 6px rgba(0,0,0,0.4); cursor: pointer; }
         input[type=range]::-moz-range-thumb { width: 22px; height: 22px; border-radius: 50%; background: #22c55e; border: 3px solid #0d1b2a; cursor: pointer; }
         input::placeholder { color: #64748b; }
+        @media (max-width: 380px) {
+          .beneficios-grid { grid-template-columns: 1fr !important; }
+        }
       `}</style>
     </div>
   );

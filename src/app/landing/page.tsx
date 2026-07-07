@@ -61,14 +61,14 @@ export default function LandingPage() {
           <p style={{ color: C.muted, textAlign: 'center', fontSize: '0.93rem', margin: '0 auto 48px', maxWidth: 480 }}>
             Documentado desde el día 0 hasta el sacrificio al día 42.
           </p>
-          <div style={{ display: 'flex', flexWrap: 'wrap', borderTop: `1px solid ${C.border}`, borderBottom: `1px solid ${C.border}` }}>
+          <div className="lstat-wrap" style={{ display: 'flex', flexWrap: 'wrap', borderTop: `1px solid ${C.border}`, borderBottom: `1px solid ${C.border}` }}>
             {[
               { val: '25%',   lbl: 'menos concentrado en todo el ciclo' },
               { val: '4 kg',  lbl: 'peso de pollos al día 42' },
               { val: '0',     lbl: 'muertes · cero picuaje' },
               { val: '20 días', lbl: 'al primer lote produciendo' },
-            ].map((s, i, arr) => (
-              <div key={i} style={{ flex: '1 1 160px', padding: '36px 24px', borderRight: i < arr.length - 1 ? `1px solid ${C.border}` : 'none', textAlign: 'center' }}>
+            ].map((s, i) => (
+              <div key={i} className="lstat-item" style={{ flex: '1 1 160px', padding: '36px 24px', textAlign: 'center' }}>
                 <span style={{ display: 'block', fontSize: 'clamp(2rem, 4vw, 3rem)', fontWeight: 900, color: C.greenL, lineHeight: 1, marginBottom: 10 }}>{s.val}</span>
                 <span style={{ display: 'block', fontSize: '0.83rem', color: C.muted, lineHeight: 1.45, maxWidth: 130, margin: '0 auto' }}>{s.lbl}</span>
               </div>
@@ -170,6 +170,17 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
+
+      <style>{`
+        /* Stats desktop: separador vertical entre items */
+        .lstat-item { border-right: 1px solid rgba(14,165,233,0.15); }
+        .lstat-item:last-child { border-right: none; }
+        @media (max-width: 600px) {
+          .lstat-wrap { flex-direction: column; }
+          .lstat-item { border-right: none; border-bottom: 1px solid rgba(14,165,233,0.1); padding: 22px 16px !important; }
+          .lstat-item:last-child { border-bottom: none; }
+        }
+      `}</style>
 
       {/* Footer CTA */}
       <section style={{ padding: '60px 20px', textAlign: 'center', borderTop: `1px solid ${C.border}` }}>

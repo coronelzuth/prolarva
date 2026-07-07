@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { metas } from '@/data/metas';
 import { useProgress } from '@/hooks/useProgress';
-import CalculadoraInline from '@/components/CalculadoraInline';
 
 export default function MetasPage() {
   const [activeMeta, setActiveMeta] = useState<string | null>(null);
@@ -150,7 +149,15 @@ export default function MetasPage() {
         </div>
       )}
 
-      <CalculadoraInline />
+      <div style={{ marginTop: 32, padding: '22px 24px', background: 'rgba(34,197,94,0.07)', border: '1px solid rgba(34,197,94,0.2)', borderRadius: 16, textAlign: 'center' }}>
+        <div style={{ fontSize: 15, fontWeight: 800, color: '#f1f5f9', marginBottom: 6 }}>🧮 ¿Cuánto podés ahorrar con BSF?</div>
+        <div style={{ fontSize: 13, color: '#94a3b8', marginBottom: 18, lineHeight: 1.5 }}>
+          Ingresá los datos de tu lote y calculamos exactamente cuánto te cuesta no usar BSF.
+        </div>
+        <Link href="/calculadora" style={{ display: 'inline-block', padding: '13px 28px', background: 'linear-gradient(135deg,#22c55e,#16a34a)', color: '#fff', borderRadius: 12, fontWeight: 700, fontSize: 14, textDecoration: 'none' }}>
+          Abrir calculadora →
+        </Link>
+      </div>
     </div>
   );
 }

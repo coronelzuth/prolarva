@@ -144,6 +144,24 @@ export default function ConocimientoPage() {
               </div>
             )}
 
+            {/* Videos */}
+            {activeStage.videos && activeStage.videos.length > 0 && (
+              <div style={{ marginBottom: 20 }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: '#64748b', marginBottom: 10, letterSpacing: 1 }}>🎬 VIDEOS</div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  {activeStage.videos.map((video, i) => (
+                    <a key={i} href={video.url} target="_blank" rel="noopener noreferrer"
+                      style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', background: 'rgba(30,48,80,0.6)', borderRadius: 10, border: `1px solid ${activeStage.color}30`, textDecoration: 'none', transition: 'border-color 0.15s' }}
+                    >
+                      <span style={{ fontSize: 20, flexShrink: 0 }}>▶️</span>
+                      <span style={{ fontSize: 13, color: '#e2e8f0', fontWeight: 600 }}>{video.title}</span>
+                      <span style={{ marginLeft: 'auto', fontSize: 11, color: '#64748b' }}>ver →</span>
+                    </a>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* Tips y Alertas */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16 }}>
               <div>

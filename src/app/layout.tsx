@@ -3,6 +3,7 @@ import { Montserrat } from 'next/font/google';
 import './globals.css';
 import Navbar from '@/components/Navbar';
 import Larvi from '@/components/Larvi';
+import WhatsApp from '@/components/WhatsApp';
 
 const montserrat = Montserrat({
   subsets: ['latin'],
@@ -22,6 +23,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Navbar />
         <main>{children}</main>
         <Larvi />
+        <WhatsApp />
       </body>
     </html>
   );

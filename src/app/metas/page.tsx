@@ -148,6 +148,18 @@ export default function MetasPage() {
           Selecciona una meta arriba para ver la guía paso a paso
         </div>
       )}
+
+      {/* Calculadora BSF */}
+      <div style={{ marginTop: 32, padding: '20px 24px', background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.25)', borderRadius: 16, display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
+        <div style={{ flex: 1, minWidth: 200 }}>
+          <div style={{ fontWeight: 800, color: '#f1f5f9', fontSize: 15, marginBottom: 4 }}>🧮 Calculadora de Ahorro BSF</div>
+          <div style={{ fontSize: 13, color: '#94a3b8', lineHeight: 1.5 }}>¿Cuánto podés ahorrar reemplazando concentrado con larva? Calculalo con tus datos reales.</div>
+        </div>
+        <a href="https://prolarva-calculadora.vercel.app" target="_blank" rel="noopener noreferrer"
+          style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'linear-gradient(135deg,#10b981,#16a34a)', color: 'white', padding: '11px 22px', borderRadius: 10, textDecoration: 'none', fontWeight: 700, fontSize: 13, flexShrink: 0 }}>
+          Calcular ahorro →
+        </a>
+      </div>
     </div>
   );
 }

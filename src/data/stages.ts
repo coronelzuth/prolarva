@@ -11,6 +11,7 @@ export interface Stage {
   alerts: string[];
   isHarvestStage?: boolean;
   photos?: string[];
+  videos?: { title: string; url: string }[];
 }
 
 export const stages: Stage[] = [

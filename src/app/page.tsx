@@ -38,6 +38,17 @@ const modules = [
     time: '10 min',
     tag: 'Módulo 3',
   },
+  {
+    id: 'cosecha',
+    href: '/cosecha',
+    icon: '🌾',
+    title: 'Cría y Cosecha BSF',
+    subtitle: 'Del huevo a la cosecha en 18 días',
+    description: 'Guía práctica paso a paso: conseguí la semilla, incubá los huevos, alimentá las larvas, trasladarlas al día 9 y cosechá entre el día 15 y 18.',
+    color: '#f97316',
+    time: '18 días',
+    tag: 'Guía Práctica',
+  },
 ];
 
 const metaNames: Record<string, string> = {

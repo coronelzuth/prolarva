@@ -9,6 +9,7 @@ const navLinks = [
   { href: '/conocimiento',label: 'Conocimiento',  icon: '🧠' },
   { href: '/preparacion', label: 'Preparación',   icon: '🛠️' },
   { href: '/metas',       label: 'Mi Meta',       icon: '🎯' },
+  { href: '/cosecha',     label: 'Cosecha',       icon: '🌾' },
   { href: '/calculadora', label: 'Calculadora',   icon: '🧮' },
 ];
 

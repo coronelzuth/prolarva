@@ -149,7 +149,17 @@ export default function MetasPage() {
         </div>
       )}
 
-      <div style={{ marginTop: 32, padding: '22px 24px', background: 'rgba(34,197,94,0.07)', border: '1px solid rgba(34,197,94,0.2)', borderRadius: 16, textAlign: 'center' }}>
+      <div style={{ marginTop: 32, padding: '22px 24px', background: 'rgba(249,115,22,0.07)', border: '1px solid rgba(249,115,22,0.25)', borderRadius: 16, textAlign: 'center' }}>
+        <div style={{ fontSize: 15, fontWeight: 800, color: '#f1f5f9', marginBottom: 6 }}>🌾 ¿Listo para empezar tu primer ciclo?</div>
+        <div style={{ fontSize: 13, color: '#94a3b8', marginBottom: 18, lineHeight: 1.5 }}>
+          Guía práctica paso a paso: del huevo a la cosecha en 18 días.
+        </div>
+        <Link href="/cosecha" style={{ display: 'inline-block', padding: '13px 28px', background: 'linear-gradient(135deg,#f97316,#ea580c)', color: '#fff', borderRadius: 12, fontWeight: 700, fontSize: 14, textDecoration: 'none' }}>
+          Ver guía de cosecha →
+        </Link>
+      </div>
+
+      <div style={{ marginTop: 16, padding: '22px 24px', background: 'rgba(34,197,94,0.07)', border: '1px solid rgba(34,197,94,0.2)', borderRadius: 16, textAlign: 'center' }}>
         <div style={{ fontSize: 15, fontWeight: 800, color: '#f1f5f9', marginBottom: 6 }}>🧮 ¿Cuánto podés ahorrar con BSF?</div>
         <div style={{ fontSize: 13, color: '#94a3b8', marginBottom: 18, lineHeight: 1.5 }}>
           Ingresá los datos de tu lote y calculamos exactamente cuánto te cuesta no usar BSF.

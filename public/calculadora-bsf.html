@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Calculadora BSF — ProLarva</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --vd:#1E4D0F;--vl:#72C220;--vc:#EDF7E0;
+  --tr:#C4843A;--tc:#FDF4EA;
+  --red:#C62828;--redbg:#FFF0F0;
+  --green:#2E7D32;--greenbg:#E8F5E9;
+  --txt:#1A1A1A;--muted:#666;--border:#E5E5E5
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--vc);color:var(--txt);min-height:100vh}
+
+/* HEADER */
+.hdr{background:var(--vd);color:#fff;padding:13px 16px;display:flex;align-items:center;justify-content:space-between}
+.logo-row{display:flex;align-items:center;gap:8px}
+.logo-ico{width:32px;height:32px;background:var(--vl);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:17px}
+.logo-nm{font-size:19px;font-weight:900;letter-spacing:-.5px}
+.logo-nm span{color:var(--vl)}
+.hdr-handle{font-size:11px;opacity:.65}
+
+/* STEP PROGRESS */
+.prog{background:var(--vd);padding:10px 16px 14px;border-top:1px solid rgba(255,255,255,.1)}
+.steps-nav{display:flex;align-items:center;max-width:360px;margin:0 auto}
+.sd{text-align:center;flex-shrink:0}
+.sd-c{width:24px;height:24px;border-radius:50%;background:rgba(255,255,255,.18);color:rgba(255,255,255,.5);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;margin:0 auto 3px;transition:.3s}
+.sd-l{font-size:9px;color:rgba(255,255,255,.45);white-space:nowrap;transition:.3s}
+.sd.done .sd-c{background:var(--vl);color:var(--vd)}
+.sd.done .sd-l{color:rgba(255,255,255,.75)}
+.sd.curr .sd-c{background:#fff;color:var(--vd);box-shadow:0 0 0 3px rgba(255,255,255,.25)}
+.sd.curr .sd-l{color:#fff;font-weight:700}
+.sline{flex:1;height:2px;background:rgba(255,255,255,.15);transition:.3s}
+.sline.done{background:var(--vl)}
+
+/* CONTAINER */
+.wrap{max-width:480px;margin:0 auto;padding:16px}
+
+/* STEPS */
+.step{display:none}
+.step.active{display:block;animation:fwd .32s ease-out}
+.step.bactive{display:block;animation:bwd .32s ease-out}
+@keyframes fwd{from{opacity:0;transform:translateX(28px)}to{opacity:1;transform:none}}
+@keyframes bwd{from{opacity:0;transform:translateX(-28px)}to{opacity:1;transform:none}}
+
+/* BACK */
+.back-btn{display:flex;align-items:center;gap:4px;background:none;border:none;color:var(--muted);font-size:13px;font-weight:600;cursor:pointer;padding:0 0 14px;font-family:inherit}
+.back-btn:active{color:var(--vd)}
+
+/* TITLES */
+.sttl{font-size:22px;font-weight:800;color:var(--vd);margin-bottom:4px;line-height:1.2}
+.ssub{font-size:14px;color:var(--muted);margin-bottom:18px;line-height:1.4}
+
+/* CARD */
+.card{background:#fff;border-radius:16px;padding:18px;margin-bottom:12px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.ctitle{font-size:11px;font-weight:800;color:var(--vd);text-transform:uppercase;letter-spacing:.6px;margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.ctitle-ic{width:22px;height:22px;background:var(--vl);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px}
+
+/* SPECIES */
+.sp-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:10px}
+.sp-btn{border:2px solid var(--border);background:#fff;border-radius:14px;padding:16px 6px;text-align:center;cursor:pointer;transition:.2s;font-family:inherit;width:100%}
+.sp-btn:active{transform:scale(.95)}
+.sp-btn.on{border-color:var(--vd);background:var(--vc)}
+.sp-ic{font-size:34px;display:block;margin-bottom:4px}
+.sp-nm{font-size:12px;font-weight:700;color:var(--vd)}
+.sp-sub{font-size:10px;color:var(--muted);margin-top:2px}
+
+/* FORM */
+.fg{margin-bottom:14px}
+label{display:block;font-size:13px;font-weight:600;margin-bottom:5px}
+label .h{font-weight:400;color:var(--muted);font-size:11px}
+input[type=number],input[type=text],input[type=tel]{width:100%;border:2px solid var(--border);border-radius:10px;padding:11px 13px;font-size:16px;font-family:inherit;color:var(--txt);transition:.2s;-moz-appearance:textfield}
+input::-webkit-inner-spin-button,input::-webkit-outer-spin-button{opacity:1}
+input:focus{outline:none;border-color:var(--vl)}
+.pfx{position:relative}
+.pfx .pre{position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:12px;color:var(--muted);pointer-events:none;font-weight:700}
+.pfx input{padding-left:52px}
+.htxt{font-size:11px;color:var(--muted);margin-top:4px;line-height:1.4}
+
+/* SLIDER */
+.sl-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.sl-val{background:var(--vd);color:#fff;font-size:15px;font-weight:800;padding:3px 12px;border-radius:20px}
+input[type=range]{width:100%;height:6px;border-radius:3px;outline:none;-webkit-appearance:none;border:none;padding:0;cursor:pointer}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:var(--vd);border:3px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.3);cursor:pointer}
+.sl-labels{display:flex;justify-content:space-between;margin-top:5px;font-size:10px;color:var(--muted)}
+
+/* MODE */
+.mode-row{display:flex;background:#F0F0F0;border-radius:10px;padding:3px;gap:3px;margin-bottom:12px}
+.mode-btn{flex:1;padding:8px;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;transition:.2s;background:transparent;color:var(--muted)}
+.mode-btn.on{background:#fff;color:var(--vd);box-shadow:0 1px 4px rgba(0,0,0,.12)}
+
+/* BUTTONS */
+.next-btn{display:block;width:100%;padding:15px;background:var(--vd);color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;transition:.15s;margin-top:16px;text-align:center}
+.next-btn:active{transform:scale(.98)}
+.calc-btn{display:block;width:100%;padding:15px;background:var(--red);color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:16px;text-align:center;line-height:1.3}
+.calc-btn:active{transform:scale(.98)}
+
+/* RESULTS — HERO */
+.loss-hero{background:linear-gradient(135deg,#7B1200 0%,#C62828 100%);border-radius:16px;padding:22px 18px;text-align:center;color:#fff;margin-bottom:12px}
+.lh-eyebrow{font-size:10px;letter-spacing:.8px;text-transform:uppercase;opacity:.75;margin-bottom:8px}
+.lh-lbl{font-size:14px;font-weight:600;opacity:.85;margin-bottom:5px}
+.lh-amt{font-size:40px;font-weight:900;line-height:1;color:#FFCDD2;margin-bottom:4px}
+.lh-sub{font-size:12px;opacity:.65;margin-bottom:14px}
+.lh-acum{background:rgba(0,0,0,.22);border-radius:10px;padding:12px}
+.lh-acum-lbl{font-size:12px;opacity:.75;margin-bottom:4px}
+.lh-acum-amt{font-size:20px;font-weight:800;color:#FFCDD2}
+.lh-acum-sub{font-size:10px;opacity:.55;margin-top:3px}
+
+/* BREAKDOWN */
+.bk-item{background:#fff;border-radius:12px;padding:13px;border-left:4px solid var(--red);display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.bk-lbl{font-size:12px;color:var(--muted);margin-bottom:2px}
+.bk-val{font-size:16px;font-weight:800;color:var(--red)}
+.bk-ic{font-size:22px}
+.bk-total{background:var(--redbg);border-radius:12px;padding:14px;border:2px solid #FFCDD2;display:flex;justify-content:space-between;align-items:center;margin-bottom:0}
+.bk-total .bk-lbl{font-size:13px;font-weight:700;color:var(--red)}
+.bk-total .bk-val{font-size:20px;font-weight:900;color:var(--red)}
+
+/* WITH BSF */
+.bsf-row{display:flex;justify-content:space-between;align-items:center;background:var(--greenbg);border-radius:10px;padding:11px 13px;margin-bottom:8px}
+.bsf-lbl{font-size:11px;color:var(--muted);margin-bottom:2px}
+.bsf-val{font-size:15px;font-weight:800;color:var(--green)}
+.bsf-row.cost{background:var(--tc)}
+.bsf-row.cost .bsf-val{color:var(--tr)}
+
+/* NET */
+.net{border-radius:12px;padding:13px;display:flex;justify-content:space-between;align-items:center;margin-top:10px}
+.net.pos{background:var(--greenbg);border:1px solid #A5D6A7}
+.net.neg{background:#FFF8E1;border:1px solid #FFD54F}
+.net-lbl{font-size:12px;font-weight:600;margin-bottom:2px}
+.net.pos .net-lbl{color:var(--green)}
+.net.neg .net-lbl{color:#E65100}
+.net-val{font-size:18px;font-weight:900}
+.net.pos .net-val{color:var(--green)}
+.net.neg .net-val{color:#E65100}
+
+/* SAVED */
+.saved{background:var(--greenbg);border:1px solid #A5D6A7;border-radius:12px;padding:12px;display:flex;align-items:center;gap:10px;margin-top:10px}
+.saved-t{font-size:13px;font-weight:700;color:var(--green)}
+.saved-s{font-size:11px;color:#4CAF50;margin-top:2px}
+
+/* BENEFICIOS */
+.ben-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.ben-it{background:var(--vc);border-radius:11px;padding:11px;display:flex;align-items:flex-start;gap:7px}
+.ben-ic{font-size:18px;flex-shrink:0;margin-top:1px}
+.ben-tx{font-size:11px;font-weight:600;color:var(--vd);line-height:1.35}
+
+/* CTA */
+.cta-s{background:var(--tc);border:2px solid #E8C68A;border-radius:16px;padding:18px;margin-bottom:14px}
+.cta-ttl{color:var(--tr);font-size:15px;font-weight:800;margin-bottom:5px}
+.cta-sub{font-size:12px;color:#7A5520;margin-bottom:14px;line-height:1.5}
+.lf{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
+.lf input{border-color:#E8C68A !important}
+.btns{display:flex;flex-direction:column;gap:8px}
+.btn{display:block;width:100%;padding:13px;border-radius:11px;font-size:13px;font-weight:700;text-align:center;cursor:pointer;border:none;font-family:inherit}
+.btn:active{transform:scale(.98)}
+.btn-g{background:var(--vd);color:#fff}
+.btn-t{background:var(--tr);color:#fff}
+.confirm{display:none;margin-top:10px;padding:11px;background:var(--greenbg);border-radius:10px;font-size:13px;color:var(--green);font-weight:700;text-align:center}
+.div{height:1px;background:var(--border);margin:10px 0}
+.foot{text-align:center;padding:16px 16px 28px;color:var(--muted);font-size:11px;line-height:1.6}
+.foot strong{color:var(--vd)}
+
+/* KIT INVESTMENT CARD */
+.kit-inv{background:linear-gradient(135deg,#1E4D0F 0%,#2D6B18 100%);border-radius:16px;padding:18px;margin-bottom:12px;color:#fff}
+.kit-inv-ttl{font-size:13px;font-weight:800;color:var(--vl);text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.kt{display:flex;flex-direction:column;gap:0}
+.kt-row{display:flex;align-items:flex-start;gap:12px}
+.kt-dot{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0;border:2px solid rgba(255,255,255,.25)}
+.kt-dot.inv{background:rgba(255,255,255,.15);color:#fff}
+.kt-dot.cos{background:var(--vl);color:var(--vd)}
+.kt-dot.inf{background:var(--vl);color:var(--vd);font-size:16px}
+.kt-connector{width:2px;background:rgba(255,255,255,.2);height:16px;margin:3px 0 3px 13px}
+.kt-lbl{font-size:13px;font-weight:700;color:#fff;margin-bottom:2px}
+.kt-sub{font-size:11px;color:rgba(255,255,255,.65);line-height:1.4}
+.kit-quote{background:rgba(255,255,255,.1);border-radius:10px;padding:12px;margin-top:14px;font-size:12px;color:rgba(255,255,255,.85);line-height:1.5;font-style:italic;border-left:3px solid var(--vl)}
+
+/* SHARE BUTTON */
+.share-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:13px;background:#fff;border:2px solid var(--vd);border-radius:11px;font-size:13px;font-weight:700;color:var(--vd);cursor:pointer;font-family:inherit;margin-top:10px;transition:.15s}
+.share-btn:active{background:var(--vc);transform:scale(.98)}
+.share-copied{display:none;margin-top:8px;padding:8px;background:var(--greenbg);border-radius:8px;font-size:12px;color:var(--green);font-weight:600;text-align:center}
+</style>
+</head>
+<body>
+
+<header class="hdr">
+  <div class="logo-row">
+    <div class="logo-ico">🪲</div>
+    <div class="logo-nm">Pro<span>Larva</span></div>
+  </div>
+  <div class="hdr-handle">@prolarva.co</div>
+</header>
+
+<div class="prog">
+  <div class="steps-nav">
+    <div class="sd curr" id="dot1"><div class="sd-c">1</div><div class="sd-l">Especie</div></div>
+    <div class="sline" id="ln1"></div>
+    <div class="sd" id="dot2"><div class="sd-c">2</div><div class="sd-l">Su lote</div></div>
+    <div class="sline" id="ln2"></div>
+    <div class="sd" id="dot3"><div class="sd-c">3</div><div class="sd-l">BSF</div></div>
+    <div class="sline" id="ln3"></div>
+    <div class="sd" id="dot4"><div class="sd-c">4</div><div class="sd-l">Resultado</div></div>
+  </div>
+</div>
+
+<div class="wrap">
+
+<!-- S1: ESPECIE -->
+<div class="step active" id="s1">
+  <div class="sttl">¿Qué cría?</div>
+  <div class="ssub">Toque su especie y arrancamos.</div>
+  <div class="sp-grid">
+    <button class="sp-btn" onclick="setEspecie('pollos',this)">
+      <span class="sp-ic">🐔</span><span class="sp-nm">Pollos</span><span class="sp-sub">Engorde</span>
+    </button>
+    <button class="sp-btn" onclick="setEspecie('cerdos',this)">
+      <span class="sp-ic">🐷</span><span class="sp-nm">Cerdos</span><span class="sp-sub">Engorde</span>
+    </button>
+    <button class="sp-btn" onclick="setEspecie('peces',this)">
+      <span class="sp-ic">🐟</span><span class="sp-nm">Peces</span><span class="sp-sub">Tilapia / otros</span>
+    </button>
+  </div>
+  <div style="font-size:12px;color:var(--muted);text-align:center;margin-top:6px">🔒 Gratis · Sin registro · Sin datos guardados</div>
+</div>
+
+<!-- S2: LOTE -->
+<div class="step" id="s2">
+  <button class="back-btn" onclick="goTo(1,'b')">← Atrás</button>
+  <div class="sttl">Su lote</div>
+  <div class="ssub" id="s2sub">Cuéntenos cómo trabaja hoy.</div>
+  <div class="card">
+    <div class="fg">
+      <label>¿Cuántos animales tiene en el lote? <span class="h">cabezas</span></label>
+      <input type="number" id="nAnim" value="100" min="1" inputmode="numeric">
+    </div>
+    <div class="fg">
+      <label>¿Cuántos días dura su ciclo? <span class="h" id="cicloH">42 días estándar</span></label>
+      <input type="number" id="dias" value="42" min="1" max="365" inputmode="numeric">
+    </div>
+    <div class="fg">
+      <label>¿A cuánto le sale el kg de concentrado?</label>
+      <div class="pfx"><span class="pre">$ COP</span><input type="number" id="pConc" value="2500" min="100" inputmode="numeric"></div>
+    </div>
+    <div class="fg">
+      <label>¿A cuánto vende cada <span id="lbA">pollo</span>? <span class="h">precio en pie</span></label>
+      <div class="pfx"><span class="pre">$ COP</span><input type="number" id="pAnim" value="25000" min="1" inputmode="numeric"></div>
+    </div>
+    <div class="fg">
+      <label>Mortalidad actual <span class="h">% que se pierden por ciclo</span></label>
+      <input type="number" id="mort" value="5" min="0" max="80" step="0.5" inputmode="decimal">
+      <div class="htxt">💡 Un 5% es normal. Más de eso y aquí se nota aún más la diferencia.</div>
+    </div>
+  </div>
+  <button class="next-btn" onclick="goTo(3,'f')">Siguiente →</button>
+</div>
+
+<!-- S3: BSF -->
+<div class="step" id="s3">
+  <button class="back-btn" onclick="goTo(2,'b')">← Atrás</button>
+  <div class="sttl">Con BSF ProLarva</div>
+  <div class="ssub">Ajuste el escenario que quiere ver.</div>
+  <div class="card">
+    <div class="fg">
+      <label>¿Cómo usaría el BSF?</label>
+      <div class="mode-row">
+        <button class="mode-btn on" id="mC" onclick="setModo('compra')">🛒 Comprar a ProLarva</button>
+        <button class="mode-btn" id="mK" onclick="setModo('kit')">🏗️ Producir con el Kit</button>
+      </div>
+      <div class="htxt" id="mH">📦 Precio ProLarva: $8,000/kg. Pregunte por descuentos por volumen.</div>
+    </div>
+    <div class="fg">
+      <label>¿Qué % de la dieta reemplaza con BSF?</label>
+      <div class="sl-hdr">
+        <span class="htxt">Nivel recomendado por ciencia</span>
+        <span class="sl-val" id="slV">25%</span>
+      </div>
+      <input type="range" id="slBSF" min="5" max="30" value="25" step="5" oninput="onSl(this)">
+      <div class="sl-labels"><span id="slMn">5%</span><span id="slMx">30% (máx.)</span></div>
+    </div>
+    <div class="fg">
+      <label>Precio del BSF <span class="h">por kg de larva fresca</span></label>
+      <div class="pfx"><span class="pre">$ COP</span><input type="number" id="pBSF" value="8000" min="500" inputmode="numeric"></div>
+    </div>
+  </div>
+  <button class="calc-btn" onclick="goTo(4,'f')">🔍 Ver cuánto me cuesta no usar BSF</button>
+</div>
+
+<!-- S4: RESULTADOS -->
+<div class="step" id="s4">
+  <button class="back-btn" onclick="goTo(3,'b')">← Cambiar datos</button>
+
+  <!-- HERO PÉRDIDA -->
+  <div class="loss-hero">
+    <div class="lh-eyebrow">Sin BSF en su granja</div>
+    <div class="lh-lbl">Cada ciclo está dejando ir</div>
+    <div class="lh-amt" id="rP">$0</div>
+    <div class="lh-sub" id="rPS">en su lote</div>
+    <div class="lh-acum">
+      <div class="lh-acum-lbl">En lo que va del año ya fueron</div>
+      <div class="lh-acum-amt" id="rA">$0</div>
+      <div class="lh-acum-sub" id="rAS">estimado 0 ciclos desde enero</div>
+    </div>
+  </div>
+
+  <!-- DESGLOSE PÉRDIDAS -->
+  <div class="card">
+    <div class="ctitle"><div class="ctitle-ic">🔴</div>¿De dónde vienen esas pérdidas?</div>
+    <div class="bk-item">
+      <div><div class="bk-lbl">Animales que mueren de más sin BSF</div><div class="bk-val" id="rPM">—</div></div>
+      <div class="bk-ic">💀</div>
+    </div>
+    <div class="bk-item">
+      <div><div class="bk-lbl">Alimento que compra de más porque sus animales no lo aprovechan bien</div><div class="bk-val" id="rPF">—</div></div>
+      <div class="bk-ic">🌽</div>
+    </div>
+    <div class="bk-total">
+      <div><div class="bk-lbl">TOTAL PÉRDIDA POR CICLO</div><div class="bk-val" id="rPT">—</div></div>
+      <div style="font-size:22px">📉</div>
+    </div>
+  </div>
+
+  <!-- CON BSF -->
+  <div class="card">
+    <div class="ctitle"><div class="ctitle-ic">✅</div>Con BSF ProLarva, en cambio...</div>
+    <div class="bsf-row"><div><div class="bsf-lbl">BSF necesario por ciclo</div><div class="bsf-val" id="rBK">—</div></div><span style="font-size:22px">🪲</span></div>
+    <div class="bsf-row"><div><div class="bsf-lbl">Promedio diario</div><div class="bsf-val" id="rBD">—</div></div><span style="font-size:22px">📅</span></div>
+    <div class="bsf-row cost"><div><div class="bsf-lbl">Costo total del BSF</div><div class="bsf-val" id="rBC">—</div></div><span style="font-size:22px">💰</span></div>
+    <div class="div"></div>
+    <div class="net" id="netBox">
+      <div><div class="net-lbl" id="nL">Resultado neto</div><div class="net-val" id="nV">—</div></div>
+      <div style="font-size:26px" id="nI">—</div>
+    </div>
+    <div class="saved">
+      <span style="font-size:24px;flex-shrink:0">🌟</span>
+      <div><div class="saved-t" id="rSav">—</div><div class="saved-s">gracias a la inmunidad reforzada con BSF</div></div>
+    </div>
+  </div>
+
+  <!-- BENEFICIOS -->
+  <div class="card">
+    <div class="ctitle"><div class="ctitle-ic">🌱</div>Más allá del bolsillo</div>
+    <div class="ben-grid">
+      <div class="ben-it"><div class="ben-ic">🌟</div><div class="ben-tx">Piel más amarilla = mejor precio de venta</div></div>
+      <div class="ben-it"><div class="ben-ic">💉</div><div class="ben-tx">Menos gastos en veterinario por ciclo</div></div>
+      <div class="ben-it"><div class="ben-ic">⚡</div><div class="ben-tx">FCR 2.0→1.8: animales comen 10% menos</div></div>
+      <div class="ben-it"><div class="ben-ic">🏗️</div><div class="ben-tx">Con el Kit: libre del concentrado para siempre</div></div>
+      <div class="ben-it"><div class="ben-ic">🦴</div><div class="ben-tx">Huesos fuertes, animales menos estresados</div></div>
+      <div class="ben-it"><div class="ben-ic">♻️</div><div class="ben-tx">Proteína de sus propios residuos orgánicos</div></div>
+    </div>
+  </div>
+
+  <!-- KIT INVESTMENT -->
+  <div class="kit-inv">
+    <div class="kit-inv-ttl">🏗️ El Kit: una inversión que se paga sola</div>
+    <div class="kt">
+      <div class="kt-row">
+        <div class="kt-dot inv">1</div>
+        <div><div class="kt-lbl">Inversión inicial</div><div class="kt-sub">Kit ProLarva + primera colonia + instalación</div></div>
+      </div>
+      <div class="kt-connector"></div>
+      <div class="kt-row">
+        <div class="kt-dot cos">2</div>
+        <div><div class="kt-lbl">Primera cosecha</div><div class="kt-sub">Ya produce su propio BSF a costo mínimo. La colonia se multiplica sola.</div></div>
+      </div>
+      <div class="kt-connector"></div>
+      <div class="kt-row">
+        <div class="kt-dot inf">∞</div>
+        <div><div class="kt-lbl">Proteína ilimitada, prácticamente gratis</div><div class="kt-sub">Sin pedidos, sin facturas, sin depender de nadie. Su propia fábrica de proteína.</div></div>
+      </div>
+    </div>
+    <div class="kit-quote">"Mientras usted sigue comprando concentrado, su vecino ya produce su propia proteína. Gratis."</div>
+  </div>
+
+  <!-- CTA -->
+  <div class="cta-s">
+    <div class="cta-ttl">¿Listo para dejar de perder? 🚀</div>
+    <div class="cta-sub">Deje su nombre y WhatsApp y le contactamos para coordinar su pedido o contarle del Kit.</div>
+    <div class="lf">
+      <input type="text" id="ldN" placeholder="Su nombre">
+      <input type="tel" id="ldW" placeholder="WhatsApp (ej: 311 234 5678)" inputmode="tel">
+    </div>
+    <div class="btns">
+      <button class="btn btn-g" onclick="ctaC()">🪲 Quiero mi primer pedido de BSF</button>
+      <button class="btn btn-t" onclick="ctaK()">🏗️ Quiero producir mi propio BSF con el Kit</button>
+    </div>
+    <div class="confirm" id="conf">✅ ¡Listo! Le contactamos pronto por WhatsApp.</div>
+    <button class="share-btn" onclick="compartir()">🤝 Compartir con un vecino productor</button>
+    <div class="share-copied" id="shareCopied">✅ ¡Enlace copiado! Páselo por WhatsApp.</div>
+  </div>
+</div>
+
+</div><!-- /wrap -->
+<div class="foot"><strong>ProLarva</strong> · @prolarva.co · Cúcuta, Colombia<br>Resultados estimados. Varían según raza, manejo y condiciones de la granja.</div>
+
+<script>
+const WA='573223212293';
+const E={
+  pollos:{nom:'pollo',pl:'pollos',dias:42,kg:4.771,pA:25000,mn:5,mx:30,df:25,fcr:.10,h:'42 días estándar para pollos de engorde'},
+  cerdos:{nom:'cerdo',pl:'cerdos',dias:120,kg:195,pA:400000,mn:5,mx:20,df:20,fcr:.05,h:'120 días estándar para cerdos de engorde'},
+  peces: {nom:'pez',  pl:'peces', dias:180,kg:2.5, pA:8000,  mn:10,mx:50,df:40,fcr:.08,h:'180 días para tilapia / cachama'}
+};
+let cs=1, esp=null, modo='compra';
+
+function g(id){return document.getElementById(id)}
+function v(id){return parseFloat(g(id).value)||0}
+function cop(n){return '$'+Math.round(n).toLocaleString('es-CO')}
+function kgf(n){return n>=1000?(n/1e3).toFixed(2)+' ton':n<1?Math.round(n*1e3)+' g':n.toFixed(1)+' kg'}
+
+function goTo(n,dir){
+  const cur=g('s'+cs), nxt=g('s'+n);
+  cur.classList.remove('active','bactive');
+  cur.style.display='none';
+  nxt.style.display='block';
+  void nxt.offsetWidth;
+  nxt.classList.add(dir==='b'?'bactive':'active');
+  cs=n;
+  dots();
+  window.scrollTo({top:0,behavior:'smooth'});
+  if(n===4) calc();
+}
+
+function dots(){
+  for(let i=1;i<=4;i++){
+    const d=g('dot'+i);
+    d.classList.remove('curr','done');
+    if(i<cs)d.classList.add('done');
+    if(i===cs)d.classList.add('curr');
+    const c=d.querySelector('.sd-c');
+    c.textContent=i<cs?'✓':i;
+    if(i<4)g('ln'+i).classList.toggle('done',i<cs);
+  }
+}
+
+function setEspecie(e,btn){
+  esp=e;
+  document.querySelectorAll('.sp-btn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  const d=E[e];
+  g('lbA').textContent=d.nom;
+  g('dias').value=d.dias;
+  g('cicloH').textContent=d.h;
+  g('pAnim').value=d.pA;
+  g('s2sub').textContent='Cuéntenos cómo maneja sus '+d.pl+'.';
+  const sl=g('slBSF');
+  sl.min=d.mn; sl.max=d.mx; sl.value=d.df;
+  g('slV').textContent=d.df+'%';
+  g('slMn').textContent=d.mn+'%';
+  g('slMx').textContent=d.mx+'% (máx. '+d.pl+')';
+  rsl(sl);
+  setTimeout(()=>goTo(2,'f'),360);
+}
+
+function setModo(m){
+  modo=m;
+  g('mC').classList.toggle('on',m==='compra');
+  g('mK').classList.toggle('on',m==='kit');
+  g('pBSF').value=m==='compra'?8000:3000;
+  g('mH').textContent=m==='compra'
+    ?'📦 Precio ProLarva: $8,000/kg. Pregunte por descuentos por volumen.'
+    :'🏗️ Producción propia con el Kit estimada en ~$3,000/kg. Puede bajar más.';
+}
+
+function onSl(el){g('slV').textContent=el.value+'%';rsl(el)}
+function rsl(el){
+  const p=((el.value-el.min)/(el.max-el.min))*100;
+  el.style.background=`linear-gradient(to right,#72C220 ${p}%,#DDD ${p}%)`;
+}
+
+function calc(){
+  if(!esp)return;
+  const d=E[esp];
+  const nA=v('nAnim')||100, di=v('dias')||d.dias;
+  const pC=v('pConc')||2500, pA=v('pAnim')||d.pA;
+  const mo=v('mort'), pct=v('slBSF')/100, pB=v('pBSF')||8000;
+
+  const kgA=d.kg*(di/d.dias), kgT=nA*kgA;
+
+  // Pérdidas por NO usar BSF
+  const mSin=nA*(mo/100), mCon=mSin*0.80;
+  const perdMort=(mSin-mCon)*pA;       // animales muertos de más × precio
+  const perdFCR=kgT*d.fcr*pC;          // feed extra por FCR inferior
+  const totalPerd=perdMort+perdFCR;
+
+  // BSF costs
+  const kgBSF=kgT*pct;
+  const costBSF=kgBSF*pB;
+  const costoExtraAlim=(kgT*(1-pct)*pC+costBSF)-(kgT*pC);
+  const neto=totalPerd-costoExtraAlim;
+
+  // Acumulado año
+  const now=new Date();
+  const days=Math.floor((now-new Date(now.getFullYear(),0,1))/86400000);
+  const cicElap=Math.max(1,Math.floor(days/di));
+  const perdAcum=cicElap*totalPerd;
+  const salv=Math.round((mSin-mCon)*10)/10;
+
+  // Render
+  g('rP').textContent=cop(totalPerd);
+  g('rPS').textContent=`en su lote de ${nA.toLocaleString('es-CO')} ${d.pl} (${di} días)`;
+  g('rA').textContent=cop(perdAcum);
+  g('rAS').textContent=`estimado: ${cicElap} ciclo${cicElap!==1?'s':''} desde enero ${now.getFullYear()}`;
+  g('rPM').textContent=cop(perdMort);
+  g('rPF').textContent=cop(perdFCR);
+  g('rPT').textContent=cop(totalPerd);
+  g('rBK').textContent=kgf(kgBSF);
+  g('rBD').textContent=kgf(kgBSF/di)+'/día';
+  g('rBC').textContent=cop(costBSF);
+
+  const nb=g('netBox');
+  nb.classList.remove('pos','neg');
+  if(neto>=0){
+    nb.classList.add('pos');
+    g('nL').textContent='Ahorro neto total usando BSF';
+    g('nV').textContent=cop(neto)+' / ciclo';
+    g('nI').textContent='🎉';
+  } else {
+    nb.classList.add('neg');
+    g('nL').textContent=modo==='kit'?'Inversión en BSF por ciclo (se recupera)':'Inversión en BSF por ciclo';
+    g('nV').textContent=cop(Math.abs(neto))+' / ciclo';
+    g('nI').textContent='🏗️';
+  }
+  g('rSav').textContent=salv<0.5
+    ?'Mortalidad garantizadamente menor con BSF'
+    :`${salv.toFixed(1)} ${salv===1?d.nom:d.pl} adicional${salv!==1?'es sobrevivirían':' sobreviviría'} por ciclo`;
+}
+
+function msg(tipo){
+  const n=g('ldN').value.trim();
+  const nA=v('nAnim')||100;
+  const d=E[esp]||E.pollos;
+  const p=g('rP').textContent, ac=g('rA').textContent;
+  let m=tipo==='pedido'
+    ?`Hola ProLarva 👋 Calculé que sin BSF estoy perdiendo ${p} por ciclo (${ac} este año) con mis ${nA} ${d.pl}. Quiero hacer mi primer pedido.`
+    :`Hola ProLarva 👋 Tengo ${nA} ${d.pl} y quiero producir mi propio BSF con el Kit para dejar de depender del concentrado. ¿Me cuentan?`;
+  if(n)m=`Hola ProLarva, soy ${n}. `+m.replace('Hola ProLarva 👋 ','');
+  return m;
+}
+function ctaC(){openW('pedido')}
+function ctaK(){openW('kit')}
+function openW(t){
+  window.open(`https://wa.me/${WA}?text=${encodeURIComponent(msg(t))}`,'_blank');
+  if(g('ldN').value.trim()||g('ldW').value.trim())g('conf').style.display='block';
+}
+
+function compartir(){
+  const d=E[esp]||E.pollos;
+  const nA=v('nAnim')||100;
+  const perdida=g('rP').textContent;
+  const url='https://prolarva-calculadora.vercel.app';
+  const texto=`👀 Ojo con esto: calculé que sin BSF estoy perdiendo ${perdida} por ciclo con mis ${nA} ${d.pl}.\n\nUsted también puede calcularlo aquí 👇\n${url}`;
+  if(navigator.share){
+    navigator.share({title:'Calculadora BSF — ProLarva',text:texto,url}).catch(()=>{});
+  } else {
+    navigator.clipboard.writeText(texto).then(()=>{
+      const el=g('shareCopied');
+      el.style.display='block';
+      setTimeout(()=>el.style.display='none',3000);
+    }).catch(()=>window.open(url,'_blank'));
+  }
+}
+
+window.addEventListener('DOMContentLoaded',()=>rsl(g('slBSF')));
+</script>
+</body>
+</html>

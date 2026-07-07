@@ -209,11 +209,39 @@ git log --oneline
 ## Historial de commits relevantes
 
 ```
+26c0d62  chore: eliminar CalculadoraInline.tsx (componente sin uso)
+cc2b4e7  refactor: reemplazar CalculadoraInline por link a /calculadora
+7aeb7f5  docs: actualizar CLAUDE.md con estado real del proyecto
 a5cc857  feat: port calculadora BSF a React con paleta de la app
 5d4c8e9  restore: zona de socios + calculadora + navbar completo
 f6e3fe2  feat: calculadora inline + WhatsApp flotante + OG tags + Analytics + botón compartir
-1e571cb  feat: CLAUDE.md completo + WhatsApp flotante + videos por etapa + calculadora en metas
-a506d4a  fix: responsive móvil
-1183f7f  feat: grid 3x3 en conocimiento + soporte de fotos por etapa
 677babc  backup: versión azul v1 (antes del rediseño verde)
 ```
+
+---
+
+## Estado actual
+> **Actualizar esta sección al final de cada sesión de trabajo.**
+
+**Última actualización:** 2026-07-07
+
+**Qué está funcionando en producción:**
+- Todas las rutas desplegadas y accesibles
+- `/calculadora` es React nativo con los colores de la app (wizard 4 pasos)
+- `/socios` tiene login, tracker de lotes, alimentación y cosechas
+- `/metas` redirige a `/calculadora` con botón interno (ya no tiene mini-calculadora)
+- WhatsApp flotante, Larvi bot, OG tags y Analytics activos
+
+**Carpeta de trabajo canónica:**
+`C:\Users\HP\Desktop\Cosas de Zu\BR Prolarva\06 - Apps & Artifacts\prolarva-monitor`
+(la carpeta `C:\Users\HP\prolarva-monitor` fue eliminada)
+
+**Próxima sesión — continuar con:**
+- Agregar fotos reales cuando Juliana las provea → copiar a `public/fotos/`
+- Agregar URLs de videos YouTube → editar `data/stages.ts`
+- Integrar tracker de ciclos como `/tracker` (Módulo 4, color `#8b5cf6`)
+
+**Cómo arrancar una sesión nueva:**
+1. Abrí Claude Code desde la carpeta canónica de arriba
+2. Decí: *"Leé el CLAUDE.md y continuamos"*
+3. Pedí el cambio directamente

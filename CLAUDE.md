@@ -226,20 +226,31 @@ f6e3fe2  feat: calculadora inline + WhatsApp flotante + OG tags + Analytics + bo
 **Última actualización:** 2026-07-07
 
 **Qué está funcionando en producción:**
-- Todas las rutas desplegadas y accesibles
+- Todas las rutas desplegadas y accesibles en móvil y desktop
 - `/calculadora` es React nativo con los colores de la app (wizard 4 pasos)
-- `/socios` tiene login, tracker de lotes, alimentación y cosechas
+- `/socios` tiene login, tracker de lotes, alimentación y cosechas — con sidebar en desktop y bottom tab bar en móvil
 - `/metas` redirige a `/calculadora` con botón interno (ya no tiene mini-calculadora)
+- `/conocimiento` tiene modal con navegación prev/next por etapa
 - WhatsApp flotante, Larvi bot, OG tags y Analytics activos
+- Galería de fotos + videos reales en la etapa Huevo (3 fotos + 2 videos)
+
+**Responsive móvil implementado (commit 898776d):**
+- Navbar: scroll horizontal en móvil, oculta texto y barra de progreso
+- Socios: sidebar → bottom tab bar en pantallas < 768px + header con logout
+- Calculadora: beneficios en 1 columna en < 380px
+- Landing: stats apiladas verticalmente con separador horizontal
+- Home: mascota se apila sobre el título en < 480px
 
 **Carpeta de trabajo canónica:**
 `C:\Users\HP\Desktop\Cosas de Zu\BR Prolarva\06 - Apps & Artifacts\prolarva-monitor`
 (la carpeta `C:\Users\HP\prolarva-monitor` fue eliminada)
 
 **Próxima sesión — continuar con:**
-- Agregar fotos reales cuando Juliana las provea → copiar a `public/fotos/`
+- Agregar fotos reales para las 7 etapas restantes → copiar a `public/fotos/`
 - Agregar URLs de videos YouTube → editar `data/stages.ts`
 - Integrar tracker de ciclos como `/tracker` (Módulo 4, color `#8b5cf6`)
+- Agregar foto real de Juliana en landing page (placeholder "Tu foto aquí")
+- Agregar URL del VSL cuando esté listo en `/landing`
 
 **Cómo arrancar una sesión nueva:**
 1. Abrí Claude Code desde la carpeta canónica de arriba

@@ -1,24 +1,57 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { stages } from '@/data/stages';
 import { useProgress } from '@/hooks/useProgress';
 
 export default function ConocimientoPage() {
-  const [expanded, setExpanded] = useState<string | null>(null);
+  const [activeIdx, setActiveIdx] = useState<number | null>(null);
   const { markVisited, markCompleted, markStageViewed, progress } = useProgress();
 
   useEffect(() => { markVisited('conocimiento'); }, [markVisited]);
 
-  const handleExpand = (id: string) => {
-    setExpanded(prev => prev === id ? null : id);
-    markStageViewed(id);
-  };
+  const open = useCallback((idx: number) => {
+    setActiveIdx(idx);
+    markStageViewed(stages[idx].id);
+    document.body.style.overflow = 'hidden';
+  }, [markStageViewed]);
+
+  const close = useCallback(() => {
+    setActiveIdx(null);
+    document.body.style.overflow = '';
+  }, []);
+
+  const goNext = useCallback(() => {
+    if (activeIdx === null) return;
+    const next = (activeIdx + 1) % stages.length;
+    setActiveIdx(next);
+    markStageViewed(stages[next].id);
+  }, [activeIdx, markStageViewed]);
+
+  const goPrev = useCallback(() => {
+    if (activeIdx === null) return;
+    const prev = (activeIdx - 1 + stages.length) % stages.length;
+    setActiveIdx(prev);
+    markStageViewed(stages[prev].id);
+  }, [activeIdx, markStageViewed]);
+
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (activeIdx === null) return;
+      if (e.key === 'Escape') close();
+      if (e.key === 'ArrowRight') goNext();
+      if (e.key === 'ArrowLeft') goPrev();
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [activeIdx, close, goNext, goPrev]);
+
+  // Cleanup on unmount
+  useEffect(() => () => { document.body.style.overflow = ''; }, []);
 
   const handleComplete = () => { markCompleted('conocimiento'); };
-
-  const activeStage = stages.find(s => s.id === expanded);
+  const activeStage = activeIdx !== null ? stages[activeIdx] : null;
 
   return (
     <div style={{ maxWidth: 820, margin: '0 auto', padding: '40px 20px 80px' }}>
@@ -45,50 +78,28 @@ export default function ConocimientoPage() {
         </div>
       </div>
 
-      {/* Grid 3 x 3 */}
+      {/* Grid */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: 12, marginBottom: 28 }}>
-        {stages.map((stage) => {
-          const isSelected = expanded === stage.id;
+        {stages.map((stage, idx) => {
           const viewed = progress.stagesViewed.includes(stage.id);
           const hasPhoto = stage.photos && stage.photos.length > 0;
           return (
-            <button
-              key={stage.id}
-              onClick={() => handleExpand(stage.id)}
-              style={{
-                borderRadius: 14, padding: 0, overflow: 'hidden',
-                background: isSelected ? `${stage.color}18` : viewed ? 'rgba(30,48,80,0.85)' : 'rgba(21,32,53,0.7)',
-                border: `2px solid ${isSelected ? stage.color : viewed ? stage.color + '50' : 'rgba(34,197,94,0.15)'}`,
-                cursor: 'pointer', textAlign: 'left', fontFamily: 'Montserrat, sans-serif',
-                transition: 'all 0.15s', position: 'relative',
-                boxShadow: isSelected ? `0 0 16px ${stage.color}30` : 'none',
-              }}
+            <button key={stage.id} onClick={() => open(idx)}
+              style={{ borderRadius: 14, padding: 0, overflow: 'hidden', background: viewed ? 'rgba(30,48,80,0.85)' : 'rgba(21,32,53,0.7)', border: `2px solid ${viewed ? stage.color + '50' : 'rgba(34,197,94,0.15)'}`, cursor: 'pointer', textAlign: 'left', fontFamily: 'Montserrat, sans-serif', transition: 'all 0.15s', position: 'relative' }}
             >
-              {/* Photo or emoji placeholder */}
               {hasPhoto ? (
-                <img
-                  src={stage.photos![0]}
-                  alt={stage.name}
-                  style={{ width: '100%', height: 90, objectFit: 'cover', display: 'block' }}
-                />
+                <img src={stage.photos![0]} alt={stage.name} style={{ width: '100%', height: 90, objectFit: 'cover', display: 'block' }} />
               ) : (
-                <div style={{
-                  width: '100%', height: 90, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  background: `${stage.color}12`,
-                }}>
+                <div style={{ width: '100%', height: 90, display: 'flex', alignItems: 'center', justifyContent: 'center', background: `${stage.color}12` }}>
                   <span style={{ fontSize: 38 }}>{stage.emoji}</span>
                 </div>
               )}
-
-              {/* Info */}
               <div style={{ padding: '10px 12px 12px' }}>
-                <div style={{ fontSize: 12, fontWeight: 800, color: isSelected ? stage.color : '#f1f5f9', lineHeight: 1.3, marginBottom: 4 }}>
+                <div style={{ fontSize: 12, fontWeight: 800, color: '#f1f5f9', lineHeight: 1.3, marginBottom: 4 }}>
                   {stage.name.replace(' ⭐ Cosecha', '').replace(' Madura (L5)', ' L5')}
                 </div>
                 <div style={{ fontSize: 10, color: '#64748b' }}>{stage.duration}</div>
               </div>
-
-              {/* Badges */}
               {viewed && (
                 <span style={{ position: 'absolute', top: 7, right: 7, width: 18, height: 18, borderRadius: '50%', background: '#10b981', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, color: 'white', fontWeight: 700 }}>✓</span>
               )}
@@ -100,119 +111,8 @@ export default function ConocimientoPage() {
         })}
       </div>
 
-      {/* Detail panel */}
-      {activeStage && (
-        <div style={{
-          borderRadius: 16, overflow: 'hidden', marginBottom: 28,
-          border: `1px solid ${activeStage.color}50`,
-          background: `${activeStage.color}08`,
-          animation: 'fadeIn 0.2s ease',
-        }}>
-          {/* Panel header */}
-          <div style={{ padding: '18px 24px', borderBottom: `1px solid ${activeStage.color}25`, display: 'flex', alignItems: 'center', gap: 14 }}>
-            <span style={{ fontSize: 32 }}>{activeStage.emoji}</span>
-            <div style={{ flex: 1 }}>
-              <div style={{ fontSize: 17, fontWeight: 900, color: '#f1f5f9', marginBottom: 3 }}>{activeStage.name}</div>
-              <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap' }}>
-                <span style={{ fontSize: 12, color: '#64748b' }}>⏱ {activeStage.duration}</span>
-                <span style={{ fontSize: 12, color: '#64748b' }}>🌡 {activeStage.temp}</span>
-                <span style={{ fontSize: 12, color: '#64748b' }}>💧 {activeStage.humidity}</span>
-              </div>
-            </div>
-            <button onClick={() => setExpanded(null)} style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', fontSize: 20, lineHeight: 1, padding: 4 }}>×</button>
-          </div>
-
-          <div className="detail-body">
-            <p style={{ fontSize: 14, color: '#cbd5e1', lineHeight: 1.7, marginBottom: 20 }}>{activeStage.description}</p>
-
-            {/* Galería fotos + videos */}
-            {(activeStage.photos?.length || activeStage.videos?.length) ? (
-              <div style={{ marginBottom: 24 }}>
-                {/* Fotos */}
-                {activeStage.photos && activeStage.photos.length > 0 && (
-                  <div style={{ marginBottom: 16 }}>
-                    <div style={{ fontSize: 11, fontWeight: 700, color: '#64748b', marginBottom: 10, letterSpacing: 1 }}>📸 FOTOS</div>
-                    <div className="foto-grid">
-                      {activeStage.photos.map((photo, i) => (
-                        <div key={i} style={{ borderRadius: 12, overflow: 'hidden', border: `1px solid ${activeStage.color}30`, aspectRatio: '4/3', position: 'relative' }}>
-                          <img
-                            src={photo}
-                            alt={`${activeStage.name} ${i + 1}`}
-                            style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transition: 'transform 0.25s' }}
-                            onMouseEnter={e => (e.currentTarget.style.transform = 'scale(1.04)')}
-                            onMouseLeave={e => (e.currentTarget.style.transform = 'scale(1)')}
-                          />
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Videos */}
-                {activeStage.videos && activeStage.videos.length > 0 && (
-                  <div>
-                    <div style={{ fontSize: 11, fontWeight: 700, color: '#64748b', marginBottom: 10, letterSpacing: 1 }}>🎬 VIDEOS</div>
-                    <div className="video-grid">
-                      {activeStage.videos.map((video, i) => {
-                        const isLocal = video.url.endsWith('.mp4') || video.url.startsWith('/');
-                        return isLocal ? (
-                          <div key={i} style={{ borderRadius: 12, overflow: 'hidden', border: `1px solid ${activeStage.color}30`, background: '#0a1628' }}>
-                            <video
-                              src={video.url}
-                              controls
-                              muted
-                              playsInline
-                              preload="metadata"
-                              style={{ width: '100%', display: 'block', maxHeight: 220 }}
-                            />
-                            <div style={{ padding: '8px 12px', fontSize: 11, color: '#94a3b8', fontWeight: 600 }}>{video.title}</div>
-                          </div>
-                        ) : (
-                          <a key={i} href={video.url} target="_blank" rel="noopener noreferrer"
-                            style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', background: 'rgba(30,48,80,0.6)', borderRadius: 10, border: `1px solid ${activeStage.color}30`, textDecoration: 'none' }}
-                          >
-                            <span style={{ fontSize: 20 }}>▶️</span>
-                            <span style={{ fontSize: 13, color: '#e2e8f0', fontWeight: 600 }}>{video.title}</span>
-                            <span style={{ marginLeft: 'auto', fontSize: 11, color: '#64748b' }}>ver →</span>
-                          </a>
-                        );
-                      })}
-                    </div>
-                  </div>
-                )}
-              </div>
-            ) : (
-              <div style={{ marginBottom: 20, padding: '14px 16px', background: 'rgba(30,48,80,0.5)', borderRadius: 10, border: '1px dashed rgba(100,116,139,0.3)', display: 'flex', alignItems: 'center', gap: 10 }}>
-                <span style={{ fontSize: 18 }}>📷</span>
-                <span style={{ fontSize: 12, color: '#475569' }}>Sin fotos aún — podés agregar fotos de esta etapa en <code style={{ fontSize: 11, background: 'rgba(0,0,0,0.3)', padding: '1px 5px', borderRadius: 4 }}>data/stages.ts</code></span>
-              </div>
-            )}
-
-            {/* Tips y Alertas */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16 }}>
-              <div>
-                <div style={{ fontSize: 11, fontWeight: 700, color: '#10b981', marginBottom: 8, letterSpacing: 1 }}>✅ CONSEJOS</div>
-                {activeStage.tips.map((tip, i) => (
-                  <div key={i} style={{ fontSize: 13, color: '#94a3b8', marginBottom: 6, paddingLeft: 12, borderLeft: `2px solid ${activeStage.color}40`, lineHeight: 1.5 }}>
-                    {tip}
-                  </div>
-                ))}
-              </div>
-              <div>
-                <div style={{ fontSize: 11, fontWeight: 700, color: '#ef4444', marginBottom: 8, letterSpacing: 1 }}>⚠️ ALERTAS</div>
-                {activeStage.alerts.map((alert, i) => (
-                  <div key={i} style={{ fontSize: 13, color: '#94a3b8', marginBottom: 6, paddingLeft: 12, borderLeft: '2px solid rgba(239,68,68,0.4)', lineHeight: 1.5 }}>
-                    {alert}
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* Complete module CTA */}
-      <div style={{ marginTop: 16, padding: 24, background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.25)', borderRadius: 16, textAlign: 'center' }}>
+      <div style={{ padding: 24, background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.25)', borderRadius: 16, textAlign: 'center' }}>
         {progress.modulesCompleted.includes('conocimiento') ? (
           <div>
             <div style={{ fontSize: 20, marginBottom: 8 }}>✅</div>
@@ -224,7 +124,7 @@ export default function ConocimientoPage() {
         ) : (
           <div>
             <div style={{ fontWeight: 700, color: '#f1f5f9', fontSize: 16, marginBottom: 6 }}>¿Ya revisaste todas las etapas?</div>
-            <div style={{ fontSize: 13, color: '#64748b', marginBottom: 16 }}>Marca el módulo como completado para llevar tu progreso</div>
+            <div style={{ fontSize: 13, color: '#64748b', marginBottom: 16 }}>Marcá el módulo como completado para llevar tu progreso</div>
             <button onClick={handleComplete} style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'linear-gradient(135deg,#22c55e,#16a34a)', color: 'white', padding: '12px 24px', borderRadius: 10, border: 'none', cursor: 'pointer', fontWeight: 700, fontSize: 14, fontFamily: 'Montserrat, sans-serif', marginRight: 12 }}>
               ✓ Completar Módulo 1
             </button>
@@ -234,15 +134,136 @@ export default function ConocimientoPage() {
           </div>
         )}
       </div>
+
+      {/* ── MODAL ── */}
+      {activeStage && activeIdx !== null && (
+        <>
+          {/* Backdrop */}
+          <div onClick={close} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.75)', zIndex: 100, backdropFilter: 'blur(4px)' }} />
+
+          {/* Panel */}
+          <div className="modal-panel" style={{ position: 'fixed', zIndex: 101, background: '#0f1f35', border: `1px solid ${activeStage.color}40`, borderRadius: 18, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+
+            {/* Header */}
+            <div style={{ padding: '16px 20px', borderBottom: `1px solid ${activeStage.color}25`, display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0, background: `${activeStage.color}0a` }}>
+              <span style={{ fontSize: 28 }}>{activeStage.emoji}</span>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: 16, fontWeight: 900, color: '#f1f5f9', marginBottom: 3, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{activeStage.name}</div>
+                <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+                  <span style={{ fontSize: 11, color: '#64748b' }}>⏱ {activeStage.duration}</span>
+                  <span style={{ fontSize: 11, color: '#64748b' }}>🌡 {activeStage.temp}</span>
+                  <span style={{ fontSize: 11, color: '#64748b' }}>💧 {activeStage.humidity}</span>
+                </div>
+              </div>
+              <button onClick={close} style={{ background: 'rgba(255,255,255,0.08)', border: 'none', color: '#94a3b8', cursor: 'pointer', fontSize: 18, lineHeight: 1, padding: '6px 10px', borderRadius: 8, flexShrink: 0 }}>×</button>
+            </div>
+
+            {/* Scrollable body */}
+            <div style={{ overflowY: 'auto', flex: 1, padding: '18px 20px' }}>
+              <p style={{ fontSize: 14, color: '#cbd5e1', lineHeight: 1.7, marginBottom: 20, marginTop: 0 }}>{activeStage.description}</p>
+
+              {/* Galería */}
+              {(activeStage.photos?.length || activeStage.videos?.length) ? (
+                <div style={{ marginBottom: 22 }}>
+                  {activeStage.photos && activeStage.photos.length > 0 && (
+                    <div style={{ marginBottom: 14 }}>
+                      <div style={{ fontSize: 11, fontWeight: 700, color: '#64748b', marginBottom: 8, letterSpacing: 1 }}>📸 FOTOS</div>
+                      <div className="foto-grid">
+                        {activeStage.photos.map((photo, i) => (
+                          <div key={i} style={{ borderRadius: 10, overflow: 'hidden', border: `1px solid ${activeStage.color}30`, aspectRatio: '4/3' }}>
+                            <img src={photo} alt={`${activeStage.name} ${i + 1}`} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transition: 'transform 0.25s' }}
+                              onMouseEnter={e => (e.currentTarget.style.transform = 'scale(1.04)')}
+                              onMouseLeave={e => (e.currentTarget.style.transform = 'scale(1)')} />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {activeStage.videos && activeStage.videos.length > 0 && (
+                    <div>
+                      <div style={{ fontSize: 11, fontWeight: 700, color: '#64748b', marginBottom: 8, letterSpacing: 1 }}>🎬 VIDEOS</div>
+                      <div className="video-grid">
+                        {activeStage.videos.map((video, i) => {
+                          const isLocal = video.url.endsWith('.mp4') || video.url.startsWith('/');
+                          return isLocal ? (
+                            <div key={i} style={{ borderRadius: 10, overflow: 'hidden', border: `1px solid ${activeStage.color}30`, background: '#0a1628' }}>
+                              <video src={video.url} controls muted playsInline preload="metadata" style={{ width: '100%', display: 'block' }} />
+                              <div style={{ padding: '6px 10px', fontSize: 11, color: '#94a3b8', fontWeight: 600 }}>{video.title}</div>
+                            </div>
+                          ) : (
+                            <a key={i} href={video.url} target="_blank" rel="noopener noreferrer"
+                              style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', background: 'rgba(30,48,80,0.6)', borderRadius: 10, border: `1px solid ${activeStage.color}30`, textDecoration: 'none' }}>
+                              <span style={{ fontSize: 18 }}>▶️</span>
+                              <span style={{ fontSize: 13, color: '#e2e8f0', fontWeight: 600 }}>{video.title}</span>
+                              <span style={{ marginLeft: 'auto', fontSize: 11, color: '#64748b' }}>ver →</span>
+                            </a>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div style={{ marginBottom: 20, padding: '12px 14px', background: 'rgba(30,48,80,0.5)', borderRadius: 10, border: '1px dashed rgba(100,116,139,0.3)', display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <span style={{ fontSize: 16 }}>📷</span>
+                  <span style={{ fontSize: 12, color: '#475569' }}>Sin fotos aún para esta etapa.</span>
+                </div>
+              )}
+
+              {/* Tips y Alertas */}
+              <div className="tips-grid">
+                <div>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: '#10b981', marginBottom: 8, letterSpacing: 1 }}>✅ CONSEJOS</div>
+                  {activeStage.tips.map((tip, i) => (
+                    <div key={i} style={{ fontSize: 13, color: '#94a3b8', marginBottom: 6, paddingLeft: 12, borderLeft: `2px solid ${activeStage.color}40`, lineHeight: 1.5 }}>{tip}</div>
+                  ))}
+                </div>
+                <div>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: '#ef4444', marginBottom: 8, letterSpacing: 1 }}>⚠️ ALERTAS</div>
+                  {activeStage.alerts.map((alert, i) => (
+                    <div key={i} style={{ fontSize: 13, color: '#94a3b8', marginBottom: 6, paddingLeft: 12, borderLeft: '2px solid rgba(239,68,68,0.4)', lineHeight: 1.5 }}>{alert}</div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Footer nav prev/next */}
+            <div style={{ padding: '12px 20px', borderTop: `1px solid ${activeStage.color}20`, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0, background: '#0a1628' }}>
+              <button onClick={goPrev}
+                style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '9px 16px', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 10, color: '#94a3b8', fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: 'Montserrat, sans-serif' }}>
+                ← {stages[(activeIdx - 1 + stages.length) % stages.length].emoji} Anterior
+              </button>
+              <span style={{ fontSize: 11, color: '#475569', fontWeight: 600 }}>{activeIdx + 1} / {stages.length}</span>
+              <button onClick={goNext}
+                style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '9px 16px', background: `${activeStage.color}18`, border: `1px solid ${activeStage.color}40`, borderRadius: 10, color: activeStage.color, fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: 'Montserrat, sans-serif' }}>
+                Siguiente {stages[(activeIdx + 1) % stages.length].emoji} →
+              </button>
+            </div>
+          </div>
+        </>
+      )}
+
       <style>{`
-        .detail-body { padding: 20px 24px; }
-        .foto-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 8px; }
-        .video-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; }
+        .modal-panel {
+          top: 50%; left: 50%;
+          transform: translate(-50%, -50%);
+          width: min(640px, 94vw);
+          max-height: 88vh;
+          animation: modalIn 0.2s ease;
+        }
+        @keyframes modalIn {
+          from { opacity: 0; transform: translate(-50%, -48%); }
+          to   { opacity: 1; transform: translate(-50%, -50%); }
+        }
+        .foto-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+        .video-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 8px; }
+        .tips-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
 
         @media (max-width: 480px) {
-          .detail-body { padding: 14px 14px; }
+          .modal-panel { width: 96vw; max-height: 92vh; border-radius: 14px; }
           .foto-grid { grid-template-columns: repeat(2, 1fr); gap: 6px; }
-          .video-grid { grid-template-columns: 1fr; gap: 8px; }
+          .video-grid { grid-template-columns: 1fr; }
+          .tips-grid { grid-template-columns: 1fr; }
         }
       `}</style>
     </div>

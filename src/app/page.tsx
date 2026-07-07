@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useProgress } from '@/hooks/useProgress';
+import ShareButton from '@/components/ShareButton';
 
 const modules = [
   {
@@ -70,9 +71,12 @@ export default function Home() {
             </span>
           </h1>
         </div>
-        <p style={{ fontSize: 16, color: '#94a3b8', maxWidth: 520, margin: '0 auto 24px', lineHeight: 1.6 }}>
+        <p style={{ fontSize: 16, color: '#94a3b8', maxWidth: 520, margin: '0 auto 16px', lineHeight: 1.6 }}>
           Desde cero hasta tu primera cosecha. Aprende el ciclo, diagnostica tu preparación y elige tu ruta de producción.
         </p>
+        <div style={{ marginBottom: 24 }}>
+          <ShareButton />
+        </div>
         {loaded && overallPercent > 0 && (
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 12, background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.3)', borderRadius: 12, padding: '10px 20px' }}>
             <div style={{ width: 120, height: 6, background: '#1e3050', borderRadius: 3 }}>

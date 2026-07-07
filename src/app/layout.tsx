@@ -4,6 +4,7 @@ import './globals.css';
 import Navbar from '@/components/Navbar';
 import Larvi from '@/components/Larvi';
 import WhatsApp from '@/components/WhatsApp';
+import { Analytics } from '@vercel/analytics/react';
 
 const montserrat = Montserrat({
   subsets: ['latin'],
@@ -13,7 +14,21 @@ const montserrat = Montserrat({
 
 export const metadata: Metadata = {
   title: 'ProLarva Monitor',
-  description: 'Tu ruta de aprendizaje para cultivar Mosca Soldado Negra (BSF)',
+  description: 'Tu ruta de aprendizaje completa para cultivar Mosca Soldado Negra (BSF). Desde cero hasta tu primera cosecha.',
+  openGraph: {
+    title: 'ProLarva Monitor 🪲',
+    description: 'Aprendé a cultivar BSF y reducí tus costos de concentrado hasta un 50%. Ruta gratuita con Larvi.',
+    url: 'https://prolarva-monitor.vercel.app',
+    siteName: 'ProLarva Monitor',
+    type: 'website',
+    images: [{ url: 'https://prolarva-monitor.vercel.app/og-image.png', width: 1200, height: 630, alt: 'ProLarva Monitor' }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'ProLarva Monitor 🪲',
+    description: 'Aprendé a cultivar BSF y reducí tus costos de concentrado.',
+    images: ['https://prolarva-monitor.vercel.app/og-image.png'],
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -24,6 +39,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <main>{children}</main>
         <Larvi />
         <WhatsApp />
+        <Analytics />
       </body>
     </html>
   );

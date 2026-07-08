@@ -223,6 +223,7 @@ interface Stage {
 - [ ] **Fotos reales** — infraestructura lista en `stages.ts`, Juliana debe proveer archivos para `public/fotos/`
 - [ ] **Videos reales** — campo `videos[]` listo en `stages.ts`, necesita URLs de YouTube
 - [ ] **URL del VSL** — campo listo en `/landing`, falta el link cuando el video esté listo
+- [ ] **Exportar leads en CSV** — tabla `leads` en Supabase ya tiene los datos; falta UI o export desde el dashboard
 
 ---
 
@@ -247,6 +248,7 @@ git log --oneline
 ## Historial de commits relevantes
 
 ```
+d2e7b72  feat: guardar leads del formulario en Supabase
 d2c2544  feat: conectar Supabase como base de datos en la nube
 c274c82  feat: calculadora CTA en cosecha, calendario real colapsable en socios, FloatingWidgets
 29dbc32  feat: intro explicativa en calculadora antes del selector de especie
@@ -277,7 +279,7 @@ a5cc857  feat: port calculadora BSF a React con paleta de la app
 - Home: 5 módulos + notificación de lotes listos para cosechar
 - Navbar: 7 links (incluye ProLarva → /landing) + Socios; scroll horizontal en móvil
 - WhatsApp flotante, Larvi bot, OG tags, Analytics y Google Search Console activos (excepto en /socios)
-- **Supabase** conectado — lotes, feeds, cosechas y progreso se sincronizan en la nube
+- **Supabase** conectado — lotes, feeds, cosechas, progreso y leads se sincronizan en la nube
 - `sitemap.xml` generado automáticamente por Next.js
 
 **Responsive móvil implementado:**
@@ -289,6 +291,15 @@ a5cc857  feat: port calculadora BSF a React con paleta de la app
 
 **Carpeta de trabajo canónica:**
 `C:\Users\HP\Desktop\Cosas de Zu\BR Prolarva\06 - Apps & Artifacts\prolarva-monitor`
+
+**Supabase — tablas activas:**
+| Tabla | Qué guarda |
+|---|---|
+| `user_progress` | Progreso de módulos por device_id |
+| `lotes` | Lotes de producción por socio_code |
+| `feed_logs` | Registros de alimentación |
+| `cosechas` | Cosechas registradas |
+| `leads` | Leads del formulario de /landing (nombre + email) |
 
 **Próxima sesión — continuar con:**
 - Agregar fotos reales para las 7 etapas restantes → copiar a `public/fotos/` y editar `data/stages.ts`

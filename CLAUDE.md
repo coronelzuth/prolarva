@@ -32,14 +32,15 @@
 
 | Ruta | Descripción |
 |---|---|
-| `/` | Home — bienvenida + 4 módulos + botón compartir |
+| `/` | Home — bienvenida + 5 módulos + botón compartir |
+| `/beneficios` | Intro — beneficios BSF por especie, composición nutricional, ventajas ambientales |
 | `/conocimiento` | Módulo 1 — ciclo BSF, grid 3×3 de etapas |
-| `/preparacion` | Módulo 2 — quiz diagnóstico |
-| `/metas` | Módulo 3 — rutas de producción + link a /calculadora |
-| `/cosecha` | Guía Práctica — 7 pasos: del huevo a la cosecha + ciclo cerrado |
+| `/preparacion` | Módulo 2 — quiz diagnóstico + tarjeta recomendación prominente al final |
+| `/metas` | Módulo 3 — rutas de producción + links a /cosecha y /calculadora |
+| `/cosecha` | Guía Práctica — 7 pasos + panel recomendación calculadora al final |
 | `/calculadora` | Calculadora BSF completa (wizard 4 pasos) |
 | `/landing` | Landing page pública de ProLarva |
-| `/socios` | Zona privada — tracker de lotes, alimentación y cosechas |
+| `/socios` | Zona privada — tracker de lotes, alimentación y cosechas (sin Larvi ni WhatsApp) |
 
 ---
 
@@ -48,19 +49,21 @@
 ```
 src/
 ├── app/
-│   ├── layout.tsx            # Navbar + Larvi + WhatsApp + Analytics en todas las páginas
+│   ├── layout.tsx            # Navbar + FloatingWidgets + Analytics en todas las páginas
 │   ├── globals.css           # Paleta navy, Montserrat, reset
-│   ├── page.tsx              # Home — 4 módulos (incluye /cosecha como Módulo 4)
+│   ├── page.tsx              # Home — 5 módulos (Beneficios Intro + 4 módulos)
+│   ├── beneficios/page.tsx   # Intro — beneficios BSF por especie + nutrición + env
 │   ├── conocimiento/page.tsx # Módulo 1 — ciclo BSF con modal prev/next
-│   ├── preparacion/page.tsx  # Módulo 2 — quiz diagnóstico
-│   ├── metas/page.tsx        # Módulo 3 — rutas + link a /cosecha y /calculadora
-│   ├── cosecha/page.tsx      # Guía práctica — 7 pasos accordion + sección ciclo cerrado
+│   ├── preparacion/page.tsx  # Módulo 2 — quiz diagnóstico + recommendation card
+│   ├── metas/page.tsx        # Módulo 3 — rutas + links a /cosecha y /calculadora
+│   ├── cosecha/page.tsx      # Guía práctica — 7 pasos + panel recomendación calculadora
 │   ├── calculadora/page.tsx  # Calculadora wizard completa (React nativo, 4 pasos)
 │   ├── landing/page.tsx      # Landing page pública
 │   └── socios/page.tsx       # Zona de Socios (login + tracker)
 │
 ├── components/
 │   ├── Navbar.tsx            # Sticky top; 6 links + botón Socios; scroll horizontal en móvil
+│   ├── FloatingWidgets.tsx   # Wrapper cliente: renderiza Larvi + WhatsApp en todas las páginas EXCEPTO /socios
 │   ├── Larvi.tsx             # Bot flotante bottom-right, árbol de decisión hardcodeado
 │   ├── WhatsApp.tsx          # Botón flotante bottom-left → wa.me/573223212293
 │   └── ShareButton.tsx       # Botón compartir en Home (WhatsApp share)
@@ -138,6 +141,11 @@ Login con credenciales demo: `SOCIO-2025 / larva123`, `coronelzulieth@gmail.com 
 Sidebar sticky a `top: 60px` (debajo del Navbar), `height: calc(100vh - 60px)`.
 **Móvil (<768px):** sidebar oculto → bottom tab bar fijo + mobile header con nombre y logout.
 Estado en `localStorage` via `useSocios`.
+**Funcionalidades en detalle de lote:**
+- `LoteDetail` tiene botón ✏️ Editar (modal para cambiar nombre/fecha)
+- `MiniCalendar`: strip de hitos + botón "📅 Ver calendario" que despliega grid real Lu–Do con emojis de hitos sobre sus fechas. Si el ciclo cruza dos meses se muestran ambos apilados.
+- Al crear lote: selector de objetivo (⚖️ Cosechar larvas / 🔄 Continuar camada) que ajusta los hitos del MiniCalendar (día 22: cosecha vs prepupa; día 28/40: fin vs mosca).
+- Larvi y WhatsApp NO se renderizan en /socios (ver `FloatingWidgets.tsx`).
 
 ### `cosecha/page.tsx`
 Guía práctica en 7 pasos totales, divididos en dos secciones:
@@ -159,8 +167,9 @@ Estado global del alumno. Guarda en localStorage:
 
 ### `useSocios.ts`
 Estado de la zona privada. Tipos: `Lote`, `FeedLog`, `Cosecha`, `SocioSession`.
+`Lote` tiene campo opcional `objetivo?: 'cosechar' | 'continuar'` (default `'cosechar'`).
 Exports: `BSF_STAGES`, `daysSince(dateStr)`, `getStage(days)`, `uid()`, `useSocios()`.
-Retorna: `{ loaded, session, login, logout, lotes, feeds, cosechas, addLote, deleteLote, addFeed, addCosecha, activeLotes, readyLotes, totalKg, avgConv }`.
+Retorna: `{ loaded, session, login, logout, lotes, feeds, cosechas, addLote, deleteLote, updateLote, addFeed, addCosecha, activeLotes, readyLotes, totalKg, avgConv }`.
 
 ---
 
@@ -222,13 +231,16 @@ git log --oneline
 ## Historial de commits relevantes
 
 ```
+c274c82  feat: calculadora CTA en cosecha, calendario real colapsable en socios, FloatingWidgets
+29dbc32  feat: intro explicativa en calculadora antes del selector de especie
+feb5b92  fix: scroll lock en modal de Metas
+e250bff  fix: quiz recommendation selectedMeta → /metas
+acf2bdd  fix: Beneficios CTA → /conocimiento
+b90a76a  feat: Groups C y D — /beneficios, quiz recommendation, socios edit+calendar+objetivo
 26c0d62  chore: eliminar CalculadoraInline.tsx (componente sin uso)
 cc2b4e7  refactor: reemplazar CalculadoraInline por link a /calculadora
 7aeb7f5  docs: actualizar CLAUDE.md con estado real del proyecto
 a5cc857  feat: port calculadora BSF a React con paleta de la app
-5d4c8e9  restore: zona de socios + calculadora + navbar completo
-f6e3fe2  feat: calculadora inline + WhatsApp flotante + OG tags + Analytics + botón compartir
-677babc  backup: versión azul v1 (antes del rediseño verde)
 ```
 
 ---
@@ -240,14 +252,17 @@ f6e3fe2  feat: calculadora inline + WhatsApp flotante + OG tags + Analytics + bo
 
 **Qué está funcionando en producción:**
 - Todas las rutas desplegadas y accesibles en móvil y desktop
-- `/calculadora` — React nativo, 4 pasos, colores de la app
-- `/socios` — login, tracker de lotes/alimentación/cosechas, sidebar desktop + bottom tab bar móvil
-- `/metas` — 3 rutas + links a `/cosecha` y `/calculadora`
-- `/cosecha` — guía completa 7 pasos: Meta 1 (días 0–18) + Meta 3 ciclo cerrado (prepupas + trampas)
+- `/beneficios` — nueva página Intro con beneficios por especie, nutrición, ventajas ambientales; CTA a `/conocimiento`
+- `/calculadora` — React nativo, 4 pasos, colores de la app; intro explicativa antes del selector de especie
+- `/socios` — login, tracker de lotes/alimentación/cosechas, sidebar desktop + bottom tab bar móvil; calendario real colapsable por lote; edición de nombre/fecha; selector de objetivo al crear lote; sin Larvi ni WhatsApp
+- `/metas` — 3 rutas + links a `/cosecha` y `/calculadora`; scroll lock en modal
+- `/cosecha` — guía completa 7 pasos + panel recomendación calculadora al final
+- `/preparacion` — quiz + tarjeta recomendación prominente al final (lógica: knowledgeGap → /conocimiento, selectedMeta → /metas "Establecer objetivo", else → /metas)
 - `/conocimiento` — modal con navegación prev/next por etapa, fotos y videos en etapa Huevo
 - `/landing` — landing pública con placeholder para foto de Juliana y VSL
+- Home: 5 módulos (Beneficios como Intro + 4 módulos numerados)
 - Navbar: 6 links + Socios; scroll horizontal en móvil
-- WhatsApp flotante, Larvi bot, OG tags y Analytics activos
+- WhatsApp flotante, Larvi bot, OG tags y Analytics activos (excepto en /socios)
 
 **Responsive móvil implementado:**
 - Navbar: scroll horizontal, oculta texto de labels y barra de progreso (<599px)

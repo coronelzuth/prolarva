@@ -23,8 +23,16 @@
 - **Montserrat** via `next/font/google` (ya configurado en `layout.tsx`)
 - **Tailwind CSS v4** instalado pero casi todo usa **inline styles**
 - **Vercel Analytics** (`@vercel/analytics/react`) — ya integrado en `layout.tsx`
-- Sin base de datos — todo el estado va en `localStorage`
+- **Supabase** (`@supabase/supabase-js`) — base de datos en la nube. `localStorage` se mantiene como caché offline-first
 - Sin autenticación pública — `/socios` tiene login propio con credenciales hardcodeadas
+
+## Variables de entorno
+
+```
+NEXT_PUBLIC_SUPABASE_URL=https://gztaznhtysmkekbbazbd.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJ...  (ver Supabase → Settings → API)
+```
+Están en `.env.local` (local, ignorado por git) y en Vercel → Settings → Environment Variables.
 
 ---
 
@@ -41,6 +49,7 @@
 | `/calculadora` | Calculadora BSF completa (wizard 4 pasos) |
 | `/landing` | Landing page pública de ProLarva |
 | `/socios` | Zona privada — tracker de lotes, alimentación y cosechas (sin Larvi ni WhatsApp) |
+| `/gracias` | Página post-formulario — confirmación + redirect automático a /calculadora en 4 seg |
 
 ---
 
@@ -59,7 +68,8 @@ src/
 │   ├── cosecha/page.tsx      # Guía práctica — 7 pasos + panel recomendación calculadora
 │   ├── calculadora/page.tsx  # Calculadora wizard completa (React nativo, 4 pasos)
 │   ├── landing/page.tsx      # Landing page pública
-│   └── socios/page.tsx       # Zona de Socios (login + tracker)
+│   ├── socios/page.tsx       # Zona de Socios (login + tracker)
+│   └── gracias/page.tsx      # Página de confirmación post-formulario
 │
 ├── components/
 │   ├── Navbar.tsx            # Sticky top; 6 links + botón Socios; scroll horizontal en móvil
@@ -73,14 +83,21 @@ src/
 │   ├── quiz.ts               # Preguntas del diagnóstico de preparación
 │   └── metas.ts              # 3 rutas: pollos, harina, ciclo cerrado
 │
-└── hooks/
-    ├── useProgress.ts        # Estado global del alumno en localStorage
-    └── useSocios.ts          # Estado de la Zona de Socios en localStorage
+├── hooks/
+│   ├── useProgress.ts        # Estado global del alumno — localStorage + sync Supabase (device_id)
+│   └── useSocios.ts          # Estado de la Zona de Socios — localStorage + sync Supabase (socio_code)
+│
+└── lib/
+    └── supabase.ts           # Cliente Supabase singleton (retorna null si no hay env vars)
 
 public/
 ├── larvi-mascota.png         # Mascota PNG con fondo transparente (moño rojo)
 ├── og-image.png              # OG image 1200×630 para redes sociales
+├── juliana.jpg               # Foto real de Juliana — usada en /landing (sección "¿Quién está detrás?")
 └── calculadora-bsf.html      # HTML original de respaldo (no se usa en producción)
+
+supabase/
+└── schema.sql                # SQL para crear las 4 tablas + políticas RLS en Supabase
 ```
 
 ---
@@ -159,14 +176,14 @@ Cada paso tiene: descripción, consejos, alertas y sección "Qué registrar".
 ## Hooks
 
 ### `useProgress.ts`
-Estado global del alumno. Guarda en localStorage:
-- `modulesVisited` / `modulesCompleted`
-- `stagesViewed`
-- `quizAnswers` / `quizCompleted`
-- `selectedMeta`
+Estado global del alumno. localStorage como caché + sync a Supabase tabla `user_progress`.
+Clave de sincronización: `device_id` (UUID generado una vez, guardado en localStorage como `prl-device-id`).
+Campos: `modulesVisited` / `modulesCompleted` / `stagesViewed` / `quizAnswers` / `quizCompleted` / `selectedMeta`.
 
 ### `useSocios.ts`
-Estado de la zona privada. Tipos: `Lote`, `FeedLog`, `Cosecha`, `SocioSession`.
+Estado de la zona privada. localStorage como caché + sync a Supabase tablas `lotes`, `feed_logs`, `cosechas`.
+Clave de sincronización: `socio_code` (del login actual).
+Tipos: `Lote`, `FeedLog`, `Cosecha`, `SocioSession`.
 `Lote` tiene campo opcional `objetivo?: 'cosechar' | 'continuar'` (default `'cosechar'`).
 Exports: `BSF_STAGES`, `daysSince(dateStr)`, `getStage(days)`, `uid()`, `useSocios()`.
 Retorna: `{ loaded, session, login, logout, lotes, feeds, cosechas, addLote, deleteLote, updateLote, addFeed, addCosecha, activeLotes, readyLotes, totalKg, avgConv }`.
@@ -205,7 +222,6 @@ interface Stage {
 
 - [ ] **Fotos reales** — infraestructura lista en `stages.ts`, Juliana debe proveer archivos para `public/fotos/`
 - [ ] **Videos reales** — campo `videos[]` listo en `stages.ts`, necesita URLs de YouTube
-- [ ] **Foto real de Juliana** — placeholder "Tu foto aquí" en `/landing`
 - [ ] **URL del VSL** — campo listo en `/landing`, falta el link cuando el video esté listo
 
 ---
@@ -231,15 +247,12 @@ git log --oneline
 ## Historial de commits relevantes
 
 ```
+d2c2544  feat: conectar Supabase como base de datos en la nube
 c274c82  feat: calculadora CTA en cosecha, calendario real colapsable en socios, FloatingWidgets
 29dbc32  feat: intro explicativa en calculadora antes del selector de especie
 feb5b92  fix: scroll lock en modal de Metas
 e250bff  fix: quiz recommendation selectedMeta → /metas
-acf2bdd  fix: Beneficios CTA → /conocimiento
 b90a76a  feat: Groups C y D — /beneficios, quiz recommendation, socios edit+calendar+objetivo
-26c0d62  chore: eliminar CalculadoraInline.tsx (componente sin uso)
-cc2b4e7  refactor: reemplazar CalculadoraInline por link a /calculadora
-7aeb7f5  docs: actualizar CLAUDE.md con estado real del proyecto
 a5cc857  feat: port calculadora BSF a React con paleta de la app
 ```
 
@@ -252,17 +265,20 @@ a5cc857  feat: port calculadora BSF a React con paleta de la app
 
 **Qué está funcionando en producción:**
 - Todas las rutas desplegadas y accesibles en móvil y desktop
-- `/beneficios` — nueva página Intro con beneficios por especie, nutrición, ventajas ambientales; CTA a `/conocimiento`
+- `/beneficios` — página Intro con beneficios por especie, nutrición, ventajas ambientales; CTA a `/conocimiento`
 - `/calculadora` — React nativo, 4 pasos, colores de la app; intro explicativa antes del selector de especie
-- `/socios` — login, tracker de lotes/alimentación/cosechas, sidebar desktop + bottom tab bar móvil; calendario real colapsable por lote; edición de nombre/fecha; selector de objetivo al crear lote; sin Larvi ni WhatsApp
+- `/socios` — login, tracker de lotes/alimentación/cosechas, sidebar desktop + bottom tab bar móvil; calendario real colapsable por lote; edición de nombre/fecha; selector de objetivo al crear lote; sin Larvi ni WhatsApp; **datos sincronizan a Supabase**
 - `/metas` — 3 rutas + links a `/cosecha` y `/calculadora`; scroll lock en modal
 - `/cosecha` — guía completa 7 pasos + panel recomendación calculadora al final
-- `/preparacion` — quiz + tarjeta recomendación prominente al final (lógica: knowledgeGap → /conocimiento, selectedMeta → /metas "Establecer objetivo", else → /metas)
+- `/preparacion` — quiz + tarjeta recomendación prominente al final
 - `/conocimiento` — modal con navegación prev/next por etapa, fotos y videos en etapa Huevo
-- `/landing` — landing pública con placeholder para foto de Juliana y VSL
-- Home: 5 módulos (Beneficios como Intro + 4 módulos numerados)
-- Navbar: 6 links + Socios; scroll horizontal en móvil
-- WhatsApp flotante, Larvi bot, OG tags y Analytics activos (excepto en /socios)
+- `/landing` — landing pública con foto real de Juliana, español neutro; VSL pendiente
+- `/gracias` — confirmación post-formulario + redirect a /calculadora en 4 seg
+- Home: 5 módulos + notificación de lotes listos para cosechar
+- Navbar: 7 links (incluye ProLarva → /landing) + Socios; scroll horizontal en móvil
+- WhatsApp flotante, Larvi bot, OG tags, Analytics y Google Search Console activos (excepto en /socios)
+- **Supabase** conectado — lotes, feeds, cosechas y progreso se sincronizan en la nube
+- `sitemap.xml` generado automáticamente por Next.js
 
 **Responsive móvil implementado:**
 - Navbar: scroll horizontal, oculta texto de labels y barra de progreso (<599px)
@@ -277,7 +293,6 @@ a5cc857  feat: port calculadora BSF a React con paleta de la app
 **Próxima sesión — continuar con:**
 - Agregar fotos reales para las 7 etapas restantes → copiar a `public/fotos/` y editar `data/stages.ts`
 - Agregar URLs de videos YouTube → editar `data/stages.ts`
-- Agregar foto real de Juliana → placeholder "Tu foto aquí" en `/landing`
 - Agregar URL del VSL cuando esté listo en `/landing`
 
 **Cómo arrancar una sesión nueva:**

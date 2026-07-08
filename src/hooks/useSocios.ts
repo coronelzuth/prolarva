@@ -14,6 +14,7 @@ export interface Lote {
   temp: number | null;
   notas: string;
   creadoEn: string;
+  objetivo?: 'cosechar' | 'continuar'; // 'cosechar' = harvest larvae; 'continuar' = raise to pupa/fly; absent = 'cosechar'
 }
 
 export interface FeedLog {
@@ -135,6 +136,10 @@ export function useSocios() {
     setLotes(prev => { const arr = prev.filter(l => l.id !== id); save(KEYS.lotes, arr); return arr; });
   }, []);
 
+  const updateLote = useCallback((id: string, updates: Partial<Pick<Lote, 'nombre' | 'fecha'>>) => {
+    setLotes(prev => { const arr = prev.map(l => l.id === id ? { ...l, ...updates } : l); save(KEYS.lotes, arr); return arr; });
+  }, []);
+
   // Feeds
   const addFeed = useCallback((feed: Omit<FeedLog, 'id'>) => {
     const next: FeedLog = { ...feed, id: uid() };
@@ -157,7 +162,7 @@ export function useSocios() {
   return {
     loaded, session, login, logout,
     lotes, feeds, cosechas,
-    addLote, deleteLote, addFeed, addCosecha,
+    addLote, deleteLote, updateLote, addFeed, addCosecha,
     activeLotes, readyLotes, totalKg, avgConv,
   };
 }

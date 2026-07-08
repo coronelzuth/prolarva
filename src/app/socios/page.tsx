@@ -116,7 +116,7 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 function ProgressBar({ pct, color = S.green }: { pct: number; color?: string }) {
   return (
     <div style={{ height: 6, background: S.navy3, borderRadius: 3, overflow: 'hidden', marginTop: 6 }}>
-      <div style={{ width: `${Math.min(pct, 100)}%`, height: '100%', background: `linear-gradient(90deg, ${color}, #16a34a)`, borderRadius: 3, transition: 'width 0.4s' }} />
+      <div style={{ width: '100%', height: '100%', background: `linear-gradient(90deg, ${color}, #16a34a)`, borderRadius: 3, transform: `scaleX(${Math.min(pct, 100) / 100})`, transformOrigin: 'left', transition: 'transform 0.4s' }} />
     </div>
   );
 }
@@ -169,6 +169,61 @@ function Timeline({ days }: { days: number }) {
   );
 }
 
+// ─── Mini calendar ───────────────────────────────────────────────────────────
+
+function MiniCalendar({ lote }: { lote: Lote }) {
+  const today = new Date();
+  const start = new Date(lote.fecha);
+  const objetivo = lote.objetivo ?? 'cosechar';
+
+  function ms(label: string, icon: string, day: number) {
+    const date = new Date(start);
+    date.setDate(date.getDate() + day);
+    const diffDays = Math.round((today.getTime() - date.getTime()) / 86_400_000);
+    return { label, icon, date, isPast: diffDays > 0, isToday: diffDays === 0, daysAway: -diffDays };
+  }
+
+  const milestones = [
+    ms('Siembra', '🌱', 0),
+    ms('Eclosión', '🥚', 4),
+    ms('Larva', '🐛', 14),
+    objetivo === 'cosechar' ? ms('Cosecha', '⚖️', 22) : ms('Prepupa', '⭐', 22),
+    objetivo === 'cosechar' ? ms('Fin', '✅', 28) : ms('Mosca', '🦋', 40),
+  ];
+
+  const fmtShort = (d: Date) => d.toLocaleDateString('es-CO', { day: '2-digit', month: 'short' });
+
+  return (
+    <div style={{ marginTop: 16 }}>
+      <div style={{ fontSize: 11, fontWeight: 700, color: S.muted, marginBottom: 10, textTransform: 'uppercase', letterSpacing: '0.06em' }}>📅 Hitos del ciclo</div>
+      <div style={{ display: 'flex', alignItems: 'flex-start', overflowX: 'auto', paddingBottom: 4 }}>
+        {milestones.map((m, i) => (
+          <div key={m.label} style={{ display: 'flex', alignItems: 'center', flexShrink: 0 }}>
+            <div style={{ textAlign: 'center', minWidth: 64 }}>
+              <div style={{
+                width: 34, height: 34, borderRadius: '50%', margin: '0 auto 4px',
+                background: m.isPast ? 'rgba(16,185,129,0.15)' : m.isToday ? 'rgba(34,197,94,0.2)' : 'rgba(30,48,80,0.8)',
+                border: `2px solid ${m.isPast ? S.emerald : m.isToday ? S.green : S.border}`,
+                display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: m.isPast ? 12 : 15,
+              }}>
+                {m.isPast ? '✓' : m.icon}
+              </div>
+              <div style={{ fontSize: 10, fontWeight: 700, color: m.isPast ? S.emerald : m.isToday ? S.green2 : S.muted, lineHeight: 1.2 }}>{m.label}</div>
+              <div style={{ fontSize: 9, color: '#475569', marginTop: 1 }}>{fmtShort(m.date)}</div>
+              <div style={{ fontSize: 9, color: m.isToday ? S.green : m.isPast ? '#475569' : S.muted, marginTop: 1 }}>
+                {m.isToday ? 'HOY' : m.isPast ? `hace ${Math.abs(m.daysAway)}d` : `en ${m.daysAway}d`}
+              </div>
+            </div>
+            {i < milestones.length - 1 && (
+              <div style={{ width: 18, height: 1, background: S.border, flexShrink: 0, marginBottom: 22 }} />
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 // ─── Views ────────────────────────────────────────────────────────────────────
 
 type View = 'dashboard' | 'lotes' | 'lote-detail' | 'alimentacion' | 'cosecha' | 'guia';
@@ -180,7 +235,7 @@ function Dashboard({ lotes, feeds, cosechas, activeLotes, readyLotes, totalKg, a
   onViewLote: (id: string) => void; onNav: (v: View) => void;
 }) {
   const statCard = (num: string, label: string, accent: string) => (
-    <div style={{ ...cardStyle, borderLeft: `4px solid ${accent}` }}>
+    <div style={{ ...cardStyle }}>
       <div style={{ fontSize: 28, fontWeight: 800, color: accent }}>{num}</div>
       <div style={{ fontSize: 11, color: S.muted, marginTop: 4, fontWeight: 600 }}>{label}</div>
     </div>
@@ -255,7 +310,7 @@ function FeedEntry({ feed: f, lotes }: { feed: FeedLog; lotes: Lote[] }) {
   const lote = lotes.find(l => l.id === f.loteId);
   const rejBadge = { ninguno: null, leve: <Badge color="blue">Rechazo leve</Badge>, moderado: <Badge color="amber">Rechazo moderado</Badge>, alto: <Badge color="red">Rechazo alto</Badge> };
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 12px', background: S.navy2, borderRadius: 10, marginBottom: 8, borderLeft: `3px solid ${S.emerald}` }}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 12px', background: S.navy2, borderRadius: 10, marginBottom: 8, border: '1px solid rgba(16,185,129,0.18)' }}>
       <div style={{ fontSize: 22 }}>{RESIDUO_ICONS[f.tipo] ?? '🌿'}</div>
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
@@ -334,9 +389,9 @@ function LotesView({ lotes, feeds, onViewLote, onNewLote, onDeleteLote }: {
   );
 }
 
-function LoteDetail({ lote, feeds, lotes, onBack, onAddFeed }: {
+function LoteDetail({ lote, feeds, lotes, onBack, onAddFeed, onEdit }: {
   lote: Lote; feeds: FeedLog[]; lotes: Lote[];
-  onBack: () => void; onAddFeed: (loteId: string) => void;
+  onBack: () => void; onAddFeed: (loteId: string) => void; onEdit: () => void;
 }) {
   const d = daysSince(lote.fecha);
   const pct = Math.min(Math.round((d / 28) * 100), 100);
@@ -350,10 +405,11 @@ function LoteDetail({ lote, feeds, lotes, onBack, onAddFeed }: {
     <div>
       <div style={{ display: 'flex', gap: 12, alignItems: 'center', marginBottom: 24 }}>
         <button style={{ ...btnOutline, ...btnSm }} onClick={onBack}>← Volver</button>
-        <div>
+        <div style={{ flex: 1 }}>
           <h1 style={{ fontSize: 22, fontWeight: 900 }}>{lote.nombre}</h1>
           <p style={{ color: S.muted, fontSize: 13, marginTop: 2 }}>Sembrado el {fmtDate(lote.fecha)} · Día {d}</p>
         </div>
+        <button style={{ ...btnOutline, ...btnSm }} onClick={onEdit}>✏️ Editar</button>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(260px,1fr))', gap: 20, marginBottom: 20 }}>
@@ -362,6 +418,7 @@ function LoteDetail({ lote, feeds, lotes, onBack, onAddFeed }: {
           <Timeline days={d} />
           <ProgressBar pct={pct} />
           <p style={{ fontSize: 12, color: S.muted, marginTop: 8 }}>{daysMsg}</p>
+          <MiniCalendar lote={lote} />
         </div>
         <div style={cardStyle}>
           <h3 style={{ fontSize: 13, fontWeight: 700, marginBottom: 12 }}>Datos del lote</h3>
@@ -441,7 +498,7 @@ function CosechaView({ cosechas, lotes, totalKg, avgConv, onNewCosecha }: {
           ['#' + cosechas.length,       'Cosechas registradas', S.green],
           [avgConv ? avgConv.toFixed(1) + '%' : '—', 'Conversión promedio', '#38bdf8'],
         ].map(([v, l, c]) => (
-          <div key={l} style={{ ...cardStyle, borderLeft: `4px solid ${c}` }}>
+          <div key={l} style={{ ...cardStyle }}>
             <div style={{ fontSize: 24, fontWeight: 800, color: c as string }}>{v}</div>
             <div style={{ fontSize: 11, color: S.muted, marginTop: 4, fontWeight: 600 }}>{l}</div>
           </div>
@@ -456,7 +513,7 @@ function CosechaView({ cosechas, lotes, totalKg, avgConv, onNewCosecha }: {
             const lote = lotes.find(l => l.id === c.loteId);
             const conv = c.sustratoTotal > 0 ? ((c.peso / c.sustratoTotal) * 100).toFixed(1) : null;
             return (
-              <div key={c.id} style={{ borderLeft: `4px solid ${S.emerald}`, background: S.navy2, borderRadius: 12, padding: '14px 18px', marginBottom: 10 }}>
+              <div key={c.id} style={{ background: S.navy2, border: '1px solid rgba(16,185,129,0.2)', borderRadius: 12, padding: '14px 18px', marginBottom: 10 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
                   <strong style={{ fontSize: 14 }}>{lote?.nombre ?? 'Lote eliminado'}</strong>
                   <span style={{ fontSize: 12, color: S.muted }}>{fmtDate(c.fecha)}</span>
@@ -489,7 +546,7 @@ function GuiaView() {
           <h3 style={{ fontSize: 13, fontWeight: 700, marginBottom: 14 }}>🌡️ Condiciones óptimas</h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             {[['🌡️ Temperatura ideal','27°C – 35°C'],['💧 Humedad sustrato','60% – 70%'],['📊 pH sustrato','6.0 – 7.5'],['🔦 Luz en cría','Oscuridad total']].map(([l,v]) => (
-              <div key={l} style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 14px', background: S.navy2, borderRadius: 10, fontSize: 13, borderLeft: `3px solid ${S.green}` }}>
+              <div key={l} style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 14px', background: S.navy2, borderRadius: 10, fontSize: 13 }}>
                 <span>{l}</span><strong style={{ color: S.green2 }}>{v}</strong>
               </div>
             ))}
@@ -500,7 +557,7 @@ function GuiaView() {
           <h3 style={{ fontSize: 13, fontWeight: 700, marginBottom: 14 }}>📅 Ciclo de vida</h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             {[['🥚 Huevo','Días 1 – 4','4 días',S.amber],['🐛 Larva joven (L1-L3)','Días 5 – 14','10 días',S.green],['🦟 Larva madura (L4-L5)','Días 15 – 22','8 días',S.emerald],['⭐ Prepupa → COSECHA','Días 22 – 28','¡Lista!',S.green2]].map(([icon,range,dur,c]) => (
-              <div key={icon as string} style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 14px', background: S.navy2, borderRadius: 10, fontSize: 13, borderLeft: `3px solid ${c}` }}>
+              <div key={icon as string} style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 14px', background: S.navy2, borderRadius: 10, fontSize: 13 }}>
                 <div><strong>{icon}</strong><span style={{ fontSize: 11, color: S.muted, marginLeft: 8 }}>{range}</span></div>
                 <strong style={{ color: c as string }}>{dur}</strong>
               </div>
@@ -597,6 +654,11 @@ export default function SociosPage() {
   const [modalCosecha, setModalCosecha] = useState(false);
   const [prefillLoteId, setPrefillLoteId] = useState<string | null>(null);
 
+  const [lObjetivo, setLObjetivo] = useState<'cosechar' | 'continuar'>('cosechar');
+  const [editLoteId, setEditLoteId] = useState<string | null>(null);
+  const [editNombre, setEditNombre] = useState('');
+  const [editFecha,  setEditFecha]  = useState('');
+
   const lNombre    = useRef<HTMLInputElement>(null);
   const lFecha     = useRef<HTMLInputElement>(null);
   const lSustrato  = useRef<HTMLInputElement>(null);
@@ -634,6 +696,7 @@ export default function SociosPage() {
     if (!nombre || !fecha) { alert('Ingresa nombre y fecha.'); return; }
     db.addLote({
       nombre, fecha,
+      objetivo:     lObjetivo,
       sustrato:     parseFloat(lSustrato.current?.value ?? '0') || 0,
       tipoSustrato: lTipoSust.current?.value ?? '',
       huevos:       lHuevos.current?.value ?? '',
@@ -641,11 +704,20 @@ export default function SociosPage() {
       notas:        lNotas.current?.value ?? '',
     });
     setModalLote(false);
+    setLObjetivo('cosechar');
     if (lNombre.current)   lNombre.current.value   = '';
     if (lSustrato.current) lSustrato.current.value = '';
     if (lHuevos.current)   lHuevos.current.value   = '';
     if (lTemp.current)     lTemp.current.value      = '';
     if (lNotas.current)    lNotas.current.value     = '';
+  }
+
+  function saveEditLote() {
+    if (!editLoteId) return;
+    const nombre = editNombre.trim();
+    if (!nombre || !editFecha) { alert('Ingresa nombre y fecha.'); return; }
+    db.updateLote(editLoteId, { nombre, fecha: editFecha });
+    setEditLoteId(null);
   }
 
   function saveFeed() {
@@ -706,7 +778,7 @@ export default function SociosPage() {
           {navItems.map(item => {
             const active = activeView === item.key;
             return (
-              <div key={item.key} onClick={() => navTo(item.key)} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '9px 18px', cursor: 'pointer', fontSize: 13, fontWeight: 600, color: active ? S.green2 : S.muted, background: active ? 'rgba(34,197,94,0.1)' : 'transparent', borderLeft: `3px solid ${active ? S.green : 'transparent'}`, transition: 'all 0.15s' }}>
+              <div key={item.key} onClick={() => navTo(item.key)} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '9px 18px', cursor: 'pointer', fontSize: 13, fontWeight: 600, color: active ? S.green2 : S.muted, background: active ? 'rgba(34,197,94,0.1)' : 'transparent', borderRadius: active ? 8 : 0, transition: 'all 0.15s' }}>
                 <span>{item.icon}</span>
                 <span>{item.label}</span>
               </div>
@@ -756,7 +828,11 @@ export default function SociosPage() {
           />
         )}
         {view === 'lote-detail' && detailLote && (
-          <LoteDetail lote={detailLote} feeds={db.feeds} lotes={db.lotes} onBack={() => setView('lotes')} onAddFeed={openFeed} />
+          <LoteDetail
+            lote={detailLote} feeds={db.feeds} lotes={db.lotes}
+            onBack={() => setView('lotes')} onAddFeed={openFeed}
+            onEdit={() => { setEditNombre(detailLote.nombre); setEditFecha(detailLote.fecha); setEditLoteId(detailLote.id); }}
+          />
         )}
         {view === 'alimentacion' && (
           <AlimentacionView feeds={db.feeds} lotes={db.lotes} onNewFeed={() => openFeed(null)} />
@@ -823,7 +899,16 @@ export default function SociosPage() {
       `}</style>
 
       {/* Modal: Nuevo Lote */}
-      <Modal open={modalLote} onClose={() => setModalLote(false)} title="📦 Nuevo Lote BSF">
+      <Modal open={modalLote} onClose={() => { setModalLote(false); setLObjetivo('cosechar'); }} title="📦 Nuevo Lote BSF">
+        <Field label="Objetivo del lote">
+          <div style={{ display: 'flex', gap: 8 }}>
+            {([['cosechar', '⚖️ Cosechar larvas'], ['continuar', '🔄 Continuar camada']] as const).map(([val, label]) => (
+              <button key={val} type="button" onClick={() => setLObjetivo(val)} style={{ flex: 1, padding: '10px 6px', borderRadius: 8, cursor: 'pointer', fontFamily: 'Montserrat, sans-serif', fontWeight: 700, fontSize: 12, background: lObjetivo === val ? (val === 'cosechar' ? 'rgba(34,197,94,0.15)' : 'rgba(16,185,129,0.15)') : 'transparent', border: `1.5px solid ${lObjetivo === val ? (val === 'cosechar' ? S.green : S.emerald) : S.border}`, color: lObjetivo === val ? (val === 'cosechar' ? S.green2 : S.emerald) : S.muted }}>
+                {label}
+              </button>
+            ))}
+          </div>
+        </Field>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
           <Field label="Nombre / código del lote"><input ref={lNombre} style={inputStyle} placeholder="ej. Lote-07 Julio" /></Field>
           <Field label="Fecha de siembra"><input ref={lFecha} type="date" style={inputStyle} /></Field>
@@ -876,6 +961,20 @@ export default function SociosPage() {
         <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', marginTop: 16 }}>
           <button style={btnOutline} onClick={() => setModalFeed(false)}>Cancelar</button>
           <button style={btnPrimary} onClick={saveFeed}>Guardar</button>
+        </div>
+      </Modal>
+
+      {/* Modal: Editar Lote */}
+      <Modal open={editLoteId !== null} onClose={() => setEditLoteId(null)} title="✏️ Editar Lote">
+        <Field label="Nombre / código del lote">
+          <input style={inputStyle} value={editNombre} onChange={e => setEditNombre(e.target.value)} placeholder="ej. Lote-07 Julio" />
+        </Field>
+        <Field label="Fecha de siembra">
+          <input type="date" style={inputStyle} value={editFecha} onChange={e => setEditFecha(e.target.value)} />
+        </Field>
+        <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', marginTop: 16 }}>
+          <button style={btnOutline} onClick={() => setEditLoteId(null)}>Cancelar</button>
+          <button style={btnPrimary} onClick={saveEditLote}>Guardar cambios</button>
         </div>
       </Modal>
 

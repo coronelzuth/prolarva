@@ -109,29 +109,43 @@ export default function PreparacionPage() {
           )}
         </div>
 
-        {/* Smart CTA */}
-        <div style={{ background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.25)', borderRadius: 16, padding: 24, marginBottom: 20 }}>
-          <div style={{ fontWeight: 800, color: '#f1f5f9', fontSize: 15, marginBottom: 6 }}>
-            {result.knowledgeGap ? '🧠 Primero aprende el ciclo BSF' : selectedMeta ? `🎯 Ya sabes qué quieres: ${metaLabels[selectedMeta]}` : '¿Listo para elegir tu meta?'}
-          </div>
-          <p style={{ fontSize: 13, color: '#94a3b8', marginBottom: 16, lineHeight: 1.6 }}>
-            {result.knowledgeGap
-              ? 'Antes de empezar, te recomendamos completar el Módulo 1 para entender el ciclo completo. Te tomará solo 15 minutos.'
-              : selectedMeta
-              ? `Ve directo a la guía de tu meta y sigue los pasos. Tienes ${result.ready.length} de ${result.ready.length + result.needsWork.length + result.missing.length} elementos listos.`
-              : 'Con este diagnóstico ya sabes dónde estás. Ahora elige tu meta y recibe una guía paso a paso.'}
-          </p>
-          <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-            {result.knowledgeGap && (
-              <Link href="/conocimiento" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'linear-gradient(135deg,#22c55e,#16a34a)', color: 'white', padding: '11px 22px', borderRadius: 10, textDecoration: 'none', fontWeight: 700, fontSize: 13 }}>
-                🧠 Ir al Módulo 1 →
-              </Link>
-            )}
-            <Link href="/metas" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: selectedMeta ? 'linear-gradient(135deg,#10b981,#16a34a)' : 'rgba(16,185,129,0.15)', color: selectedMeta ? 'white' : '#10b981', padding: '11px 22px', borderRadius: 10, textDecoration: 'none', fontWeight: 700, fontSize: 13, border: selectedMeta ? 'none' : '1px solid rgba(16,185,129,0.3)' }}>
-              🎯 {selectedMeta ? `Ver guía: ${metaLabels[selectedMeta]}` : 'Elegir mi meta'} →
-            </Link>
-          </div>
-        </div>
+        {/* Recommendation card */}
+        {(() => {
+          type Rec = { href: string; icon: string; tag: string; title: string; reason: string };
+          let rec: Rec;
+          if (result.knowledgeGap) {
+            rec = { href: '/conocimiento', icon: '🧠', tag: 'Módulo 1', title: 'Conocimiento General', reason: 'Antes de empezar necesitas entender el ciclo BSF completo. Te tomará solo 15 minutos.' };
+          } else if (selectedMeta) {
+            rec = { href: '/cosecha', icon: '🌾', tag: 'Guía Práctica', title: 'Cría y Cosecha BSF', reason: `Tu meta está definida (${metaLabels[selectedMeta]}). Ve directo a la guía práctica paso a paso.` };
+          } else {
+            rec = { href: '/metas', icon: '🎯', tag: 'Módulo 3', title: 'Elige tu Meta', reason: 'Con este diagnóstico ya sabes dónde estás. Elige tu ruta de producción y recibe una guía personalizada.' };
+          }
+          return (
+            <div style={{ background: 'rgba(34,197,94,0.06)', border: '1px solid rgba(34,197,94,0.22)', borderRadius: 16, padding: 24, marginBottom: 20 }}>
+              <div style={{ fontSize: 11, fontWeight: 700, color: '#64748b', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 14 }}>📍 Tu próximo paso recomendado</div>
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: 16, marginBottom: 18 }}>
+                <div style={{ fontSize: 44, lineHeight: 1, flexShrink: 0 }}>{rec.icon}</div>
+                <div>
+                  <div style={{ display: 'inline-flex', background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.25)', borderRadius: 20, padding: '2px 10px', marginBottom: 6 }}>
+                    <span style={{ fontSize: 11, color: '#22c55e', fontWeight: 700 }}>{rec.tag}</span>
+                  </div>
+                  <div style={{ fontSize: 17, fontWeight: 900, color: '#f1f5f9', marginBottom: 5, lineHeight: 1.3 }}>{rec.title}</div>
+                  <p style={{ fontSize: 13, color: '#94a3b8', lineHeight: 1.6, margin: 0 }}>{rec.reason}</p>
+                </div>
+              </div>
+              <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+                <Link href={rec.href} style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'linear-gradient(135deg,#22c55e,#16a34a)', color: 'white', padding: '12px 24px', borderRadius: 10, textDecoration: 'none', fontWeight: 700, fontSize: 14 }}>
+                  Ir ahora →
+                </Link>
+                {!result.knowledgeGap && !selectedMeta && (
+                  <Link href="/conocimiento" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(34,197,94,0.08)', color: '#94a3b8', padding: '12px 20px', borderRadius: 10, textDecoration: 'none', fontWeight: 600, fontSize: 13, border: '1px solid rgba(34,197,94,0.15)' }}>
+                    🧠 Repasar Módulo 1
+                  </Link>
+                )}
+              </div>
+            </div>
+          );
+        })()}
 
         <button onClick={restart} style={{ background: 'none', border: '1px solid rgba(34,197,94,0.2)', color: '#64748b', padding: '8px 16px', borderRadius: 8, cursor: 'pointer', fontFamily: 'Montserrat, sans-serif', fontSize: 13 }}>
           Repetir diagnóstico
@@ -156,8 +170,8 @@ export default function PreparacionPage() {
 
       {/* Progress */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 32 }}>
-        <div style={{ flex: 1, height: 4, background: '#1e3050', borderRadius: 2 }}>
-          <div style={{ width: `${progressPct}%`, height: '100%', background: 'linear-gradient(90deg,#f59e0b,#22c55e)', borderRadius: 2, transition: 'width 0.3s' }} />
+        <div style={{ flex: 1, height: 4, background: '#1e3050', borderRadius: 2, overflow: 'hidden' }}>
+          <div style={{ width: '100%', height: '100%', background: 'linear-gradient(90deg,#f59e0b,#22c55e)', borderRadius: 2, transform: `scaleX(${progressPct / 100})`, transformOrigin: 'left', transition: 'transform 0.3s' }} />
         </div>
         <span style={{ fontSize: 12, color: '#64748b', fontWeight: 600, flexShrink: 0 }}>{currentIdx + 1} / {totalQ}</span>
       </div>

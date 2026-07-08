@@ -6,6 +6,17 @@ import ShareButton from '@/components/ShareButton';
 
 const modules = [
   {
+    id: 'beneficios',
+    href: '/beneficios',
+    icon: '⭐',
+    title: '¿Por qué BSF?',
+    subtitle: 'Beneficios, nutrición y ventajas',
+    description: 'Descubre por qué la mosca soldado negra es la proteína del futuro: beneficios por animal, composición nutricional y ventajas ambientales.',
+    color: '#8b5cf6',
+    time: '5 min',
+    tag: 'Intro',
+  },
+  {
     id: 'conocimiento',
     href: '/conocimiento',
     icon: '🧠',

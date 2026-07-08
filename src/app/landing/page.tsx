@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
+import { getSupabase } from '@/lib/supabase';
 
 const C = {
   bg:     '#0d1b2a',
@@ -22,12 +23,14 @@ export default function LandingPage() {
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const form = e.currentTarget;
-    const data = new FormData(form);
-    await fetch('https://formsubmit.co/juliana10zuli@gmail.com', { method: 'POST', body: data });
+    const nombre = (form.elements.namedItem('name') as HTMLInputElement).value;
+    const email  = (form.elements.namedItem('email') as HTMLInputElement).value;
+
+    const db = getSupabase();
+    if (db) await db.from('leads').insert({ nombre, email });
+
     setSubmitted(true);
-    setTimeout(() => {
-      window.location.href = '/gracias';
-    }, 1500);
+    setTimeout(() => { window.location.href = '/gracias'; }, 1500);
   }
 
   return (

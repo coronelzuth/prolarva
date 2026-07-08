@@ -32,11 +32,13 @@
 
 | Ruta | Descripción |
 |---|---|
-| `/` | Home — bienvenida + 3 módulos + botón compartir |
+| `/` | Home — bienvenida + 4 módulos + botón compartir |
 | `/conocimiento` | Módulo 1 — ciclo BSF, grid 3×3 de etapas |
 | `/preparacion` | Módulo 2 — quiz diagnóstico |
-| `/metas` | Módulo 3 — rutas de producción + calculadora inline |
+| `/metas` | Módulo 3 — rutas de producción + link a /calculadora |
+| `/cosecha` | Guía Práctica — 7 pasos: del huevo a la cosecha + ciclo cerrado |
 | `/calculadora` | Calculadora BSF completa (wizard 4 pasos) |
+| `/landing` | Landing page pública de ProLarva |
 | `/socios` | Zona privada — tracker de lotes, alimentación y cosechas |
 
 ---
@@ -48,19 +50,20 @@ src/
 ├── app/
 │   ├── layout.tsx            # Navbar + Larvi + WhatsApp + Analytics en todas las páginas
 │   ├── globals.css           # Paleta navy, Montserrat, reset
-│   ├── page.tsx              # Home
-│   ├── conocimiento/page.tsx # Módulo 1
-│   ├── preparacion/page.tsx  # Módulo 2
-│   ├── metas/page.tsx        # Módulo 3 + CalculadoraInline
-│   ├── calculadora/page.tsx  # Calculadora wizard completa (React nativo)
+│   ├── page.tsx              # Home — 4 módulos (incluye /cosecha como Módulo 4)
+│   ├── conocimiento/page.tsx # Módulo 1 — ciclo BSF con modal prev/next
+│   ├── preparacion/page.tsx  # Módulo 2 — quiz diagnóstico
+│   ├── metas/page.tsx        # Módulo 3 — rutas + link a /cosecha y /calculadora
+│   ├── cosecha/page.tsx      # Guía práctica — 7 pasos accordion + sección ciclo cerrado
+│   ├── calculadora/page.tsx  # Calculadora wizard completa (React nativo, 4 pasos)
+│   ├── landing/page.tsx      # Landing page pública
 │   └── socios/page.tsx       # Zona de Socios (login + tracker)
 │
 ├── components/
-│   ├── Navbar.tsx            # Sticky top, links + barra de progreso + botón Socios
+│   ├── Navbar.tsx            # Sticky top; 6 links + botón Socios; scroll horizontal en móvil
 │   ├── Larvi.tsx             # Bot flotante bottom-right, árbol de decisión hardcodeado
 │   ├── WhatsApp.tsx          # Botón flotante bottom-left → wa.me/573223212293
-│   ├── ShareButton.tsx       # Botón compartir en Home (WhatsApp share)
-│   └── CalculadoraInline.tsx # Mini-calculadora embebida en /metas (3 especies, ahorro mensual/anual)
+│   └── ShareButton.tsx       # Botón compartir en Home (WhatsApp share)
 │
 ├── data/
 │   ├── stages.ts             # 8 etapas del ciclo BSF con fotos[] y videos[]
@@ -105,9 +108,10 @@ Rojo (pérdidas):   #ef4444
 ## Componentes clave
 
 ### `Navbar.tsx`
-Links: Inicio / Conocimiento / Preparación / Mi Meta / Calculadora.
+Links: Inicio / Conocimiento / Preparación / Mi Meta / Cosecha / Calculadora.
 Botón separado `🔐 Socios` con gradiente verde cuando está activo.
 Muestra barra de progreso `overallPercent` del hook `useProgress`.
+**Móvil (<599px):** scroll horizontal, oculta textos de labels y barra de progreso, solo íconos.
 
 ### `Larvi.tsx`
 Bot flotante bottom-right. Árbol de decisión hardcodeado (`tree`).
@@ -132,7 +136,15 @@ Cálculo en `useEffect` que se dispara cuando `step === 4`.
 Login con credenciales demo: `SOCIO-2025 / larva123`, `coronelzulieth@gmail.com / prolarva2025`, `PROLARVA-ADMIN / admin2025`.
 5 vistas: Resumen, Mis Lotes, Alimentación, Cosechas, Guía Rápida.
 Sidebar sticky a `top: 60px` (debajo del Navbar), `height: calc(100vh - 60px)`.
+**Móvil (<768px):** sidebar oculto → bottom tab bar fijo + mobile header con nombre y logout.
 Estado en `localStorage` via `useSocios`.
+
+### `cosecha/page.tsx`
+Guía práctica en 7 pasos totales, divididos en dos secciones:
+- **Pasos 1–5 (Meta 1):** Conseguir semilla → Cuna → Eclosión → Traslado → Cosecha (días 15–18)
+- **Pasos 6–7 (Meta 3 — ciclo cerrado):** Las prepupas → Trampas de madera con afrecho/aserrín
+Patrón: acordeón con `useState<number>` (main) y `useState<number | null>` (ciclo).
+Cada paso tiene: descripción, consejos, alertas y sección "Qué registrar".
 
 ---
 
@@ -184,7 +196,8 @@ interface Stage {
 
 - [ ] **Fotos reales** — infraestructura lista en `stages.ts`, Juliana debe proveer archivos para `public/fotos/`
 - [ ] **Videos reales** — campo `videos[]` listo en `stages.ts`, necesita URLs de YouTube
-- [ ] **Tracker de ciclos** — se está desarrollando en agente separado; integrar como nueva ruta `/tracker` o `/mis-ciclos` con acceso desde el Home como Módulo 4 (color `#8b5cf6`)
+- [ ] **Foto real de Juliana** — placeholder "Tu foto aquí" en `/landing`
+- [ ] **URL del VSL** — campo listo en `/landing`, falta el link cuando el video esté listo
 
 ---
 
@@ -223,33 +236,33 @@ f6e3fe2  feat: calculadora inline + WhatsApp flotante + OG tags + Analytics + bo
 ## Estado actual
 > **Actualizar esta sección al final de cada sesión de trabajo.**
 
-**Última actualización:** 2026-07-07
+**Última actualización:** 2026-07-08
 
 **Qué está funcionando en producción:**
 - Todas las rutas desplegadas y accesibles en móvil y desktop
-- `/calculadora` es React nativo con los colores de la app (wizard 4 pasos)
-- `/socios` tiene login, tracker de lotes, alimentación y cosechas — con sidebar en desktop y bottom tab bar en móvil
-- `/metas` redirige a `/calculadora` con botón interno (ya no tiene mini-calculadora)
-- `/conocimiento` tiene modal con navegación prev/next por etapa
+- `/calculadora` — React nativo, 4 pasos, colores de la app
+- `/socios` — login, tracker de lotes/alimentación/cosechas, sidebar desktop + bottom tab bar móvil
+- `/metas` — 3 rutas + links a `/cosecha` y `/calculadora`
+- `/cosecha` — guía completa 7 pasos: Meta 1 (días 0–18) + Meta 3 ciclo cerrado (prepupas + trampas)
+- `/conocimiento` — modal con navegación prev/next por etapa, fotos y videos en etapa Huevo
+- `/landing` — landing pública con placeholder para foto de Juliana y VSL
+- Navbar: 6 links + Socios; scroll horizontal en móvil
 - WhatsApp flotante, Larvi bot, OG tags y Analytics activos
-- Galería de fotos + videos reales en la etapa Huevo (3 fotos + 2 videos)
 
-**Responsive móvil implementado (commit 898776d):**
-- Navbar: scroll horizontal en móvil, oculta texto y barra de progreso
-- Socios: sidebar → bottom tab bar en pantallas < 768px + header con logout
-- Calculadora: beneficios en 1 columna en < 380px
-- Landing: stats apiladas verticalmente con separador horizontal
-- Home: mascota se apila sobre el título en < 480px
+**Responsive móvil implementado:**
+- Navbar: scroll horizontal, oculta texto de labels y barra de progreso (<599px)
+- Socios: sidebar → bottom tab bar fijo + mobile header (<768px)
+- Calculadora: beneficios en 1 columna (<380px)
+- Landing: stats apiladas con separador horizontal (<600px)
+- Home: mascota se apila sobre el título (<480px)
 
 **Carpeta de trabajo canónica:**
 `C:\Users\HP\Desktop\Cosas de Zu\BR Prolarva\06 - Apps & Artifacts\prolarva-monitor`
-(la carpeta `C:\Users\HP\prolarva-monitor` fue eliminada)
 
 **Próxima sesión — continuar con:**
-- Agregar fotos reales para las 7 etapas restantes → copiar a `public/fotos/`
+- Agregar fotos reales para las 7 etapas restantes → copiar a `public/fotos/` y editar `data/stages.ts`
 - Agregar URLs de videos YouTube → editar `data/stages.ts`
-- Integrar tracker de ciclos como `/tracker` (Módulo 4, color `#8b5cf6`)
-- Agregar foto real de Juliana en landing page (placeholder "Tu foto aquí")
+- Agregar foto real de Juliana → placeholder "Tu foto aquí" en `/landing`
 - Agregar URL del VSL cuando esté listo en `/landing`
 
 **Cómo arrancar una sesión nueva:**

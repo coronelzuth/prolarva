@@ -116,7 +116,7 @@ export default function PreparacionPage() {
           if (result.knowledgeGap) {
             rec = { href: '/conocimiento', icon: '🧠', tag: 'Módulo 1', title: 'Conocimiento General', reason: 'Antes de empezar necesitas entender el ciclo BSF completo. Te tomará solo 15 minutos.' };
           } else if (selectedMeta) {
-            rec = { href: '/cosecha', icon: '🌾', tag: 'Guía Práctica', title: 'Cría y Cosecha BSF', reason: `Tu meta está definida (${metaLabels[selectedMeta]}). Ve directo a la guía práctica paso a paso.` };
+            rec = { href: '/metas', icon: '🎯', tag: 'Módulo 3', title: 'Establecer objetivo', reason: `Ya tienes una base sólida. Confirma tu objetivo de producción y accede a tu guía personalizada.` };
           } else {
             rec = { href: '/metas', icon: '🎯', tag: 'Módulo 3', title: 'Elige tu Meta', reason: 'Con este diagnóstico ya sabes dónde estás. Elige tu ruta de producción y recibe una guía personalizada.' };
           }

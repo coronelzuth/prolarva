@@ -155,6 +155,12 @@ export default function CalculadoraPage() {
         {/* ── STEP 1: Especie ── */}
         {step === 1 && (
           <div>
+            <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: '16px 18px', marginBottom: 22 }}>
+              <div style={{ fontSize: 15, fontWeight: 800, color: C.greenL, marginBottom: 8 }}>🧮 ¿Para qué sirve esto?</div>
+              <p style={{ fontSize: 13, color: C.muted, lineHeight: 1.65, margin: 0 }}>
+                Esta calculadora estima <strong style={{ color: C.text }}>cuánto está perdiendo por ciclo</strong> al no incluir BSF (mosca soldado negra) en la dieta de sus animales — tanto por mortalidad como por alimento mal aprovechado. Al final le mostramos cuánto podría ahorrarse usándolo.
+              </p>
+            </div>
             <div style={{ fontSize: 24, fontWeight: 900, color: C.greenL, marginBottom: 4 }}>¿Qué cría?</div>
             <div style={{ fontSize: 14, color: C.muted, marginBottom: 20 }}>Toque su especie y arrancamos.</div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10, marginBottom: 12 }}>

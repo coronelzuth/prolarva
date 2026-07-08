@@ -1,26 +1,27 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { getSupabase } from '@/lib/supabase';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 export interface Lote {
   id: string;
   nombre: string;
-  fecha: string; // ISO date YYYY-MM-DD
+  fecha: string;
   sustrato: number;
   tipoSustrato: string;
   huevos: string;
   temp: number | null;
   notas: string;
   creadoEn: string;
-  objetivo?: 'cosechar' | 'continuar'; // 'cosechar' = harvest larvae; 'continuar' = raise to pupa/fly; absent = 'cosechar'
+  objetivo?: 'cosechar' | 'continuar';
 }
 
 export interface FeedLog {
   id: string;
   loteId: string;
-  fecha: string; // ISO datetime
+  fecha: string;
   cantidad: number;
   tipo: string;
   rechazo: 'ninguno' | 'leve' | 'moderado' | 'alto';
@@ -68,48 +69,138 @@ export function uid(): string {
   return Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
 }
 
-// ─── Demo credentials ─────────────────────────────────────────────────────────
+// ─── Credentials ─────────────────────────────────────────────────────────────
 
 const DEMO_USERS: { code: string; pass: string; name: string }[] = [
-  { code: 'SOCIO-2025',            pass: 'larva123',     name: 'Socio Demo' },
+  { code: 'SOCIO-2025',              pass: 'larva123',     name: 'Socio Demo'       },
   { code: 'coronelzulieth@gmail.com', pass: 'prolarva2025', name: 'Juliana Coronel' },
-  { code: 'PROLARVA-ADMIN',        pass: 'admin2025',    name: 'Juliana Coronel' },
+  { code: 'PROLARVA-ADMIN',          pass: 'admin2025',    name: 'Juliana Coronel' },
 ];
 
 // ─── Storage keys ─────────────────────────────────────────────────────────────
 
 const KEYS = {
-  session: 'prl-session',
-  lotes:   'prl-lotes',
-  feeds:   'prl-feeds',
-  cosechas:'prl-cosechas',
+  session:  'prl-session',
+  lotes:    'prl-lotes',
+  feeds:    'prl-feeds',
+  cosechas: 'prl-cosechas',
 };
 
 function load<T>(key: string, def: T): T {
   try { return JSON.parse(localStorage.getItem(key) ?? '') ?? def; } catch { return def; }
 }
-function save<T>(key: string, val: T) {
+function localSave<T>(key: string, val: T) {
   try { localStorage.setItem(key, JSON.stringify(val)); } catch {}
+}
+
+// ─── Supabase row converters ──────────────────────────────────────────────────
+
+function loteToRow(socioCode: string, l: Lote) {
+  return {
+    id: l.id, socio_code: socioCode,
+    nombre: l.nombre, fecha: l.fecha,
+    sustrato: l.sustrato, tipo_sustrato: l.tipoSustrato,
+    huevos: l.huevos, temp: l.temp,
+    notas: l.notas, creado_en: l.creadoEn,
+    objetivo: l.objetivo ?? 'cosechar',
+  };
+}
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function loteFromRow(r: any): Lote {
+  return {
+    id: r.id, nombre: r.nombre, fecha: r.fecha,
+    sustrato: r.sustrato ?? 0, tipoSustrato: r.tipo_sustrato ?? '',
+    huevos: r.huevos ?? '', temp: r.temp ?? null,
+    notas: r.notas ?? '', creadoEn: r.creado_en,
+    objetivo: r.objetivo ?? 'cosechar',
+  };
+}
+
+function feedToRow(socioCode: string, f: FeedLog) {
+  return {
+    id: f.id, lote_id: f.loteId, socio_code: socioCode,
+    fecha: f.fecha, cantidad: f.cantidad, tipo: f.tipo,
+    rechazo: f.rechazo, notas: f.notas,
+  };
+}
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function feedFromRow(r: any): FeedLog {
+  return {
+    id: r.id, loteId: r.lote_id, fecha: r.fecha,
+    cantidad: r.cantidad, tipo: r.tipo,
+    rechazo: r.rechazo ?? 'ninguno', notas: r.notas ?? '',
+  };
+}
+
+function cosechaToRow(socioCode: string, c: Cosecha) {
+  return {
+    id: c.id, lote_id: c.loteId, socio_code: socioCode,
+    fecha: c.fecha, peso: c.peso,
+    sustrato_total: c.sustratoTotal, calidad: c.calidad, notas: c.notas,
+  };
+}
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function cosechaFromRow(r: any): Cosecha {
+  return {
+    id: r.id, loteId: r.lote_id, fecha: r.fecha,
+    peso: r.peso, sustratoTotal: r.sustrato_total ?? 0,
+    calidad: r.calidad ?? 'buena', notas: r.notas ?? '',
+  };
 }
 
 // ─── Hook ────────────────────────────────────────────────────────────────────
 
 export function useSocios() {
-  const [session, setSession]   = useState<SocioSession | null>(null);
-  const [lotes,   setLotes]     = useState<Lote[]>([]);
-  const [feeds,   setFeeds]     = useState<FeedLog[]>([]);
-  const [cosechas,setCosechas]  = useState<Cosecha[]>([]);
-  const [loaded,  setLoaded]    = useState(false);
+  const [session,   setSession]  = useState<SocioSession | null>(null);
+  const [lotes,     setLotes]    = useState<Lote[]>([]);
+  const [feeds,     setFeeds]    = useState<FeedLog[]>([]);
+  const [cosechas,  setCosechas] = useState<Cosecha[]>([]);
+  const [loaded,    setLoaded]   = useState(false);
 
   useEffect(() => {
-    setSession(load(KEYS.session, null));
-    setLotes(load(KEYS.lotes, []));
-    setFeeds(load(KEYS.feeds, []));
-    setCosechas(load(KEYS.cosechas, []));
-    setLoaded(true);
+    async function init() {
+      const sess = load<SocioSession | null>(KEYS.session, null);
+      setSession(sess);
+
+      // Load from localStorage first
+      const localLotes    = load<Lote[]>(KEYS.lotes, []);
+      const localFeeds    = load<FeedLog[]>(KEYS.feeds, []);
+      const localCosechas = load<Cosecha[]>(KEYS.cosechas, []);
+      setLotes(localLotes);
+      setFeeds(localFeeds);
+      setCosechas(localCosechas);
+
+      // Pull from Supabase if logged in
+      const db = getSupabase();
+      if (db && sess) {
+        const code = sess.code;
+        const [{ data: dbLotes }, { data: dbFeeds }, { data: dbCosechas }] = await Promise.all([
+          db.from('lotes').select('*').eq('socio_code', code),
+          db.from('feed_logs').select('*').eq('socio_code', code),
+          db.from('cosechas').select('*').eq('socio_code', code),
+        ]);
+
+        if (dbLotes) {
+          const arr = dbLotes.map(loteFromRow);
+          setLotes(arr); localSave(KEYS.lotes, arr);
+        }
+        if (dbFeeds) {
+          const arr = dbFeeds.map(feedFromRow);
+          setFeeds(arr); localSave(KEYS.feeds, arr);
+        }
+        if (dbCosechas) {
+          const arr = dbCosechas.map(cosechaFromRow);
+          setCosechas(arr); localSave(KEYS.cosechas, arr);
+        }
+      }
+
+      setLoaded(true);
+    }
+    init();
   }, []);
 
-  // Auth
+  // ─── Auth ──────────────────────────────────────────────────────────────────
+
   const login = useCallback((code: string, pass: string): boolean => {
     const found = DEMO_USERS.find(
       u => u.code.toLowerCase() === code.toLowerCase() && u.pass === pass
@@ -117,47 +208,92 @@ export function useSocios() {
     if (!found) return false;
     const s = { code: found.code, name: found.name };
     setSession(s);
-    save(KEYS.session, s);
+    localSave(KEYS.session, s);
     return true;
   }, []);
 
   const logout = useCallback(() => {
     setSession(null);
-    save(KEYS.session, null);
+    localSave(KEYS.session, null);
   }, []);
 
-  // Lotes
+  // ─── Lotes ─────────────────────────────────────────────────────────────────
+
   const addLote = useCallback((lote: Omit<Lote, 'id' | 'creadoEn'>) => {
     const next: Lote = { ...lote, id: uid(), creadoEn: new Date().toISOString() };
-    setLotes(prev => { const arr = [...prev, next]; save(KEYS.lotes, arr); return arr; });
-  }, []);
+    setLotes(prev => {
+      const arr = [...prev, next];
+      localSave(KEYS.lotes, arr);
+      const db = getSupabase();
+      if (db && session) db.from('lotes').upsert(loteToRow(session.code, next));
+      return arr;
+    });
+  }, [session]);
 
   const deleteLote = useCallback((id: string) => {
-    setLotes(prev => { const arr = prev.filter(l => l.id !== id); save(KEYS.lotes, arr); return arr; });
+    setLotes(prev => {
+      const arr = prev.filter(l => l.id !== id);
+      localSave(KEYS.lotes, arr);
+      const db = getSupabase();
+      if (db) db.from('lotes').delete().eq('id', id);
+      return arr;
+    });
+    setFeeds(prev => {
+      const arr = prev.filter(f => f.loteId !== id);
+      localSave(KEYS.feeds, arr);
+      return arr;
+    });
+    setCosechas(prev => {
+      const arr = prev.filter(c => c.loteId !== id);
+      localSave(KEYS.cosechas, arr);
+      return arr;
+    });
   }, []);
 
   const updateLote = useCallback((id: string, updates: Partial<Pick<Lote, 'nombre' | 'fecha'>>) => {
-    setLotes(prev => { const arr = prev.map(l => l.id === id ? { ...l, ...updates } : l); save(KEYS.lotes, arr); return arr; });
-  }, []);
+    setLotes(prev => {
+      const arr = prev.map(l => l.id === id ? { ...l, ...updates } : l);
+      localSave(KEYS.lotes, arr);
+      const db = getSupabase();
+      const updated = arr.find(l => l.id === id);
+      if (db && session && updated) db.from('lotes').upsert(loteToRow(session.code, updated));
+      return arr;
+    });
+  }, [session]);
 
-  // Feeds
+  // ─── Feeds ─────────────────────────────────────────────────────────────────
+
   const addFeed = useCallback((feed: Omit<FeedLog, 'id'>) => {
     const next: FeedLog = { ...feed, id: uid() };
-    setFeeds(prev => { const arr = [...prev, next]; save(KEYS.feeds, arr); return arr; });
-  }, []);
+    setFeeds(prev => {
+      const arr = [...prev, next];
+      localSave(KEYS.feeds, arr);
+      const db = getSupabase();
+      if (db && session) db.from('feed_logs').upsert(feedToRow(session.code, next));
+      return arr;
+    });
+  }, [session]);
 
-  // Cosechas
+  // ─── Cosechas ──────────────────────────────────────────────────────────────
+
   const addCosecha = useCallback((cosecha: Omit<Cosecha, 'id'>) => {
     const next: Cosecha = { ...cosecha, id: uid() };
-    setCosechas(prev => { const arr = [...prev, next]; save(KEYS.cosechas, arr); return arr; });
-  }, []);
+    setCosechas(prev => {
+      const arr = [...prev, next];
+      localSave(KEYS.cosechas, arr);
+      const db = getSupabase();
+      if (db && session) db.from('cosechas').upsert(cosechaToRow(session.code, next));
+      return arr;
+    });
+  }, [session]);
 
-  // Computed stats
-  const activeLotes  = lotes.filter(l => daysSince(l.fecha) <= 32);
-  const readyLotes   = lotes.filter(l => { const d = daysSince(l.fecha); return d >= 22 && d <= 32; });
-  const totalKg      = cosechas.reduce((a, c) => a + c.peso, 0);
-  const convs        = cosechas.filter(c => c.sustratoTotal > 0).map(c => (c.peso / c.sustratoTotal) * 100);
-  const avgConv      = convs.length ? convs.reduce((a, b) => a + b, 0) / convs.length : null;
+  // ─── Computed ──────────────────────────────────────────────────────────────
+
+  const activeLotes = lotes.filter(l => daysSince(l.fecha) <= 32);
+  const readyLotes  = lotes.filter(l => { const d = daysSince(l.fecha); return d >= 22 && d <= 32; });
+  const totalKg     = cosechas.reduce((a, c) => a + c.peso, 0);
+  const convs       = cosechas.filter(c => c.sustratoTotal > 0).map(c => (c.peso / c.sustratoTotal) * 100);
+  const avgConv     = convs.length ? convs.reduce((a, b) => a + b, 0) / convs.length : null;
 
   return {
     loaded, session, login, logout,

@@ -206,13 +206,6 @@ export default function Larvi() {
             <button onClick={() => setOpen(false)} style={{ marginLeft: 'auto', background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', fontSize: 18, lineHeight: 1 }}>×</button>
           </div>
 
-          {/* Quick links */}
-          <div style={{ padding: '8px 12px', display: 'flex', gap: 6, borderBottom: '1px solid rgba(34,197,94,0.12)', flexWrap: 'wrap' }}>
-            <a href="/conocimiento" style={{ fontSize: 11, padding: '4px 10px', background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.25)', borderRadius: 12, color: '#4ade80', textDecoration: 'none', fontWeight: 600 }}>🧠 Ciclo BSF</a>
-            <a href="/preparacion" style={{ fontSize: 11, padding: '4px 10px', background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.25)', borderRadius: 12, color: '#f59e0b', textDecoration: 'none', fontWeight: 600 }}>🛠️ Diagnóstico</a>
-            <a href="/metas" style={{ fontSize: 11, padding: '4px 10px', background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.25)', borderRadius: 12, color: '#10b981', textDecoration: 'none', fontWeight: 600 }}>🎯 Mi Meta</a>
-          </div>
-
           {/* Messages */}
           <div style={{ flex: 1, overflowY: 'auto', padding: 12, display: 'flex', flexDirection: 'column', gap: 8 }}>
             {messages.map((msg, i) => (

@@ -23,15 +23,15 @@ const steps = [
     color: '#f97316',
     summary: 'El punto de partida: tener huevos BSF listos para incubar.',
     description: [
-      'Tenés dos caminos para empezar:',
-      '🛒 Con ProLarva — la forma más segura. Recibís semilla lista para arrancar sin adivinar.',
+      'Tienes dos caminos para empezar:',
+      '🛒 Con ProLarva — la forma más segura. Recibes semilla lista para empezar sin adivinar.',
       '🌿 De forma natural — creá un sustrato atrayente y colocá tiras de cartón corrugado para que las hembras depositen los huevos entre las capas.',
       'Los huevos son puntos crema casi invisibles, del tamaño de una semilla de mostaza. Los encontrás entre las capas del cartón.',
     ],
     tips: [
       'Para atraer hembras naturalmente: banano maduro + gallinaza + un poco de aceite vegetal funciona muy bien.',
-      'Las hembras solo ponen en presencia de luz solar directa — asegurate de que el insectario tenga acceso al sol.',
-      'Revisá el cartón cada 2 días. Cuando veas los puntitos crema, ya podés separar los huevos.',
+      'Las hembras solo ponen en presencia de luz solar directa — asegúrate de que el insectario tenga acceso al sol.',
+      'Revisa el cartón cada 2 días. Cuando veas los puntitos crema, ya puedes separar los huevos.',
     ],
     alerts: [],
     registro: 'Anotá la fecha exacta en que recolectás los huevos. Ese es tu Día 0 de ciclo.',
@@ -46,7 +46,7 @@ const steps = [
     description: [
       'Una vez que tenés los huevos, hay que darles el ambiente ideal para que eclosionen bien:',
       '1. Separá los huevos del cartón y colocalos sobre una malla fina o una hoja de papel.',
-      '2. Poné esa malla/papel encima de una capa de sustrato muy triturado y suave — casi pastoso.',
+      '2. Pon esa malla/papel encima de una capa de sustrato muy triturado y suave — casi pastoso.',
       '3. Una excelente opción: purina de pollo humedecida. Las larvitas pueden comerla directamente al nacer sin que tengas que hacer nada más.',
     ],
     tips: [
@@ -94,8 +94,8 @@ const steps = [
     description: [
       'Al día 9 las larvas miden ya varios milímetros y necesitan más espacio y más comida.',
       'Trasladarlas — junto con el sustrato inicial — al contenedor de producción definitivo (más grande).',
-      'Acá es donde se desarrollan completamente. La calidad de la cosecha depende de cómo manejés esta etapa.',
-      'Agregá alimento fresco aproximadamente cada 2 días — frutas, verduras, gallinaza, sobras orgánicas.',
+      'Acá es donde se desarrollan completamente. La calidad de la cosecha depende de cómo manejes esta etapa.',
+      'Agrega alimento fresco aproximadamente cada 2 días — frutas, verduras, gallinaza, sobras orgánicas.',
     ],
     tips: [
       'No sobrealimentes: si aún hay sustrato sin consumir, esperá para agregar más.',
@@ -103,7 +103,7 @@ const steps = [
       'Podés combinar distintos tipos de residuos para mejorar el perfil nutricional.',
     ],
     alerts: [
-      '⚠️ Olor fuerte = demasiada humedad en el sustrato. Reducí el alimento húmedo, ventilá un poco. Esto es lo más importante de monitorear.',
+      '⚠️ Olor fuerte = demasiada humedad en el sustrato. Reduce el alimento húmedo, ventila un poco. Esto es lo más importante de monitorear.',
       'No uses alimentos podridos, con hongos, ni cítricos en exceso.',
       'Sin sal y sin aceite — los dañan.',
     ],
@@ -146,15 +146,15 @@ const cicloSteps = [
     color: '#a16207',
     summary: 'Si no cosechás, las larvas se oscurecen solas y entran en prepupa. Eso es normal y perfecto.',
     description: [
-      'Si decidís continuar el ciclo en vez de cosechar todo, el proceso sigue solo:',
-      'Seguí agregando comida cada 2 días como hasta ahora. Las larvas siguen comiendo.',
-      'Con el tiempo empezás a notar que algunas larvas se oscurecen — pasan de blanco-crema a marrón oscuro. Esas son las prepupas.',
+      'Si decides continuar el ciclo en vez de cosechar todo, el proceso sigue solo:',
+      'Sigue agregando comida cada 2 días como hasta ahora. Las larvas siguen comiendo.',
+      'Con el tiempo empiezas a notar que algunas larvas se oscurecen — pasan de blanco-crema a marrón oscuro. Esas son las prepupas.',
       'Siguen activas y se mueven, pero ya no comen. Por instinto, empiezan a alejarse de la humedad y buscan un lugar seco.',
       'No tenés que hacer nada todavía — este cambio es natural y progresivo.',
     ],
     tips: [
       'No todas se oscurecen al mismo tiempo — es normal que haya una mezcla de larvas blancas y prepupas marrones.',
-      'En este punto podés seguir cosechando las blancas para alimento y dejar que las marrones sigan su ciclo.',
+      'En este punto puedes seguir cosechando las blancas para alimento y dejar que las marrones sigan su ciclo.',
       'Mantené el contenedor en oscuridad — las prepupas se estresan con la luz.',
     ],
     alerts: [
@@ -192,7 +192,7 @@ const cicloSteps = [
 ];
 
 export default function CosechaPage() {
-  const [open, setOpen] = useState<number>(1);
+  const [open, setOpen] = useState<number | null>(null);
   const [openCiclo, setOpenCiclo] = useState<number | null>(null);
 
   useEffect(() => {
@@ -264,13 +264,12 @@ export default function CosechaPage() {
             >
               {/* Header */}
               <button
-                onClick={() => setOpen(isOpen ? open : s.n)}
+                onClick={() => setOpen(isOpen ? null : s.n)}
                 style={{
                   width: '100%', display: 'flex', alignItems: 'center', gap: 14,
                   padding: '16px 20px', background: 'none', border: 'none',
                   cursor: 'pointer', textAlign: 'left',
                   fontFamily: 'Montserrat, sans-serif',
-                  borderLeft: `4px solid ${s.color}`,
                 }}
               >
                 <div style={{
@@ -296,7 +295,7 @@ export default function CosechaPage() {
 
               {/* Body */}
               {isOpen && (
-                <div style={{ padding: '0 20px 22px', borderLeft: `4px solid ${s.color}` }}>
+                <div style={{ padding: '0 20px 22px' }}>
                   <div style={{ height: 1, background: `${s.color}25`, marginBottom: 18 }} />
 
                   {/* Description */}
@@ -379,14 +378,14 @@ export default function CosechaPage() {
           <div style={{ flex: 1, height: 1, background: 'rgba(124,58,237,0.25)' }} />
           <div style={{ textAlign: 'center' }}>
             <div style={{ fontSize: 22, marginBottom: 4 }}>♻️</div>
-            <div style={{ fontSize: 14, fontWeight: 800, color: '#a78bfa', whiteSpace: 'nowrap' }}>¿Querés continuar el ciclo?</div>
+            <div style={{ fontSize: 14, fontWeight: 800, color: '#a78bfa', whiteSpace: 'nowrap' }}>¿Quieres continuar el ciclo?</div>
           </div>
           <div style={{ flex: 1, height: 1, background: 'rgba(124,58,237,0.25)' }} />
         </div>
 
         <div style={{ background: 'rgba(124,58,237,0.06)', border: '1px solid rgba(124,58,237,0.2)', borderRadius: 12, padding: '14px 18px', marginBottom: 22 }}>
           <p style={{ fontSize: 13, color: '#94a3b8', lineHeight: 1.65, margin: 0 }}>
-            Si en vez de cosechar todo decidís <strong style={{ color: '#a78bfa' }}>cerrar el ciclo</strong> y producir tus propias adultas ponedoras, estos son los dos pasos que siguen después de la cosecha. Acá está la <strong style={{ color: '#a78bfa' }}>Meta 3 — Ciclo cerrado continuo</strong>.
+            Si en vez de cosechar todo decides <strong style={{ color: '#a78bfa' }}>cerrar el ciclo</strong> y producir tus propias adultas ponedoras, estos son los dos pasos que siguen después de la cosecha. Acá está la <strong style={{ color: '#a78bfa' }}>Meta 3 — Ciclo cerrado continuo</strong>.
           </p>
         </div>
 
@@ -410,7 +409,6 @@ export default function CosechaPage() {
                     padding: '16px 20px', background: 'none', border: 'none',
                     cursor: 'pointer', textAlign: 'left',
                     fontFamily: 'Montserrat, sans-serif',
-                    borderLeft: `4px solid ${s.color}`,
                   }}
                 >
                   <div style={{
@@ -435,7 +433,7 @@ export default function CosechaPage() {
                 </button>
 
                 {isOpen && (
-                  <div style={{ padding: '0 20px 22px', borderLeft: `4px solid ${s.color}` }}>
+                  <div style={{ padding: '0 20px 22px' }}>
                     <div style={{ height: 1, background: `${s.color}25`, marginBottom: 18 }} />
 
                     <div style={{ marginBottom: 16 }}>
@@ -511,7 +509,7 @@ export default function CosechaPage() {
         <div style={{ fontSize: 28, marginBottom: 10 }}>🪲</div>
         <div style={{ fontSize: 16, fontWeight: 800, color: '#f1f5f9', marginBottom: 8 }}>¿Listo para tu primer ciclo?</div>
         <p style={{ fontSize: 13, color: '#94a3b8', marginBottom: 20, lineHeight: 1.65, maxWidth: 440, margin: '0 auto 20px' }}>
-          Conseguí tu semilla BSF con ProLarva y empezá a producir tu propia proteína esta semana. El primer ciclo siempre es el que más enseña.
+          Consigue tu semilla BSF con ProLarva y empieza a producir tu propia proteína esta semana. El primer ciclo siempre es el que más enseña.
         </p>
         <a
           href="https://wa.me/573223212293?text=Hola%20ProLarva%20%F0%9F%91%8B%20quiero%20empezar%20mi%20primer%20ciclo%20BSF"

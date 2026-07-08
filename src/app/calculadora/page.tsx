@@ -150,7 +150,7 @@ export default function CalculadoraPage() {
         </div>
       </div>
 
-      <div style={{ maxWidth: 480, margin: '0 auto', padding: '20px 16px 48px' }}>
+      <div style={{ maxWidth: 480, margin: '0 auto', padding: '32px 20px 60px' }}>
 
         {/* ── STEP 1: Especie ── */}
         {step === 1 && (
@@ -261,7 +261,7 @@ export default function CalculadoraPage() {
                 { lbl: 'Animales que mueren de más sin BSF', val: cop(result.perdMort), ic: '💀' },
                 { lbl: 'Alimento que compra de más porque sus animales no lo aprovechan bien', val: cop(result.perdFCR), ic: '🌽' },
               ].map((row, i) => (
-                <div key={i} style={{ background: C.card2, borderRadius: 12, padding: 13, borderLeft: `4px solid ${C.red}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                <div key={i} style={{ background: C.card2, borderRadius: 12, padding: 13, border: `1px solid rgba(239,68,68,0.3)`, display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
                   <div><div style={{ fontSize: 12, color: C.muted, marginBottom: 2 }}>{row.lbl}</div><div style={{ fontSize: 16, fontWeight: 800, color: C.red }}>{row.val}</div></div>
                   <div style={{ fontSize: 22 }}>{row.ic}</div>
                 </div>
@@ -340,7 +340,7 @@ export default function CalculadoraPage() {
                   {i < 2 && <div style={{ width: 2, background: 'rgba(255,255,255,0.2)', height: 16, margin: '3px 0 3px 13px' }} />}
                 </div>
               ))}
-              <div style={{ background: 'rgba(255,255,255,0.1)', borderRadius: 10, padding: 12, marginTop: 14, fontSize: 12, color: 'rgba(255,255,255,0.85)', lineHeight: 1.5, fontStyle: 'italic', borderLeft: `3px solid ${C.green}` }}>
+              <div style={{ background: 'rgba(34,197,94,0.07)', borderRadius: 10, padding: 12, marginTop: 14, fontSize: 12, color: 'rgba(255,255,255,0.85)', lineHeight: 1.5, fontStyle: 'italic', border: '1px solid rgba(34,197,94,0.2)' }}>
                 "Mientras usted sigue comprando concentrado, su vecino ya produce su propia proteína. Gratis."
               </div>
             </div>

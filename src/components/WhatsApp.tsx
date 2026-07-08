@@ -12,7 +12,7 @@ export default function WhatsApp() {
         borderRadius: '50%', background: '#25D366',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         boxShadow: '0 4px 16px rgba(37,211,102,0.4)',
-        zIndex: 1000, textDecoration: 'none',
+        zIndex: 45, textDecoration: 'none',
         transition: 'transform 0.2s, box-shadow 0.2s',
       }}
       onMouseEnter={e => {

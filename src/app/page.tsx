@@ -44,7 +44,7 @@ const modules = [
     icon: '🌾',
     title: 'Cría y Cosecha BSF',
     subtitle: 'Del huevo a la cosecha en 18 días',
-    description: 'Guía práctica paso a paso: conseguí la semilla, incubá los huevos, alimentá las larvas, trasladarlas al día 9 y cosechá entre el día 15 y 18.',
+    description: 'Guía práctica paso a paso: consigue la semilla, incuba los huevos, alimenta las larvas, trasládalas al día 9 y cosecha entre el día 15 y 18.',
     color: '#f97316',
     time: '18 días',
     tag: 'Guía Práctica',
@@ -69,10 +69,6 @@ export default function Home() {
   return (
     <div style={{ maxWidth: 1000, margin: '0 auto', padding: '40px 20px 80px' }}>
       <div style={{ textAlign: 'center', marginBottom: 56 }}>
-        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.3)', borderRadius: 20, padding: '6px 16px', marginBottom: 20 }}>
-          <span>🪲</span>
-          <span style={{ fontSize: 13, color: '#4ade80', fontWeight: 600 }}>Mosca Soldado Negra · BSF</span>
-        </div>
         <div className="hero-row" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 16, marginBottom: 16 }}>
           <img src="/larvi-mascota.png" alt="Larvi" className="hero-mascot" style={{ width: 80, height: 80, objectFit: 'contain', flexShrink: 0 }} />
           <h1 className="hero-title" style={{ fontSize: 'clamp(26px,5vw,42px)', fontWeight: 900, lineHeight: 1.15, margin: 0, textAlign: 'left' }}>
@@ -85,13 +81,10 @@ export default function Home() {
         <p style={{ fontSize: 16, color: '#94a3b8', maxWidth: 520, margin: '0 auto 16px', lineHeight: 1.6 }}>
           Desde cero hasta tu primera cosecha. Aprende el ciclo, diagnostica tu preparación y elige tu ruta de producción.
         </p>
-        <div style={{ marginBottom: 24 }}>
-          <ShareButton />
-        </div>
         {loaded && overallPercent > 0 && (
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 12, background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.3)', borderRadius: 12, padding: '10px 20px' }}>
-            <div style={{ width: 120, height: 6, background: '#1e3050', borderRadius: 3 }}>
-              <div style={{ width: `${overallPercent}%`, height: '100%', background: 'linear-gradient(90deg,#10b981,#16a34a)', borderRadius: 3, transition: 'width 0.5s' }} />
+            <div style={{ width: 120, height: 6, background: '#1e3050', borderRadius: 3, overflow: 'hidden' }}>
+              <div style={{ width: '100%', height: '100%', background: 'linear-gradient(90deg,#10b981,#16a34a)', borderRadius: 3, transform: `scaleX(${overallPercent / 100})`, transformOrigin: 'left', transition: 'transform 0.5s' }} />
             </div>
             <span style={{ fontSize: 13, fontWeight: 700, color: '#10b981' }}>{overallPercent}% completado</span>
           </div>
@@ -165,6 +158,12 @@ export default function Home() {
           </div>
         ))}
       </div>
+
+      <div style={{ textAlign: 'center', marginTop: 36, paddingTop: 28, borderTop: '1px solid rgba(34,197,94,0.1)' }}>
+        <p style={{ fontSize: 13, color: '#64748b', marginBottom: 12 }}>¿Le parece útil? Compártelo con otros productores</p>
+        <ShareButton />
+      </div>
+
       <style>{`
         @media (max-width: 480px) {
           .hero-row { flex-direction: column; gap: 8px; }

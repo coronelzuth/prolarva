@@ -1,12 +1,13 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
 import { stages } from '@/data/stages';
 import { useProgress } from '@/hooks/useProgress';
 
 export default function ConocimientoPage() {
   const [activeIdx, setActiveIdx] = useState<number | null>(null);
+  const [lightbox, setLightbox] = useState<string | null>(null);
   const { markVisited, markCompleted, markStageViewed, progress } = useProgress();
 
   useEffect(() => { markVisited('conocimiento'); }, [markVisited]);
@@ -39,13 +40,13 @@ export default function ConocimientoPage() {
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (activeIdx === null) return;
-      if (e.key === 'Escape') close();
+      if (e.key === 'Escape') { if (lightbox) { setLightbox(null); return; } close(); }
       if (e.key === 'ArrowRight') goNext();
       if (e.key === 'ArrowLeft') goPrev();
     };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
-  }, [activeIdx, close, goNext, goPrev]);
+  }, [activeIdx, close, goNext, goPrev, lightbox]);
 
   // Cleanup on unmount
   useEffect(() => () => { document.body.style.overflow = ''; }, []);
@@ -68,12 +69,12 @@ export default function ConocimientoPage() {
           🧠 Conocimiento General
         </h1>
         <p style={{ fontSize: 15, color: '#94a3b8', lineHeight: 1.6, maxWidth: 600 }}>
-          Aprende el ciclo completo de la <strong style={{ color: '#4ade80' }}>Mosca Soldado Negra (BSF)</strong>. Son 8 etapas — tocá cada una para ver detalles, temperatura, cuidados y alertas.
+          Aprende el ciclo completo de la <strong style={{ color: '#4ade80' }}>Mosca Soldado Negra (BSF)</strong>. Son 8 etapas — toca cada una para ver detalles, temperatura, cuidados y alertas.
         </p>
         <div style={{ marginTop: 14, display: 'flex', alignItems: 'center', gap: 12 }}>
           <div style={{ fontSize: 13, color: '#64748b' }}>{progress.stagesViewed.length} / {stages.length} etapas vistas</div>
-          <div style={{ width: 100, height: 4, background: '#1e3050', borderRadius: 2 }}>
-            <div style={{ width: `${(progress.stagesViewed.length / stages.length) * 100}%`, height: '100%', background: '#22c55e', borderRadius: 2, transition: 'width 0.3s' }} />
+          <div style={{ width: 100, height: 4, background: '#1e3050', borderRadius: 2, overflow: 'hidden' }}>
+            <div style={{ width: '100%', height: '100%', background: '#22c55e', borderRadius: 2, transform: `scaleX(${progress.stagesViewed.length / stages.length})`, transformOrigin: 'left', transition: 'transform 0.3s' }} />
           </div>
         </div>
       </div>
@@ -124,7 +125,7 @@ export default function ConocimientoPage() {
         ) : (
           <div>
             <div style={{ fontWeight: 700, color: '#f1f5f9', fontSize: 16, marginBottom: 6 }}>¿Ya revisaste todas las etapas?</div>
-            <div style={{ fontSize: 13, color: '#64748b', marginBottom: 16 }}>Marcá el módulo como completado para llevar tu progreso</div>
+            <div style={{ fontSize: 13, color: '#64748b', marginBottom: 16 }}>Marca el módulo como completado para llevar tu progreso</div>
             <button onClick={handleComplete} style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'linear-gradient(135deg,#22c55e,#16a34a)', color: 'white', padding: '12px 24px', borderRadius: 10, border: 'none', cursor: 'pointer', fontWeight: 700, fontSize: 14, fontFamily: 'Montserrat, sans-serif', marginRight: 12 }}>
               ✓ Completar Módulo 1
             </button>
@@ -170,10 +171,8 @@ export default function ConocimientoPage() {
                       <div style={{ fontSize: 11, fontWeight: 700, color: '#64748b', marginBottom: 8, letterSpacing: 1 }}>📸 FOTOS</div>
                       <div className="foto-grid">
                         {activeStage.photos.map((photo, i) => (
-                          <div key={i} style={{ borderRadius: 10, overflow: 'hidden', border: `1px solid ${activeStage.color}30`, aspectRatio: '4/3' }}>
-                            <img src={photo} alt={`${activeStage.name} ${i + 1}`} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transition: 'transform 0.25s' }}
-                              onMouseEnter={e => (e.currentTarget.style.transform = 'scale(1.04)')}
-                              onMouseLeave={e => (e.currentTarget.style.transform = 'scale(1)')} />
+                          <div key={i} onClick={() => setLightbox(photo)} style={{ borderRadius: 10, overflow: 'hidden', border: `1px solid ${activeStage.color}30`, aspectRatio: '4/3', cursor: 'zoom-in' }}>
+                            <img src={photo} alt={`${activeStage.name} ${i + 1}`} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
                           </div>
                         ))}
                       </div>
@@ -186,10 +185,7 @@ export default function ConocimientoPage() {
                         {activeStage.videos.map((video, i) => {
                           const isLocal = video.url.endsWith('.mp4') || video.url.startsWith('/');
                           return isLocal ? (
-                            <div key={i} style={{ borderRadius: 10, overflow: 'hidden', border: `1px solid ${activeStage.color}30`, background: '#0a1628' }}>
-                              <video src={video.url} controls muted playsInline preload="metadata" style={{ width: '100%', display: 'block' }} />
-                              <div style={{ padding: '6px 10px', fontSize: 11, color: '#94a3b8', fontWeight: 600 }}>{video.title}</div>
-                            </div>
+                            <VideoPlayer key={i} src={video.url} title={video.title} color={activeStage.color} />
                           ) : (
                             <a key={i} href={video.url} target="_blank" rel="noopener noreferrer"
                               style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', background: 'rgba(30,48,80,0.6)', borderRadius: 10, border: `1px solid ${activeStage.color}30`, textDecoration: 'none' }}>
@@ -243,6 +239,14 @@ export default function ConocimientoPage() {
         </>
       )}
 
+      {/* Lightbox fullscreen */}
+      {lightbox && (
+        <div onClick={() => setLightbox(null)} style={{ position: 'fixed', inset: 0, zIndex: 200, background: 'rgba(0,0,0,0.96)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'zoom-out' }}>
+          <img src={lightbox} alt="" onClick={e => e.stopPropagation()} style={{ maxWidth: '95vw', maxHeight: '95vh', objectFit: 'contain', borderRadius: 8, boxShadow: '0 8px 48px rgba(0,0,0,0.8)' }} />
+          <button onClick={() => setLightbox(null)} style={{ position: 'absolute', top: 16, right: 16, background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)', color: '#fff', borderRadius: '50%', width: 40, height: 40, fontSize: 20, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1, fontFamily: 'Montserrat, sans-serif' }}>×</button>
+        </div>
+      )}
+
       <style>{`
         .modal-panel {
           top: 50%; left: 50%;
@@ -266,6 +270,29 @@ export default function ConocimientoPage() {
           .tips-grid { grid-template-columns: 1fr; }
         }
       `}</style>
+    </div>
+  );
+}
+
+function VideoPlayer({ src, title, color }: { src: string; title: string; color: string }) {
+  const ref = useRef<HTMLVideoElement>(null);
+  const [playing, setPlaying] = useState(true);
+  const toggle = () => {
+    if (!ref.current) return;
+    if (ref.current.paused) { ref.current.play(); setPlaying(true); }
+    else { ref.current.pause(); setPlaying(false); }
+  };
+  return (
+    <div style={{ borderRadius: 10, overflow: 'hidden', border: `1px solid ${color}30`, background: '#0a1628', position: 'relative' }}>
+      <video ref={ref} src={src} autoPlay muted loop playsInline style={{ width: '100%', display: 'block' }} />
+      <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '20px 10px 8px', background: 'linear-gradient(transparent, rgba(0,0,0,0.65))' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <button onClick={toggle} style={{ background: 'rgba(255,255,255,0.18)', border: 'none', color: '#fff', borderRadius: 6, padding: '4px 10px', fontSize: 12, cursor: 'pointer', fontFamily: 'Montserrat, sans-serif', fontWeight: 700 }}>
+            {playing ? '⏸' : '▶'}
+          </button>
+          <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.75)', fontWeight: 600 }}>{title}</span>
+        </div>
+      </div>
     </div>
   );
 }

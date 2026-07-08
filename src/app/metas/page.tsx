@@ -16,6 +16,11 @@ export default function MetasPage() {
     if (progress.selectedMeta) setActiveMeta(progress.selectedMeta);
   }, [markVisited, progress.selectedMeta]);
 
+  useEffect(() => {
+    document.body.style.overflow = showModal ? 'hidden' : '';
+    return () => { document.body.style.overflow = ''; };
+  }, [showModal]);
+
   const handleSelectMeta = (id: string) => {
     setActiveMeta(id);
     setActiveStep(null);

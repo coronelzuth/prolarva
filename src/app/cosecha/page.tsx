@@ -137,8 +137,63 @@ const steps = [
   },
 ];
 
+const cicloSteps = [
+  {
+    n: 6,
+    emoji: '🟤',
+    title: 'Las prepupas — el ciclo sigue',
+    range: 'Día 18+',
+    color: '#a16207',
+    summary: 'Si no cosechás, las larvas se oscurecen solas y entran en prepupa. Eso es normal y perfecto.',
+    description: [
+      'Si decidís continuar el ciclo en vez de cosechar todo, el proceso sigue solo:',
+      'Seguí agregando comida cada 2 días como hasta ahora. Las larvas siguen comiendo.',
+      'Con el tiempo empezás a notar que algunas larvas se oscurecen — pasan de blanco-crema a marrón oscuro. Esas son las prepupas.',
+      'Siguen activas y se mueven, pero ya no comen. Por instinto, empiezan a alejarse de la humedad y buscan un lugar seco.',
+      'No tenés que hacer nada todavía — este cambio es natural y progresivo.',
+    ],
+    tips: [
+      'No todas se oscurecen al mismo tiempo — es normal que haya una mezcla de larvas blancas y prepupas marrones.',
+      'En este punto podés seguir cosechando las blancas para alimento y dejar que las marrones sigan su ciclo.',
+      'Mantené el contenedor en oscuridad — las prepupas se estresan con la luz.',
+    ],
+    alerts: [
+      'No agregues demasiada humedad cuando ya hay muchas prepupas — buscan escapar de la humedad y se dispersan.',
+      'Si ves prepupas intentando salirse del contenedor, es la señal para preparar las trampas del siguiente paso.',
+    ],
+    registro: 'Anotá cuando empieza el cambio de color. Eso te da la referencia para saber cuándo armar las trampas.',
+  },
+  {
+    n: 7,
+    emoji: '🪵',
+    title: 'Trampas para prepupas',
+    range: 'Día 22–28',
+    color: '#7c3aed',
+    summary: 'Tablas de madera que guían las prepupas hacia un contenedor seco con afrecho o aserrín. Ellas se mueven solas.',
+    description: [
+      'Cuando la mayoría del lote ya está en prepupa, es hora de facilitarles la salida.',
+      'Las prepupas se alejan de la humedad por instinto — usás ese instinto a tu favor.',
+      'Armá unas rampas o tablitas de madera que salgan del sustrato y "caigan" hacia afuera del contenedor. Las prepupas van a subirlas solas y caer al otro lado.',
+      'Del otro lado ponés un contenedor nuevo con una cama de afrecho (salvado de trigo) o aserrín. Ahí es donde van a pupar.',
+      'En ese segundo contenedor, en un lugar oscuro, fresco y ventilado, las prepupas se transforman en pupas durante 10–14 días.',
+    ],
+    tips: [
+      'Las tablitas deben quedar inclinadas — las prepupas suben hacia arriba, hacia lo seco.',
+      'El afrecho o aserrín debe estar seco — la clave es que sea un ambiente opuesto al sustrato húmedo.',
+      'El contenedor de pupas no necesita comida — en esta etapa no comen.',
+    ],
+    alerts: [
+      'El contenedor de pupas debe tener buena ventilación pero sin humedad.',
+      'Las hormigas son el peor enemigo en esta etapa — asegurate de que no puedan entrar.',
+      'No manipules las pupas — son frágiles y el movimiento las daña.',
+    ],
+    registro: 'Anotá cuántas prepupas lograste recolectar. En 10–14 días eclosionan como adultos, se aparean, ponen huevos, y el ciclo comienza de nuevo.',
+  },
+];
+
 export default function CosechaPage() {
   const [open, setOpen] = useState<number>(1);
+  const [openCiclo, setOpenCiclo] = useState<number | null>(null);
 
   useEffect(() => {
     window.scrollTo({ top: 0 });
@@ -315,6 +370,140 @@ export default function CosechaPage() {
             </div>
           );
         })}
+      </div>
+
+      {/* Ciclo cerrado */}
+      <div style={{ marginTop: 48 }}>
+        {/* Separador */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 28 }}>
+          <div style={{ flex: 1, height: 1, background: 'rgba(124,58,237,0.25)' }} />
+          <div style={{ textAlign: 'center' }}>
+            <div style={{ fontSize: 22, marginBottom: 4 }}>♻️</div>
+            <div style={{ fontSize: 14, fontWeight: 800, color: '#a78bfa', whiteSpace: 'nowrap' }}>¿Querés continuar el ciclo?</div>
+          </div>
+          <div style={{ flex: 1, height: 1, background: 'rgba(124,58,237,0.25)' }} />
+        </div>
+
+        <div style={{ background: 'rgba(124,58,237,0.06)', border: '1px solid rgba(124,58,237,0.2)', borderRadius: 12, padding: '14px 18px', marginBottom: 22 }}>
+          <p style={{ fontSize: 13, color: '#94a3b8', lineHeight: 1.65, margin: 0 }}>
+            Si en vez de cosechar todo decidís <strong style={{ color: '#a78bfa' }}>cerrar el ciclo</strong> y producir tus propias adultas ponedoras, estos son los dos pasos que siguen después de la cosecha. Acá está la <strong style={{ color: '#a78bfa' }}>Meta 3 — Ciclo cerrado continuo</strong>.
+          </p>
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          {cicloSteps.map(s => {
+            const isOpen = openCiclo === s.n;
+            return (
+              <div
+                key={s.n}
+                style={{
+                  borderRadius: 14, overflow: 'hidden',
+                  background: 'rgba(21,32,53,0.7)',
+                  border: `1px solid ${isOpen ? s.color + '55' : 'rgba(124,58,237,0.15)'}`,
+                  transition: 'border-color 0.2s',
+                }}
+              >
+                <button
+                  onClick={() => setOpenCiclo(isOpen ? null : s.n)}
+                  style={{
+                    width: '100%', display: 'flex', alignItems: 'center', gap: 14,
+                    padding: '16px 20px', background: 'none', border: 'none',
+                    cursor: 'pointer', textAlign: 'left',
+                    fontFamily: 'Montserrat, sans-serif',
+                    borderLeft: `4px solid ${s.color}`,
+                  }}
+                >
+                  <div style={{
+                    width: 38, height: 38, borderRadius: '50%',
+                    background: `${s.color}18`, border: `2px solid ${s.color}55`,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: 18, flexShrink: 0,
+                  }}>
+                    {s.emoji}
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: 10, color: s.color, fontWeight: 700, marginBottom: 2, letterSpacing: '0.05em' }}>
+                      PASO {s.n} · {s.range}
+                    </div>
+                    <div style={{ fontSize: 15, fontWeight: 800, color: '#f1f5f9', marginBottom: 2 }}>{s.title}</div>
+                    <div style={{ fontSize: 12, color: '#64748b', lineHeight: 1.4 }}>{s.summary}</div>
+                  </div>
+                  <span style={{
+                    color: '#64748b', fontSize: 14, flexShrink: 0,
+                    transition: 'transform 0.2s', transform: isOpen ? 'rotate(180deg)' : 'none',
+                  }}>▾</span>
+                </button>
+
+                {isOpen && (
+                  <div style={{ padding: '0 20px 22px', borderLeft: `4px solid ${s.color}` }}>
+                    <div style={{ height: 1, background: `${s.color}25`, marginBottom: 18 }} />
+
+                    <div style={{ marginBottom: 16 }}>
+                      {s.description.map((line, i) => (
+                        <p key={i} style={{ fontSize: 13, color: '#cbd5e1', lineHeight: 1.75, marginBottom: 5 }}>{line}</p>
+                      ))}
+                    </div>
+
+                    {s.tips.length > 0 && (
+                      <div style={{ background: 'rgba(34,197,94,0.07)', border: '1px solid rgba(34,197,94,0.18)', borderRadius: 10, padding: '12px 16px', marginBottom: 10 }}>
+                        <div style={{ fontSize: 10, fontWeight: 700, color: '#4ade80', marginBottom: 8, letterSpacing: '0.06em' }}>💡 CONSEJOS</div>
+                        {s.tips.map((t, i) => (
+                          <div key={i} style={{ display: 'flex', gap: 8, marginBottom: 6, fontSize: 12, color: '#94a3b8', lineHeight: 1.55 }}>
+                            <span style={{ color: '#22c55e', flexShrink: 0, marginTop: 1 }}>→</span>
+                            <span>{t}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {s.alerts.length > 0 && (
+                      <div style={{ background: 'rgba(239,68,68,0.07)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 10, padding: '12px 16px', marginBottom: 10 }}>
+                        <div style={{ fontSize: 10, fontWeight: 700, color: '#f87171', marginBottom: 8, letterSpacing: '0.06em' }}>⚠️ ALERTAS</div>
+                        {s.alerts.map((a, i) => (
+                          <div key={i} style={{ display: 'flex', gap: 8, marginBottom: 6, fontSize: 12, color: '#fca5a5', lineHeight: 1.55 }}>
+                            <span style={{ flexShrink: 0 }}>!</span>
+                            <span>{a}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    <div style={{ background: 'rgba(14,165,233,0.07)', border: '1px solid rgba(14,165,233,0.2)', borderRadius: 10, padding: '12px 16px', marginBottom: 16 }}>
+                      <div style={{ fontSize: 10, fontWeight: 700, color: '#38bdf8', marginBottom: 6, letterSpacing: '0.06em' }}>📋 QUÉ REGISTRAR</div>
+                      <p style={{ fontSize: 12, color: '#94a3b8', lineHeight: 1.6, margin: 0 }}>{s.registro}</p>
+                    </div>
+
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      {s.n > cicloSteps[0].n ? (
+                        <button
+                          onClick={() => setOpenCiclo(s.n - 1)}
+                          style={{ background: 'none', border: '1px solid rgba(255,255,255,0.1)', color: '#64748b', borderRadius: 8, padding: '7px 14px', fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'Montserrat, sans-serif' }}
+                        >
+                          ← {cicloSteps[0].emoji} Anterior
+                        </button>
+                      ) : <div />}
+                      {s.n < cicloSteps[cicloSteps.length - 1].n ? (
+                        <button
+                          onClick={() => setOpenCiclo(s.n + 1)}
+                          style={{ background: `linear-gradient(135deg,${s.color},${s.color}bb)`, color: '#fff', border: 'none', borderRadius: 8, padding: '9px 18px', fontSize: 12, fontWeight: 700, cursor: 'pointer', fontFamily: 'Montserrat, sans-serif', display: 'flex', alignItems: 'center', gap: 6 }}
+                        >
+                          Siguiente → {cicloSteps[1].emoji}
+                        </button>
+                      ) : (
+                        <Link
+                          href="/socios"
+                          style={{ background: 'linear-gradient(135deg,#7c3aed,#6d28d9)', color: '#fff', borderRadius: 8, padding: '9px 18px', fontSize: 12, fontWeight: 700, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 6 }}
+                        >
+                          🔐 Registrar mis pupas
+                        </Link>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
       </div>
 
       {/* CTA final */}

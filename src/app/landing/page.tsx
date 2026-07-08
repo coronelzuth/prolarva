@@ -35,13 +35,13 @@ export default function LandingPage() {
 
       {/* Banner */}
       <div style={{ background: C.card, borderBottom: `1px solid ${C.border}`, padding: '13px 20px', textAlign: 'center', fontWeight: 700, fontSize: '0.95rem', lineHeight: 1.4, color: C.text }}>
-        ⚠️ El concentrado sube cada mes. Cada ciclo que no producís tu propia proteína, es más plata que se va. ⚠️
+        ⚠️ El concentrado sube cada mes. Cada ciclo que no produces tu propia proteína, es más dinero que pierdes. ⚠️
       </div>
 
       {/* Hero */}
       <section style={{ padding: '72px 20px 48px', textAlign: 'center' }}>
         <h1 style={{ fontSize: 'clamp(1.75rem, 4vw + 0.5rem, 3rem)', fontWeight: 900, margin: '0 auto 28px', maxWidth: 820, lineHeight: 1.1 }}>
-          Reducí el <span style={{ color: C.greenL }}>25% del concentrado</span> en 20 días — desde tu traspatio, sin experiencia previa.
+          Reduce el <span style={{ color: C.greenL }}>25% del concentrado</span> en 20 días — desde tu traspatio, sin experiencia previa.
         </h1>
         {/* VSL placeholder */}
         <div style={{ maxWidth: 800, margin: '0 auto', aspectRatio: '16/9', background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -81,17 +81,14 @@ export default function LandingPage() {
       <section style={{ padding: '80px 20px', background: C.bg2 }}>
         <div style={{ maxWidth: 820, margin: '0 auto' }}>
           <h2 style={{ color: C.greenL, textAlign: 'center', margin: '0 auto 32px', fontSize: 'clamp(1.5rem, 2.5vw + 0.5rem, 2.1rem)', lineHeight: 1.2, fontWeight: 900 }}>
-            ¿Quién es ProLarva?
+            ¿Quién está detrás de ProLarva?
           </h2>
           <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: '32px 28px' }}>
-            {/* Foto placeholder */}
-            <div style={{ width: 180, height: 180, borderRadius: '50%', background: C.card2, border: `3px solid ${C.green}`, margin: '0 auto 28px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: C.muted, fontSize: '0.8rem', textAlign: 'center', lineHeight: 1.5 }}>
-              Tu foto<br />aquí
-            </div>
+            <img src="/juliana.jpg" alt="Juliana Coronel — fundadora de ProLarva" style={{ width: 180, height: 180, borderRadius: '50%', objectFit: 'cover', objectPosition: 'center top', border: `3px solid ${C.green}`, display: 'block', margin: '0 auto 28px' }} />
             {[
               'Soy Juliana, productora de larvas BSF en Colombia. Crío mis propios animales de traspatio y soy la fundadora de ProLarva.',
-              'No soy una empresa grande ni un laboratorio. Soy una productora como vos, que encontró una forma de producir más con menos gasto: lo probé en mi propia granja, lo documenté desde el día cero hasta el sacrificio, y decidí empaquetarlo para que otros productores en Colombia puedan replicarlo.',
-              'Sin experiencia previa. Sin tecnología compleja. Con lo que ya tenés en tu finca.',
+              'No soy una empresa grande ni un laboratorio. Soy una productora como tú, que encontró una forma de producir más con menos gasto: lo probé en mi propia granja, lo documenté desde el día cero hasta el sacrificio, y decidí empaquetarlo para que otros productores puedan replicarlo.',
+              'Sin experiencia previa. Sin tecnología compleja. Con lo que ya tienes en tu finca.',
             ].map((p, i) => (
               <p key={i} style={{ lineHeight: 1.75, fontSize: '1rem', color: '#d4e8da', marginBottom: 16 }}>{p}</p>
             ))}
@@ -106,10 +103,10 @@ export default function LandingPage() {
       <section style={{ padding: '72px 20px', borderTop: `2px solid ${C.green}` }}>
         <div style={{ maxWidth: 480, margin: '0 auto', background: C.card, padding: '36px 30px', borderRadius: 20, border: `1px solid ${C.border}`, boxShadow: '0 10px 40px rgba(0,0,0,0.4)' }}>
           <h3 style={{ color: C.greenL, fontSize: '1.6rem', fontWeight: 900, margin: '0 0 10px', lineHeight: 1.2 }}>
-            Calculá tu ahorro BSF (gratis)
+            Calcula tu ahorro BSF (gratis)
           </h3>
           <p style={{ color: C.muted, fontSize: '0.95rem', lineHeight: 1.65, margin: '0 0 24px' }}>
-            Ingresá tu especie, número de animales y precio actual del concentrado. En 2 minutos ves exactamente cuánto estás perdiendo al mes y cuánto recuperás con el Sistema ProLarva.
+            Ingresa tu especie, número de animales y precio actual del concentrado. En 2 minutos ves exactamente cuánto estás perdiendo al mes y cuánto recuperas con el Sistema ProLarva.
           </p>
           {submitted ? (
             <div style={{ padding: 20, background: 'rgba(34,197,94,0.1)', borderRadius: 10, border: `1px solid rgba(34,197,94,0.3)`, textAlign: 'center', color: C.green, fontWeight: 700, fontSize: '0.95rem' }}>
@@ -140,11 +137,11 @@ export default function LandingPage() {
             ¿Por qué <span style={{ color: C.greenL }}>ProLarva</span> es diferente?
           </h2>
           <p style={{ maxWidth: 600, margin: '0 auto 48px', color: C.muted, fontSize: '0.97rem', lineHeight: 1.65, textAlign: 'center' }}>
-            No es un curso genérico. No vende larvas sueltas. Es el sistema completo para que vos las produzcas, con acompañamiento de quien ya lo hizo en Colombia.
+            No es un curso genérico. No vende larvas sueltas. Es el sistema completo para que las produzcas tú mismo, con acompañamiento de quien ya lo hizo.
           </p>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 16 }}>
             {[
-              { title: 'Documentado desde el día 0', body: 'Juliana es la única productora en Colombia que registró el proceso completo de implementación BSF desde la siembra hasta el sacrificio. Podés ver cada etapa antes de comprar en @prolarva.co.' },
+              { title: 'Documentado desde el día 0', body: 'Juliana es la única productora en Colombia que registró el proceso completo de implementación BSF desde la siembra hasta el sacrificio. Puedes ver cada etapa antes de comprar en @prolarva.co.' },
               { title: 'No vende larvas — vende independencia', body: 'No es una venta de insumos que crea nueva dependencia. Es un sistema para que el productor produzca su propia proteína, con lo que ya tiene en su finca, en 15 minutos al día.' },
               { title: 'Funciona en traspatio colombiano', body: 'Las referencias del nicho BSF son extranjeras o industriales. ProLarva prueba que funciona en Colombia, en traspatio, sin tecnología costosa. Con pollos criollos de piel amarilla intensa.' },
             ].map((card, i) => (
@@ -184,12 +181,12 @@ export default function LandingPage() {
 
       {/* Footer CTA */}
       <section style={{ padding: '60px 20px', textAlign: 'center', borderTop: `1px solid ${C.border}` }}>
-        <div style={{ fontSize: '1.1rem', fontWeight: 700, color: C.text, marginBottom: 20 }}>¿Querés ver exactamente cuánto te cuesta no usar BSF?</div>
+        <div style={{ fontSize: '1.1rem', fontWeight: 700, color: C.text, marginBottom: 20 }}>¿Quieres ver exactamente cuánto te cuesta no usar BSF?</div>
         <Link href="/calculadora" style={{ display: 'inline-block', padding: '15px 36px', background: `linear-gradient(135deg,${C.green},${C.greenD})`, color: '#fff', borderRadius: 12, fontWeight: 800, fontSize: '1rem', textDecoration: 'none', letterSpacing: '0.02em' }}>
           Abrir calculadora gratuita →
         </Link>
         <div style={{ marginTop: 16, fontSize: '0.8rem', color: C.muted }}>
-          O seguí explorando el <Link href="/" style={{ color: C.green, textDecoration: 'none' }}>Monitor ProLarva</Link>
+          O sigue explorando el <Link href="/" style={{ color: C.green, textDecoration: 'none' }}>Monitor ProLarva</Link>
         </div>
       </section>
 

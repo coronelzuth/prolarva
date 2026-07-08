@@ -520,6 +520,18 @@ export default function CosechaPage() {
         </a>
       </div>
 
+      {/* Calculadora recommendation */}
+      <div style={{ marginTop: 16, background: 'rgba(34,197,94,0.07)', border: '1px solid rgba(34,197,94,0.22)', borderRadius: 16, padding: '24px 20px', textAlign: 'center' }}>
+        <div style={{ fontSize: 28, marginBottom: 10 }}>🧮</div>
+        <div style={{ fontSize: 16, fontWeight: 800, color: '#f1f5f9', marginBottom: 8 }}>¿Cuánto estás perdiendo sin BSF?</div>
+        <p style={{ fontSize: 13, color: '#94a3b8', lineHeight: 1.65, maxWidth: 440, margin: '0 auto 20px' }}>
+          Ingresa los datos de tu lote y calcula exactamente cuánto pierdes por ciclo en mortalidad y alimento desaprovechado. En menos de 2 minutos tienes el número.
+        </p>
+        <Link href="/calculadora" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'linear-gradient(135deg,#22c55e,#16a34a)', color: '#fff', borderRadius: 12, padding: '13px 28px', fontWeight: 800, fontSize: 14, textDecoration: 'none' }}>
+          Abrir calculadora →
+        </Link>
+      </div>
+
       <style>{`
         @media (max-width: 480px) {
           .cosecha-timeline { padding: 14px 12px; }

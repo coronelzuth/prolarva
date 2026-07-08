@@ -2,8 +2,7 @@ import type { Metadata } from 'next';
 import { Montserrat } from 'next/font/google';
 import './globals.css';
 import Navbar from '@/components/Navbar';
-import Larvi from '@/components/Larvi';
-import WhatsApp from '@/components/WhatsApp';
+import FloatingWidgets from '@/components/FloatingWidgets';
 import { Analytics } from '@vercel/analytics/react';
 
 const montserrat = Montserrat({
@@ -37,8 +36,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body style={{ fontFamily: 'Montserrat, sans-serif', background: '#0d1b2a', color: '#e2e8f0', minHeight: '100vh' }}>
         <Navbar />
         <main>{children}</main>
-        <Larvi />
-        <WhatsApp />
+        <FloatingWidgets />
         <Analytics />
       </body>
     </html>

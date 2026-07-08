@@ -169,11 +169,73 @@ function Timeline({ days }: { days: number }) {
   );
 }
 
+// ─── Calendar Month Grid ─────────────────────────────────────────────────────
+
+const CAL_MONTHS = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+const CAL_DAYS   = ['Lu','Ma','Mi','Ju','Vi','Sá','Do'];
+
+function CalendarMonth({ year, month, msMap, startDate, endDate, todayStr }: {
+  year: number; month: number;
+  msMap: Record<string, string[]>;
+  startDate: Date; endDate: Date; todayStr: string;
+}) {
+  const firstDay = new Date(year, month, 1);
+  const lastDay  = new Date(year, month + 1, 0);
+  let startDow = firstDay.getDay();
+  startDow = startDow === 0 ? 6 : startDow - 1; // Mon-first
+
+  const cells: (number | null)[] = [];
+  for (let i = 0; i < startDow; i++) cells.push(null);
+  for (let d = 1; d <= lastDay.getDate(); d++) cells.push(d);
+  while (cells.length % 7 !== 0) cells.push(null);
+
+  const todayObj = new Date(todayStr + 'T00:00:00');
+
+  return (
+    <div style={{ marginBottom: 16 }}>
+      <div style={{ fontSize: 11, fontWeight: 800, color: S.text, marginBottom: 8, textAlign: 'center', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+        {CAL_MONTHS[month]} {year}
+      </div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 3 }}>
+        {CAL_DAYS.map(d => (
+          <div key={d} style={{ fontSize: 9, fontWeight: 700, color: '#475569', textAlign: 'center', paddingBottom: 4 }}>{d}</div>
+        ))}
+        {cells.map((day, i) => {
+          if (day === null) return <div key={`e-${i}`} />;
+          const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+          const isToday   = dateStr === todayStr;
+          const dateObj   = new Date(year, month, day);
+          const isInRange = dateObj >= startDate && dateObj <= endDate;
+          const isPast    = dateObj < todayObj;
+          const icons     = msMap[dateStr];
+
+          return (
+            <div key={dateStr} style={{
+              textAlign: 'center',
+              padding: icons ? '2px 1px 3px' : '4px 1px',
+              borderRadius: 6,
+              background: isToday ? 'rgba(34,197,94,0.22)' : icons ? 'rgba(34,197,94,0.1)' : isInRange ? 'rgba(30,48,80,0.6)' : 'transparent',
+              border: isToday ? `1.5px solid ${S.green}` : icons ? '1px solid rgba(34,197,94,0.3)' : '1px solid transparent',
+            }}>
+              <div style={{ fontSize: 10, fontWeight: isToday ? 800 : 500, color: isToday ? S.green2 : icons ? S.text : isInRange ? (isPast ? '#64748b' : '#94a3b8') : '#1e3050', lineHeight: 1.3 }}>
+                {day}
+              </div>
+              {icons && <div style={{ fontSize: 11, lineHeight: 1 }}>{icons.join('')}</div>}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 // ─── Mini calendar ───────────────────────────────────────────────────────────
 
 function MiniCalendar({ lote }: { lote: Lote }) {
-  const today = new Date();
-  const start = new Date(lote.fecha);
+  const [showCal, setShowCal] = useState(false);
+  const today    = new Date();
+  const todayStr = today.toISOString().split('T')[0];
+  const start    = new Date(lote.fecha);
   const objetivo = lote.objetivo ?? 'cosechar';
 
   function ms(label: string, icon: string, day: number) {
@@ -191,11 +253,38 @@ function MiniCalendar({ lote }: { lote: Lote }) {
     objetivo === 'cosechar' ? ms('Fin', '✅', 28) : ms('Mosca', '🦋', 40),
   ];
 
+  const endDate = milestones[milestones.length - 1].date;
+
+  const msMap: Record<string, string[]> = {};
+  for (const m of milestones) {
+    const key = m.date.toISOString().split('T')[0];
+    if (!msMap[key]) msMap[key] = [];
+    msMap[key].push(m.icon);
+  }
+
+  const months: { year: number; month: number }[] = [];
+  let cur = new Date(start.getFullYear(), start.getMonth(), 1);
+  const endMonth = new Date(endDate.getFullYear(), endDate.getMonth(), 1);
+  while (cur <= endMonth) {
+    months.push({ year: cur.getFullYear(), month: cur.getMonth() });
+    cur = new Date(cur.getFullYear(), cur.getMonth() + 1, 1);
+  }
+
   const fmtShort = (d: Date) => d.toLocaleDateString('es-CO', { day: '2-digit', month: 'short' });
 
   return (
     <div style={{ marginTop: 16 }}>
-      <div style={{ fontSize: 11, fontWeight: 700, color: S.muted, marginBottom: 10, textTransform: 'uppercase', letterSpacing: '0.06em' }}>📅 Hitos del ciclo</div>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+        <div style={{ fontSize: 11, fontWeight: 700, color: S.muted, textTransform: 'uppercase', letterSpacing: '0.06em' }}>📅 Hitos del ciclo</div>
+        <button
+          onClick={() => setShowCal(c => !c)}
+          style={{ background: showCal ? 'rgba(34,197,94,0.12)' : 'transparent', border: `1px solid ${showCal ? S.green : S.border}`, color: showCal ? S.green2 : S.muted, borderRadius: 6, padding: '4px 10px', fontSize: 11, fontWeight: 700, cursor: 'pointer', fontFamily: 'Montserrat, sans-serif' }}
+        >
+          {showCal ? '✕ Cerrar' : '📅 Ver calendario'}
+        </button>
+      </div>
+
+      {/* Milestone strip */}
       <div style={{ display: 'flex', alignItems: 'flex-start', overflowX: 'auto', paddingBottom: 4 }}>
         {milestones.map((m, i) => (
           <div key={m.label} style={{ display: 'flex', alignItems: 'center', flexShrink: 0 }}>
@@ -220,6 +309,28 @@ function MiniCalendar({ lote }: { lote: Lote }) {
           </div>
         ))}
       </div>
+
+      {/* Expandable calendar grid */}
+      {showCal && (
+        <div style={{ marginTop: 14, background: S.navy2, borderRadius: 12, padding: '14px 12px', border: `1px solid ${S.border}` }}>
+          {months.map(({ year, month }) => (
+            <CalendarMonth
+              key={`${year}-${month}`}
+              year={year} month={month}
+              msMap={msMap}
+              startDate={start} endDate={endDate}
+              todayStr={todayStr}
+            />
+          ))}
+          <div style={{ borderTop: `1px solid rgba(34,197,94,0.1)`, paddingTop: 10, display: 'flex', flexWrap: 'wrap', gap: 10 }}>
+            {milestones.map(m => (
+              <div key={m.label} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 10, color: S.muted }}>
+                <span>{m.icon}</span><span>{m.label}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

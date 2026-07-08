@@ -26,7 +26,7 @@ export default function LandingPage() {
     await fetch('https://formsubmit.co/juliana10zuli@gmail.com', { method: 'POST', body: data });
     setSubmitted(true);
     setTimeout(() => {
-      window.location.href = '/calculadora';
+      window.location.href = '/gracias';
     }, 1500);
   }
 

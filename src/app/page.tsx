@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useProgress } from '@/hooks/useProgress';
+import { useSocios } from '@/hooks/useSocios';
 import ShareButton from '@/components/ShareButton';
 
 const modules = [
@@ -70,6 +71,7 @@ const metaNames: Record<string, string> = {
 
 export default function Home() {
   const { progress, overallPercent, loaded } = useProgress();
+  const db = useSocios();
 
   const getModuleStatus = (id: string) => {
     if (progress.modulesCompleted.includes(id)) return 'completed';
@@ -108,6 +110,21 @@ export default function Home() {
           </div>
         )}
       </div>
+
+      {db.loaded && db.session && db.readyLotes.length > 0 && (
+        <div style={{ marginBottom: 24, display: 'flex', flexDirection: 'column', gap: 10 }}>
+          {db.readyLotes.map(l => (
+            <Link key={l.id} href="/socios" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 12, padding: '14px 18px', background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.35)', borderRadius: 12 }}>
+              <span style={{ fontSize: 22, flexShrink: 0 }}>🌾</span>
+              <div style={{ flex: 1 }}>
+                <span style={{ fontSize: 14, fontWeight: 700, color: '#f1f5f9' }}>{l.nombre}</span>
+                <span style={{ fontSize: 13, color: '#10b981', fontWeight: 600 }}> — ¡Listo para cosechar!</span>
+              </div>
+              <span style={{ fontSize: 12, color: '#10b981', fontWeight: 700, flexShrink: 0 }}>Ver en Socios →</span>
+            </Link>
+          ))}
+        </div>
+      )}
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20, marginBottom: 48 }}>
         {modules.map((mod, idx) => {

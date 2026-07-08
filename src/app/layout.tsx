@@ -14,6 +14,7 @@ const montserrat = Montserrat({
 export const metadata: Metadata = {
   title: 'ProLarva Monitor',
   description: 'Tu ruta de aprendizaje completa para cultivar Mosca Soldado Negra (BSF). Desde cero hasta tu primera cosecha.',
+  verification: { google: '1fkZ-jLIru_ArMWJFqhHlXeqfyH7hSZ7X6X7TVB7Glc' },
   openGraph: {
     title: 'ProLarva Monitor 🪲',
     description: 'Aprendé a cultivar BSF y reducí tus costos de concentrado hasta un 50%. Ruta gratuita con Larvi.',

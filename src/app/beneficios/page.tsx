@@ -143,8 +143,8 @@ export default function BeneficiosPage() {
 
       {/* CTA */}
       <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-        <Link href="/preparacion" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'linear-gradient(135deg,#f59e0b,#d97706)', color: 'white', padding: '12px 24px', borderRadius: 10, textDecoration: 'none', fontWeight: 700, fontSize: 14 }}>
-          🛠️ Siguiente: Diagnóstico →
+        <Link href="/conocimiento" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'linear-gradient(135deg,#22c55e,#16a34a)', color: 'white', padding: '12px 24px', borderRadius: 10, textDecoration: 'none', fontWeight: 700, fontSize: 14 }}>
+          🧠 Siguiente: Conocimiento General →
         </Link>
         <Link href="/" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(34,197,94,0.08)', color: C.green, padding: '12px 24px', borderRadius: 10, textDecoration: 'none', fontWeight: 700, fontSize: 14, border: `1px solid ${C.border}` }}>
           ← Volver al inicio

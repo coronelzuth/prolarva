@@ -9,8 +9,8 @@
 
 **ProLarva Monitor** es una app web educativa de acompañamiento para productores que aprenden a cultivar Larva de Mosca Soldado Negra (BSF). Es la antesala del curso ProLarva.
 
-**URL producción:** https://prolarva-monitor.vercel.app
-**Proyecto Vercel:** `juliprojects/prolarva-monitor`
+**URL producción:** https://prolarva.vercel.app
+**Proyecto Vercel:** `juliprojects/prolarva`
 **Deploy:** `vercel --prod --yes` desde esta carpeta
 **Dueña:** Juliana Coronel — fundadora de ProLarva, Cúcuta Colombia
 **WhatsApp ProLarva:** +57 322 321 2293 (`573223212293` en formato WA)
@@ -47,7 +47,7 @@ Están en `.env.local` (local, ignorado por git) y en Vercel → Settings → En
 | `/metas` | Módulo 3 — rutas de producción + links a /cosecha y /calculadora |
 | `/cosecha` | Guía Práctica — 7 pasos + panel recomendación calculadora al final |
 | `/calculadora` | Calculadora BSF completa (wizard 4 pasos) |
-| `/landing` | Landing page pública de ProLarva |
+| `/sistema-2015` | Landing de venta — Kit ProLarva 20/15, acompañamiento, bonos, garantías, Juliana |
 | `/socios` | Zona privada — tracker de lotes, alimentación y cosechas (sin Larvi ni WhatsApp) |
 | `/gracias` | Página post-formulario — confirmación + redirect automático a /calculadora en 4 seg |
 
@@ -269,18 +269,19 @@ a5cc857  feat: port calculadora BSF a React con paleta de la app
 - Todas las rutas desplegadas y accesibles en móvil y desktop
 - `/beneficios` — página Intro con beneficios por especie, nutrición, ventajas ambientales; CTA a `/conocimiento`
 - `/calculadora` — React nativo, 4 pasos, colores de la app; intro explicativa antes del selector de especie
+- `/sistema-2015` — Landing de venta completa (tema navy ProLarva): kit, acompañamiento (45d+180d), 4 bonos, garantías, Juliana, precio, CTA WhatsApp
 - `/socios` — login, tracker de lotes/alimentación/cosechas, sidebar desktop + bottom tab bar móvil; calendario real colapsable por lote; edición de nombre/fecha; selector de objetivo al crear lote; sin Larvi ni WhatsApp; **datos sincronizan a Supabase**
 - `/metas` — 3 rutas + links a `/cosecha` y `/calculadora`; scroll lock en modal
 - `/cosecha` — guía completa 7 pasos + panel recomendación calculadora al final
 - `/preparacion` — quiz + tarjeta recomendación prominente al final
 - `/conocimiento` — modal con navegación prev/next por etapa, fotos y videos en etapa Huevo
-- `/landing` — landing pública con foto real de Juliana, español neutro; VSL pendiente
 - `/gracias` — confirmación post-formulario + redirect a /calculadora en 4 seg
 - Home: 5 módulos + notificación de lotes listos para cosechar
-- Navbar: 7 links (incluye ProLarva → /landing) + Socios; scroll horizontal en móvil
-- WhatsApp flotante, Larvi bot, OG tags, Analytics y Google Search Console activos (excepto en /socios)
+- Navbar: centrado, 7 links (Inicio, Oferta, Conocimiento, Preparación, Mi Meta, Cosecha, Calculadora) + Socios; scroll horizontal en móvil; sin logo "Monitor"
+- WhatsApp flotante (+57 322 321 2293), Larvi bot, OG tags, Analytics y Google Search Console activos (excepto en /socios)
 - **Supabase** conectado — lotes, feeds, cosechas, progreso y leads se sincronizan en la nube
 - `sitemap.xml` generado automáticamente por Next.js
+- Título global: "ProLarva" (sin "Monitor")
 
 **Responsive móvil implementado:**
 - Navbar: scroll horizontal, oculta texto de labels y barra de progreso (<599px)
@@ -301,10 +302,19 @@ a5cc857  feat: port calculadora BSF a React con paleta de la app
 | `cosechas` | Cosechas registradas |
 | `leads` | Leads del formulario de /landing (nombre + email) |
 
+**Cambios recientes (2026-07-10):**
+- ✅ Creada `/sistema-2015` — Landing de venta integrada con estética Monitor (navy + verde)
+- ✅ Movida sección "¿Quién está detrás?" desde `/landing` a `/sistema-2015`
+- ✅ Eliminada página `/landing` completa (consolidada en `/sistema-2015`)
+- ✅ Navbar centrado, sin logo "ProLarva Monitor"
+- ✅ Eliminado porcentaje de progreso del Navbar
+- ✅ Proyecto Vercel renombrado a "prolarva" (URL: prolarva.vercel.app)
+- ✅ Título global cambiado a "ProLarva"
+
 **Próxima sesión — continuar con:**
 - Agregar fotos reales para las 7 etapas restantes → copiar a `public/fotos/` y editar `data/stages.ts`
 - Agregar URLs de videos YouTube → editar `data/stages.ts`
-- Agregar URL del VSL cuando esté listo en `/landing`
+- Monitorear URL prolarva.vercel.app (puede tardar horas en propagarse completamente)
 
 **Cómo arrancar una sesión nueva:**
 1. Abrí Claude Code desde la carpeta canónica de arriba

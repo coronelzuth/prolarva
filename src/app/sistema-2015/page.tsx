@@ -250,6 +250,28 @@ export default function Sistema2015Page() {
         </div>
       </section>
 
+      {/* Sobre Juliana */}
+      <section style={{ padding: '64px 20px', background: C.bg2 }}>
+        <div style={{ maxWidth: 820, margin: '0 auto' }}>
+          <h2 style={{ color: C.greenL, textAlign: 'center', margin: '0 auto 32px', fontSize: 'clamp(1.5rem, 2.5vw + 0.5rem, 2.1rem)', lineHeight: 1.2, fontWeight: 900 }}>
+            ¿Quién está detrás de ProLarva?
+          </h2>
+          <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: '32px 28px' }}>
+            <img src="/juliana.jpg" alt="Juliana Coronel — fundadora de ProLarva" style={{ width: 180, height: 180, borderRadius: '50%', objectFit: 'cover', objectPosition: 'center top', border: `3px solid ${C.green}`, display: 'block', margin: '0 auto 28px' }} />
+            {[
+              'Soy Juliana, productora de larvas BSF en Colombia. Crío mis propios animales de traspatio y soy la fundadora de ProLarva.',
+              'No soy una empresa grande ni un laboratorio. Soy una productora como tú, que encontró una forma de producir más con menos gasto: lo probé en mi propia granja, lo documenté desde el día cero hasta el sacrificio, y decidí empaquetarlo para que otros productores puedan replicarlo.',
+              'Sin experiencia previa. Sin tecnología compleja. Con lo que ya tienes en tu finca.',
+            ].map((p, i) => (
+              <p key={i} style={{ lineHeight: 1.75, fontSize: '1rem', color: '#d4e8da', marginBottom: 16 }}>{p}</p>
+            ))}
+            <p style={{ textAlign: 'center', color: C.muted, fontSize: '0.92rem', fontStyle: 'italic', lineHeight: 1.7, margin: '24px 0 0', maxWidth: 540, marginLeft: 'auto', marginRight: 'auto' }}>
+              Para: Pequeños productores colombianos con gallinas, pollos, cerdos o peces. Productores cuya granja es su fuente principal de ingresos y sienten que el concentrado les destruye el margen cada mes.
+            </p>
+          </div>
+        </div>
+      </section>
+
       {/* CTA Final */}
       <section style={{ padding: '80px 20px', textAlign: 'center', borderTop: `1px solid ${C.border}` }}>
         <h2 style={{ fontSize: 'clamp(1.5rem, 3vw + 0.5rem, 2.2rem)', fontWeight: 900, color: C.greenL, marginBottom: 16 }}>

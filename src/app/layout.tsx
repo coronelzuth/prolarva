@@ -12,20 +12,20 @@ const montserrat = Montserrat({
 });
 
 export const metadata: Metadata = {
-  title: 'ProLarva Monitor',
+  title: 'ProLarva',
   description: 'Tu ruta de aprendizaje completa para cultivar Mosca Soldado Negra (BSF). Desde cero hasta tu primera cosecha.',
   verification: { google: '1fkZ-jLIru_ArMWJFqhHlXeqfyH7hSZ7X6X7TVB7Glc' },
   openGraph: {
-    title: 'ProLarva Monitor 🪲',
+    title: 'ProLarva 🪲',
     description: 'Aprendé a cultivar BSF y reducí tus costos de concentrado hasta un 50%. Ruta gratuita con Larvi.',
     url: 'https://prolarva-monitor.vercel.app',
-    siteName: 'ProLarva Monitor',
+    siteName: 'ProLarva',
     type: 'website',
-    images: [{ url: 'https://prolarva-monitor.vercel.app/og-image.png', width: 1200, height: 630, alt: 'ProLarva Monitor' }],
+    images: [{ url: 'https://prolarva-monitor.vercel.app/og-image.png', width: 1200, height: 630, alt: 'ProLarva' }],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'ProLarva Monitor 🪲',
+    title: 'ProLarva 🪲',
     description: 'Aprendé a cultivar BSF y reducí tus costos de concentrado.',
     images: ['https://prolarva-monitor.vercel.app/og-image.png'],
   },

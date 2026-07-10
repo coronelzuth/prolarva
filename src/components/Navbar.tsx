@@ -22,15 +22,7 @@ export default function Navbar() {
 
   return (
     <nav style={{ background: 'rgba(13,27,42,0.95)', borderBottom: '1px solid rgba(14,165,233,0.2)', backdropFilter: 'blur(12px)', position: 'sticky', top: 0, zIndex: 50 }}>
-      <div style={{ maxWidth: 1100, margin: '0 auto', padding: '0 12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 60, gap: 8 }}>
-        <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
-          <span style={{ fontSize: 22 }}>🪲</span>
-          <span style={{ fontWeight: 800, fontSize: 16, background: 'linear-gradient(135deg,#4ade80,#22c55e)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-            ProLarva
-          </span>
-          <span className="nav-monitor-txt" style={{ color: '#64748b', fontSize: 13, fontWeight: 500, marginLeft: 2 }}>Monitor</span>
-        </Link>
-
+      <div style={{ maxWidth: 1100, margin: '0 auto', padding: '0 12px', display: 'flex', alignItems: 'center', justifyContent: 'flex-start', height: 60, gap: 8 }}>
         <div className="nav-links-wrap" style={{ display: 'flex', gap: 2, alignItems: 'center' }}>
           {navLinks.map(link => {
             const active = pathname === link.href;

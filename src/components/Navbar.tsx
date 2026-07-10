@@ -22,7 +22,7 @@ export default function Navbar() {
 
   return (
     <nav style={{ background: 'rgba(13,27,42,0.95)', borderBottom: '1px solid rgba(14,165,233,0.2)', backdropFilter: 'blur(12px)', position: 'sticky', top: 0, zIndex: 50 }}>
-      <div style={{ maxWidth: 1100, margin: '0 auto', padding: '0 12px', display: 'flex', alignItems: 'center', justifyContent: 'flex-start', height: 60, gap: 8 }}>
+      <div style={{ maxWidth: 1100, margin: '0 auto', padding: '0 12px', display: 'flex', alignItems: 'center', justifyContent: 'center', height: 60, gap: 8 }}>
         <div className="nav-links-wrap" style={{ display: 'flex', gap: 2, alignItems: 'center' }}>
           {navLinks.map(link => {
             const active = pathname === link.href;

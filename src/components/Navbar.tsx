@@ -6,7 +6,6 @@ import { useProgress } from '@/hooks/useProgress';
 
 const navLinks = [
   { href: '/',            label: 'Inicio',       icon: '🏠' },
-  { href: '/landing',     label: 'ProLarva',     icon: '🚀' },
   { href: '/sistema-2015', label: 'Oferta',      icon: '💰' },
   { href: '/conocimiento',label: 'Conocimiento',  icon: '🧠' },
   { href: '/preparacion', label: 'Preparación',   icon: '🛠️' },

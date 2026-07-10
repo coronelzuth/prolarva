@@ -1,4 +1,4 @@
-# ProLarva Monitor — Contexto para Agentes
+# ProLarva — Contexto para Agentes
 
 > Siempre responder en **español**. Segunda persona (vos). Tono cercano y directo.
 > **Leer este archivo completo antes de tocar cualquier cosa.**
@@ -7,13 +7,17 @@
 
 ## Qué es esta app
 
-**ProLarva Monitor** es una app web educativa de acompañamiento para productores que aprenden a cultivar Larva de Mosca Soldado Negra (BSF). Es la antesala del curso ProLarva.
+**ProLarva** es una plataforma web con dos funciones:
+1. **Educativa** (módulos): aprendizaje gratuito sobre BSF para productores
+2. **Venta** (`/sistema-2015`): landing de la oferta "Kit ProLarva 20/15" (acompañamiento 45d+180d, 4 bonos, garantías)
 
 **URL producción:** https://prolarva.vercel.app
-**Proyecto Vercel:** `juliprojects/prolarva`
+**Proyecto Vercel:** `juliprojects/prolarva` (renombrado de prolarva-monitor)
+**GitHub:** https://github.com/coronelzuth/prolarva (user: coronelzuth, email: coronelzulieth@gmail.com)
 **Deploy:** `vercel --prod --yes` desde esta carpeta
 **Dueña:** Juliana Coronel — fundadora de ProLarva, Cúcuta Colombia
 **WhatsApp ProLarva:** +57 322 321 2293 (`573223212293` en formato WA)
+**Sync:** Local = GitHub = Vercel (todo sincronizado, 2026-07-10)
 
 ---
 
@@ -310,11 +314,13 @@ a5cc857  feat: port calculadora BSF a React con paleta de la app
 - ✅ Eliminado porcentaje de progreso del Navbar
 - ✅ Proyecto Vercel renombrado a "prolarva" (URL: prolarva.vercel.app)
 - ✅ Título global cambiado a "ProLarva"
+- ✅ GitHub setup: repo en coronelzuth/prolarva con todos los commits
+- ✅ Sync verificado: local = GitHub = Vercel
 
 **Próxima sesión — continuar con:**
 - Agregar fotos reales para las 7 etapas restantes → copiar a `public/fotos/` y editar `data/stages.ts`
 - Agregar URLs de videos YouTube → editar `data/stages.ts`
-- Monitorear URL prolarva.vercel.app (puede tardar horas en propagarse completamente)
+- Monitor ya activo en https://prolarva.vercel.app (sync con GitHub verificado)
 
 **Cómo arrancar una sesión nueva:**
 1. Abrí Claude Code desde la carpeta canónica de arriba

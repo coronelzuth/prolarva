@@ -72,15 +72,6 @@ export default function Navbar() {
             <span className="nav-socios-txt">Socios</span>
           </Link>
         </div>
-
-        {overallPercent > 0 && (
-          <div className="nav-progress" style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
-            <div style={{ width: 80, height: 4, background: '#1e3050', borderRadius: 2, overflow: 'hidden' }}>
-              <div style={{ width: '100%', height: '100%', background: 'linear-gradient(90deg,#22c55e,#16a34a)', borderRadius: 2, transform: `scaleX(${overallPercent / 100})`, transformOrigin: 'left', transition: 'transform 0.4s' }} />
-            </div>
-            <span style={{ fontSize: 11, color: '#64748b', fontWeight: 600 }}>{overallPercent}%</span>
-          </div>
-        )}
       </div>
       <style>{`
         .nav-label { display: none; }

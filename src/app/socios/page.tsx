@@ -899,7 +899,8 @@ function AdminView({ adminCode }: { adminCode: string }) {
   }
 
   function copiar(codigo: string) {
-    navigator.clipboard.writeText(codigo).catch(() => {});
+    const link = `https://prolarva-monitor.vercel.app/socios?inv=${codigo}`;
+    navigator.clipboard.writeText(link).catch(() => {});
     setCopied(codigo);
     setTimeout(() => setCopied(null), 2000);
   }

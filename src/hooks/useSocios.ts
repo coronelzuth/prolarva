@@ -201,74 +201,44 @@ export function useSocios() {
   // ─── Auth ──────────────────────────────────────────────────────────────────
 
   const login = useCallback(async (code: string, pass: string): Promise<boolean> => {
-    const db = getSupabase();
-    if (!db) {
-      console.error('Supabase not configured');
+    try {
+      const res = await fetch('/api/socios/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code, password: pass }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) return false;
+
+      const s = { code: data.codigo, name: data.nombre };
+      setSession(s);
+      localSave(KEYS.session, s);
+      return true;
+    } catch {
       return false;
     }
-
-    // Buscar por código o email
-    const { data, error } = await db
-      .from('socios')
-      .select('*')
-      .or(`codigo.eq.${code},email.eq.${code}`)
-      .single();
-
-    if (error || !data) return false;
-
-    // Validar contraseña (comparar directamente por ahora)
-    // TODO: Usar bcrypt o similar en producción
-    if (data.password !== pass) return false;
-
-    // Crear sesión
-    const s = { code: data.codigo, name: data.nombre };
-    setSession(s);
-    localSave(KEYS.session, s);
-    return true;
   }, []);
 
   const register = useCallback(
     async (codigo: string, email: string, nombre: string, password: string): Promise<{ success: boolean; error?: string }> => {
-      const db = getSupabase();
-      if (!db) return { success: false, error: 'Supabase no configurado' };
+      try {
+        const res = await fetch('/api/socios/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ codigo, email, nombre, password }),
+        });
+        const data = await res.json();
 
-      // Validar campos
-      if (!codigo || !email || !nombre || !password) {
-        return { success: false, error: 'Completa todos los campos' };
+        if (!res.ok) {
+          return { success: false, error: data.error ?? 'Error al registrar' };
+        }
+
+        // Login automático tras registro exitoso
+        const loginSuccess = await login(codigo, password);
+        return { success: loginSuccess, error: loginSuccess ? undefined : 'No se pudo iniciar sesión' };
+      } catch {
+        return { success: false, error: 'Error de conexión' };
       }
-
-      if (password.length < 6) {
-        return { success: false, error: 'La contraseña debe tener al menos 6 caracteres' };
-      }
-
-      // Verificar que código y email no existan
-      const { data: existing } = await db
-        .from('socios')
-        .select('id')
-        .or(`codigo.eq.${codigo},email.eq.${email}`)
-        .limit(1);
-
-      if (existing && existing.length > 0) {
-        return { success: false, error: 'Código o email ya registrado' };
-      }
-
-      // Crear nuevo socio
-      const { error: insertError } = await db.from('socios').insert({
-        id: uid(),
-        codigo,
-        email,
-        nombre,
-        password, // TODO: hashear en producción
-        estado: 'activo',
-      });
-
-      if (insertError) {
-        return { success: false, error: insertError.message };
-      }
-
-      // Login automático
-      const loginSuccess = await login(codigo, password);
-      return { success: loginSuccess, error: loginSuccess ? undefined : 'No se pudo iniciar sesión' };
     },
     [login]
   );

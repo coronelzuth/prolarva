@@ -28,7 +28,7 @@
 - **Tailwind CSS v4** instalado pero casi todo usa **inline styles**
 - **Vercel Analytics** (`@vercel/analytics/react`) — ya integrado en `layout.tsx`
 - **Supabase** (`@supabase/supabase-js`) — base de datos en la nube. `localStorage` se mantiene como caché offline-first
-- Sin autenticación pública — `/socios` tiene login propio con credenciales hardcodeadas
+- **Autenticación en `/socios`** — Login/registro contra tabla `socios` en Supabase (no usuarios demo)
 
 ## Variables de entorno
 
@@ -267,7 +267,7 @@ a5cc857  feat: port calculadora BSF a React con paleta de la app
 ## Estado actual
 > **Actualizar esta sección al final de cada sesión de trabajo.**
 
-**Última actualización:** 2026-07-08
+**Última actualización:** 2026-07-10 (tarde)
 
 **Qué está funcionando en producción:**
 - Todas las rutas desplegadas y accesibles en móvil y desktop
@@ -305,22 +305,24 @@ a5cc857  feat: port calculadora BSF a React con paleta de la app
 | `feed_logs` | Registros de alimentación |
 | `cosechas` | Cosechas registradas |
 | `leads` | Leads del formulario de /landing (nombre + email) |
+| `socios` | Usuarios registrados (codigo, email, nombre, password, estado) — **NUEVO** |
 
-**Cambios recientes (2026-07-10):**
-- ✅ Creada `/sistema-2015` — Landing de venta integrada con estética Monitor (navy + verde)
-- ✅ Movida sección "¿Quién está detrás?" desde `/landing` a `/sistema-2015`
-- ✅ Eliminada página `/landing` completa (consolidada en `/sistema-2015`)
-- ✅ Navbar centrado, sin logo "ProLarva Monitor"
-- ✅ Eliminado porcentaje de progreso del Navbar
-- ✅ Proyecto Vercel renombrado a "prolarva" (URL: prolarva.vercel.app)
-- ✅ Título global cambiado a "ProLarva"
-- ✅ GitHub setup: repo en coronelzuth/prolarva con todos los commits
-- ✅ Sync verificado: local = GitHub = Vercel
+**Cambios recientes (2026-07-10 — sesión tarde):**
+- ✅ **Tabla `socios` creada en Supabase** — campos: id, codigo (único), email (único), nombre, password, estado, timestamps
+- ✅ **Hook `useSocios.ts` actualizado** — `login()` ahora async, valida contra tabla `socios` en Supabase
+- ✅ **Nueva función `register()`** — Permite registro de nuevos socios con validaciones (código/email únicos, password ≥6 chars)
+- ✅ **LoginScreen y RegisterScreen implementados** — UI completa con campos, validaciones, manejo de errores
+- ✅ **Auth mode toggle** — Usuarios pueden cambiar entre login y registro
+- ✅ **Deploy a producción exitoso** — https://prolarva-monitor.vercel.app
+- ✅ **Git commit e47cc78** — "feat: implementar sistema de registro de socios en Zona de Socios"
+- ✅ **Todo sincronizado** — local = GitHub = Vercel
 
-**Próxima sesión — continuar con:**
-- Agregar fotos reales para las 7 etapas restantes → copiar a `public/fotos/` y editar `data/stages.ts`
-- Agregar URLs de videos YouTube → editar `data/stages.ts`
-- Monitor ya activo en https://prolarva.vercel.app (sync con GitHub verificado)
+**Próxima sesión — pendientes:**
+1. **Security — Hashear contraseñas** → Instalar `bcryptjs`, crear endpoints `/api/socios/register` y `/api/socios/login` que hashen/validen en servidor (no en cliente)
+2. **Registro invitación** → Sistema para que Juliana invite socios con código pre-generado (evita spam)
+3. **Fotos/videos educativas** → Agregar fotos reales para las 7 etapas restantes y URLs YouTube en `data/stages.ts`
+4. **Dashboard admin** — Tabla para que Juliana vea/gestione socios registrados y sus lotes
+5. **Exportar datos** — CSV/Excel de lotes y cosechas por socio
 
 **Cómo arrancar una sesión nueva:**
 1. Abrí Claude Code desde la carpeta canónica de arriba

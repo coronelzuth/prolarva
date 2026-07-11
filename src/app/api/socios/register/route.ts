@@ -11,9 +11,14 @@ function getSupabaseAdmin() {
 
 export async function POST(req: NextRequest) {
   try {
-    const { codigo, email, nombre, password, codigoInvitacion } = await req.json();
+    const { email, nombre, password, codigoInvitacion } = await req.json();
 
-    if (!codigo || !email || !nombre || !password || !codigoInvitacion) {
+    // Generar código automático desde el nombre: "Carlos Martínez" → "CARLOS-X4F2"
+    const base = (nombre as string).trim().split(' ')[0].toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 10);
+    const suffix = Math.random().toString(36).slice(2, 6).toUpperCase();
+    const codigo = `${base}-${suffix}`;
+
+    if (!email || !nombre || !password || !codigoInvitacion) {
       return NextResponse.json({ error: 'Completa todos los campos' }, { status: 400 });
     }
 

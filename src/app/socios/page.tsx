@@ -763,9 +763,8 @@ function LoginScreen({ onLogin, onSwitchToRegister }: { onLogin: (code: string, 
   );
 }
 
-function RegisterScreen({ onRegister, onSwitchToLogin, invitacionPrevia }: { onRegister: (codigo: string, email: string, nombre: string, password: string, codigoInvitacion: string) => Promise<{ success: boolean; error?: string }>; onSwitchToLogin: () => void; invitacionPrevia?: string }) {
+function RegisterScreen({ onRegister, onSwitchToLogin, invitacionPrevia }: { onRegister: (email: string, nombre: string, password: string, codigoInvitacion: string) => Promise<{ success: boolean; error?: string }>; onSwitchToLogin: () => void; invitacionPrevia?: string }) {
   const [codigoInvitacion, setCodigoInvitacion] = useState(invitacionPrevia ?? '');
-  const [codigo, setCodigo] = useState('');
   const [email, setEmail] = useState('');
   const [nombre, setNombre] = useState('');
   const [password, setPassword] = useState('');
@@ -774,7 +773,7 @@ function RegisterScreen({ onRegister, onSwitchToLogin, invitacionPrevia }: { onR
   const [loading, setLoading] = useState(false);
 
   const attempt = async () => {
-    if (!codigoInvitacion || !codigo || !email || !nombre || !password || !confirmPass) {
+    if (!codigoInvitacion || !email || !nombre || !password || !confirmPass) {
       setError('Completa todos los campos');
       return;
     }
@@ -789,7 +788,7 @@ function RegisterScreen({ onRegister, onSwitchToLogin, invitacionPrevia }: { onR
 
     setError('');
     setLoading(true);
-    const result = await onRegister(codigo, email, nombre, password, codigoInvitacion);
+    const result = await onRegister(email, nombre, password, codigoInvitacion);
     setLoading(false);
 
     if (!result.success) {
@@ -828,9 +827,6 @@ function RegisterScreen({ onRegister, onSwitchToLogin, invitacionPrevia }: { onR
           </div>
         </div>
 
-        <Field label="Código de socio">
-          <input style={inputStyle} value={codigo} onChange={e => setCodigo(e.target.value.toUpperCase())} placeholder="ej. PROLARVA-001" autoComplete="off" disabled={loading} />
-        </Field>
         <Field label="Nombre completo">
           <input style={inputStyle} value={nombre} onChange={e => setNombre(e.target.value)} placeholder="Tu nombre" disabled={loading} />
         </Field>
@@ -1040,7 +1036,7 @@ function SociosInner() {
     if (authMode === 'login') {
       return <LoginScreen onLogin={db.login} onSwitchToRegister={() => setAuthMode('register')} />;
     } else {
-      return <RegisterScreen onRegister={db.register} onSwitchToLogin={() => setAuthMode('login')} invitacionPrevia={invParam} />;
+      return <RegisterScreen onRegister={(email, nombre, password, inv) => db.register(email, nombre, password, inv)} onSwitchToLogin={() => setAuthMode('login')} invitacionPrevia={invParam} />;
     }
   }
 

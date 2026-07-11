@@ -221,12 +221,12 @@ export function useSocios() {
   }, []);
 
   const register = useCallback(
-    async (codigo: string, email: string, nombre: string, password: string, codigoInvitacion: string): Promise<{ success: boolean; error?: string }> => {
+    async (email: string, nombre: string, password: string, codigoInvitacion: string): Promise<{ success: boolean; error?: string }> => {
       try {
         const res = await fetch('/api/socios/register', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ codigo, email, nombre, password, codigoInvitacion }),
+          body: JSON.stringify({ email, nombre, password, codigoInvitacion }),
         });
         const data = await res.json();
 
@@ -235,7 +235,7 @@ export function useSocios() {
         }
 
         // Login automático tras registro exitoso
-        const loginSuccess = await login(codigo, password);
+        const loginSuccess = await login(email, password);
         return { success: loginSuccess, error: loginSuccess ? undefined : 'No se pudo iniciar sesión' };
       } catch {
         return { success: false, error: 'Error de conexión' };

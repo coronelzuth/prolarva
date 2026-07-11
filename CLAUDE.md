@@ -308,18 +308,20 @@ a5cc857  feat: port calculadora BSF a React con paleta de la app
 | `socios` | Usuarios registrados (codigo, email, nombre, password, estado) — **NUEVO** |
 
 **Cambios recientes (2026-07-10 — sesión noche):**
-- ✅ **bcryptjs instalado** — `npm i bcryptjs @types/bcryptjs`
-- ✅ **Endpoint `/api/socios/register`** — hashea password con bcrypt (salt 10) antes de guardar en Supabase
-- ✅ **Endpoint `/api/socios/login`** — compara password contra hash; migra automáticamente contraseñas legadas en texto plano a hash
-- ✅ **`useSocios.ts` actualizado** — `login()` y `register()` usan fetch a los endpoints en vez de tocar Supabase directamente desde el cliente
-- ✅ **Git commit 2bc32ae** — "feat: hashear contraseñas con bcryptjs via API routes"
+- ✅ **bcryptjs** — passwords hasheadas con salt 10 vía API routes servidor
+- ✅ **Sistema de invitaciones completo** — tabla `invitaciones` en Supabase, endpoints crear/listar, validación en registro
+- ✅ **Columna `rol`** en tabla `socios` (admin/socio) — Juliana marcada como admin
+- ✅ **Panel Admin** en `/socios` — visible solo para rol=admin; genera códigos PRL-XXXXXX, muestra estado (usado/disponible), copia al portapapeles
+- ✅ **RegisterScreen** — requiere código de invitación (campo destacado); sin código válido no se puede registrar
+- ✅ **Git commits 2bc32ae + cb43fc8** — hasheo + invitaciones
 - ✅ **Deploy exitoso** — https://prolarva-monitor.vercel.app
+- ⚠️ **ACCIÓN REQUERIDA** — Ejecutar `supabase/invitaciones-migration.sql` en Supabase SQL Editor antes de usar
 
 **Próxima sesión — pendientes:**
-1. **Sistema de invitaciones** → Tabla `invitaciones` para que solo Juliana pueda generar accesos (evita que cualquiera se registre)
-2. **Dashboard admin** — Juliana ve/gestiona socios registrados y sus lotes desde UI
-3. **Exportar datos** — CSV/Excel de lotes y cosechas por socio
-4. **Fotos/videos educativas** → Agregar fotos reales para las 7 etapas restantes y URLs YouTube en `data/stages.ts`
+1. **Dashboard admin** — ver lista de socios registrados + sus lotes desde el panel admin
+2. **Exportar datos** — CSV/Excel de lotes y cosechas por socio
+3. **Recuperar contraseña** — email reset para socios que olvidan su password
+4. **Fotos/videos educativas** → agregar fotos reales para las 7 etapas restantes y URLs YouTube en `data/stages.ts`
 
 **Cómo arrancar una sesión nueva:**
 1. Abrí Claude Code desde la carpeta canónica de arriba

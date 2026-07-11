@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import {
   useSocios,
   BSF_STAGES,
@@ -762,8 +763,8 @@ function LoginScreen({ onLogin, onSwitchToRegister }: { onLogin: (code: string, 
   );
 }
 
-function RegisterScreen({ onRegister, onSwitchToLogin }: { onRegister: (codigo: string, email: string, nombre: string, password: string, codigoInvitacion: string) => Promise<{ success: boolean; error?: string }>; onSwitchToLogin: () => void }) {
-  const [codigoInvitacion, setCodigoInvitacion] = useState('');
+function RegisterScreen({ onRegister, onSwitchToLogin, invitacionPrevia }: { onRegister: (codigo: string, email: string, nombre: string, password: string, codigoInvitacion: string) => Promise<{ success: boolean; error?: string }>; onSwitchToLogin: () => void; invitacionPrevia?: string }) {
+  const [codigoInvitacion, setCodigoInvitacion] = useState(invitacionPrevia ?? '');
   const [codigo, setCodigo] = useState('');
   const [email, setEmail] = useState('');
   const [nombre, setNombre] = useState('');
@@ -809,16 +810,22 @@ function RegisterScreen({ onRegister, onSwitchToLogin }: { onRegister: (codigo: 
 
         {/* Invitación — campo destacado primero */}
         <div style={{ background: 'rgba(34,197,94,0.06)', border: `1.5px solid rgba(34,197,94,0.25)`, borderRadius: 10, padding: '12px 14px', marginBottom: 18 }}>
-          <div style={{ fontSize: 11, color: S.emerald, fontWeight: 700, marginBottom: 6, letterSpacing: '0.05em' }}>CÓDIGO DE INVITACIÓN</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
+            <div style={{ fontSize: 11, color: S.emerald, fontWeight: 700, letterSpacing: '0.05em' }}>CÓDIGO DE INVITACIÓN</div>
+            {invitacionPrevia && <span style={{ fontSize: 10, background: 'rgba(34,197,94,0.2)', color: S.green, borderRadius: 4, padding: '1px 6px', fontWeight: 700 }}>✓ Aplicado</span>}
+          </div>
           <input
-            style={{ ...inputStyle, background: 'transparent', border: 'none', padding: '4px 0', fontWeight: 700, fontSize: 15, letterSpacing: '0.08em', color: S.green2 }}
+            style={{ ...inputStyle, background: 'transparent', border: 'none', padding: '4px 0', fontWeight: 700, fontSize: 15, letterSpacing: '0.08em', color: invitacionPrevia ? S.green : S.green2, cursor: invitacionPrevia ? 'default' : 'text' }}
             value={codigoInvitacion}
-            onChange={e => setCodigoInvitacion(e.target.value.toUpperCase())}
+            onChange={e => !invitacionPrevia && setCodigoInvitacion(e.target.value.toUpperCase())}
             placeholder="PRL-XXXXXX"
             autoComplete="off"
-            disabled={loading}
+            readOnly={!!invitacionPrevia}
+            disabled={loading && !invitacionPrevia}
           />
-          <div style={{ fontSize: 10, color: S.muted, marginTop: 4 }}>Solicitalo a la comunidad ProLarva para acceder.</div>
+          <div style={{ fontSize: 10, color: S.muted, marginTop: 4 }}>
+            {invitacionPrevia ? 'Tu invitación está lista. Completá tus datos para acceder.' : 'Solicitalo a la comunidad ProLarva para acceder.'}
+          </div>
         </div>
 
         <Field label="Código de socio">
@@ -987,9 +994,11 @@ function AdminView({ adminCode }: { adminCode: string }) {
 
 // ─── Main page ────────────────────────────────────────────────────────────────
 
-export default function SociosPage() {
+function SociosInner() {
   const db = useSocios();
-  const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
+  const searchParams = useSearchParams();
+  const invParam = searchParams.get('inv')?.toUpperCase() ?? undefined;
+  const [authMode, setAuthMode] = useState<'login' | 'register'>(invParam ? 'register' : 'login');
   const [view,        setView]        = useState<View>('dashboard');
   const [detailLoteId, setDetailLoteId] = useState<string | null>(null);
 
@@ -1030,7 +1039,7 @@ export default function SociosPage() {
     if (authMode === 'login') {
       return <LoginScreen onLogin={db.login} onSwitchToRegister={() => setAuthMode('register')} />;
     } else {
-      return <RegisterScreen onRegister={db.register} onSwitchToLogin={() => setAuthMode('login')} />;
+      return <RegisterScreen onRegister={db.register} onSwitchToLogin={() => setAuthMode('login')} invitacionPrevia={invParam} />;
     }
   }
 
@@ -1360,5 +1369,13 @@ export default function SociosPage() {
         </div>
       </Modal>
     </div>
+  );
+}
+
+export default function SociosPage() {
+  return (
+    <Suspense fallback={null}>
+      <SociosInner />
+    </Suspense>
   );
 }

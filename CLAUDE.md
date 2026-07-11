@@ -308,21 +308,30 @@ a5cc857  feat: port calculadora BSF a React con paleta de la app
 | `leads` | Leads del formulario de /landing (nombre + email) |
 | `socios` | Usuarios registrados (codigo, email, nombre, password, estado) — **NUEVO** |
 
-**Cambios recientes (2026-07-10 — sesión noche):**
-- ✅ **bcryptjs** — passwords hasheadas con salt 10 vía API routes servidor
-- ✅ **Sistema de invitaciones completo** — tabla `invitaciones` en Supabase, endpoints crear/listar, validación en registro
-- ✅ **Columna `rol`** en tabla `socios` (admin/socio) — Juliana marcada como admin
-- ✅ **Panel Admin** en `/socios` — visible solo para rol=admin; genera códigos PRL-XXXXXX, muestra estado (usado/disponible), copia al portapapeles
-- ✅ **RegisterScreen** — requiere código de invitación (campo destacado); sin código válido no se puede registrar
-- ✅ **Git commits 2bc32ae + cb43fc8** — hasheo + invitaciones
-- ✅ **Deploy exitoso** — https://prolarva-monitor.vercel.app
-- ⚠️ **ACCIÓN REQUERIDA** — Ejecutar `supabase/invitaciones-migration.sql` en Supabase SQL Editor antes de usar
+**Cambios recientes (2026-07-11 — sesión completa):**
+- ✅ **bcryptjs** — passwords hasheadas con salt 10 vía API routes en servidor (nunca texto plano en Supabase)
+- ✅ **Login endpoint** — compara contra hash bcrypt; migra contraseñas legadas en texto plano automáticamente al primer login
+- ✅ **Sistema de invitaciones** — tabla `invitaciones` en Supabase, endpoints `/api/invitaciones/crear` y `/api/invitaciones/listar`
+- ✅ **Columna `rol`** en tabla `socios` (admin/socio); cuenta de Juliana marcada como admin (`admin.zuth`)
+- ✅ **Panel Admin** en `/socios` — tab 🔑 visible solo para admin; genera códigos `PRL-XXXXXX`, lista estado usado/disponible, copia link completo al portapapeles
+- ✅ **Link mágico de invitación** — `?inv=PRL-XXXXXX` abre registro con código pre-llenado y bloqueado
+- ✅ **Registro simplificado** — sin campo "código de socio"; se auto-genera desde el nombre (ej. `CARLOS-X4F2`); solo pide nombre, email y contraseña
+- ✅ **Cuenta admin creada** — `admin.zuth` / `prolarva2025` en tabla socios con rol=admin
+- ✅ **SQL ejecutado en Supabase** — tabla invitaciones + columna rol + cuenta admin todo activo
+- ✅ **Git commits** — 2bc32ae → cb43fc8 → 17ec129 → da79c85 → 265029e
+- ✅ **Deploy en producción** — https://prolarva-monitor.vercel.app
+
+**Zona de socios — estado de seguridad:**
+- Passwords: hasheadas con bcrypt salt 10 ✅
+- Acceso: solo con código de invitación generado por admin ✅
+- Admin: rol verificado en servidor antes de cualquier acción privilegiada ✅
+- Login: por email o código de socio ✅
 
 **Próxima sesión — pendientes:**
-1. **Dashboard admin** — ver lista de socios registrados + sus lotes desde el panel admin
+1. **Dashboard admin** — lista de socios registrados (nombre, email, fecha, estado) desde el panel Admin
 2. **Exportar datos** — CSV/Excel de lotes y cosechas por socio
 3. **Recuperar contraseña** — email reset para socios que olvidan su password
-4. **Fotos/videos educativas** → agregar fotos reales para las 7 etapas restantes y URLs YouTube en `data/stages.ts`
+4. **Fotos/videos educativas** — agregar fotos reales en `data/stages.ts` para las 7 etapas restantes
 
 **Cómo arrancar una sesión nueva:**
 1. Abrí Claude Code desde la carpeta canónica de arriba

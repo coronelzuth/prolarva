@@ -337,7 +337,7 @@ function MiniCalendar({ lote }: { lote: Lote }) {
 
 // ─── Views ────────────────────────────────────────────────────────────────────
 
-type View = 'dashboard' | 'lotes' | 'lote-detail' | 'alimentacion' | 'cosecha' | 'guia';
+type View = 'dashboard' | 'lotes' | 'lote-detail' | 'alimentacion' | 'cosecha' | 'guia' | 'admin';
 
 function Dashboard({ lotes, feeds, cosechas, activeLotes, readyLotes, totalKg, avgConv, userName, onViewLote, onNav }: {
   lotes: Lote[]; feeds: FeedLog[]; cosechas: Cosecha[];
@@ -762,7 +762,8 @@ function LoginScreen({ onLogin, onSwitchToRegister }: { onLogin: (code: string, 
   );
 }
 
-function RegisterScreen({ onRegister, onSwitchToLogin }: { onRegister: (codigo: string, email: string, nombre: string, password: string) => Promise<{ success: boolean; error?: string }>; onSwitchToLogin: () => void }) {
+function RegisterScreen({ onRegister, onSwitchToLogin }: { onRegister: (codigo: string, email: string, nombre: string, password: string, codigoInvitacion: string) => Promise<{ success: boolean; error?: string }>; onSwitchToLogin: () => void }) {
+  const [codigoInvitacion, setCodigoInvitacion] = useState('');
   const [codigo, setCodigo] = useState('');
   const [email, setEmail] = useState('');
   const [nombre, setNombre] = useState('');
@@ -772,7 +773,7 @@ function RegisterScreen({ onRegister, onSwitchToLogin }: { onRegister: (codigo: 
   const [loading, setLoading] = useState(false);
 
   const attempt = async () => {
-    if (!codigo || !email || !nombre || !password || !confirmPass) {
+    if (!codigoInvitacion || !codigo || !email || !nombre || !password || !confirmPass) {
       setError('Completa todos los campos');
       return;
     }
@@ -787,7 +788,7 @@ function RegisterScreen({ onRegister, onSwitchToLogin }: { onRegister: (codigo: 
 
     setError('');
     setLoading(true);
-    const result = await onRegister(codigo, email, nombre, password);
+    const result = await onRegister(codigo, email, nombre, password, codigoInvitacion);
     setLoading(false);
 
     if (!result.success) {
@@ -801,9 +802,23 @@ function RegisterScreen({ onRegister, onSwitchToLogin }: { onRegister: (codigo: 
         <div style={{ textAlign: 'center', marginBottom: 28 }}>
           <div style={{ fontSize: 48, marginBottom: 8 }}>🪲</div>
           <h1 style={{ fontSize: 22, fontWeight: 900 }}>
-            Pro<span style={{ background: 'linear-gradient(135deg,#4ade80,#22c55e)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Larva</span>
+            Pro<span style={{ color: S.green, fontStyle: 'normal' }}>Larva</span>
           </h1>
           <p style={{ fontSize: 12, color: S.emerald, fontWeight: 700, letterSpacing: '0.1em', marginTop: 2 }}>REGISTRO DE SOCIO</p>
+        </div>
+
+        {/* Invitación — campo destacado primero */}
+        <div style={{ background: 'rgba(34,197,94,0.06)', border: `1.5px solid rgba(34,197,94,0.25)`, borderRadius: 10, padding: '12px 14px', marginBottom: 18 }}>
+          <div style={{ fontSize: 11, color: S.emerald, fontWeight: 700, marginBottom: 6, letterSpacing: '0.05em' }}>CÓDIGO DE INVITACIÓN</div>
+          <input
+            style={{ ...inputStyle, background: 'transparent', border: 'none', padding: '4px 0', fontWeight: 700, fontSize: 15, letterSpacing: '0.08em', color: S.green2 }}
+            value={codigoInvitacion}
+            onChange={e => setCodigoInvitacion(e.target.value.toUpperCase())}
+            placeholder="PRL-XXXXXX"
+            autoComplete="off"
+            disabled={loading}
+          />
+          <div style={{ fontSize: 10, color: S.muted, marginTop: 4 }}>Solicitalo a la comunidad ProLarva para acceder.</div>
         </div>
 
         <Field label="Código de socio">
@@ -835,6 +850,137 @@ function RegisterScreen({ onRegister, onSwitchToLogin }: { onRegister: (codigo: 
           </button>
         </div>
       </div>
+    </div>
+  );
+}
+
+// ─── Admin view ───────────────────────────────────────────────────────────────
+
+interface Invitacion {
+  id: string;
+  codigo: string;
+  usado: boolean;
+  creado_en: string;
+  usado_en?: string;
+  usado_por?: string;
+}
+
+function AdminView({ adminCode }: { adminCode: string }) {
+  const [invitaciones, setInvitaciones] = useState<Invitacion[]>([]);
+  const [loading, setLoading]           = useState(true);
+  const [generating, setGenerating]     = useState(false);
+  const [copied, setCopied]             = useState<string | null>(null);
+  const [genError, setGenError]         = useState('');
+
+  async function cargar() {
+    setLoading(true);
+    try {
+      const res  = await fetch('/api/invitaciones/listar', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ adminCode }) });
+      const data = await res.json();
+      if (data.success) setInvitaciones(data.invitaciones);
+    } finally { setLoading(false); }
+  }
+
+  async function generar() {
+    setGenerating(true); setGenError('');
+    try {
+      const res  = await fetch('/api/invitaciones/crear', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ adminCode }) });
+      const data = await res.json();
+      if (data.success) { await cargar(); copiar(data.codigo); }
+      else setGenError(data.error ?? 'Error al generar');
+    } finally { setGenerating(false); }
+  }
+
+  function copiar(codigo: string) {
+    navigator.clipboard.writeText(codigo).catch(() => {});
+    setCopied(codigo);
+    setTimeout(() => setCopied(null), 2000);
+  }
+
+  useState(() => { cargar(); });
+
+  const disponibles = invitaciones.filter(i => !i.usado).length;
+  const usados      = invitaciones.filter(i => i.usado).length;
+
+  return (
+    <div style={{ maxWidth: 700 }}>
+      <div style={{ marginBottom: 24 }}>
+        <h2 style={{ fontSize: 20, fontWeight: 900, marginBottom: 4 }}>Panel de Admin</h2>
+        <p style={{ fontSize: 13, color: S.muted }}>Generá códigos de invitación para nuevos socios. Cada código es de un solo uso.</p>
+      </div>
+
+      {/* Stats */}
+      <div style={{ display: 'flex', gap: 12, marginBottom: 24, flexWrap: 'wrap' }}>
+        {[
+          { label: 'Total generados', value: invitaciones.length, color: S.text },
+          { label: 'Disponibles',     value: disponibles,         color: S.green },
+          { label: 'Usados',          value: usados,              color: S.muted },
+        ].map(stat => (
+          <div key={stat.label} style={{ ...cardStyle, flex: 1, minWidth: 120, textAlign: 'center', padding: '14px 18px' }}>
+            <div style={{ fontSize: 28, fontWeight: 900, color: stat.color }}>{stat.value}</div>
+            <div style={{ fontSize: 11, color: S.muted, marginTop: 2 }}>{stat.label}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Botón generar */}
+      <div style={{ marginBottom: 20 }}>
+        <button
+          style={{ ...btnPrimary, opacity: generating ? 0.6 : 1, cursor: generating ? 'not-allowed' : 'pointer' }}
+          onClick={generar}
+          disabled={generating}
+        >
+          {generating ? 'Generando...' : '+ Generar código de invitación'}
+        </button>
+        {genError && <span style={{ marginLeft: 12, fontSize: 12, color: S.red }}>{genError}</span>}
+        <p style={{ fontSize: 11, color: S.muted, marginTop: 6 }}>El código se copia automáticamente al portapapeles.</p>
+      </div>
+
+      {/* Lista de códigos */}
+      {loading ? (
+        <p style={{ color: S.muted, fontSize: 13 }}>Cargando...</p>
+      ) : invitaciones.length === 0 ? (
+        <div style={{ ...cardStyle, textAlign: 'center', padding: '2rem', color: S.muted }}>
+          <div style={{ fontSize: 32, marginBottom: 8 }}>🎟️</div>
+          <p style={{ fontSize: 13 }}>No hay códigos aún. Generá el primero.</p>
+        </div>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {invitaciones.map(inv => (
+            <div key={inv.id} style={{ ...cardStyle, display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', opacity: inv.usado ? 0.6 : 1 }}>
+              {/* Estado */}
+              <div style={{ width: 8, height: 8, borderRadius: '50%', background: inv.usado ? S.muted : S.green, flexShrink: 0 }} />
+
+              {/* Código */}
+              <code style={{ fontSize: 15, fontWeight: 800, color: inv.usado ? S.muted : S.green2, letterSpacing: '0.06em', flex: 1 }}>
+                {inv.codigo}
+              </code>
+
+              {/* Info */}
+              <div style={{ fontSize: 11, color: S.muted, textAlign: 'right', lineHeight: 1.5 }}>
+                {inv.usado ? (
+                  <>
+                    <div style={{ color: S.muted }}>Usado por {inv.usado_por ?? '—'}</div>
+                    <div>{inv.usado_en ? fmtDate(inv.usado_en) : ''}</div>
+                  </>
+                ) : (
+                  <div style={{ color: S.emerald, fontWeight: 700 }}>Disponible</div>
+                )}
+              </div>
+
+              {/* Botón copiar */}
+              {!inv.usado && (
+                <button
+                  onClick={() => copiar(inv.codigo)}
+                  style={{ ...btnOutline, ...btnSm, color: copied === inv.codigo ? S.green : S.muted, borderColor: copied === inv.codigo ? S.green : undefined, flexShrink: 0 }}
+                >
+                  {copied === inv.codigo ? '✓ Copiado' : 'Copiar'}
+                </button>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
@@ -963,6 +1109,7 @@ export default function SociosPage() {
     { key: 'alimentacion', icon: '🌿', label: 'Alimentación' },
     { key: 'cosecha',      icon: '⚖️', label: 'Cosechas' },
     { key: 'guia',         icon: '📋', label: 'Guía Rápida' },
+    ...(db.session.rol === 'admin' ? [{ key: 'admin' as View, icon: '🔑', label: 'Admin' }] : []),
   ];
 
   const activeView = view === 'lote-detail' ? 'lotes' : view;
@@ -1044,7 +1191,8 @@ export default function SociosPage() {
         {view === 'cosecha' && (
           <CosechaView cosechas={db.cosechas} lotes={db.lotes} totalKg={db.totalKg} avgConv={db.avgConv} onNewCosecha={() => { setModalCosecha(true); setTimeout(() => { if (cFecha.current) cFecha.current.value = todayLocal(); }, 10); }} />
         )}
-        {view === 'guia' && <GuiaView />}
+        {view === 'guia'  && <GuiaView />}
+        {view === 'admin' && db.session.rol === 'admin' && <AdminView adminCode={db.session.code} />}
       </main>
 
       {/* Mobile bottom nav */}

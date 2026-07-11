@@ -11,9 +11,9 @@ function getSupabaseAdmin() {
 
 export async function POST(req: NextRequest) {
   try {
-    const { codigo, email, nombre, password } = await req.json();
+    const { codigo, email, nombre, password, codigoInvitacion } = await req.json();
 
-    if (!codigo || !email || !nombre || !password) {
+    if (!codigo || !email || !nombre || !password || !codigoInvitacion) {
       return NextResponse.json({ error: 'Completa todos los campos' }, { status: 400 });
     }
 
@@ -24,6 +24,20 @@ export async function POST(req: NextRequest) {
     const db = getSupabaseAdmin();
     if (!db) {
       return NextResponse.json({ error: 'Error de configuración del servidor' }, { status: 500 });
+    }
+
+    // Validar código de invitación
+    const { data: inv, error: invError } = await db
+      .from('invitaciones')
+      .select('*')
+      .eq('codigo', codigoInvitacion.toUpperCase().trim())
+      .single();
+
+    if (invError || !inv) {
+      return NextResponse.json({ error: 'Código de invitación inválido' }, { status: 400 });
+    }
+    if (inv.usado) {
+      return NextResponse.json({ error: 'Este código de invitación ya fue usado' }, { status: 400 });
     }
 
     // Verificar que código y email no existan
@@ -49,11 +63,19 @@ export async function POST(req: NextRequest) {
       nombre,
       password: hash,
       estado: 'activo',
+      rol: 'socio',
     });
 
     if (insertError) {
       return NextResponse.json({ error: insertError.message }, { status: 500 });
     }
+
+    // Marcar invitación como usada
+    await db.from('invitaciones').update({
+      usado: true,
+      usado_en: new Date().toISOString(),
+      usado_por: email,
+    }).eq('id', inv.id);
 
     return NextResponse.json({ success: true, codigo, nombre });
   } catch {

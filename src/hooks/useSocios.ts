@@ -41,6 +41,7 @@ export interface Cosecha {
 export interface SocioSession {
   code: string;
   name: string;
+  rol: 'admin' | 'socio';
 }
 
 // ─── BSF Cycle ───────────────────────────────────────────────────────────────
@@ -210,7 +211,7 @@ export function useSocios() {
       const data = await res.json();
       if (!res.ok || !data.success) return false;
 
-      const s = { code: data.codigo, name: data.nombre };
+      const s: SocioSession = { code: data.codigo, name: data.nombre, rol: data.rol ?? 'socio' };
       setSession(s);
       localSave(KEYS.session, s);
       return true;
@@ -220,12 +221,12 @@ export function useSocios() {
   }, []);
 
   const register = useCallback(
-    async (codigo: string, email: string, nombre: string, password: string): Promise<{ success: boolean; error?: string }> => {
+    async (codigo: string, email: string, nombre: string, password: string, codigoInvitacion: string): Promise<{ success: boolean; error?: string }> => {
       try {
         const res = await fetch('/api/socios/register', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ codigo, email, nombre, password }),
+          body: JSON.stringify({ codigo, email, nombre, password, codigoInvitacion }),
         });
         const data = await res.json();
 

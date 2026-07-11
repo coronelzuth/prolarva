@@ -1,0 +1,14 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "overused-font",
+        "value": "montserrat",
+        "reason": "Montserrat es la fuente oficial del proyecto ProLarva, definida en layout.tsx y CLAUDE.md",
+        "createdAt": "2026-07-11T01:28:11.437Z"
+      }
+    ]
+  }
+}

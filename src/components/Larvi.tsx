@@ -22,13 +22,204 @@ interface ConversationNode {
 
 const tree: Record<string, ConversationNode> = {
   start: {
-    message: '¡Hola! Soy Larvi 🪲 Tu asistente de cultivo BSF. ¿En qué te ayudo?',
+    message: '¡Hola! 👋 Soy Larvi, mascota de ProLarva. ¿Cuál es tu principal pregunta?',
     options: [
-      { label: '¿Por dónde empiezo?', action: 'empezar' },
-      { label: 'Tengo un problema con mis larvas', action: 'problema' },
-      { label: '¿Cuándo cosechar?', action: 'cosecha' },
-      { label: 'No sé qué meta elegir', action: 'meta_ayuda' },
+      { label: '¿Qué es la larva BSF?', action: 'faq_que_es' },
+      { label: '¿Es complicado criarlas?', action: 'faq_complicado' },
+      { label: '¿Cuánto dinero ahorro?', action: 'faq_costo' },
+      { label: '¿Cómo compro el kit?', action: 'faq_compra' },
+      { label: 'Tengo un problema técnico', action: 'problema' },
+      { label: 'Otro tipo de duda', action: 'faq_menu' },
     ],
+  },
+
+  // ============ FAQs - ¿Qué es BSF? ============
+  faq_que_es: {
+    message: 'La BSF (Black Soldier Fly / Larva de Mosca Soldado Negra) es un insecto cuya larva es **proteína pura**. Conviertes residuos orgánicos en proteína animal en 15-20 días. Tus animales la comen naturalmente, sin químicos.',
+    options: [
+      { label: '¿Es segura para mis animales?', action: 'faq_segura' },
+      { label: '¿Atrae plagas o moscas?', action: 'faq_plagas' },
+      { label: 'Quiero aprender más', action: 'faq_menu' },
+    ],
+  },
+  faq_segura: {
+    message: 'Sí, es más segura que concentrado comercial:\n✅ Proteína natural (sin aglutinantes ni antibióticos)\n✅ Menos enfermedades digestivas\n✅ Pollos más amarillos y brillosos\n✅ Cerdos con menos grasa\n✅ Peces más rápidos en crecer\n\nPrueba real: 50 pollitos con 25% larvas BSF → $150 USD/mes menos en concentrado, cero enfermedades.',
+    options: [
+      { label: '¿Cuánto ahorro entonces?', action: 'faq_costo' },
+      { label: 'Otra pregunta', action: 'faq_menu' },
+    ],
+  },
+  faq_plagas: {
+    message: 'No. La larva de BSF no atrae moscas comunes:\n• La BSF es un insecto específico (no es mosca de fruta)\n• El contenedor está cerrado (sin contacto con ambiente)\n• Si se cría bien = cero olor\n• Al final del ciclo recolectas las larvas — se acaba\n\n¿Te preocupa algo más sobre esto?',
+    options: [
+      { label: 'No, suena bien', action: 'faq_menu' },
+      { label: '¿Cómo funciona el ciclo?', action: 'faq_ciclo' },
+    ],
+  },
+
+  // ============ FAQs - ¿Es complicado? ============
+  faq_complicado: {
+    message: 'No. Son 5 pasos simples:\n1️⃣ Día 1: Armás el contenedor (2 min) + echás semilla\n2️⃣ Días 2-14: Alimentás con residuos de cocina\n3️⃣ Días 15-18: Cosecharlas (30 min)\n4️⃣ Día 18+: Congelás o deshidratás (opcional)\n5️⃣ Día 20+: Siguiente ciclo\n\nLo más "complicado": aprovechar residuos de cocina. Eso es todo.',
+    options: [
+      { label: '¿Cuánto trabajo extra tengo?', action: 'faq_trabajo' },
+      { label: '¿Necesito mucho espacio?', action: 'faq_espacio' },
+      { label: 'Suena bien, quiero comprar', action: 'faq_compra' },
+    ],
+  },
+  faq_trabajo: {
+    message: 'Cero trabajo extra:\n• Ya tirás residuos → ahora los echás al contenedor (2 min/día)\n• Ya alimentás animales → agregas larvas 1-2 veces/semana (5 min)\n• El resto sucede solo\n\n⏱️ Tiempo total semanal: 20 minutos. Nada.',
+    options: [
+      { label: '¿Y si me voy de viaje?', action: 'faq_viaje' },
+      { label: 'Siguiente pregunta', action: 'faq_menu' },
+    ],
+  },
+  faq_espacio: {
+    message: 'No. El contenedor (50×40×40 cm) cabe en:\n• Una esquina del gallinero\n• Debajo del techo de la cocina\n• Un patio pequeño\n• Una huerta chica\n\nOcupa menos que una maceta. Ideal para cualquier finca.',
+    options: [
+      { label: '¿Cuánto cuesta el kit?', action: 'faq_precio' },
+      { label: 'Otra duda', action: 'faq_menu' },
+    ],
+  },
+  faq_viaje: {
+    message: '✅ Hasta 1 semana: sin problema (les echás comida de más antes de irte)\n❌ 2+ semanas: riesgo de que se coman entre ellas\n\n💡 Para viajes largos: congela las larvas en la mitad del ciclo. Pausa el ciclo y arranca cuando regreses.',
+    options: [
+      { label: 'Siguiente pregunta', action: 'faq_menu' },
+      { label: 'Ver guía de cosecha', action: 'cosecha_link' },
+    ],
+  },
+
+  // ============ FAQs - Costo & Ahorro ============
+  faq_costo: {
+    message: '¿Cuánto ahorras depende de tus animales:\n🐔 Pollos (50): $120–150 USD/mes → Ahorras $30–50 USD/mes (25%)\n🐷 Cerdos (5): $200–300 USD/mes → Ahorras $50–90 USD/mes (20%)\n🐟 Peces (1000): $80–120 USD/mes → Ahorras $20–40 USD/mes (30%)\n\n⏱️ Tiempo al primer resultado: 20 días\n💰 ROI: El Kit ($120 USD) se paga en 2-3 cosechas. Después = cero costo.',
+    options: [
+      { label: 'Quiero calcular exacto', action: 'faq_calculadora' },
+      { label: '¿Qué incluye el kit?', action: 'faq_que_incluye' },
+    ],
+  },
+  faq_calculadora: {
+    message: 'Abre la Calculadora ProLarva — pone tus números (especie, cantidad, gastos) y te dice exactamente cuánto ahorras.',
+    link: '/calculadora',
+    options: [
+      { label: 'Ir a la calculadora →', action: 'end' },
+      { label: 'Otra pregunta', action: 'faq_menu' },
+    ],
+  },
+  faq_que_incluye: {
+    message: 'El Kit ProLarva 20 ($120 USD) incluye TODO:\n✅ Pupas de BSF (semilla viva)\n✅ Larvas de inicio\n✅ Manual impreso paso a paso\n✅ Malla love cage (contenedor armable)\n✅ Trampas de huevos\n✅ 45 días de acompañamiento (WhatsApp + Zoom)\n\nDespués del kit: solo gastos en residuos (restos de cocina, estiércol). Cero costo fijo.',
+    options: [
+      { label: '¿Tiene garantía?', action: 'faq_garantia' },
+      { label: 'Quiero comprar', action: 'faq_compra' },
+    ],
+  },
+  faq_precio: {
+    message: '💰 **Kit ProLarva 20:** $120 USD (todo incluido)\n🤝 **Acompañamiento 45 días:** Incluido (sin costo)\n➕ **Acompañamiento 180 días (opcional):** $35 USD\n\n📦 **Bonos incluidos:**\n• Acceso a /socios (tracker privado)\n• Calculadora personalizada\n• Videos privados\n• Comunidad de productores\n\n¿Sin sorpresas de precio. Transferencia bancaria o tarjeta.',
+    options: [
+      { label: '¿Tiene garantía?', action: 'faq_garantia' },
+      { label: 'Quiero comprar ahora', action: 'faq_compra' },
+    ],
+  },
+  faq_garantia: {
+    message: '✅ **100% garantía de dinero devuelto en 15 días** si:\n• Las larvas no crecen\n• No recibís el kit en 7 días hábiles\n• El contenedor llega dañado\n\nSi después de 15 días no estás satisfecho → reembolso total.\n\n📊 Realidad: +80 productores ya lo hicieron. Ninguno pidió devolución.',
+    options: [
+      { label: 'Estoy convencido, quiero comprar', action: 'faq_compra' },
+      { label: 'Otra pregunta', action: 'faq_menu' },
+    ],
+  },
+
+  // ============ FAQs - Compra ============
+  faq_compra: {
+    message: 'Solo 3 pasos:\n1️⃣ Completá el formulario en /sistema-2015 (nombre, WhatsApp, ubicación)\n2️⃣ Juliana te contacta en 24h para confirmar envío y pago\n3️⃣ Recibís el kit en 5-7 días hábiles listo para usar\n\n🌍 Envío: Colombia, Perú, Ecuador, Centroamérica\n💬 WhatsApp de Juliana: +57 322 321 2293',
+    link: '/sistema-2015',
+    options: [
+      { label: 'Ir al formulario →', action: 'end' },
+      { label: '¿Cómo es el acompañamiento?', action: 'faq_acompanamiento' },
+    ],
+  },
+  faq_acompanamiento: {
+    message: '**El acompañamiento es REAL y directo:**\n📞 Juliana (fundadora) te responde por WhatsApp en 24h\n🎥 Zoom semanal con otros productores para resolver dudas\n📋 Checklist paso a paso para cada etapa\n🚨 Soporte de emergencia si algo sale mal\n\n💭 Muchos productores dicen: "El acompañamiento vale más que el kit".',
+    options: [
+      { label: 'Listo, voy a comprar', action: 'faq_compra' },
+      { label: 'Tengo dudas técnicas', action: 'faq_menu' },
+    ],
+  },
+
+  // ============ FAQs - Dudas técnicas ============
+  faq_ciclo: {
+    message: '**El ciclo son ~18 días:**\n📅 Días 0-2: Huevo — Semilla eclosiona\n📅 Días 3-8: Larva pequeña — Crecen rápido, comen mucho\n📅 Días 9-14: Larva grande — Máximo crecimiento\n📅 Días 15-17: Prepupa — Dejan de comer, se oscurecen\n📅 Día 18+: Cosecha — Listas para tus animales\n\n¿Quierés saber más sobre alguna etapa?',
+    link: '/conocimiento',
+    options: [
+      { label: 'Ver todas las etapas →', action: 'end' },
+      { label: 'Otra pregunta', action: 'faq_menu' },
+    ],
+  },
+  faq_residuos: {
+    message: 'Las larvas comen casi todo:\n✅ Restos de verdura (cáscaras, tallos)\n✅ Frutas vencidas\n✅ Restos de comida cocida (sin exceso de aceite)\n✅ Estiércol fresco (gallinas, cerdos, vaca)\n✅ Hojas secas, aserrín\n✅ Harina, granos, avena\n✅ Sangre, tripería\n\n❌ NO: Plásticos, vidrio, aceite puro, químicos\n\n💡 Consejo: mezcla seco + húmedo en balance 1:1 para evitar olor.',
+    link: '/cosecha',
+    options: [
+      { label: 'Ver guía de alimentación →', action: 'end' },
+      { label: 'Otra pregunta', action: 'faq_menu' },
+    ],
+  },
+  faq_cosecha_cuanto: {
+    message: 'Del Kit ProLarva 20 obtenés:\n🔄 Ciclo 1: 2-4 kg de larvas vivas (depende de residuos)\n🔄 Ciclo 2+: 4-8 kg por ciclo (mejor calibrado)\n\n💡 Equivalencia: 1 kg larvas = 1 kg concentrado proteico\n📊 Un ciclo = larvas para 2-4 semanas (según tus animales)',
+    options: [
+      { label: 'Quiero calcular mi caso', action: 'faq_calculadora' },
+      { label: 'Otra pregunta', action: 'faq_menu' },
+    ],
+  },
+  faq_asco: {
+    message: 'Es normal al principio. Después de 2 días, es normal:\n• Son gusanos blancos, suave, tamaño de una pasta\n• Tus pollos/peces/cerdos los comen naturalmente\n• Muchos productores dicen: "Más limpio que destazar pollo"\n\n💡 Consejo: mira primero cómo tus animales las comen. El asco desaparece rápido.',
+    options: [
+      { label: 'Siguiente pregunta', action: 'faq_menu' },
+      { label: 'Ver beneficios reales', action: 'faq_segura' },
+    ],
+  },
+  faq_olor: {
+    message: 'Si se maneja bien, **nada de olor**:\n• Residuos secos (aserrín, estiércol) → cero hedor\n• Residuos húmedos balanceados → olor neutral (como composta)\n• Si huele mal → algo está fuera de balance (lo arreglamos)\n\n💭 Algunos productores dicen: "Más limpio que el gallinero tradicional"',
+    link: '/conocimiento',
+    options: [
+      { label: 'Ver balance correcto →', action: 'end' },
+      { label: 'Otra pregunta', action: 'faq_menu' },
+    ],
+  },
+  faq_frass: {
+    message: '💰 El frass (popo de larva) es **oro negro** para agricultores:\n💵 Se vende a $20-40 USD por bolsa (en LATAM)\n🌾 Es excelente biofertilizante (mejor que compost)\n🏡 Puedes usarlo en tu huerta o vender a agricultores\n\n📊 Algunos productores viven del frass vendiendo a otros.',
+    options: [
+      { label: 'Quiero saber todo', action: 'faq_menu' },
+      { label: 'Estoy decidido, compro', action: 'faq_compra' },
+    ],
+  },
+  faq_negocio: {
+    message: '✅ Sí. Niveles de negocio:\n🎯 **Hobista** (1-2 kits): $50–100 USD/mes | Inversión: $120 USD\n🎯 **Pequeño productor** (5-10 kits): $300–600 USD/mes | Inversión: $600 USD\n🎯 **Mediano** (20+ kits): $1500+ USD/mes | Inversión: $2000+ USD\n\n💡 Muchos empiezan como hobista y escalan.',
+    link: '/metas',
+    options: [
+      { label: 'Ver las 3 metas →', action: 'end' },
+      { label: 'Otra pregunta', action: 'faq_menu' },
+    ],
+  },
+  faq_menu: {
+    message: '¿Qué más querés saber?',
+    options: [
+      { label: '¿Qué es BSF? (básico)', action: 'faq_que_es' },
+      { label: '¿Es complicado?', action: 'faq_complicado' },
+      { label: '¿Cuánto ahorro?', action: 'faq_costo' },
+      { label: 'Ciclo & etapas', action: 'faq_ciclo' },
+      { label: '¿Residuos seguros?', action: 'faq_residuos' },
+      { label: '¿Se ve asqueroso?', action: 'faq_asco' },
+      { label: '¿Huele mal?', action: 'faq_olor' },
+      { label: '¿Cuántas larvas cosecho?', action: 'faq_cosecha_cuanto' },
+      { label: '¿Se vende el frass?', action: 'faq_frass' },
+      { label: '¿Puedo vivir de esto?', action: 'faq_negocio' },
+      { label: 'Comprar kit', action: 'faq_compra' },
+      { label: 'Problema técnico', action: 'problema' },
+    ],
+  },
+
+  // ============ Helper links ============
+  cosecha_link: {
+    message: 'Ve a la guía de cosecha — ahí mostramos cómo cosechar y qué hacer después.',
+    link: '/cosecha',
+    options: [{ label: 'Ver guía →', action: 'end' }],
   },
   empezar: {
     message: '¡Perfecto! Te recomiendo este orden: primero aprende el ciclo BSF, luego haz el diagnóstico de preparación, y después elige tu meta. ¿Tienes algo listo ya?',

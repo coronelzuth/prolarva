@@ -1,0 +1,13 @@
+CREATE TABLE IF NOT EXISTS socios (
+  id             TEXT PRIMARY KEY,
+  codigo         TEXT UNIQUE NOT NULL,
+  email          TEXT UNIQUE NOT NULL,
+  nombre         TEXT NOT NULL,
+  password       TEXT NOT NULL,
+  estado         TEXT DEFAULT 'activo',
+  creado_en      TIMESTAMPTZ DEFAULT NOW(),
+  actualizado_en TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE socios ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "anon full access" ON socios FOR ALL TO anon USING (true) WITH CHECK (true);

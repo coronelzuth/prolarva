@@ -69,13 +69,12 @@ export function uid(): string {
   return Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
 }
 
-// ─── Credentials ─────────────────────────────────────────────────────────────
+// ─── Auth types ──────────────────────────────────────────────────────────────
 
-const DEMO_USERS: { code: string; pass: string; name: string }[] = [
-  { code: 'SOCIO-2025',              pass: 'larva123',     name: 'Socio Demo'       },
-  { code: 'coronelzulieth@gmail.com', pass: 'prolarva2025', name: 'Juliana Coronel' },
-  { code: 'PROLARVA-ADMIN',          pass: 'admin2025',    name: 'Juliana Coronel' },
-];
+export interface AuthError {
+  message: string;
+  code?: string;
+}
 
 // ─── Storage keys ─────────────────────────────────────────────────────────────
 
@@ -201,16 +200,78 @@ export function useSocios() {
 
   // ─── Auth ──────────────────────────────────────────────────────────────────
 
-  const login = useCallback((code: string, pass: string): boolean => {
-    const found = DEMO_USERS.find(
-      u => u.code.toLowerCase() === code.toLowerCase() && u.pass === pass
-    );
-    if (!found) return false;
-    const s = { code: found.code, name: found.name };
+  const login = useCallback(async (code: string, pass: string): Promise<boolean> => {
+    const db = getSupabase();
+    if (!db) {
+      console.error('Supabase not configured');
+      return false;
+    }
+
+    // Buscar por código o email
+    const { data, error } = await db
+      .from('socios')
+      .select('*')
+      .or(`codigo.eq.${code},email.eq.${code}`)
+      .single();
+
+    if (error || !data) return false;
+
+    // Validar contraseña (comparar directamente por ahora)
+    // TODO: Usar bcrypt o similar en producción
+    if (data.password !== pass) return false;
+
+    // Crear sesión
+    const s = { code: data.codigo, name: data.nombre };
     setSession(s);
     localSave(KEYS.session, s);
     return true;
   }, []);
+
+  const register = useCallback(
+    async (codigo: string, email: string, nombre: string, password: string): Promise<{ success: boolean; error?: string }> => {
+      const db = getSupabase();
+      if (!db) return { success: false, error: 'Supabase no configurado' };
+
+      // Validar campos
+      if (!codigo || !email || !nombre || !password) {
+        return { success: false, error: 'Completa todos los campos' };
+      }
+
+      if (password.length < 6) {
+        return { success: false, error: 'La contraseña debe tener al menos 6 caracteres' };
+      }
+
+      // Verificar que código y email no existan
+      const { data: existing } = await db
+        .from('socios')
+        .select('id')
+        .or(`codigo.eq.${codigo},email.eq.${email}`)
+        .limit(1);
+
+      if (existing && existing.length > 0) {
+        return { success: false, error: 'Código o email ya registrado' };
+      }
+
+      // Crear nuevo socio
+      const { error: insertError } = await db.from('socios').insert({
+        id: uid(),
+        codigo,
+        email,
+        nombre,
+        password, // TODO: hashear en producción
+        estado: 'activo',
+      });
+
+      if (insertError) {
+        return { success: false, error: insertError.message };
+      }
+
+      // Login automático
+      const loginSuccess = await login(codigo, password);
+      return { success: loginSuccess, error: loginSuccess ? undefined : 'No se pudo iniciar sesión' };
+    },
+    [login]
+  );
 
   const logout = useCallback(() => {
     setSession(null);
@@ -296,7 +357,7 @@ export function useSocios() {
   const avgConv     = convs.length ? convs.reduce((a, b) => a + b, 0) / convs.length : null;
 
   return {
-    loaded, session, login, logout,
+    loaded, session, login, logout, register,
     lotes, feeds, cosechas,
     addLote, deleteLote, updateLote, addFeed, addCosecha,
     activeLotes, readyLotes, totalKg, avgConv,

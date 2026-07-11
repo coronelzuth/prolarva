@@ -710,15 +710,21 @@ function GuiaView() {
   );
 }
 
-// ─── Login screen ─────────────────────────────────────────────────────────────
+// ─── Auth screens ─────────────────────────────────────────────────────────────
 
-function LoginScreen({ onLogin }: { onLogin: (code: string, pass: string) => boolean }) {
+function LoginScreen({ onLogin, onSwitchToRegister }: { onLogin: (code: string, pass: string) => Promise<boolean>; onSwitchToRegister: () => void }) {
   const [code, setCode] = useState('');
   const [pass, setPass] = useState('');
-  const [error, setError] = useState(false);
+  const [error, setError] = useState<string>('');
+  const [loading, setLoading] = useState(false);
 
-  const attempt = () => {
-    if (!onLogin(code, pass)) { setError(true); } else { setError(false); }
+  const attempt = async () => {
+    if (!code || !pass) { setError('Completa todos los campos'); return; }
+    setError('');
+    setLoading(true);
+    const success = await onLogin(code, pass);
+    setLoading(false);
+    if (!success) { setError('Código o contraseña incorrectos.'); }
   };
 
   return (
@@ -733,20 +739,101 @@ function LoginScreen({ onLogin }: { onLogin: (code: string, pass: string) => boo
         </div>
 
         <Field label="Código de socio o email">
-          <input style={inputStyle} value={code} onChange={e => setCode(e.target.value)} onKeyDown={e => e.key === 'Enter' && attempt()} placeholder="ej. SOCIO-2025" autoComplete="off" />
+          <input style={inputStyle} value={code} onChange={e => setCode(e.target.value)} onKeyDown={e => e.key === 'Enter' && !loading && attempt()} placeholder="ej. SOCIO-001" autoComplete="off" disabled={loading} />
         </Field>
         <Field label="Contraseña">
-          <input style={inputStyle} type="password" value={pass} onChange={e => setPass(e.target.value)} onKeyDown={e => e.key === 'Enter' && attempt()} placeholder="••••••••" />
+          <input style={inputStyle} type="password" value={pass} onChange={e => setPass(e.target.value)} onKeyDown={e => e.key === 'Enter' && !loading && attempt()} placeholder="••••••••" disabled={loading} />
         </Field>
 
-        {error && <p style={{ color: S.red, fontSize: 12, marginBottom: 10, textAlign: 'center' }}>Código o contraseña incorrectos.</p>}
+        {error && <p style={{ color: S.red, fontSize: 12, marginBottom: 10, textAlign: 'center' }}>{error}</p>}
 
-        <button style={{ ...btnPrimary, width: '100%', padding: '12px', marginTop: 4 }} onClick={attempt}>
-          Entrar a mi zona →
+        <button style={{ ...btnPrimary, width: '100%', padding: '12px', marginTop: 4, opacity: loading ? 0.6 : 1, cursor: loading ? 'not-allowed' : 'pointer' }} onClick={attempt} disabled={loading}>
+          {loading ? 'Entrando...' : 'Entrar a mi zona →'}
         </button>
-        <p style={{ textAlign: 'center', marginTop: 14, fontSize: 12, color: S.muted }}>
-          Demo: <strong style={{ color: S.green2 }}>SOCIO-2025</strong> / <strong style={{ color: S.green2 }}>larva123</strong>
-        </p>
+
+        <div style={{ borderTop: `1px solid ${S.border}`, marginTop: 18, paddingTop: 18, textAlign: 'center' }}>
+          <p style={{ fontSize: 12, color: S.muted, marginBottom: 10 }}>¿Eres nuevo en la comunidad?</p>
+          <button style={{ ...btnOutline, width: '100%' }} onClick={onSwitchToRegister}>
+            Crear cuenta como socio
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function RegisterScreen({ onRegister, onSwitchToLogin }: { onRegister: (codigo: string, email: string, nombre: string, password: string) => Promise<{ success: boolean; error?: string }>; onSwitchToLogin: () => void }) {
+  const [codigo, setCodigo] = useState('');
+  const [email, setEmail] = useState('');
+  const [nombre, setNombre] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPass, setConfirmPass] = useState('');
+  const [error, setError] = useState<string>('');
+  const [loading, setLoading] = useState(false);
+
+  const attempt = async () => {
+    if (!codigo || !email || !nombre || !password || !confirmPass) {
+      setError('Completa todos los campos');
+      return;
+    }
+    if (password !== confirmPass) {
+      setError('Las contraseñas no coinciden');
+      return;
+    }
+    if (password.length < 6) {
+      setError('La contraseña debe tener al menos 6 caracteres');
+      return;
+    }
+
+    setError('');
+    setLoading(true);
+    const result = await onRegister(codigo, email, nombre, password);
+    setLoading(false);
+
+    if (!result.success) {
+      setError(result.error || 'Error al registrarse');
+    }
+  };
+
+  return (
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem', background: 'radial-gradient(ellipse at 60% 30%, rgba(34,197,94,0.06) 0%, #0d1b2a 70%)' }}>
+      <div style={{ background: S.navy2, border: `1px solid ${S.border}`, borderRadius: 20, padding: '2.5rem 2rem', width: '100%', maxWidth: 420, boxShadow: '0 20px 60px rgba(0,0,0,0.5)' }}>
+        <div style={{ textAlign: 'center', marginBottom: 28 }}>
+          <div style={{ fontSize: 48, marginBottom: 8 }}>🪲</div>
+          <h1 style={{ fontSize: 22, fontWeight: 900 }}>
+            Pro<span style={{ background: 'linear-gradient(135deg,#4ade80,#22c55e)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Larva</span>
+          </h1>
+          <p style={{ fontSize: 12, color: S.emerald, fontWeight: 700, letterSpacing: '0.1em', marginTop: 2 }}>REGISTRO DE SOCIO</p>
+        </div>
+
+        <Field label="Código de socio">
+          <input style={inputStyle} value={codigo} onChange={e => setCodigo(e.target.value.toUpperCase())} placeholder="ej. PROLARVA-001" autoComplete="off" disabled={loading} />
+        </Field>
+        <Field label="Nombre completo">
+          <input style={inputStyle} value={nombre} onChange={e => setNombre(e.target.value)} placeholder="Tu nombre" disabled={loading} />
+        </Field>
+        <Field label="Email">
+          <input style={inputStyle} type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="tu@email.com" autoComplete="email" disabled={loading} />
+        </Field>
+        <Field label="Contraseña">
+          <input style={inputStyle} type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••" disabled={loading} />
+        </Field>
+        <Field label="Confirmar contraseña">
+          <input style={inputStyle} type="password" value={confirmPass} onChange={e => setConfirmPass(e.target.value)} placeholder="••••••••" onKeyDown={e => e.key === 'Enter' && !loading && attempt()} disabled={loading} />
+        </Field>
+
+        {error && <p style={{ color: S.red, fontSize: 12, marginBottom: 10, textAlign: 'center' }}>{error}</p>}
+
+        <button style={{ ...btnPrimary, width: '100%', padding: '12px', marginTop: 4, opacity: loading ? 0.6 : 1, cursor: loading ? 'not-allowed' : 'pointer' }} onClick={attempt} disabled={loading}>
+          {loading ? 'Registrando...' : 'Crear mi cuenta'}
+        </button>
+
+        <div style={{ borderTop: `1px solid ${S.border}`, marginTop: 18, paddingTop: 18, textAlign: 'center' }}>
+          <p style={{ fontSize: 12, color: S.muted, marginBottom: 10 }}>¿Ya tienes cuenta?</p>
+          <button style={{ ...btnOutline, width: '100%' }} onClick={onSwitchToLogin}>
+            Entrar a mi zona
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -756,7 +843,7 @@ function LoginScreen({ onLogin }: { onLogin: (code: string, pass: string) => boo
 
 export default function SociosPage() {
   const db = useSocios();
-
+  const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
   const [view,        setView]        = useState<View>('dashboard');
   const [detailLoteId, setDetailLoteId] = useState<string | null>(null);
 
@@ -793,7 +880,13 @@ export default function SociosPage() {
   const cNotas     = useRef<HTMLTextAreaElement>(null);
 
   if (!db.loaded) return null;
-  if (!db.session) return <LoginScreen onLogin={db.login} />;
+  if (!db.session) {
+    if (authMode === 'login') {
+      return <LoginScreen onLogin={db.login} onSwitchToRegister={() => setAuthMode('register')} />;
+    } else {
+      return <RegisterScreen onRegister={db.register} onSwitchToLogin={() => setAuthMode('login')} />;
+    }
+  }
 
   const detailLote = detailLoteId ? db.lotes.find(l => l.id === detailLoteId) ?? null : null;
 

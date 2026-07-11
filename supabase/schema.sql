@@ -52,13 +52,27 @@ CREATE TABLE IF NOT EXISTS cosechas (
   notas          TEXT DEFAULT ''
 );
 
+-- 5. Socios (registro de usuarios de la comunidad)
+CREATE TABLE IF NOT EXISTS socios (
+  id             TEXT PRIMARY KEY,
+  codigo         TEXT UNIQUE NOT NULL,
+  email          TEXT UNIQUE NOT NULL,
+  nombre         TEXT NOT NULL,
+  password       TEXT NOT NULL,
+  estado         TEXT DEFAULT 'activo',
+  creado_en      TIMESTAMPTZ DEFAULT NOW(),
+  actualizado_en TIMESTAMPTZ DEFAULT NOW()
+);
+
 -- RLS: permitir acceso anónimo completo (app pública)
 ALTER TABLE user_progress ENABLE ROW LEVEL SECURITY;
 ALTER TABLE lotes         ENABLE ROW LEVEL SECURITY;
 ALTER TABLE feed_logs     ENABLE ROW LEVEL SECURITY;
 ALTER TABLE cosechas      ENABLE ROW LEVEL SECURITY;
+ALTER TABLE socios        ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "anon full access" ON user_progress FOR ALL TO anon USING (true) WITH CHECK (true);
 CREATE POLICY "anon full access" ON lotes         FOR ALL TO anon USING (true) WITH CHECK (true);
 CREATE POLICY "anon full access" ON feed_logs     FOR ALL TO anon USING (true) WITH CHECK (true);
 CREATE POLICY "anon full access" ON cosechas      FOR ALL TO anon USING (true) WITH CHECK (true);
+CREATE POLICY "anon full access" ON socios        FOR ALL TO anon USING (true) WITH CHECK (true);

@@ -12,7 +12,8 @@
 2. **Venta** (`/sistema-2015`): landing de la oferta "Kit ProLarva 20/15" (acompañamiento 45d+180d, 4 bonos, garantías)
 
 **URL producción:** https://prolarva.vercel.app
-**Proyecto Vercel:** `juliprojects/prolarva` (renombrado de prolarva-monitor)
+**URL anterior eliminada:** ~~https://prolarva-monitor.vercel.app~~
+**Proyecto Vercel:** `juliprojects/prolarva`
 **GitHub:** https://github.com/coronelzuth/prolarva (user: coronelzuth, email: coronelzulieth@gmail.com)
 **Deploy:** `vercel --prod --yes` desde esta carpeta
 **Dueña:** Juliana Coronel — fundadora de ProLarva, Cúcuta Colombia

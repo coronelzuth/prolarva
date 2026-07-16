@@ -64,6 +64,10 @@ export const stages: Stage[] = [
       'No expongas a luz directa',
       'Evita perturbaciones frecuentes',
     ],
+    videos: [
+      { title: 'Neonatos BSF', url: '/fotos/neonatos.mp4' },
+      { title: 'Neonatos — 1 día', url: '/fotos/neonato_1dia.mp4' },
+    ],
   },
   {
     id: 'larva-media',
@@ -83,6 +87,9 @@ export const stages: Stage[] = [
     alerts: [
       'Hacinamiento genera calor interno — puede matar las larvas',
       'Olor fuerte = demasiado alimento húmedo acumulado',
+    ],
+    videos: [
+      { title: 'Estadios larvales BSF', url: '/fotos/estadios.mp4' },
     ],
   },
   {
@@ -106,6 +113,10 @@ export const stages: Stage[] = [
       'Temperatura alta acelera transición a prepupa',
       'No guardes más de 48h sin refrigeración',
     ],
+    videos: [
+      { title: 'Larvas maduras BSF', url: '/fotos/biglarvae.mp4' },
+      { title: 'Larvas grandes BSF', url: '/fotos/grandes.mp4' },
+    ],
   },
   {
     id: 'prepupa',
@@ -126,6 +137,10 @@ export const stages: Stage[] = [
       'NO necesita alimento — dejar de alimentar es correcto',
       'Humedad alta pudre las prepupas',
       'No las expongas a luz directa',
+    ],
+    videos: [
+      { title: 'Prepupas BSF', url: '/fotos/prepupas.mp4' },
+      { title: 'Prepupas BSF 2', url: '/fotos/prepupas2.mp4' },
     ],
   },
   {
@@ -148,6 +163,10 @@ export const stages: Stage[] = [
       'Temperatura < 20°C paraliza el desarrollo',
       'Las hormigas pueden destruir las pupas',
     ],
+    videos: [
+      { title: 'Pupas BSF', url: '/fotos/pupas.mp4' },
+      { title: 'Pupas BSF 2', url: '/fotos/pupas2.mp4' },
+    ],
   },
   {
     id: 'adulto',
@@ -169,6 +188,11 @@ export const stages: Stage[] = [
       'Solo agua — nunca comida',
       'Las moscas son frágiles, no sacudas el insectario',
     ],
+    videos: [
+      { title: 'Apareamiento BSF', url: '/fotos/apareamiento.mp4' },
+      { title: 'Mosca soldado negra', url: '/fotos/moscagrande3.mp4' },
+      { title: 'Moscas en vuelo', url: '/fotos/moscas_fly.mp4' },
+    ],
   },
   {
     id: 'postura',
@@ -187,6 +211,9 @@ export const stages: Stage[] = [
     alerts: [
       'Retira tiras antes de 5 días o los huevos eclosionan en el insectario',
       'Temperatura baja reduce dramáticamente la postura',
+    ],
+    videos: [
+      { title: 'Postura de huevos BSF', url: '/fotos/postura_huevos.mp4' },
     ],
   },
 ];

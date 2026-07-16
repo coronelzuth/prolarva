@@ -36,6 +36,9 @@ yarn-error.log*
 # vercel
 .vercel
 
+# videos pesados — se despliegan directo desde local vía Vercel CLI
+/public/fotos/*.mp4
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

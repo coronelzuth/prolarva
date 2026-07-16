@@ -38,6 +38,7 @@ const modules = [
     color: '#f59e0b',
     time: '5 min',
     tag: 'Módulo 2',
+    hidden: true,
   },
   {
     id: 'metas',
@@ -127,7 +128,7 @@ export default function Home() {
       )}
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20, marginBottom: 48 }}>
-        {modules.map((mod, idx) => {
+        {modules.filter(m => !m.hidden).map((mod, idx) => {
           const status = getModuleStatus(mod.id);
           return (
             <div

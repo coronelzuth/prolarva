@@ -8,7 +8,7 @@ const navLinks = [
   { href: '/',            label: 'Inicio',       icon: '🏠' },
   { href: '/sistema-2015', label: 'Oferta',      icon: '💰' },
   { href: '/conocimiento',label: 'Conocimiento',  icon: '🧠' },
-  { href: '/preparacion', label: 'Preparación',   icon: '🛠️' },
+  { href: '/preparacion', label: 'Preparación',   icon: '🛠️', hidden: true },
   { href: '/metas',       label: 'Mi Meta',       icon: '🎯' },
   { href: '/cosecha',     label: 'Cosecha',       icon: '🌾' },
   { href: '/calculadora', label: 'Calculadora',   icon: '🧮' },
@@ -24,7 +24,7 @@ export default function Navbar() {
     <nav style={{ background: 'rgba(13,27,42,0.95)', borderBottom: '1px solid rgba(14,165,233,0.2)', backdropFilter: 'blur(12px)', position: 'sticky', top: 0, zIndex: 50 }}>
       <div style={{ maxWidth: 1100, margin: '0 auto', padding: '0 12px', display: 'flex', alignItems: 'center', justifyContent: 'center', height: 60, gap: 8 }}>
         <div className="nav-links-wrap" style={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-          {navLinks.map(link => {
+          {navLinks.filter(l => !l.hidden).map(link => {
             const active = pathname === link.href;
             const isCompleted = link.href !== '/' && link.href !== '/calculadora' && progress.modulesCompleted.includes(link.href.replace('/', ''));
             return (

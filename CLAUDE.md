@@ -226,7 +226,7 @@ interface Stage {
 ## Pendientes conocidos
 
 - [ ] **Fotos reales** — infraestructura lista en `stages.ts`, Juliana debe proveer archivos para `public/fotos/`
-- [ ] **Videos reales** — campo `videos[]` listo en `stages.ts`, necesita URLs de YouTube
+- [x] **Videos reales** — todas las 8 etapas tienen videos en `public/fotos/` (ver tabla abajo)
 - [ ] **URL del VSL** — campo listo en `/landing`, falta el link cuando el video esté listo
 - [ ] **Exportar leads en CSV** — tabla `leads` en Supabase ya tiene los datos; falta UI o export desde el dashboard
 
@@ -268,7 +268,7 @@ a5cc857  feat: port calculadora BSF a React con paleta de la app
 ## Estado actual
 > **Actualizar esta sección al final de cada sesión de trabajo.**
 
-**Última actualización:** 2026-07-10 (tarde)
+**Última actualización:** 2026-07-16
 
 **Qué está funcionando en producción:**
 - Todas las rutas desplegadas y accesibles en móvil y desktop
@@ -307,6 +307,21 @@ a5cc857  feat: port calculadora BSF a React con paleta de la app
 | `cosechas` | Cosechas registradas |
 | `leads` | Leads del formulario de /landing (nombre + email) |
 | `socios` | Usuarios registrados (codigo, email, nombre, password, estado) — **NUEVO** |
+
+**Cambios recientes (2026-07-16):**
+- ✅ **Módulo Diagnóstico oculto** — `/preparacion` sigue activa pero no aparece en navbar ni home (`hidden: true` en `Navbar.tsx` y `page.tsx`)
+- ✅ **Videos en todas las etapas BSF** — `data/stages.ts` actualizado con videos locales en `public/fotos/`:
+  | Etapa | Videos |
+  |---|---|
+  | 🥚 Huevo | `huevos.mp4` + `huevos2_web.mp4` (ya existían) |
+  | 🐛 L1–L3 | `neonatos.mp4` + `neonato_1dia.mp4` |
+  | 🐛 L4 | `estadios.mp4` |
+  | ⭐ L5 Cosecha | `biglarvae.mp4` + `grandes.mp4` |
+  | 🟤 Prepupa | `prepupas.mp4` + `prepupas2.mp4` |
+  | 🫘 Pupa | `pupas.mp4` + `pupas2.mp4` |
+  | 🦟 Adulto | `apareamiento.mp4` + `moscagrande3.mp4` + `moscas_fly.mp4` |
+  | 🔄 Postura | `postura_huevos.mp4` |
+- ✅ **Videos `*.mp4` en `/public/fotos/` excluidos de git** (`.gitignore`) — son muy pesados; se despliegan directo desde local vía `vercel --prod --yes`
 
 **Cambios recientes (2026-07-11 — sesión completa):**
 - ✅ **bcryptjs** — passwords hasheadas con salt 10 vía API routes en servidor (nunca texto plano en Supabase)

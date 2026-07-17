@@ -80,6 +80,18 @@ const FAQS = [
   { q: '¿Cuándo recupero lo que invertí?', a: 'Con 100 pollos de engorde, el ahorro en concentrado del primer ciclo ya cubre el costo del kit. La mayoría de productores recuperan la inversión en el primero o segundo lote — y desde ahí, todo es ganancia.' },
 ];
 
+// ── GALERÍA ─────────────────────────────────────────────
+// Agrega aquí tus fotos y videos reales cuando los tengas listos.
+// type 'image' → archivo en public/fotos/  |  type 'video' → idem
+const GALLERY: { type: 'image' | 'video'; src: string; caption: string }[] = [
+  { type: 'image', src: '/fotos/huevos.msn.jpg',    caption: 'Huevos BSF en sustrato' },
+  { type: 'video', src: '/fotos/neonatos.mp4',       caption: 'Neonatos recién eclosionados' },
+  { type: 'image', src: '/fotos/huevos.mns.2.jpg',  caption: 'Postura en cartón corrugado' },
+  { type: 'video', src: '/fotos/estadios.mp4',       caption: 'Estadios larvales L4' },
+  { type: 'image', src: '/fotos/huevos.mns.3.jpg',  caption: 'Vista de cerca — huevos' },
+  { type: 'video', src: '/fotos/biglarvae.mp4',      caption: 'Larvas maduras listas para cosechar' },
+];
+
 export default function Sistema2015Page() {
   const [faqOpen, setFaqOpen] = useState<number | null>(null);
   return (
@@ -527,6 +539,47 @@ export default function Sistema2015Page() {
               </div>
             </div>
           </motion.div>
+        </div>
+      </section>
+
+      {/* ── GALERÍA ── */}
+      <section style={{ padding: '72px 20px', background: C.bg2 }}>
+        <div style={{ maxWidth: 1000, margin: '0 auto' }}>
+          <motion.p {...up()} style={{ textAlign: 'center', color: C.green, fontWeight: 700, fontSize: '0.78rem', letterSpacing: '0.18em', textTransform: 'uppercase', marginBottom: 10 }}>Vida real en la granja</motion.p>
+          <motion.h2 {...up(0.05)} style={{ textAlign: 'center', fontSize: 'clamp(1.3rem, 2.5vw, 1.9rem)', fontWeight: 900, color: C.greenL, margin: '0 auto 48px' }}>
+            El sistema BSF en acción
+          </motion.h2>
+
+          <div style={{ columns: '2 280px', columnGap: 14 }}>
+            {GALLERY.map((item, i) => (
+              <motion.div
+                key={i}
+                {...up(i * 0.07)}
+                style={{ breakInside: 'avoid', marginBottom: 14, borderRadius: 14, overflow: 'hidden', background: C.card, position: 'relative', border: `1px solid ${C.border}` }}
+              >
+                {item.type === 'image' ? (
+                  <img
+                    src={item.src}
+                    alt={item.caption}
+                    style={{ width: '100%', height: 'auto', display: 'block', objectFit: 'cover' }}
+                  />
+                ) : (
+                  <video
+                    src={item.src}
+                    autoPlay
+                    muted
+                    loop
+                    playsInline
+                    style={{ width: '100%', height: 'auto', display: 'block' }}
+                  />
+                )}
+                {/* Caption overlay */}
+                <div style={{ padding: '10px 14px', background: `linear-gradient(0deg, ${C.card} 80%, transparent)` }}>
+                  <p style={{ margin: 0, fontSize: '0.75rem', color: C.muted, fontWeight: 600 }}>{item.caption}</p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
         </div>
       </section>
 

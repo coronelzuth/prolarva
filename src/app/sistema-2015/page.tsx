@@ -53,7 +53,35 @@ function CountUp({ to, suffix = '', prefix = '' }: { to: number; suffix?: string
   return <span ref={ref}>{prefix}{val}{suffix}</span>;
 }
 
+function FaqItem({ q, a, open, onToggle }: { q: string; a: string; open: boolean; onToggle: () => void }) {
+  return (
+    <div style={{ borderBottom: `1px solid ${C.border}` }}>
+      <button onClick={onToggle} style={{ width: '100%', textAlign: 'left', background: 'none', border: 'none', padding: '20px 0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, cursor: 'pointer', fontFamily: 'inherit' }}>
+        <span style={{ fontSize: '0.95rem', fontWeight: 700, color: open ? C.greenL : C.text, lineHeight: 1.4 }}>{q}</span>
+        <span style={{ color: C.green, fontSize: '1.4rem', flexShrink: 0, display: 'inline-block', transition: 'transform 0.25s', transform: open ? 'rotate(45deg)' : 'rotate(0deg)', lineHeight: 1 }}>+</span>
+      </button>
+      {open && (
+        <motion.div initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.22 }} style={{ paddingBottom: 20 }}>
+          <p style={{ fontSize: '0.9rem', color: C.muted, lineHeight: 1.8, margin: 0 }}>{a}</p>
+        </motion.div>
+      )}
+    </div>
+  );
+}
+
+const FAQS = [
+  { q: '¿Necesito experiencia previa con insectos o con larvas?', a: 'Para nada. El sistema está diseñado para empezar desde cero. El manual paso a paso, las videollamadas con Juliana y la App Monitor te guían en cada momento. Si podés alimentar tus animales, podés manejar BSF.' },
+  { q: '¿Qué pasa si las larvas se mueren o algo sale mal?', a: 'El kit incluye el Protocolo Anti-Crisis BSF con soluciones para los 7 imprevistos más comunes: temperatura, humedad, oviposición, mortalidad, plagas y más. Y con la garantía de resultado, Juliana sigue acompañándote sin costo adicional hasta que logres tu primer lote.' },
+  { q: '¿Es asqueroso trabajar con larvas?', a: 'Mucho menos de lo que pensás. Las larvas BSF no pican, no vuelan, no huelen mal cuando el sistema está bien manejado y no representan riesgo sanitario. Las herramientas del kit minimizan el contacto directo. Después de la primera semana, la mayoría lo ve como rutina normal.' },
+  { q: '¿Mis animales van a comer las larvas?', a: 'Sí, y con entusiasmo. La respuesta es instintiva y natural — pollos, peces y cerdos las reconocen como alimento desde el día uno. Como lo documentó Nicolás López con sus pollos de engorde: piel amarilla, menos grasa y mejor peso final al día 42.' },
+  { q: '¿Cuánto espacio necesito para montarlo?', a: 'Desde 1 m² ya tenés un cultivo funcional. No necesitás instalaciones especiales, ni equipos industriales, ni permisos. Solo un espacio con sombra, ventilación y acceso a residuos orgánicos.' },
+  { q: '¿Funciona en el clima de mi región?', a: 'La BSF es nativa de los trópicos — se adapta perfectamente a los climas cálidos colombianos (26–32°C ideal). Juliana trabaja desde Cúcuta y el sistema funciona en toda la franja tropical y templada del país.' },
+  { q: '¿Puedo seguir usando el concentrado normal?', a: 'Sí. BSF complementa el concentrado — no lo reemplaza de golpe. Empezás reemplazando un porcentaje y ajustás según el comportamiento y el peso de tus animales. El sistema te enseña a manejar larvas vivas, larvas secas y harina de larva para que elijas lo que más te favorezca.' },
+  { q: '¿Cuándo recupero lo que invertí?', a: 'Con 100 pollos de engorde, el ahorro en concentrado del primer ciclo ya cubre el costo del kit. La mayoría de productores recuperan la inversión en el primero o segundo lote — y desde ahí, todo es ganancia.' },
+];
+
 export default function Sistema2015Page() {
+  const [faqOpen, setFaqOpen] = useState<number | null>(null);
   return (
     <div style={{ background: C.bg, color: C.text, fontFamily: "'Montserrat', sans-serif", minHeight: '100vh', overflowX: 'hidden' }}>
 
@@ -212,6 +240,70 @@ export default function Sistema2015Page() {
         </div>
       </section>
 
+      {/* ── TESTIMONIOS ── */}
+      <section style={{ padding: '72px 20px', background: C.bg }}>
+        <div style={{ maxWidth: 900, margin: '0 auto' }}>
+          <motion.h2 {...up()} style={{ fontSize: 'clamp(1.4rem, 3vw, 2.1rem)', fontWeight: 900, textAlign: 'center', margin: '0 auto 12px', color: C.greenL }}>
+            Productores que Ya Lo Lograron
+          </motion.h2>
+          <motion.p {...up(0.05)} style={{ textAlign: 'center', color: C.muted, maxWidth: 500, margin: '0 auto 48px', fontSize: '0.97rem', lineHeight: 1.6 }}>
+            Resultados reales de productores colombianos con el Sistema ProLarva
+          </motion.p>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: 20 }}>
+
+            {/* Testimonio 1 — Nicolás López */}
+            <motion.div {...up(0.1)} style={{ background: C.card, border: `1px solid ${C.green}35`, borderRadius: 18, padding: '32px 28px', position: 'relative', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+              <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 4, background: `linear-gradient(90deg, ${C.green}, ${C.greenD})`, borderRadius: '18px 18px 0 0' }} />
+              <div style={{ fontSize: '4rem', color: `${C.green}20`, lineHeight: 0.8, marginBottom: 14, fontFamily: 'Georgia, serif', userSelect: 'none' }}>"</div>
+              <p style={{ fontSize: '0.93rem', color: '#d4e8da', lineHeight: 1.85, margin: '0 0 20px', fontStyle: 'italic', flex: 1 }}>
+                Probamos un lote de pollos de engorde desde el primer día. Al día 42 tuvimos pollos con más de 3.5 kg y dos ejemplares de 4 kg. Responden muy bien a estos estímulos naturales — su piel es amarilla y vistosa, y presentan menos grasa mala en general. El sistema enseña a manejar harina de larva, larvas secas y vivas, y uno puede escoger lo que más le favorezca.
+              </p>
+              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 20 }}>
+                {['⚖️ +3.5 kg día 42', '🏆 2 ejemplares 4 kg', '🌟 Piel amarilla', '💪 Menos grasa'].map((chip, i) => (
+                  <span key={i} style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '5px 10px', background: `${C.green}15`, border: `1px solid ${C.green}30`, borderRadius: 20, fontSize: '0.72rem', color: C.greenL, fontWeight: 700 }}>{chip}</span>
+                ))}
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <div style={{ width: 42, height: 42, borderRadius: '50%', background: `linear-gradient(135deg, ${C.green}, ${C.greenD})`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.1rem', flexShrink: 0 }}>🧑‍🌾</div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontWeight: 800, color: C.text, fontSize: '0.9rem' }}>Nicolás López</div>
+                  <div style={{ fontSize: '0.73rem', color: C.muted }}>Pollos de engorde · Colombia</div>
+                </div>
+                <div style={{ display: 'flex', gap: 1 }}>{'★★★★★'.split('').map((s, i) => <span key={i} style={{ color: '#f59e0b', fontSize: '0.9rem' }}>{s}</span>)}</div>
+              </div>
+            </motion.div>
+
+            {/* Testimonio 2 — William Fuentes */}
+            <motion.div {...up(0.18)} style={{ background: C.card, border: `1px solid rgba(14,165,233,0.35)`, borderRadius: 18, padding: '32px 28px', position: 'relative', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+              <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 4, background: 'linear-gradient(90deg, #0ea5e9, #0284c7)', borderRadius: '18px 18px 0 0' }} />
+              <div style={{ fontSize: '4rem', color: 'rgba(14,165,233,0.18)', lineHeight: 0.8, marginBottom: 14, fontFamily: 'Georgia, serif', userSelect: 'none' }}>"</div>
+              <p style={{ fontSize: '0.93rem', color: '#d4e8da', lineHeight: 1.85, margin: '0 0 20px', fontStyle: 'italic', flex: 1 }}>
+                Juliana es muy paciente, nos guió desde cero y fue muy amable — siempre nos respondía todo. Desarrollamos este proyecto para acuaponía, siguiendo la línea de economía circular. Ya vamos por nuestra tercera cosecha y esperamos producir harina para nuestros peces y gestionar residuos orgánicos mediante la cría de larvas. Ha sido un proceso muy divertido y enriquecedor.
+              </p>
+              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 20 }}>
+                {['🐟 Acuaponía', '♻️ Economía circular', '🌱 3ra cosecha', '🧠 Desde cero'].map((chip, i) => (
+                  <span key={i} style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '5px 10px', background: 'rgba(14,165,233,0.1)', border: '1px solid rgba(14,165,233,0.3)', borderRadius: 20, fontSize: '0.72rem', color: '#7dd3fc', fontWeight: 700 }}>{chip}</span>
+                ))}
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <div style={{ width: 42, height: 42, borderRadius: '50%', background: 'linear-gradient(135deg, #0ea5e9, #0284c7)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.1rem', flexShrink: 0 }}>🧑‍💻</div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontWeight: 800, color: C.text, fontSize: '0.9rem' }}>William Fuentes</div>
+                  <div style={{ fontSize: '0.73rem', color: C.muted }}>Acuaponía y economía circular · Colombia</div>
+                </div>
+                <div style={{ display: 'flex', gap: 1 }}>{'★★★★★'.split('').map((s, i) => <span key={i} style={{ color: '#f59e0b', fontSize: '0.9rem' }}>{s}</span>)}</div>
+              </div>
+            </motion.div>
+
+          </div>
+
+          <motion.p {...up(0.25)} style={{ textAlign: 'center', fontSize: '0.82rem', color: `${C.muted}80`, marginTop: 20, fontStyle: 'italic' }}>
+            ¿Ya usaste el sistema? Contanos tu resultado por WhatsApp →
+          </motion.p>
+        </div>
+      </section>
+
       {/* ── KIT ILUSTRADO ── */}
       <section style={{ padding: '80px 20px', background: C.bg }}>
         <div style={{ maxWidth: 1060, margin: '0 auto' }}>
@@ -354,6 +446,23 @@ export default function Sistema2015Page() {
               <div style={{ fontSize: 'clamp(1.8rem, 4vw, 2.5rem)', fontWeight: 900, marginBottom: 8 }}>$48 USD</div>
               <div style={{ fontSize: '0.92rem', fontWeight: 700 }}>📊 Ahorras 94%</div>
             </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ── FAQ ── */}
+      <section style={{ padding: '72px 20px', background: C.bg }}>
+        <div style={{ maxWidth: 760, margin: '0 auto' }}>
+          <motion.h2 {...up()} style={{ fontSize: 'clamp(1.4rem, 3vw, 2.1rem)', fontWeight: 900, textAlign: 'center', margin: '0 auto 12px', color: C.greenL }}>
+            Preguntas Frecuentes
+          </motion.h2>
+          <motion.p {...up(0.05)} style={{ textAlign: 'center', color: C.muted, maxWidth: 480, margin: '0 auto 44px', fontSize: '0.97rem', lineHeight: 1.6 }}>
+            Todo lo que querés saber antes de empezar
+          </motion.p>
+          <motion.div {...up(0.1)} style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 16, padding: '8px 28px 4px' }}>
+            {FAQS.map((faq, i) => (
+              <FaqItem key={i} q={faq.q} a={faq.a} open={faqOpen === i} onToggle={() => setFaqOpen(faqOpen === i ? null : i)} />
+            ))}
           </motion.div>
         </div>
       </section>

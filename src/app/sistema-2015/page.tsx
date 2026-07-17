@@ -94,6 +94,9 @@ const GALLERY: { type: 'image' | 'video'; src: string; caption: string }[] = [
 
 export default function Sistema2015Page() {
   const [faqOpen, setFaqOpen] = useState<number | null>(null);
+  const [galleryIdx, setGalleryIdx] = useState(0);
+  const prevSlide = () => setGalleryIdx(i => (i - 1 + GALLERY.length) % GALLERY.length);
+  const nextSlide = () => setGalleryIdx(i => (i + 1) % GALLERY.length);
   return (
     <div style={{ background: C.bg, color: C.text, fontFamily: "'Montserrat', sans-serif", minHeight: '100vh', overflowX: 'hidden' }}>
 
@@ -543,43 +546,55 @@ export default function Sistema2015Page() {
       </section>
 
       {/* ── GALERÍA ── */}
-      <section style={{ padding: '72px 20px', background: C.bg2 }}>
-        <div style={{ maxWidth: 1000, margin: '0 auto' }}>
-          <motion.p {...up()} style={{ textAlign: 'center', color: C.green, fontWeight: 700, fontSize: '0.78rem', letterSpacing: '0.18em', textTransform: 'uppercase', marginBottom: 10 }}>Vida real en la granja</motion.p>
-          <motion.h2 {...up(0.05)} style={{ textAlign: 'center', fontSize: 'clamp(1.3rem, 2.5vw, 1.9rem)', fontWeight: 900, color: C.greenL, margin: '0 auto 48px' }}>
+      <section style={{ padding: '56px 20px', background: C.bg2 }}>
+        <div style={{ maxWidth: 640, margin: '0 auto' }}>
+          <motion.p {...up()} style={{ textAlign: 'center', color: C.green, fontWeight: 700, fontSize: '0.75rem', letterSpacing: '0.18em', textTransform: 'uppercase', marginBottom: 8 }}>Vida real en la granja</motion.p>
+          <motion.h2 {...up(0.05)} style={{ textAlign: 'center', fontSize: 'clamp(1.2rem, 2.2vw, 1.7rem)', fontWeight: 900, color: C.greenL, margin: '0 auto 28px' }}>
             El sistema BSF en acción
           </motion.h2>
 
-          <div style={{ columns: '2 280px', columnGap: 14 }}>
-            {GALLERY.map((item, i) => (
-              <motion.div
-                key={i}
-                {...up(i * 0.07)}
-                style={{ breakInside: 'avoid', marginBottom: 14, borderRadius: 14, overflow: 'hidden', background: C.card, position: 'relative', border: `1px solid ${C.border}` }}
-              >
-                {item.type === 'image' ? (
-                  <img
-                    src={item.src}
-                    alt={item.caption}
-                    style={{ width: '100%', height: 'auto', display: 'block', objectFit: 'cover' }}
-                  />
-                ) : (
-                  <video
-                    src={item.src}
-                    autoPlay
-                    muted
-                    loop
-                    playsInline
-                    style={{ width: '100%', height: 'auto', display: 'block' }}
-                  />
-                )}
-                {/* Caption overlay */}
-                <div style={{ padding: '10px 14px', background: `linear-gradient(0deg, ${C.card} 80%, transparent)` }}>
-                  <p style={{ margin: 0, fontSize: '0.75rem', color: C.muted, fontWeight: 600 }}>{item.caption}</p>
-                </div>
-              </motion.div>
-            ))}
-          </div>
+          <motion.div {...up(0.1)} style={{ position: 'relative', borderRadius: 16, overflow: 'hidden', background: C.card, border: `1px solid ${C.border}` }}>
+            {/* Media */}
+            <div style={{ position: 'relative', width: '100%', aspectRatio: '16/9', background: '#0a111c' }}>
+              {GALLERY[galleryIdx].type === 'image' ? (
+                <img
+                  key={galleryIdx}
+                  src={GALLERY[galleryIdx].src}
+                  alt={GALLERY[galleryIdx].caption}
+                  style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                />
+              ) : (
+                <video
+                  key={galleryIdx}
+                  src={GALLERY[galleryIdx].src}
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                />
+              )}
+
+              {/* Flechas */}
+              <button onClick={prevSlide} aria-label="Anterior" style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', background: 'rgba(0,0,0,0.55)', border: 'none', borderRadius: '50%', width: 38, height: 38, color: '#fff', fontSize: '1.1rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(4px)' }}>‹</button>
+              <button onClick={nextSlide} aria-label="Siguiente" style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', background: 'rgba(0,0,0,0.55)', border: 'none', borderRadius: '50%', width: 38, height: 38, color: '#fff', fontSize: '1.1rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(4px)' }}>›</button>
+
+              {/* Tipo badge */}
+              <span style={{ position: 'absolute', top: 10, right: 10, background: 'rgba(0,0,0,0.55)', borderRadius: 20, padding: '3px 9px', fontSize: '0.68rem', color: C.greenL, fontWeight: 700, backdropFilter: 'blur(4px)', letterSpacing: '0.05em' }}>
+                {GALLERY[galleryIdx].type === 'video' ? '▶ VIDEO' : '🖼 FOTO'}
+              </span>
+            </div>
+
+            {/* Caption + dots */}
+            <div style={{ padding: '14px 18px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+              <p style={{ margin: 0, fontSize: '0.8rem', color: C.muted, fontWeight: 600 }}>{GALLERY[galleryIdx].caption}</p>
+              <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
+                {GALLERY.map((_, i) => (
+                  <button key={i} onClick={() => setGalleryIdx(i)} aria-label={`Ir a ${i + 1}`} style={{ width: i === galleryIdx ? 18 : 7, height: 7, borderRadius: 4, background: i === galleryIdx ? C.green : `${C.muted}50`, border: 'none', cursor: 'pointer', padding: 0, transition: 'all 0.25s' }} />
+                ))}
+              </div>
+            </div>
+          </motion.div>
         </div>
       </section>
 

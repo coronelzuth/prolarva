@@ -314,35 +314,35 @@ a5cc857  feat: port calculadora BSF a React con paleta de la app
 | `feed_logs` | Registros de alimentación |
 | `cosechas` | Cosechas registradas |
 | `leads` | Leads del formulario de /landing (nombre + email) |
-| `socios` | Usuarios registrados (codigo, email, nombre, password, estado) — **NUEVO** |
+| `socios` | Usuarios registrados (codigo, email, nombre, password, estado, rol) |
+| `invitaciones` | Códigos de invitación de un solo uso |
+| `guiones_cms` | Guiones del CMS de contenido |
+| `recordatorios` | Recordatorios por lote (dia, titulo, completado) |
+| `fotos_lotes` | Fotos por lote en base64 JPEG comprimido |
+
+**Cambios recientes (2026-07-21 — sesión completa):**
+- ✅ **Fix crítico sync Supabase** — `useSocios` ya no sobreescribe localStorage con Supabase vacío; si Supabase está vacío y local tiene datos, los empuja automáticamente (recuperación)
+- ✅ **Upserts fijados** — `addLote`, `addFeed`, `addCosecha`, `updateLote`, `deleteLote` son `async`, salen del setState, y loguean errores en consola
+- ✅ **Carga de Supabase tras login** — antes solo cargaba al montar; ahora sincroniza inmediatamente después del login
+- ✅ **Dashboard Admin — tab Socios** — nuevo tab "👥 Socios" en panel 🔑; lista todos los socios registrados (nombre, email, código, fecha, estado); tab "🎟️ Invitaciones" para los códigos
+- ✅ **Nueva API `/api/socios/listar`** — solo accesible para admin; devuelve socios sin password
+- ✅ **Notificaciones de cosecha en Dashboard** — 3 tipos: 🚨 roja (vencido >día 28), ⚖️ verde (urgente días 22-28 + botón "Registrar cosecha"), ⏳ ámbar (próximo días 18-21 con cuenta regresiva)
+- ✅ **Recordatorios por lote** — en detalle de lote: añadir recordatorio con texto + día del ciclo; marcar completado; eliminar; badge "¡Hoy!" / "En Xd" / "Vencido"
+- ✅ **Galería de fotos por lote** — botón "+ Foto" abre cámara/galería del celular; comprime a JPEG 800px/0.72 calidad con canvas; grid 3 columnas; modal al tocar; eliminar foto
+- ✅ **Acciones a realizar pronto en Dashboard** — sección "📌 Acciones a realizar pronto" debajo de alertas de cosecha; muestra recordatorios con vencimiento hoy ± 3 días; click va al lote
+- ✅ **SQL ejecutado en Supabase** — tablas `recordatorios` y `fotos_lotes` creadas con RLS anon full access
+- ✅ **Git commits** — f2fad19 → 14a5660 → 0762d57
 
 **Cambios recientes (2026-07-16):**
-- ✅ **Módulo Diagnóstico oculto** — `/preparacion` sigue activa pero no aparece en navbar ni home (`hidden: true` en `Navbar.tsx` y `page.tsx`)
-- ✅ **Videos en todas las etapas BSF** — `data/stages.ts` actualizado con videos locales en `public/fotos/`:
-  | Etapa | Videos |
-  |---|---|
-  | 🥚 Huevo | `huevos.mp4` + `huevos2_web.mp4` (ya existían) |
-  | 🐛 L1–L3 | `neonatos.mp4` + `neonato_1dia.mp4` |
-  | 🐛 L4 | `estadios.mp4` |
-  | ⭐ L5 Cosecha | `biglarvae.mp4` + `grandes.mp4` |
-  | 🟤 Prepupa | `prepupas.mp4` + `prepupas2.mp4` |
-  | 🫘 Pupa | `pupas.mp4` + `pupas2.mp4` |
-  | 🦟 Adulto | `apareamiento.mp4` + `moscagrande3.mp4` + `moscas_fly.mp4` |
-  | 🔄 Postura | `postura_huevos.mp4` |
-- ✅ **Videos `*.mp4` en `/public/fotos/` excluidos de git** (`.gitignore`) — son muy pesados; se despliegan directo desde local vía `vercel --prod --yes`
+- ✅ **Módulo Diagnóstico oculto** — `/preparacion` sigue activa pero no aparece en navbar ni home
+- ✅ **Videos en todas las etapas BSF** — `data/stages.ts` con videos locales en `public/fotos/`
+- ✅ **Videos `*.mp4` excluidos de git** — se despliegan directo vía `vercel --prod --yes`
 
-**Cambios recientes (2026-07-11 — sesión completa):**
-- ✅ **bcryptjs** — passwords hasheadas con salt 10 vía API routes en servidor (nunca texto plano en Supabase)
-- ✅ **Login endpoint** — compara contra hash bcrypt; migra contraseñas legadas en texto plano automáticamente al primer login
-- ✅ **Sistema de invitaciones** — tabla `invitaciones` en Supabase, endpoints `/api/invitaciones/crear` y `/api/invitaciones/listar`
-- ✅ **Columna `rol`** en tabla `socios` (admin/socio); cuenta de Juliana marcada como admin (`admin.zuth`)
-- ✅ **Panel Admin** en `/socios` — tab 🔑 visible solo para admin; genera códigos `PRL-XXXXXX`, lista estado usado/disponible, copia link completo al portapapeles
-- ✅ **Link mágico de invitación** — `?inv=PRL-XXXXXX` abre registro con código pre-llenado y bloqueado
-- ✅ **Registro simplificado** — sin campo "código de socio"; se auto-genera desde el nombre (ej. `CARLOS-X4F2`); solo pide nombre, email y contraseña
-- ✅ **Cuenta admin creada** — `admin.zuth` / `prolarva2025` en tabla socios con rol=admin
-- ✅ **SQL ejecutado en Supabase** — tabla invitaciones + columna rol + cuenta admin todo activo
-- ✅ **Git commits** — 2bc32ae → cb43fc8 → 17ec129 → da79c85 → 265029e
-- ✅ **Deploy en producción** — https://prolarva-monitor.vercel.app
+**Cambios recientes (2026-07-11):**
+- ✅ **bcryptjs** — passwords hasheadas con salt 10 vía API routes
+- ✅ **Sistema de invitaciones** — tabla `invitaciones`, endpoints crear/listar
+- ✅ **Panel Admin** en `/socios` — tab 🔑 visible solo para admin
+- ✅ **Cuenta admin** — `admin.zuth` / `prolarva2025` con rol=admin
 
 **Zona de socios — estado de seguridad:**
 - Passwords: hasheadas con bcrypt salt 10 ✅
@@ -351,16 +351,13 @@ a5cc857  feat: port calculadora BSF a React con paleta de la app
 - Login: por email o código de socio ✅
 
 **Próxima sesión — pendientes:**
-1. **Dashboard admin** — lista de socios registrados (nombre, email, fecha, estado) desde el panel Admin
-2. **Exportar datos** — CSV/Excel de lotes y cosechas por socio
-3. **Recuperar contraseña** — email reset para socios que olvidan su password
-4. **Fotos/videos educativas** — agregar fotos reales en `data/stages.ts` para las 7 etapas restantes
+1. **Exportar datos** — CSV/Excel de lotes y cosechas por socio
+2. **Recuperar contraseña** — email reset para socios
+3. **Panel de ventas** — registro de ventas de larva/harina por socio (idea de Juliana, definir alcance)
+4. **Exportar leads en CSV** — datos ya en Supabase, falta UI
+5. **Fotos reales educativas** — agregar fotos en `data/stages.ts` para las etapas BSF
 
 **Cómo arrancar una sesión nueva:**
 1. Abre Claude Code desde la carpeta canónica de arriba
 2. Di: *"Lee el CLAUDE.md y continuamos"*
 3. Pide el cambio directamente
-
-**Resumen de sesión:**
-Al inicio de cada sesión: leer `docs/RESUMEN EJECUTIVO - 2026-07-11.txt` (o el más reciente que exista en `docs/`) para retomar desde donde se quedó.
-Al cierre de cada sesión: actualizar ese archivo con lo que se hizo, estado actual y pendientes. Sobrescribir el archivo existente — solo importa el más reciente.

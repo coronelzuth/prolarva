@@ -329,9 +329,9 @@ a5cc857  feat: port calculadora BSF a React con paleta de la app
 - ✅ **Notificaciones de cosecha en Dashboard** — 3 tipos: 🚨 roja (vencido >día 28), ⚖️ verde (urgente días 22-28 + botón "Registrar cosecha"), ⏳ ámbar (próximo días 18-21 con cuenta regresiva)
 - ✅ **Recordatorios por lote** — en detalle de lote: añadir recordatorio con texto + día del ciclo; marcar completado; eliminar; badge "¡Hoy!" / "En Xd" / "Vencido"
 - ✅ **Galería de fotos por lote** — botón "+ Foto" abre cámara/galería del celular; comprime a JPEG 800px/0.72 calidad con canvas; grid 3 columnas; modal al tocar; eliminar foto
-- ✅ **Acciones a realizar pronto en Dashboard** — sección "📌 Acciones a realizar pronto" debajo de alertas de cosecha; muestra recordatorios con vencimiento hoy ± 3 días; click va al lote
+- ✅ **Recordatorios en Dashboard** — tarjeta "📌 Recordatorios" muestra TODOS los pendientes divididos en "Pendientes" (vencidos/hoy, rojo) y "Próximas" (futuros, ámbar si ≤3d); click va al lote
 - ✅ **SQL ejecutado en Supabase** — tablas `recordatorios` y `fotos_lotes` creadas con RLS anon full access
-- ✅ **Git commits** — f2fad19 → 14a5660 → 0762d57
+- ✅ **Git commits** — f2fad19 → 14a5660 → 0762d57 → 791ce2c → d600547
 
 **Cambios recientes (2026-07-16):**
 - ✅ **Módulo Diagnóstico oculto** — `/preparacion` sigue activa pero no aparece en navbar ni home

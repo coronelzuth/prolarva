@@ -90,7 +90,7 @@ const tree: Record<string, ConversationNode> = {
 
   // ============ FAQs - Costo & Ahorro ============
   faq_costo: {
-    message: '¿Cuánto ahorras depende de tus animales:\n🐔 Pollos (50): $120–150 USD/mes → Ahorras $30–50 USD/mes (25%)\n🐷 Cerdos (5): $200–300 USD/mes → Ahorras $50–90 USD/mes (20%)\n🐟 Peces (1000): $80–120 USD/mes → Ahorras $20–40 USD/mes (30%)\n\n⏱️ Tiempo al primer resultado: 20 días\n💰 ROI: El Kit ($120 USD) se paga en 2-3 cosechas. Después = cero costo.',
+    message: '¿Cuánto ahorras depende de tus animales:\n🐔 Pollos (50): $120–150 USD/mes → Ahorras $30–50 USD/mes (25%)\n🐷 Cerdos (5): $200–300 USD/mes → Ahorras $50–90 USD/mes (20%)\n🐟 Peces (1000): $80–120 USD/mes → Ahorras $20–40 USD/mes (30%)\n\n⏱️ Tiempo al primer resultado: 20 días\n💰 ROI: El Kit ($48 USD) se paga en 2-3 cosechas. Después = cero costo.',
     options: [
       { label: 'Quiero calcular exacto', action: 'faq_calculadora' },
       { label: '¿Qué incluye el kit?', action: 'faq_que_incluye' },
@@ -105,14 +105,14 @@ const tree: Record<string, ConversationNode> = {
     ],
   },
   faq_que_incluye: {
-    message: 'El Kit ProLarva 20 ($120 USD) incluye TODO:\n✅ Pupas de BSF (semilla viva)\n✅ Larvas de inicio\n✅ Manual impreso paso a paso\n✅ Malla love cage (contenedor armable)\n✅ Trampas de huevos\n✅ 45 días de acompañamiento (WhatsApp + Zoom)\n\nDespués del kit: solo gastos en residuos (restos de cocina, estiércol). Cero costo fijo.',
+    message: 'El Kit ProLarva 20 ($48 USD) incluye TODO:\n✅ Pupas de BSF (semilla viva)\n✅ Larvas de inicio\n✅ Manual impreso paso a paso\n✅ Malla love cage (contenedor armable)\n✅ Trampas de huevos\n✅ 45 días de acompañamiento (WhatsApp + Zoom)\n\nDespués del kit: solo gastos en residuos (restos de cocina, estiércol). Cero costo fijo.',
     options: [
       { label: '¿Tiene garantía?', action: 'faq_garantia' },
       { label: 'Quiero comprar', action: 'faq_compra' },
     ],
   },
   faq_precio: {
-    message: '💰 **Kit ProLarva 20:** $120 USD (todo incluido)\n🤝 **Acompañamiento 45 días:** Incluido (sin costo)\n➕ **Acompañamiento 180 días (opcional):** $35 USD\n\n📦 **Bonos incluidos:**\n• Acceso a /socios (tracker privado)\n• Calculadora personalizada\n• Videos privados\n• Comunidad de productores\n\n¿Sin sorpresas de precio. Transferencia bancaria o tarjeta.',
+    message: '💰 **Kit ProLarva 20:** $200.000 COP ≈ $48 USD (todo incluido)\n🤝 **Acompañamiento 45 días:** Incluido (sin costo)\n➕ **Acompañamiento 180 días (opcional):** $35 USD\n\n📦 **Bonos incluidos:**\n• Acceso a /socios (tracker privado)\n• Calculadora personalizada\n• Videos privados\n• Comunidad de productores\n\nSin sorpresas de precio. Transferencia bancaria o tarjeta.',
     options: [
       { label: '¿Tiene garantía?', action: 'faq_garantia' },
       { label: 'Quiero comprar ahora', action: 'faq_compra' },
@@ -190,7 +190,7 @@ const tree: Record<string, ConversationNode> = {
     ],
   },
   faq_negocio: {
-    message: '✅ Sí. Niveles de negocio:\n🎯 **Hobista** (1-2 kits): $50–100 USD/mes | Inversión: $120 USD\n🎯 **Pequeño productor** (5-10 kits): $300–600 USD/mes | Inversión: $600 USD\n🎯 **Mediano** (20+ kits): $1500+ USD/mes | Inversión: $2000+ USD\n\n💡 Muchos empiezan como hobista y escalan.',
+    message: '✅ Sí. Niveles de negocio:\n🎯 **Hobista** (1-2 kits): $50–100 USD/mes | Inversión: $48 USD\n🎯 **Pequeño productor** (5-10 kits): $300–600 USD/mes | Inversión: $240 USD\n🎯 **Mediano** (20+ kits): $1500+ USD/mes | Inversión: $960+ USD\n\n💡 Muchos empiezan como hobista y escalan.',
     link: '/metas',
     options: [
       { label: 'Ver las 3 metas →', action: 'end' },

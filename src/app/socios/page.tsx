@@ -868,20 +868,46 @@ interface Invitacion {
   usado_por?: string;
 }
 
+interface SocioRegistrado {
+  id: string;
+  codigo: string;
+  email: string;
+  nombre: string;
+  estado: string;
+  rol: string;
+  creado_en: string;
+}
+
 function AdminView({ adminCode }: { adminCode: string }) {
+  const [tab, setTab] = useState<'invitaciones' | 'socios'>('socios');
+
+  // ── Invitaciones state ────────────────────────────────────────────────────
   const [invitaciones, setInvitaciones] = useState<Invitacion[]>([]);
-  const [loading, setLoading]           = useState(true);
+  const [loadingInv, setLoadingInv]     = useState(false);
   const [generating, setGenerating]     = useState(false);
   const [copied, setCopied]             = useState<string | null>(null);
   const [genError, setGenError]         = useState('');
 
-  async function cargar() {
-    setLoading(true);
+  // ── Socios state ──────────────────────────────────────────────────────────
+  const [socios, setSocios]         = useState<SocioRegistrado[]>([]);
+  const [loadingSoc, setLoadingSoc] = useState(false);
+
+  async function cargarInvitaciones() {
+    setLoadingInv(true);
     try {
       const res  = await fetch('/api/invitaciones/listar', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ adminCode }) });
       const data = await res.json();
       if (data.success) setInvitaciones(data.invitaciones);
-    } finally { setLoading(false); }
+    } finally { setLoadingInv(false); }
+  }
+
+  async function cargarSocios() {
+    setLoadingSoc(true);
+    try {
+      const res  = await fetch('/api/socios/listar', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ adminCode }) });
+      const data = await res.json();
+      if (data.success) setSocios(data.socios);
+    } finally { setLoadingSoc(false); }
   }
 
   async function generar() {
@@ -889,7 +915,7 @@ function AdminView({ adminCode }: { adminCode: string }) {
     try {
       const res  = await fetch('/api/invitaciones/crear', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ adminCode }) });
       const data = await res.json();
-      if (data.success) { await cargar(); copiar(data.codigo); }
+      if (data.success) { await cargarInvitaciones(); copiar(data.codigo); }
       else setGenError(data.error ?? 'Error al generar');
     } finally { setGenerating(false); }
   }
@@ -901,88 +927,160 @@ function AdminView({ adminCode }: { adminCode: string }) {
     setTimeout(() => setCopied(null), 2000);
   }
 
-  useState(() => { cargar(); });
+  useEffect(() => {
+    cargarSocios();
+    cargarInvitaciones();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const disponibles = invitaciones.filter(i => !i.usado).length;
   const usados      = invitaciones.filter(i => i.usado).length;
+  const sociosActivos = socios.filter(s => s.estado === 'activo' && s.rol !== 'admin').length;
 
   return (
-    <div style={{ maxWidth: 700 }}>
-      <div style={{ marginBottom: 24 }}>
+    <div style={{ maxWidth: 760 }}>
+      <div style={{ marginBottom: 20 }}>
         <h2 style={{ fontSize: 20, fontWeight: 900, marginBottom: 4 }}>Panel de Admin</h2>
-        <p style={{ fontSize: 13, color: S.muted }}>Generá códigos de invitación para nuevos socios. Cada código es de un solo uso.</p>
       </div>
 
-      {/* Stats */}
+      {/* Stats globales */}
       <div style={{ display: 'flex', gap: 12, marginBottom: 24, flexWrap: 'wrap' }}>
         {[
-          { label: 'Total generados', value: invitaciones.length, color: S.text },
-          { label: 'Disponibles',     value: disponibles,         color: S.green },
-          { label: 'Usados',          value: usados,              color: S.muted },
+          { label: 'Socios activos',   value: sociosActivos,        color: S.green },
+          { label: 'Invitaciones',     value: invitaciones.length,  color: S.text  },
+          { label: 'Disponibles',      value: disponibles,          color: S.emerald },
+          { label: 'Usadas',           value: usados,               color: S.muted },
         ].map(stat => (
-          <div key={stat.label} style={{ ...cardStyle, flex: 1, minWidth: 120, textAlign: 'center', padding: '14px 18px' }}>
-            <div style={{ fontSize: 28, fontWeight: 900, color: stat.color }}>{stat.value}</div>
+          <div key={stat.label} style={{ ...cardStyle, flex: 1, minWidth: 110, textAlign: 'center', padding: '14px 12px' }}>
+            <div style={{ fontSize: 26, fontWeight: 900, color: stat.color }}>{stat.value}</div>
             <div style={{ fontSize: 11, color: S.muted, marginTop: 2 }}>{stat.label}</div>
           </div>
         ))}
       </div>
 
-      {/* Botón generar */}
-      <div style={{ marginBottom: 20 }}>
-        <button
-          style={{ ...btnPrimary, opacity: generating ? 0.6 : 1, cursor: generating ? 'not-allowed' : 'pointer' }}
-          onClick={generar}
-          disabled={generating}
-        >
-          {generating ? 'Generando...' : '+ Generar código de invitación'}
-        </button>
-        {genError && <span style={{ marginLeft: 12, fontSize: 12, color: S.red }}>{genError}</span>}
-        <p style={{ fontSize: 11, color: S.muted, marginTop: 6 }}>El código se copia automáticamente al portapapeles.</p>
+      {/* Tabs */}
+      <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
+        {([['socios', '👥 Socios'], ['invitaciones', '🎟️ Invitaciones']] as const).map(([key, label]) => (
+          <button
+            key={key}
+            onClick={() => setTab(key)}
+            style={{
+              padding: '8px 18px', borderRadius: 8, fontSize: 13, fontWeight: 700,
+              fontFamily: 'Montserrat, sans-serif', cursor: 'pointer',
+              background: tab === key ? 'linear-gradient(135deg, #22c55e, #16a34a)' : 'transparent',
+              color: tab === key ? '#fff' : S.muted,
+              border: tab === key ? 'none' : `1.5px solid ${S.border}`,
+            }}
+          >{label}</button>
+        ))}
       </div>
 
-      {/* Lista de códigos */}
-      {loading ? (
-        <p style={{ color: S.muted, fontSize: 13 }}>Cargando...</p>
-      ) : invitaciones.length === 0 ? (
-        <div style={{ ...cardStyle, textAlign: 'center', padding: '2rem', color: S.muted }}>
-          <div style={{ fontSize: 32, marginBottom: 8 }}>🎟️</div>
-          <p style={{ fontSize: 13 }}>No hay códigos aún. Generá el primero.</p>
-        </div>
-      ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-          {invitaciones.map(inv => (
-            <div key={inv.id} style={{ ...cardStyle, display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', opacity: inv.usado ? 0.6 : 1 }}>
-              {/* Estado */}
-              <div style={{ width: 8, height: 8, borderRadius: '50%', background: inv.usado ? S.muted : S.green, flexShrink: 0 }} />
-
-              {/* Código */}
-              <code style={{ fontSize: 15, fontWeight: 800, color: inv.usado ? S.muted : S.green2, letterSpacing: '0.06em', flex: 1 }}>
-                {inv.codigo}
-              </code>
-
-              {/* Info */}
-              <div style={{ fontSize: 11, color: S.muted, textAlign: 'right', lineHeight: 1.5 }}>
-                {inv.usado ? (
-                  <>
-                    <div style={{ color: S.muted }}>Usado por {inv.usado_por ?? '—'}</div>
-                    <div>{inv.usado_en ? fmtDate(inv.usado_en) : ''}</div>
-                  </>
-                ) : (
-                  <div style={{ color: S.emerald, fontWeight: 700 }}>Disponible</div>
-                )}
-              </div>
-
-              {/* Botón copiar */}
-              {!inv.usado && (
-                <button
-                  onClick={() => copiar(inv.codigo)}
-                  style={{ ...btnOutline, ...btnSm, color: copied === inv.codigo ? S.green : S.muted, borderColor: copied === inv.codigo ? S.green : undefined, flexShrink: 0 }}
-                >
-                  {copied === inv.codigo ? '✓ Copiado' : 'Copiar'}
-                </button>
-              )}
+      {/* Tab: Socios */}
+      {tab === 'socios' && (
+        <div>
+          {loadingSoc ? (
+            <p style={{ color: S.muted, fontSize: 13 }}>Cargando socios...</p>
+          ) : socios.filter(s => s.rol !== 'admin').length === 0 ? (
+            <div style={{ ...cardStyle, textAlign: 'center', padding: '2rem', color: S.muted }}>
+              <div style={{ fontSize: 32, marginBottom: 8 }}>👥</div>
+              <p style={{ fontSize: 13 }}>No hay socios registrados aún.</p>
             </div>
-          ))}
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {socios.filter(s => s.rol !== 'admin').map(socio => (
+                <div key={socio.id} style={{ ...cardStyle, display: 'flex', alignItems: 'center', gap: 14, padding: '14px 16px', flexWrap: 'wrap' }}>
+                  {/* Avatar inicial */}
+                  <div style={{
+                    width: 38, height: 38, borderRadius: '50%', flexShrink: 0,
+                    background: socio.estado === 'activo' ? 'rgba(34,197,94,0.15)' : 'rgba(148,163,184,0.1)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: 16, fontWeight: 900, color: socio.estado === 'activo' ? S.green : S.muted,
+                  }}>
+                    {socio.nombre.charAt(0).toUpperCase()}
+                  </div>
+
+                  {/* Info principal */}
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: 14, fontWeight: 700, color: S.text, marginBottom: 2 }}>{socio.nombre}</div>
+                    <div style={{ fontSize: 12, color: S.muted }}>{socio.email}</div>
+                  </div>
+
+                  {/* Código */}
+                  <code style={{ fontSize: 11, color: S.green2, background: 'rgba(34,197,94,0.08)', padding: '3px 8px', borderRadius: 6, fontWeight: 700, flexShrink: 0 }}>
+                    {socio.codigo}
+                  </code>
+
+                  {/* Fecha */}
+                  <div style={{ fontSize: 11, color: S.muted, textAlign: 'right', flexShrink: 0 }}>
+                    {fmtDate(socio.creado_en)}
+                  </div>
+
+                  {/* Estado */}
+                  <Badge color={socio.estado === 'activo' ? 'green' : 'gray'}>
+                    {socio.estado}
+                  </Badge>
+                </div>
+              ))}
+            </div>
+          )}
+          <button onClick={cargarSocios} style={{ ...btnOutline, ...btnSm, marginTop: 16 }}>↺ Actualizar</button>
+        </div>
+      )}
+
+      {/* Tab: Invitaciones */}
+      {tab === 'invitaciones' && (
+        <div>
+          {/* Botón generar */}
+          <div style={{ marginBottom: 20 }}>
+            <button
+              style={{ ...btnPrimary, opacity: generating ? 0.6 : 1, cursor: generating ? 'not-allowed' : 'pointer' }}
+              onClick={generar}
+              disabled={generating}
+            >
+              {generating ? 'Generando...' : '+ Generar código de invitación'}
+            </button>
+            {genError && <span style={{ marginLeft: 12, fontSize: 12, color: S.red }}>{genError}</span>}
+            <p style={{ fontSize: 11, color: S.muted, marginTop: 6 }}>El código se copia automáticamente al portapapeles.</p>
+          </div>
+
+          {/* Lista de códigos */}
+          {loadingInv ? (
+            <p style={{ color: S.muted, fontSize: 13 }}>Cargando...</p>
+          ) : invitaciones.length === 0 ? (
+            <div style={{ ...cardStyle, textAlign: 'center', padding: '2rem', color: S.muted }}>
+              <div style={{ fontSize: 32, marginBottom: 8 }}>🎟️</div>
+              <p style={{ fontSize: 13 }}>No hay códigos aún. Generá el primero.</p>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {invitaciones.map(inv => (
+                <div key={inv.id} style={{ ...cardStyle, display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', opacity: inv.usado ? 0.6 : 1 }}>
+                  <div style={{ width: 8, height: 8, borderRadius: '50%', background: inv.usado ? S.muted : S.green, flexShrink: 0 }} />
+                  <code style={{ fontSize: 15, fontWeight: 800, color: inv.usado ? S.muted : S.green2, letterSpacing: '0.06em', flex: 1 }}>
+                    {inv.codigo}
+                  </code>
+                  <div style={{ fontSize: 11, color: S.muted, textAlign: 'right', lineHeight: 1.5 }}>
+                    {inv.usado ? (
+                      <>
+                        <div>Usado por {inv.usado_por ?? '—'}</div>
+                        <div>{inv.usado_en ? fmtDate(inv.usado_en) : ''}</div>
+                      </>
+                    ) : (
+                      <div style={{ color: S.emerald, fontWeight: 700 }}>Disponible</div>
+                    )}
+                  </div>
+                  {!inv.usado && (
+                    <button
+                      onClick={() => copiar(inv.codigo)}
+                      style={{ ...btnOutline, ...btnSm, color: copied === inv.codigo ? S.green : S.muted, borderColor: copied === inv.codigo ? S.green : undefined, flexShrink: 0 }}
+                    >
+                      {copied === inv.codigo ? '✓ Copiado' : 'Copiar'}
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
     </div>

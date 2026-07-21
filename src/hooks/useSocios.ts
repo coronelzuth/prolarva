@@ -148,6 +148,67 @@ function cosechaFromRow(r: any): Cosecha {
   };
 }
 
+// ─── Supabase sync helpers ────────────────────────────────────────────────────
+
+async function syncFromSupabase(
+  db: ReturnType<typeof getSupabase>,
+  code: string,
+  localLotes: Lote[],
+  localFeeds: FeedLog[],
+  localCosechas: Cosecha[],
+): Promise<{ lotes: Lote[] | null; feeds: FeedLog[] | null; cosechas: Cosecha[] | null }> {
+  if (!db) return { lotes: null, feeds: null, cosechas: null };
+
+  const [{ data: dbLotes }, { data: dbFeeds }, { data: dbCosechas }] = await Promise.all([
+    db.from('lotes').select('*').eq('socio_code', code),
+    db.from('feed_logs').select('*').eq('socio_code', code),
+    db.from('cosechas').select('*').eq('socio_code', code),
+  ]);
+
+  let lotes: Lote[] | null = null;
+  let feeds: FeedLog[] | null = null;
+  let cosechas: Cosecha[] | null = null;
+
+  // Lotes: si Supabase tiene datos, úsalos; si está vacío pero local tiene datos, empuja local a Supabase
+  if (dbLotes !== null) {
+    if (dbLotes.length > 0) {
+      lotes = dbLotes.map(loteFromRow);
+    } else if (localLotes.length > 0) {
+      // Recuperar: subir datos locales a Supabase
+      await Promise.all(localLotes.map(l => db.from('lotes').upsert(loteToRow(code, l))));
+      lotes = localLotes; // mantener datos locales
+    } else {
+      lotes = [];
+    }
+  }
+
+  // Feeds
+  if (dbFeeds !== null) {
+    if (dbFeeds.length > 0) {
+      feeds = dbFeeds.map(feedFromRow);
+    } else if (localFeeds.length > 0) {
+      await Promise.all(localFeeds.map(f => db.from('feed_logs').upsert(feedToRow(code, f))));
+      feeds = localFeeds;
+    } else {
+      feeds = [];
+    }
+  }
+
+  // Cosechas
+  if (dbCosechas !== null) {
+    if (dbCosechas.length > 0) {
+      cosechas = dbCosechas.map(cosechaFromRow);
+    } else if (localCosechas.length > 0) {
+      await Promise.all(localCosechas.map(c => db.from('cosechas').upsert(cosechaToRow(code, c))));
+      cosechas = localCosechas;
+    } else {
+      cosechas = [];
+    }
+  }
+
+  return { lotes, feeds, cosechas };
+}
+
 // ─── Hook ────────────────────────────────────────────────────────────────────
 
 export function useSocios() {
@@ -162,7 +223,7 @@ export function useSocios() {
       const sess = load<SocioSession | null>(KEYS.session, null);
       setSession(sess);
 
-      // Load from localStorage first
+      // Cargar de localStorage primero (respuesta inmediata)
       const localLotes    = load<Lote[]>(KEYS.lotes, []);
       const localFeeds    = load<FeedLog[]>(KEYS.feeds, []);
       const localCosechas = load<Cosecha[]>(KEYS.cosechas, []);
@@ -170,28 +231,17 @@ export function useSocios() {
       setFeeds(localFeeds);
       setCosechas(localCosechas);
 
-      // Pull from Supabase if logged in
+      // Sincronizar con Supabase si hay sesión activa
       const db = getSupabase();
       if (db && sess) {
-        const code = sess.code;
-        const [{ data: dbLotes }, { data: dbFeeds }, { data: dbCosechas }] = await Promise.all([
-          db.from('lotes').select('*').eq('socio_code', code),
-          db.from('feed_logs').select('*').eq('socio_code', code),
-          db.from('cosechas').select('*').eq('socio_code', code),
-        ]);
+        const { lotes: dbL, feeds: dbF, cosechas: dbC } = await syncFromSupabase(
+          db, sess.code, localLotes, localFeeds, localCosechas
+        );
 
-        if (dbLotes) {
-          const arr = dbLotes.map(loteFromRow);
-          setLotes(arr); localSave(KEYS.lotes, arr);
-        }
-        if (dbFeeds) {
-          const arr = dbFeeds.map(feedFromRow);
-          setFeeds(arr); localSave(KEYS.feeds, arr);
-        }
-        if (dbCosechas) {
-          const arr = dbCosechas.map(cosechaFromRow);
-          setCosechas(arr); localSave(KEYS.cosechas, arr);
-        }
+        // Solo actualizar estado si Supabase devolvió datos (no null)
+        if (dbL !== null) { setLotes(dbL); localSave(KEYS.lotes, dbL); }
+        if (dbF !== null) { setFeeds(dbF); localSave(KEYS.feeds, dbF); }
+        if (dbC !== null) { setCosechas(dbC); localSave(KEYS.cosechas, dbC); }
       }
 
       setLoaded(true);
@@ -214,6 +264,21 @@ export function useSocios() {
       const s: SocioSession = { code: data.codigo, name: data.nombre, rol: data.rol ?? 'socio' };
       setSession(s);
       localSave(KEYS.session, s);
+
+      // Cargar datos de Supabase inmediatamente después del login
+      const db = getSupabase();
+      if (db) {
+        const localLotes    = load<Lote[]>(KEYS.lotes, []);
+        const localFeeds    = load<FeedLog[]>(KEYS.feeds, []);
+        const localCosechas = load<Cosecha[]>(KEYS.cosechas, []);
+        const { lotes: dbL, feeds: dbF, cosechas: dbC } = await syncFromSupabase(
+          db, s.code, localLotes, localFeeds, localCosechas
+        );
+        if (dbL !== null) { setLotes(dbL); localSave(KEYS.lotes, dbL); }
+        if (dbF !== null) { setFeeds(dbF); localSave(KEYS.feeds, dbF); }
+        if (dbC !== null) { setCosechas(dbC); localSave(KEYS.cosechas, dbC); }
+      }
+
       return true;
     } catch {
       return false;
@@ -234,7 +299,6 @@ export function useSocios() {
           return { success: false, error: data.error ?? 'Error al registrar' };
         }
 
-        // Login automático tras registro exitoso
         const loginSuccess = await login(email, password);
         return { success: loginSuccess, error: loginSuccess ? undefined : 'No se pudo iniciar sesión' };
       } catch {
@@ -251,23 +315,24 @@ export function useSocios() {
 
   // ─── Lotes ─────────────────────────────────────────────────────────────────
 
-  const addLote = useCallback((lote: Omit<Lote, 'id' | 'creadoEn'>) => {
+  const addLote = useCallback(async (lote: Omit<Lote, 'id' | 'creadoEn'>) => {
     const next: Lote = { ...lote, id: uid(), creadoEn: new Date().toISOString() };
     setLotes(prev => {
       const arr = [...prev, next];
       localSave(KEYS.lotes, arr);
-      const db = getSupabase();
-      if (db && session) db.from('lotes').upsert(loteToRow(session.code, next));
       return arr;
     });
+    const db = getSupabase();
+    if (db && session) {
+      const { error } = await db.from('lotes').upsert(loteToRow(session.code, next));
+      if (error) console.error('[ProLarva] Error guardando lote en Supabase:', error.message);
+    }
   }, [session]);
 
-  const deleteLote = useCallback((id: string) => {
+  const deleteLote = useCallback(async (id: string) => {
     setLotes(prev => {
       const arr = prev.filter(l => l.id !== id);
       localSave(KEYS.lotes, arr);
-      const db = getSupabase();
-      if (db) db.from('lotes').delete().eq('id', id);
       return arr;
     });
     setFeeds(prev => {
@@ -280,43 +345,56 @@ export function useSocios() {
       localSave(KEYS.cosechas, arr);
       return arr;
     });
+    const db = getSupabase();
+    if (db) {
+      const { error } = await db.from('lotes').delete().eq('id', id);
+      if (error) console.error('[ProLarva] Error eliminando lote en Supabase:', error.message);
+    }
   }, []);
 
-  const updateLote = useCallback((id: string, updates: Partial<Pick<Lote, 'nombre' | 'fecha'>>) => {
+  const updateLote = useCallback(async (id: string, updates: Partial<Pick<Lote, 'nombre' | 'fecha'>>) => {
     setLotes(prev => {
       const arr = prev.map(l => l.id === id ? { ...l, ...updates } : l);
       localSave(KEYS.lotes, arr);
-      const db = getSupabase();
-      const updated = arr.find(l => l.id === id);
-      if (db && session && updated) db.from('lotes').upsert(loteToRow(session.code, updated));
       return arr;
     });
+    const db = getSupabase();
+    if (db && session) {
+      const { error } = await db.from('lotes').update(updates).eq('id', id);
+      if (error) console.error('[ProLarva] Error actualizando lote en Supabase:', error.message);
+    }
   }, [session]);
 
   // ─── Feeds ─────────────────────────────────────────────────────────────────
 
-  const addFeed = useCallback((feed: Omit<FeedLog, 'id'>) => {
+  const addFeed = useCallback(async (feed: Omit<FeedLog, 'id'>) => {
     const next: FeedLog = { ...feed, id: uid() };
     setFeeds(prev => {
       const arr = [...prev, next];
       localSave(KEYS.feeds, arr);
-      const db = getSupabase();
-      if (db && session) db.from('feed_logs').upsert(feedToRow(session.code, next));
       return arr;
     });
+    const db = getSupabase();
+    if (db && session) {
+      const { error } = await db.from('feed_logs').upsert(feedToRow(session.code, next));
+      if (error) console.error('[ProLarva] Error guardando alimentación en Supabase:', error.message);
+    }
   }, [session]);
 
   // ─── Cosechas ──────────────────────────────────────────────────────────────
 
-  const addCosecha = useCallback((cosecha: Omit<Cosecha, 'id'>) => {
+  const addCosecha = useCallback(async (cosecha: Omit<Cosecha, 'id'>) => {
     const next: Cosecha = { ...cosecha, id: uid() };
     setCosechas(prev => {
       const arr = [...prev, next];
       localSave(KEYS.cosechas, arr);
-      const db = getSupabase();
-      if (db && session) db.from('cosechas').upsert(cosechaToRow(session.code, next));
       return arr;
     });
+    const db = getSupabase();
+    if (db && session) {
+      const { error } = await db.from('cosechas').upsert(cosechaToRow(session.code, next));
+      if (error) console.error('[ProLarva] Error guardando cosecha en Supabase:', error.message);
+    }
   }, [session]);
 
   // ─── Computed ──────────────────────────────────────────────────────────────

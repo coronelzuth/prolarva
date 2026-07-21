@@ -1,6 +1,6 @@
 # ProLarva — Contexto para Agentes
 
-> Siempre responder en **español**. Segunda persona (vos). Tono cercano y directo.
+> Siempre responder en **español**. Tutear — usar "tú", "tienes", "puedes" — NUNCA voseo. Tono cercano y directo.
 > **Leer este archivo completo antes de tocar cualquier cosa.**
 
 ---
@@ -11,8 +11,7 @@
 1. **Educativa** (módulos): aprendizaje gratuito sobre BSF para productores
 2. **Venta** (`/sistema-2015`): landing de la oferta "Kit ProLarva 20/15" (acompañamiento 45d+180d, 4 bonos, garantías)
 
-**URL producción:** https://prolarva.vercel.app
-**URL anterior eliminada:** ~~https://prolarva-monitor.vercel.app~~
+**URL producción:** https://prolarva-monitor.vercel.app
 **Proyecto Vercel:** `juliprojects/prolarva`
 **GitHub:** https://github.com/coronelzuth/prolarva (user: coronelzuth, email: coronelzulieth@gmail.com)
 **Deploy:** `vercel --prod --yes` desde esta carpeta
@@ -55,6 +54,7 @@ Están en `.env.local` (local, ignorado por git) y en Vercel → Settings → En
 | `/sistema-2015` | Landing de venta — Kit ProLarva 20/15, acompañamiento, bonos, garantías, Juliana |
 | `/socios` | Zona privada — tracker de lotes, alimentación y cosechas (sin Larvi ni WhatsApp) |
 | `/gracias` | Página post-formulario — confirmación + redirect automático a /calculadora en 4 seg |
+| `/contenido` | CMS de guiones — lista de 83 guiones, editor, calendario, cambio de estados |
 
 ---
 
@@ -72,7 +72,6 @@ src/
 │   ├── metas/page.tsx        # Módulo 3 — rutas + links a /cosecha y /calculadora
 │   ├── cosecha/page.tsx      # Guía práctica — 7 pasos + panel recomendación calculadora
 │   ├── calculadora/page.tsx  # Calculadora wizard completa (React nativo, 4 pasos)
-│   ├── landing/page.tsx      # Landing page pública
 │   ├── socios/page.tsx       # Zona de Socios (login + tracker)
 │   └── gracias/page.tsx      # Página de confirmación post-formulario
 │
@@ -98,8 +97,7 @@ src/
 public/
 ├── larvi-mascota.png         # Mascota PNG con fondo transparente (moño rojo)
 ├── og-image.png              # OG image 1200×630 para redes sociales
-├── juliana.jpg               # Foto real de Juliana — usada en /landing (sección "¿Quién está detrás?")
-└── calculadora-bsf.html      # HTML original de respaldo (no se usa en producción)
+└── juliana.jpg               # Foto real de Juliana — usada en /sistema-2015
 
 supabase/
 └── schema.sql                # SQL para crear las 4 tablas + políticas RLS en Supabase
@@ -219,9 +217,19 @@ interface Stage {
 |---|---|
 | `larvi-mascota.png` | Mascota PNG — NO reemplazar sin avisar |
 | `og-image.png` | OG image 1200×630 generada con Python PIL |
-| `calculadora-bsf.html` | HTML original de la calculadora (respaldo, no se sirve) |
+| `juliana.jpg` | Foto de Juliana — usada en /sistema-2015 |
+| `fotos/*.mp4` | Videos educativos por etapa BSF (excluidos de git, deploy directo con vercel) |
 
 ---
+
+## CMS de Contenido — `/contenido`
+
+- Tabla Supabase: `guiones_cms` (SQL en `supabase/guiones_cms.sql`)
+- Hook: `src/hooks/useGuionesCms.ts` — sincroniza con Supabase
+- Datos base: `src/data/guiones.ts` — 83 guiones con metadatos
+- Primera carga: si la tabla está vacía, popula todos los guiones automáticamente
+- Campos editables: estado, fecha_programada, plataforma, NC, ángulo, contenido, notas
+- **IMPORTANTE:** Ejecutar `supabase/guiones_cms.sql` en Supabase → SQL Editor antes de usar
 
 ## Pendientes conocidos
 
@@ -296,7 +304,7 @@ a5cc857  feat: port calculadora BSF a React con paleta de la app
 - Home: mascota se apila sobre el título (<480px)
 
 **Carpeta de trabajo canónica:**
-`C:\Users\HP\Desktop\Cosas de Zu\BR Prolarva\06 - Apps & Artifacts\prolarva-monitor`
+`C:\Users\HP\Desktop\Zu Office\01 - PROYECTOS\HUB PROLARVA\06 - Apps y Artifacts\prolarva-monitor`
 
 **Supabase — tablas activas:**
 | Tabla | Qué guarda |
@@ -349,6 +357,10 @@ a5cc857  feat: port calculadora BSF a React con paleta de la app
 4. **Fotos/videos educativas** — agregar fotos reales en `data/stages.ts` para las 7 etapas restantes
 
 **Cómo arrancar una sesión nueva:**
-1. Abrí Claude Code desde la carpeta canónica de arriba
-2. Decí: *"Leé el CLAUDE.md y continuamos"*
-3. Pedí el cambio directamente
+1. Abre Claude Code desde la carpeta canónica de arriba
+2. Di: *"Lee el CLAUDE.md y continuamos"*
+3. Pide el cambio directamente
+
+**Resumen de sesión:**
+Al inicio de cada sesión: leer `docs/RESUMEN EJECUTIVO - 2026-07-11.txt` (o el más reciente que exista en `docs/`) para retomar desde donde se quedó.
+Al cierre de cada sesión: actualizar ese archivo con lo que se hizo, estado actual y pendientes. Sobrescribir el archivo existente — solo importa el más reciente.

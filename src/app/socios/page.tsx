@@ -439,7 +439,7 @@ function Dashboard({ lotes, feeds, cosechas, activeLotes, readyLotes, recordator
         );
       })}
 
-      {/* Acciones a realizar pronto */}
+      {/* Recordatorios — todos los pendientes */}
       {(() => {
         const acciones = recordatorios
           .filter(r => !r.completado)
@@ -447,30 +447,55 @@ function Dashboard({ lotes, feeds, cosechas, activeLotes, readyLotes, recordator
             const lote = lotes.find(l => l.id === r.loteId);
             if (!lote) return null;
             const diff = r.dia - daysSince(lote.fecha);
-            if (diff > 3 || diff < -2) return null;
             return { r, lote, diff };
           })
           .filter(Boolean)
           .sort((a, b) => a!.diff - b!.diff) as { r: Recordatorio; lote: Lote; diff: number }[];
 
         if (acciones.length === 0) return null;
+
+        const urgentes  = acciones.filter(a => a.diff <= 0);
+        const proximas  = acciones.filter(a => a.diff > 0);
+
         return (
-          <div style={{ marginBottom: 16 }}>
-            <div style={{ fontSize: 11, fontWeight: 800, color: S.muted, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 8 }}>
-              📌 Acciones a realizar pronto
-            </div>
-            {acciones.map(({ r, lote, diff }) => (
-              <div key={r.id} onClick={() => onViewLote(lote.id)} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', borderRadius: 10, background: diff === 0 ? 'rgba(34,197,94,0.08)' : diff < 0 ? 'rgba(239,68,68,0.06)' : S.navy2, border: `1px solid ${diff === 0 ? 'rgba(34,197,94,0.3)' : diff < 0 ? 'rgba(239,68,68,0.2)' : S.border}`, marginBottom: 6, cursor: 'pointer' }}>
-                <span style={{ fontSize: 16 }}>📌</span>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 13, fontWeight: 600 }}>{r.titulo}</div>
-                  <div style={{ fontSize: 11, color: S.muted }}>{lote.nombre}</div>
-                </div>
-                <div style={{ fontSize: 11, fontWeight: 700, flexShrink: 0, color: diff === 0 ? S.green : diff < 0 ? S.red : S.amber }}>
-                  {diff === 0 ? '¡Hoy!' : diff < 0 ? `Hace ${Math.abs(diff)}d` : `En ${diff}d`}
-                </div>
+          <div style={{ ...cardStyle, marginBottom: 20 }}>
+            <div style={{ fontSize: 13, fontWeight: 800, marginBottom: 12 }}>📌 Recordatorios</div>
+
+            {urgentes.length > 0 && (
+              <div style={{ marginBottom: proximas.length > 0 ? 12 : 0 }}>
+                <div style={{ fontSize: 10, fontWeight: 700, color: S.red, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6 }}>Pendientes</div>
+                {urgentes.map(({ r, lote, diff }) => (
+                  <div key={r.id} onClick={() => onViewLote(lote.id)} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '9px 12px', borderRadius: 8, background: diff === 0 ? 'rgba(34,197,94,0.08)' : 'rgba(239,68,68,0.06)', border: `1px solid ${diff === 0 ? 'rgba(34,197,94,0.25)' : 'rgba(239,68,68,0.2)'}`, marginBottom: 6, cursor: 'pointer' }}>
+                    <span style={{ fontSize: 14 }}>📌</span>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: 13, fontWeight: 600 }}>{r.titulo}</div>
+                      <div style={{ fontSize: 11, color: S.muted }}>{lote.nombre}</div>
+                    </div>
+                    <div style={{ fontSize: 11, fontWeight: 700, flexShrink: 0, color: diff === 0 ? S.green : S.red }}>
+                      {diff === 0 ? '¡Hoy!' : `Hace ${Math.abs(diff)}d`}
+                    </div>
+                  </div>
+                ))}
               </div>
-            ))}
+            )}
+
+            {proximas.length > 0 && (
+              <div>
+                <div style={{ fontSize: 10, fontWeight: 700, color: S.muted, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6 }}>Próximas</div>
+                {proximas.map(({ r, lote, diff }) => (
+                  <div key={r.id} onClick={() => onViewLote(lote.id)} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '9px 12px', borderRadius: 8, background: S.navy2, border: `1px solid ${S.border}`, marginBottom: 6, cursor: 'pointer' }}>
+                    <span style={{ fontSize: 14 }}>📌</span>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: 13, fontWeight: 600 }}>{r.titulo}</div>
+                      <div style={{ fontSize: 11, color: S.muted }}>{lote.nombre}</div>
+                    </div>
+                    <div style={{ fontSize: 11, fontWeight: 700, flexShrink: 0, color: diff <= 3 ? S.amber : S.muted }}>
+                      En {diff}d
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         );
       })()}

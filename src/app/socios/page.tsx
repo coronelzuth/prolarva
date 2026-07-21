@@ -353,6 +353,11 @@ function Dashboard({ lotes, feeds, cosechas, activeLotes, readyLotes, totalKg, a
     </div>
   );
 
+  // Clasificar lotes por urgencia de cosecha
+  const lotesVencidos  = lotes.filter(l => daysSince(l.fecha) > 28);
+  const lotesUrgentes  = lotes.filter(l => { const d = daysSince(l.fecha); return d >= 22 && d <= 28; });
+  const lotesPróximos  = lotes.filter(l => { const d = daysSince(l.fecha); return d >= 18 && d < 22; });
+
   return (
     <div>
       <div style={{ marginBottom: 28 }}>
@@ -360,12 +365,48 @@ function Dashboard({ lotes, feeds, cosechas, activeLotes, readyLotes, totalKg, a
         <p style={{ color: S.muted, fontSize: 13, marginTop: 4 }}>Resumen de tu producción BSF de hoy</p>
       </div>
 
-      {readyLotes.map(l => (
-        <div key={l.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 16px', borderRadius: 10, background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.3)', marginBottom: 10, fontSize: 13 }}>
-          <span>✅</span>
-          <span><strong>{l.nombre}</strong> — ¡Está en etapa de cosecha! (Día {daysSince(l.fecha)})</span>
-        </div>
-      ))}
+      {/* Notificaciones — vencidos primero */}
+      {lotesVencidos.map(l => {
+        const d = daysSince(l.fecha);
+        return (
+          <div key={l.id} onClick={() => onViewLote(l.id)} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', borderRadius: 12, background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.35)', marginBottom: 10, cursor: 'pointer' }}>
+            <span style={{ fontSize: 22 }}>🚨</span>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 13, fontWeight: 700, color: S.red }}>{l.nombre} — ¡Ventana de cosecha vencida!</div>
+              <div style={{ fontSize: 11, color: S.muted, marginTop: 2 }}>Día {d} — ya pasaron los 28 días óptimos. Las larvas se están encapando.</div>
+            </div>
+            <button onClick={e => { e.stopPropagation(); onNav('cosecha'); }} style={{ ...btnDanger, flexShrink: 0, fontSize: 11 }}>Registrar igual</button>
+          </div>
+        );
+      })}
+
+      {lotesUrgentes.map(l => {
+        const d = daysSince(l.fecha);
+        return (
+          <div key={l.id} onClick={() => onViewLote(l.id)} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', borderRadius: 12, background: 'rgba(16,185,129,0.09)', border: '1.5px solid rgba(16,185,129,0.4)', marginBottom: 10, cursor: 'pointer' }}>
+            <span style={{ fontSize: 22 }}>⚖️</span>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 13, fontWeight: 700, color: S.green2 }}>{l.nombre} — ¡Lista para cosechar!</div>
+              <div style={{ fontSize: 11, color: S.muted, marginTop: 2 }}>Día {d} de 28 — estás en la ventana óptima. No esperes más.</div>
+            </div>
+            <button onClick={e => { e.stopPropagation(); onNav('cosecha'); }} style={{ ...btnPrimary, ...btnSm, flexShrink: 0, fontSize: 11 }}>Registrar cosecha</button>
+          </div>
+        );
+      })}
+
+      {lotesPróximos.map(l => {
+        const d = daysSince(l.fecha);
+        const diasRestantes = 22 - d;
+        return (
+          <div key={l.id} onClick={() => onViewLote(l.id)} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', borderRadius: 12, background: 'rgba(245,158,11,0.07)', border: '1px solid rgba(245,158,11,0.3)', marginBottom: 10, cursor: 'pointer' }}>
+            <span style={{ fontSize: 22 }}>⏳</span>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 13, fontWeight: 700, color: S.amber }}>{l.nombre} — Cosecha en {diasRestantes} día{diasRestantes !== 1 ? 's' : ''}</div>
+              <div style={{ fontSize: 11, color: S.muted, marginTop: 2 }}>Día {d} — prepárate. Alista tu colador, báscula y canastas.</div>
+            </div>
+          </div>
+        );
+      })}
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(140px,1fr))', gap: 12, marginBottom: 24 }}>
         {statCard(String(activeLotes.length), 'Lotes activos', S.green)}

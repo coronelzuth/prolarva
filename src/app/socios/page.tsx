@@ -1041,6 +1041,7 @@ function GuiaView() {
 function LoginScreen({ onLogin, onSwitchToRegister }: { onLogin: (code: string, pass: string) => Promise<boolean>; onSwitchToRegister: () => void }) {
   const [code, setCode] = useState('');
   const [pass, setPass] = useState('');
+  const [showPass, setShowPass] = useState(false);
   const [error, setError] = useState<string>('');
   const [loading, setLoading] = useState(false);
 
@@ -1068,7 +1069,12 @@ function LoginScreen({ onLogin, onSwitchToRegister }: { onLogin: (code: string, 
           <input style={inputStyle} value={code} onChange={e => setCode(e.target.value)} onKeyDown={e => e.key === 'Enter' && !loading && attempt()} placeholder="ej. SOCIO-001" autoComplete="off" disabled={loading} />
         </Field>
         <Field label="Contraseña">
-          <input style={inputStyle} type="password" value={pass} onChange={e => setPass(e.target.value)} onKeyDown={e => e.key === 'Enter' && !loading && attempt()} placeholder="••••••••" disabled={loading} />
+          <div style={{ position: 'relative' }}>
+            <input style={{ ...inputStyle, paddingRight: 40 }} type={showPass ? 'text' : 'password'} value={pass} onChange={e => setPass(e.target.value)} onKeyDown={e => e.key === 'Enter' && !loading && attempt()} placeholder="••••••••" disabled={loading} />
+            <button type="button" onClick={() => setShowPass(v => !v)} style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: S.muted, fontSize: 16, padding: '2px', lineHeight: 1 }}>
+              {showPass ? '🙈' : '👁️'}
+            </button>
+          </div>
         </Field>
 
         {error && <p style={{ color: S.red, fontSize: 12, marginBottom: 10, textAlign: 'center' }}>{error}</p>}
@@ -1094,6 +1100,8 @@ function RegisterScreen({ onRegister, onSwitchToLogin, invitacionPrevia }: { onR
   const [nombre, setNombre] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPass, setConfirmPass] = useState('');
+  const [showPass, setShowPass] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
   const [error, setError] = useState<string>('');
   const [loading, setLoading] = useState(false);
 
@@ -1159,10 +1167,20 @@ function RegisterScreen({ onRegister, onSwitchToLogin, invitacionPrevia }: { onR
           <input style={inputStyle} type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="tu@email.com" autoComplete="email" disabled={loading} />
         </Field>
         <Field label="Contraseña">
-          <input style={inputStyle} type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••" disabled={loading} />
+          <div style={{ position: 'relative' }}>
+            <input style={{ ...inputStyle, paddingRight: 40 }} type={showPass ? 'text' : 'password'} value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••" disabled={loading} />
+            <button type="button" onClick={() => setShowPass(v => !v)} style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: S.muted, fontSize: 16, padding: '2px', lineHeight: 1 }}>
+              {showPass ? '🙈' : '👁️'}
+            </button>
+          </div>
         </Field>
         <Field label="Confirmar contraseña">
-          <input style={inputStyle} type="password" value={confirmPass} onChange={e => setConfirmPass(e.target.value)} placeholder="••••••••" onKeyDown={e => e.key === 'Enter' && !loading && attempt()} disabled={loading} />
+          <div style={{ position: 'relative' }}>
+            <input style={{ ...inputStyle, paddingRight: 40 }} type={showConfirm ? 'text' : 'password'} value={confirmPass} onChange={e => setConfirmPass(e.target.value)} placeholder="••••••••" onKeyDown={e => e.key === 'Enter' && !loading && attempt()} disabled={loading} />
+            <button type="button" onClick={() => setShowConfirm(v => !v)} style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: S.muted, fontSize: 16, padding: '2px', lineHeight: 1 }}>
+              {showConfirm ? '🙈' : '👁️'}
+            </button>
+          </div>
         </Field>
 
         {error && <p style={{ color: S.red, fontSize: 12, marginBottom: 10, textAlign: 'center' }}>{error}</p>}
@@ -1412,6 +1430,31 @@ function AdminView({ adminCode }: { adminCode: string }) {
   );
 }
 
+// ─── Onboarding steps ────────────────────────────────────────────────────────
+
+const ONBOARDING_STEPS = [
+  {
+    icon: '🪲',
+    title: '¡Bienvenido a tu zona ProLarva!',
+    desc: 'Aquí llevas el control completo de tu producción BSF: lotes, alimentación, cosechas y más. Todo se guarda en la nube, disponible desde cualquier dispositivo.',
+  },
+  {
+    icon: '📦',
+    title: 'Crea tus Lotes',
+    desc: 'Cada vez que siembras, registra un lote. La app calcula la etapa del ciclo automáticamente y te avisa con una alerta cuando sea momento de cosechar.',
+  },
+  {
+    icon: '🌿',
+    title: 'Alimentación y Cosechas',
+    desc: 'Registra qué y cuánto les das a las larvas. Al cosechar, la app calcula tu tasa de conversión para que veas qué tan eficiente estás siendo.',
+  },
+  {
+    icon: '🏠',
+    title: 'Dashboard con alertas',
+    desc: 'El Resumen te muestra notificaciones automáticas: lotes listos para cosechar, recordatorios por día del ciclo y el estado general de tu producción.',
+  },
+];
+
 // ─── Main page ────────────────────────────────────────────────────────────────
 
 function SociosInner() {
@@ -1421,6 +1464,10 @@ function SociosInner() {
   const [authMode, setAuthMode] = useState<'login' | 'register'>(invParam ? 'register' : 'login');
   const [view,        setView]        = useState<View>('dashboard');
   const [detailLoteId, setDetailLoteId] = useState<string | null>(null);
+  const [showOnboarding,   setShowOnboarding]   = useState(false);
+  const [onboardingStep,   setOnboardingStep]   = useState(0);
+  const [showResetConfirm, setShowResetConfirm] = useState(false);
+  const [resetting,        setResetting]        = useState(false);
 
   const [modalLote,    setModalLote]    = useState(false);
   const [modalFeed,    setModalFeed]    = useState(false);
@@ -1453,6 +1500,12 @@ function SociosInner() {
   const cSustTotal = useRef<HTMLInputElement>(null);
   const cCalidad   = useRef<HTMLSelectElement>(null);
   const cNotas     = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    if (db.session && !localStorage.getItem('prl-onboarding-done')) {
+      setShowOnboarding(true);
+    }
+  }, [db.session]);
 
   if (!db.loaded) return null;
   if (!db.session) {
@@ -1578,6 +1631,12 @@ function SociosInner() {
           </div>
           <button onClick={db.logout} style={{ ...btnOutline, width: '100%', fontSize: 12, padding: '7px' }}>
             Cerrar sesión
+          </button>
+          <button
+            onClick={() => setShowResetConfirm(true)}
+            style={{ marginTop: 8, background: 'none', border: 'none', color: '#ef4444', fontSize: 10, cursor: 'pointer', fontFamily: 'Montserrat, sans-serif', width: '100%', padding: '3px 0', textDecoration: 'underline', textAlign: 'center' }}
+          >
+            🗑️ Limpiar mis datos
           </button>
         </div>
       </aside>
@@ -1763,6 +1822,69 @@ function SociosInner() {
         <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', marginTop: 16 }}>
           <button style={btnOutline} onClick={() => setEditLoteId(null)}>Cancelar</button>
           <button style={btnPrimary} onClick={saveEditLote}>Guardar cambios</button>
+        </div>
+      </Modal>
+
+      {/* Modal: Onboarding */}
+      {showOnboarding && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.88)', zIndex: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1.5rem' }}>
+          <div style={{ background: '#152035', border: `1px solid rgba(34,197,94,0.3)`, borderRadius: 20, padding: '2.5rem 2rem', width: '100%', maxWidth: 440, textAlign: 'center' }}>
+            <div style={{ fontSize: 60, marginBottom: 14, lineHeight: 1 }}>{ONBOARDING_STEPS[onboardingStep].icon}</div>
+            <h2 style={{ fontSize: 20, fontWeight: 900, marginBottom: 10, color: S.text }}>{ONBOARDING_STEPS[onboardingStep].title}</h2>
+            <p style={{ fontSize: 14, color: S.muted, lineHeight: 1.65, marginBottom: 28 }}>{ONBOARDING_STEPS[onboardingStep].desc}</p>
+            <div style={{ display: 'flex', justifyContent: 'center', gap: 6, marginBottom: 28 }}>
+              {ONBOARDING_STEPS.map((_, i) => (
+                <div key={i} style={{ width: 8, height: 8, borderRadius: '50%', background: i === onboardingStep ? S.green : S.border, transition: 'background 0.2s' }} />
+              ))}
+            </div>
+            <div style={{ display: 'flex', gap: 10, justifyContent: 'center' }}>
+              {onboardingStep > 0 && (
+                <button style={btnOutline} onClick={() => setOnboardingStep(s => s - 1)}>← Atrás</button>
+              )}
+              {onboardingStep < ONBOARDING_STEPS.length - 1 ? (
+                <button style={btnPrimary} onClick={() => setOnboardingStep(s => s + 1)}>Siguiente →</button>
+              ) : (
+                <button style={{ ...btnPrimary, padding: '10px 28px' }} onClick={() => { localStorage.setItem('prl-onboarding-done', '1'); setShowOnboarding(false); setOnboardingStep(0); }}>
+                  ¡Comenzar! 🚀
+                </button>
+              )}
+            </div>
+            <button onClick={() => { localStorage.setItem('prl-onboarding-done', '1'); setShowOnboarding(false); setOnboardingStep(0); }} style={{ marginTop: 18, background: 'none', border: 'none', color: S.muted, fontSize: 11, cursor: 'pointer', fontFamily: 'Montserrat, sans-serif', textDecoration: 'underline' }}>
+              Saltar tutorial
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Modal: Confirmar reset de datos */}
+      <Modal open={showResetConfirm} onClose={() => !resetting && setShowResetConfirm(false)} title="🗑️ Limpiar mis datos">
+        <div style={{ textAlign: 'center', padding: '8px 0 16px' }}>
+          <div style={{ fontSize: 40, marginBottom: 12 }}>⚠️</div>
+          <p style={{ fontSize: 14, color: S.text, lineHeight: 1.6, marginBottom: 8 }}>
+            Esto borrará <strong>todos tus lotes, alimentaciones, cosechas, recordatorios y fotos</strong> de manera permanente.
+          </p>
+          <p style={{ fontSize: 13, color: S.muted, lineHeight: 1.5, marginBottom: 20 }}>
+            Tu cuenta y contraseña se mantienen intactos. Útil para empezar desde cero sin crear un usuario nuevo.
+          </p>
+          <div style={{ display: 'flex', gap: 10, justifyContent: 'center' }}>
+            <button style={btnOutline} onClick={() => setShowResetConfirm(false)} disabled={resetting}>Cancelar</button>
+            <button
+              style={{ ...btnDanger, padding: '10px 22px', fontSize: 13, opacity: resetting ? 0.6 : 1, cursor: resetting ? 'not-allowed' : 'pointer' }}
+              disabled={resetting}
+              onClick={async () => {
+                setResetting(true);
+                await db.resetAllData();
+                localStorage.removeItem('prl-onboarding-done');
+                setResetting(false);
+                setShowResetConfirm(false);
+                setOnboardingStep(0);
+                setShowOnboarding(true);
+                setView('dashboard');
+              }}
+            >
+              {resetting ? 'Limpiando...' : 'Sí, limpiar todo'}
+            </button>
+          </div>
         </div>
       </Modal>
 

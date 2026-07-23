@@ -1,4 +1,4 @@
-# ProLarva — Contexto para Agentes
+﻿# ProLarva — Contexto para Agentes
 
 > Siempre responder en **español**. Tutear — usar "tú", "tienes", "puedes" — NUNCA voseo. Tono cercano y directo.
 > **Leer este archivo completo antes de tocar cualquier cosa.**
@@ -9,7 +9,7 @@
 
 **ProLarva** es una plataforma web con dos funciones:
 1. **Educativa** (módulos): aprendizaje gratuito sobre BSF para productores
-2. **Venta** (`/sistema-2015`): landing de la oferta "Kit ProLarva 20/15" (acompañamiento 45d+180d, 4 bonos, garantías)
+2. **Venta** (`/sistema-2015`): landing de la oferta "Kit ProLarva 25/15" (acompañamiento 45d+180d, 4 bonos, garantías)
 
 **URL producción:** https://prolarva-monitor.vercel.app
 **Proyecto Vercel:** `juliprojects/prolarva`
@@ -51,9 +51,10 @@ Están en `.env.local` (local, ignorado por git) y en Vercel → Settings → En
 | `/metas` | Módulo 3 — rutas de producción + links a /cosecha y /calculadora |
 | `/cosecha` | Guía Práctica — 7 pasos + panel recomendación calculadora al final |
 | `/calculadora` | Calculadora BSF completa (wizard 4 pasos) |
-| `/sistema-2015` | Landing de venta — Kit ProLarva 20/15, acompañamiento, bonos, garantías, Juliana |
+| `/sistema-2015` | Landing de venta — Kit ProLarva 25/15, acompañamiento, bonos, garantías, Juliana |
 | `/socios` | Zona privada — tracker de lotes, alimentación y cosechas (sin Larvi ni WhatsApp) |
 | `/gracias` | Página post-formulario — confirmación + redirect automático a /calculadora en 4 seg |
+| `/blog`      | Mini blog educativo — 8 problemas comunes en cría BSF con solución rápida, acordeón expandible |
 | `/contenido` | CMS de guiones — lista de 83 guiones, editor, calendario, cambio de estados |
 
 ---
@@ -71,6 +72,7 @@ src/
 │   ├── preparacion/page.tsx  # Módulo 2 — quiz diagnóstico + recommendation card
 │   ├── metas/page.tsx        # Módulo 3 — rutas + links a /cosecha y /calculadora
 │   ├── cosecha/page.tsx      # Guía práctica — 7 pasos + panel recomendación calculadora
+│   ├── blog/page.tsx         # Blog — 8 problemas BSF, acordeón, CTA WhatsApp
 │   ├── calculadora/page.tsx  # Calculadora wizard completa (React nativo, 4 pasos)
 │   ├── socios/page.tsx       # Zona de Socios (login + tracker)
 │   └── gracias/page.tsx      # Página de confirmación post-formulario

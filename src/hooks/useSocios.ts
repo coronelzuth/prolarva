@@ -478,6 +478,22 @@ export function useSocios() {
     }
   }, []);
 
+  const resetAllData = useCallback(async () => {
+    setLotes([]); setFeeds([]); setCosechas([]); setRecordatorios([]); setFotos([]);
+    localSave(KEYS.lotes, []); localSave(KEYS.feeds, []); localSave(KEYS.cosechas, []);
+    localSave(KEYS.recordatorios, []); localSave(KEYS.fotos, []);
+    const db = getSupabase();
+    if (db && session) {
+      await Promise.all([
+        db.from('lotes').delete().eq('socio_code', session.code),
+        db.from('feed_logs').delete().eq('socio_code', session.code),
+        db.from('cosechas').delete().eq('socio_code', session.code),
+        db.from('recordatorios').delete().eq('socio_code', session.code),
+        db.from('fotos_lotes').delete().eq('socio_code', session.code),
+      ]);
+    }
+  }, [session]);
+
   // ─── Computed ──────────────────────────────────────────────────────────────
 
   const activeLotes = lotes.filter(l => daysSince(l.fecha) <= 32);
@@ -494,6 +510,7 @@ export function useSocios() {
     addCosecha,
     addRecordatorio, toggleRecordatorio, deleteRecordatorio,
     addFoto, deleteFoto,
+    resetAllData,
     activeLotes, readyLotes, totalKg, avgConv,
   };
 }

@@ -12,6 +12,7 @@ const navLinks = [
   { href: '/metas',       label: 'Mi Meta',       icon: '🎯' },
   { href: '/cosecha',     label: 'Cosecha',       icon: '🌾' },
   { href: '/calculadora', label: 'Calculadora',   icon: '🧮' },
+  { href: '/blog',        label: 'Blog',           icon: '📖' },
 ];
 
 export default function Navbar() {

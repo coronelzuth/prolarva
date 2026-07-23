@@ -322,11 +322,20 @@ a5cc857  feat: port calculadora BSF a React con paleta de la app
 | `recordatorios` | Recordatorios por lote (dia, titulo, completado) |
 | `fotos_lotes` | Fotos por lote en base64 JPEG comprimido |
 
+**Cambios recientes (2026-07-23 — sesión 4):**
+- ✅ **Blog commiteado** — `src/app/blog/page.tsx` nunca había sido commiteado; ahora en GitHub y producción
+- ✅ **Botón "Enviar notificación de prueba"** — aparece en Perfil cuando notificaciones están activadas
+- ✅ **POST en /api/push/notify** — endpoint de test que envía notificación inmediata por socio_code
+- ✅ **Fix re-sync suscripción** — al cargar Perfil con permiso ya concedido, re-sincroniza la suscripción al servidor automáticamente
+- ✅ **Fix reset estado** — si permiso concedido pero sin suscripción push real, resetea a "Desactivadas" para poder re-activar
+- ✅ **Errores visibles** — mensajes de error de activación ahora se muestran siempre, no solo cuando está "Activadas"
+- ❌ **Notificaciones push bloqueadas** — error persistente: `atob` falla con "characters outside of the Latin1 range" al intentar activar
+- ⚠️ **VAPID keys regeneradas** — se regeneraron y re-subieron a Vercel con ASCII puro. El error sigue. Ver pendientes.
+
 **Cambios recientes (2026-07-23 — sesión 3):**
 - ✅ **Alimentación integrada en lote** — eliminado tab "Alimentación" del nav. Historial de feeds vive en el detalle de cada lote (ya existía). Dashboard: "Ver todo" → "Ver mis lotes". Tour: paso de alimentación removido. `AlimentacionView` deshabilitada (código aún presente, pendiente de eliminar)
 - ✅ **Mobile nav: labels cortos + flex:1** — 6 tabs ahora (sin alimentación). Labels móviles: Inicio/Lotes/Cosecha/Guía/Stats/Perfil. Ícono 18px, texto 8px, `white-space: nowrap`
 - ✅ **Service worker bump v3** — fuerza descarte del caché v2 en todos los navegadores
-- ⚠️ **Problema de deploy** — los últimos commits no se estaban viendo en producción. Pendiente verificar si el issue es el SW o el deploy de Vercel. Próxima sesión: revisar desde cero
 
 **Cambios recientes (2026-07-23 — sesión 2):**
 - ✅ **Vista Perfil** — avatar (localStorage `prl-avatar-{code}`), estadísticas del socio, editar nombre (API update-profile → Supabase), cambiar contraseña (API change-password + bcrypt), relanzar tour, limpiar datos
@@ -388,6 +397,13 @@ a5cc857  feat: port calculadora BSF a React con paleta de la app
 - Login: por email o código de socio ✅
 
 **Próxima sesión — pendientes:**
+
+### 🔴 BLOQUEADO — Notificaciones push (resolver primero)
+- **Error:** `atob` falla con "characters outside of the Latin1 range" al intentar suscribirse
+- **Causa probable:** `NEXT_PUBLIC_VAPID_PUBLIC_KEY` llega al browser con caracteres no-Latin1 (posible encoding de Vercel/PowerShell al guardar la key)
+- **Diagnóstico pendiente:** En el browser abrir DevTools → Console → escribir `console.log(process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY)` y ver qué valor llega exactamente
+- **Fix probable:** En lugar de convertir a Uint8Array con `atob`, pasar la key directamente como string a `applicationServerKey` — Chrome 60+ soporta base64url nativo sin conversión. Código a cambiar en `toggleNotifications` en `socios/page.tsx` (~línea 1900)
+- **Alternativa:** Hardcodear la public key directamente en el código (no es sensible, es pública) para eliminar la dependencia del env var en el browser
 
 ### UX/UI (en orden de prioridad)
 1. **alert() → inline errors** — los formularios usan `alert()` nativo para errores de validación. Reemplazar con mensajes inline bajo el campo o un sistema de toast

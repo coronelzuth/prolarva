@@ -322,6 +322,12 @@ a5cc857  feat: port calculadora BSF a React con paleta de la app
 | `recordatorios` | Recordatorios por lote (dia, titulo, completado) |
 | `fotos_lotes` | Fotos por lote en base64 JPEG comprimido |
 
+**Cambios recientes (2026-07-23 — sesión 3):**
+- ✅ **Alimentación integrada en lote** — eliminado tab "Alimentación" del nav. Historial de feeds vive en el detalle de cada lote (ya existía). Dashboard: "Ver todo" → "Ver mis lotes". Tour: paso de alimentación removido. `AlimentacionView` deshabilitada (código aún presente, pendiente de eliminar)
+- ✅ **Mobile nav: labels cortos + flex:1** — 6 tabs ahora (sin alimentación). Labels móviles: Inicio/Lotes/Cosecha/Guía/Stats/Perfil. Ícono 18px, texto 8px, `white-space: nowrap`
+- ✅ **Service worker bump v3** — fuerza descarte del caché v2 en todos los navegadores
+- ⚠️ **Problema de deploy** — los últimos commits no se estaban viendo en producción. Pendiente verificar si el issue es el SW o el deploy de Vercel. Próxima sesión: revisar desde cero
+
 **Cambios recientes (2026-07-23 — sesión 2):**
 - ✅ **Vista Perfil** — avatar (localStorage `prl-avatar-{code}`), estadísticas del socio, editar nombre (API update-profile → Supabase), cambiar contraseña (API change-password + bcrypt), relanzar tour, limpiar datos
 - ✅ **Vista Estadísticas** — gráficas SVG puras (kg/mes barras + conversión línea con meta 20%), ranking de lotes por conversión, mejor sustrato automático, exportar CSV (lotes/cosechas/alimentación), compartir imagen del mes (Canvas API 1080×1080 + Web Share API con fallback descarga)
@@ -382,11 +388,24 @@ a5cc857  feat: port calculadora BSF a React con paleta de la app
 - Login: por email o código de socio ✅
 
 **Próxima sesión — pendientes:**
-1. **Panel de ventas** — registro de ventas de larva/harina por socio (definir alcance)
-2. **Recuperar contraseña** — email reset para socios (Resend o similar)
-3. **Exportar leads en CSV** — datos ya en Supabase, falta UI
-4. **Fotos reales educativas** — agregar fotos en `data/stages.ts` (Juliana debe proveer archivos)
-5. **Notificaciones push — probar** — una vez configuradas las VAPID keys en Vercel + tabla push_subscriptions en Supabase
+
+### UX/UI (en orden de prioridad)
+1. **alert() → inline errors** — los formularios usan `alert()` nativo para errores de validación. Reemplazar con mensajes inline bajo el campo o un sistema de toast
+2. **Toast de éxito** — al guardar un lote, feed o cosecha el modal se cierra sin feedback. Agregar toast global (`✅ Guardado`) que aparece 2s y desaparece
+3. **Loading state en botones de guardar** — los botones no se deshabilitan mientras el request a Supabase está en curso; el usuario puede tocar dos veces y duplicar registros
+4. **Modal alimentación preselecciona lote** — cuando se llama `openFeed(loteId)` desde el detalle de un lote, el select de lote debe quedar preseleccionado (y ocultarse si solo hay un lote disponible). Actualmente `defaultValue` en React no actualiza al re-renderizar; solución: añadir `key={prefillLoteId}` al modal o usar estado controlado
+5. **Dashboard "Últimas alimentaciones" huérfano** — ahora que alimentación vive dentro de cada lote, este bloque del dashboard es confuso. Reemplazar con "Actividad reciente" (últimas 3 acciones: feeds + cosechas mezcladas) o eliminar el bloque
+6. **Admin tab → dentro de Perfil** — el tab Admin en la barra móvil suma un 7mo tab cuando el usuario es admin, volviendo a causar overflow. Mover el acceso al panel admin como botón dentro de PerfilView (visible solo para `rol === 'admin'`) y eliminar el tab de la barra
+7. **Mobile header simplificado** — el header móvil muestra avatar+nombre (→ Perfil) y botón "Salir". El avatar es redundante con el tab Perfil. Simplificar: mostrar solo el título "ProLarva" a la izquierda y botón "Salir" a la derecha
+8. **Sidebar avatar refleja foto personalizada** — si el usuario subió foto de perfil (localStorage `prl-avatar-{code}`), el círculo con inicial en el footer del sidebar no la muestra. Leer el avatar en `SociosInner` y pasarlo al sidebar
+9. **Eliminar `AlimentacionView`** — función muerta en el código desde que se integró alimentación al detalle de lote. Borrar para limpiar ~20 líneas
+
+### Funcionalidades
+10. **Panel de ventas** — registro de ventas de larva/harina por socio (definir alcance)
+11. **Recuperar contraseña** — email reset para socios (Resend o similar)
+12. **Exportar leads en CSV** — datos ya en Supabase, falta UI
+13. **Fotos reales educativas** — agregar fotos en `data/stages.ts` (Juliana debe proveer archivos)
+14. **Notificaciones push — probar** — VAPID keys ya en Vercel + tabla push_subscriptions en Supabase. Probar flujo completo end-to-end
 
 **Cómo arrancar una sesión nueva:**
 1. Abre Claude Code desde la carpeta canónica de arriba

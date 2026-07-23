@@ -1840,6 +1840,8 @@ function PerfilView({
 
   const [notifStatus, setNotifStatus] = useState<'unsupported' | 'default' | 'granted' | 'denied'>('default');
   const [notifLoading, setNotifLoading] = useState(false);
+  const [testLoading, setTestLoading] = useState(false);
+  const [testMsg, setTestMsg] = useState<string | null>(null);
 
   const fileRef = useRef<HTMLInputElement>(null);
   const initials = session.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
@@ -1892,6 +1894,28 @@ function PerfilView({
       setNotifStatus('default');
     }
     setNotifLoading(false);
+  }
+
+  async function sendTestNotif() {
+    setTestLoading(true);
+    setTestMsg(null);
+    try {
+      const res = await fetch('/api/push/notify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ socio_code: session.code }),
+      });
+      const data = await res.json();
+      if (res.ok && data.sent > 0) {
+        setTestMsg('✅ ¡Enviada! Revisa la notificación en tu celular.');
+      } else {
+        setTestMsg('❌ ' + (data.error ?? 'No se pudo enviar.'));
+      }
+    } catch {
+      setTestMsg('❌ Error de red.');
+    }
+    setTestLoading(false);
+    setTimeout(() => setTestMsg(null), 5000);
   }
 
   async function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -2064,6 +2088,22 @@ function PerfilView({
             >
               {notifLoading ? '...' : notifStatus === 'granted' ? 'Desactivar' : 'Activar'}
             </button>
+          </div>
+        )}
+        {notifStatus === 'granted' && (
+          <div style={{ marginTop: 10 }}>
+            <button
+              style={{ ...btnOutline, fontSize: 12, padding: '6px 14px', opacity: testLoading ? 0.6 : 1 }}
+              disabled={testLoading}
+              onClick={sendTestNotif}
+            >
+              {testLoading ? 'Enviando...' : '🔔 Enviar notificación de prueba'}
+            </button>
+            {testMsg && (
+              <div style={{ fontSize: 12, marginTop: 8, color: testMsg.startsWith('✅') ? S.emerald : S.amber }}>
+                {testMsg}
+              </div>
+            )}
           </div>
         )}
       </div>

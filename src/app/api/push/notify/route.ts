@@ -18,6 +18,52 @@ function configureVapid() {
   return true;
 }
 
+// Enviar notificación de prueba a un socio específico
+export async function POST(req: NextRequest) {
+  if (!configureVapid()) {
+    return NextResponse.json({ error: 'VAPID no configurado' }, { status: 500 });
+  }
+  const db = getDb();
+  if (!db) return NextResponse.json({ error: 'DB no configurada' }, { status: 500 });
+
+  const { socio_code } = await req.json();
+  if (!socio_code) return NextResponse.json({ error: 'socio_code requerido' }, { status: 400 });
+
+  const { data: subs } = await db
+    .from('push_subscriptions')
+    .select('*')
+    .eq('socio_code', socio_code);
+
+  if (!subs?.length) return NextResponse.json({ error: 'Sin subscripción activa' }, { status: 404 });
+
+  const payload = JSON.stringify({
+    title: '🌿 ProLarva — Prueba de notificación',
+    body: '¡Funciona! Las alertas de cosecha llegarán así.',
+    url: '/socios',
+    tag: 'test',
+  });
+
+  let sent = 0;
+  const stale: string[] = [];
+  for (const sub of subs) {
+    try {
+      await webpush.sendNotification(
+        { endpoint: sub.endpoint, keys: { auth: sub.auth, p256dh: sub.p256dh } },
+        payload
+      );
+      sent++;
+    } catch (err: unknown) {
+      const status = (err as { statusCode?: number }).statusCode;
+      if (status === 410 || status === 404) stale.push(sub.endpoint);
+    }
+  }
+  if (stale.length) {
+    await db.from('push_subscriptions').delete().in('endpoint', stale);
+  }
+
+  return NextResponse.json({ sent });
+}
+
 // Vercel cron llama a este endpoint diariamente
 export async function GET(req: NextRequest) {
   // Validar que viene del cron de Vercel (o llamada directa con secret)

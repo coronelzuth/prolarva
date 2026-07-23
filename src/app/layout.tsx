@@ -1,5 +1,6 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Montserrat } from 'next/font/google';
+import Script from 'next/script';
 import './globals.css';
 import Navbar from '@/components/Navbar';
 import FloatingWidgets from '@/components/FloatingWidgets';
@@ -11,9 +12,17 @@ const montserrat = Montserrat({
   variable: '--font-montserrat',
 });
 
+export const viewport: Viewport = {
+  themeColor: '#22c55e',
+  width: 'device-width',
+  initialScale: 1,
+};
+
 export const metadata: Metadata = {
   title: 'ProLarva',
   description: 'Tu ruta de aprendizaje completa para cultivar Mosca Soldado Negra (BSF). Desde cero hasta tu primera cosecha.',
+  manifest: '/manifest.json',
+  appleWebApp: { capable: true, statusBarStyle: 'black-translucent', title: 'ProLarva' },
   verification: { google: '1fkZ-jLIru_ArMWJFqhHlXeqfyH7hSZ7X6X7TVB7Glc' },
   openGraph: {
     title: 'ProLarva 🪲',
@@ -34,11 +43,20 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="es" className={montserrat.variable}>
+      <head>
+        <link rel="apple-touch-icon" href="/icon-192.png" />
+      </head>
       <body style={{ fontFamily: 'Montserrat, sans-serif', background: '#0d1b2a', color: '#e2e8f0', minHeight: '100vh' }}>
         <Navbar />
         <main>{children}</main>
         <FloatingWidgets />
         <Analytics />
+        <Script id="sw-register" strategy="afterInteractive">{`
+          if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js', { scope: '/' })
+              .catch(e => console.warn('[SW]', e));
+          }
+        `}</Script>
       </body>
     </html>
   );

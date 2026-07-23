@@ -368,9 +368,179 @@ function MiniCalendar({ lote }: { lote: Lote }) {
   );
 }
 
+// ─── CSV export ───────────────────────────────────────────────────────────────
+
+function downloadCSV(rows: string[][], headers: string[], filename: string) {
+  const content = [headers, ...rows].map(r => r.map(c => `"${c.replace(/"/g, '""')}"`).join(',')).join('\n');
+  const blob = new Blob(['﻿' + content], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename; a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ─── Share image ──────────────────────────────────────────────────────────────
+
+async function generarImagenMes(stats: {
+  kgMes: number; cosechasMes: number; lotesActivos: number;
+  avgConv: number | null; mesLabel: string;
+}) {
+  const canvas = document.createElement('canvas');
+  canvas.width = 1080; canvas.height = 1080;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return;
+
+  // Fondo
+  ctx.fillStyle = '#0d1b2a';
+  ctx.fillRect(0, 0, 1080, 1080);
+
+  // Franja verde top
+  const grad = ctx.createLinearGradient(0, 0, 1080, 0);
+  grad.addColorStop(0, '#22c55e'); grad.addColorStop(1, '#16a34a');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, 1080, 14);
+
+  // Logo
+  ctx.fillStyle = '#ffffff';
+  ctx.font = 'bold 68px Arial, sans-serif';
+  ctx.fillText('ProLarva', 80, 140);
+  ctx.fillStyle = '#22c55e';
+  ctx.font = '32px Arial, sans-serif';
+  ctx.fillText('Zona de Socios BSF', 80, 186);
+
+  // Mes
+  ctx.fillStyle = '#64748b';
+  ctx.font = '28px Arial, sans-serif';
+  ctx.fillText(`Resultados de ${stats.mesLabel}`, 80, 268);
+
+  // Divider
+  ctx.fillStyle = 'rgba(34,197,94,0.25)';
+  ctx.fillRect(80, 290, 920, 2);
+
+  // Stats
+  const drawStat = (y: number, valor: string, label: string, color: string) => {
+    ctx.fillStyle = color;
+    ctx.font = 'bold 100px Arial, sans-serif';
+    ctx.fillText(valor, 80, y + 88);
+    ctx.fillStyle = '#94a3b8';
+    ctx.font = '30px Arial, sans-serif';
+    ctx.fillText(label, 80, y + 128);
+  };
+
+  drawStat(310, `${stats.kgMes.toFixed(1)} kg`, 'cosechados este mes', '#4ade80');
+  drawStat(490, `${stats.cosechasMes}`, 'cosechas registradas', '#22c55e');
+  drawStat(650, `${stats.lotesActivos}`, 'lotes activos', '#10b981');
+  if (stats.avgConv !== null) {
+    drawStat(810, `${stats.avgConv.toFixed(1)}%`, 'conversión promedio', '#f59e0b');
+  }
+
+  // Footer
+  ctx.fillStyle = 'rgba(34,197,94,0.08)';
+  ctx.fillRect(0, 960, 1080, 120);
+  ctx.fillStyle = '#475569';
+  ctx.font = '24px Arial, sans-serif';
+  ctx.fillText('prolarva-monitor.vercel.app', 80, 1012);
+  ctx.fillStyle = '#22c55e';
+  ctx.font = 'bold 24px Arial, sans-serif';
+  ctx.fillText('#ProLarva #BSF #AgriculturaCircular', 80, 1050);
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 1066, 1080, 14);
+
+  await new Promise<void>(resolve => {
+    canvas.toBlob(async (blob) => {
+      if (!blob) { resolve(); return; }
+      const mesSlug = stats.mesLabel.replace(/\s+/g, '-').toLowerCase();
+      const file = new File([blob], `prolarva-${mesSlug}.png`, { type: 'image/png' });
+      try {
+        if (navigator.share && navigator.canShare({ files: [file] })) {
+          await navigator.share({
+            title: `Mis resultados BSF — ${stats.mesLabel}`,
+            text: `Este mes cosecheé ${stats.kgMes.toFixed(1)} kg de larvas BSF 🪲 #ProLarva`,
+            files: [file],
+          });
+        } else {
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url; a.download = `prolarva-${mesSlug}.png`; a.click();
+          URL.revokeObjectURL(url);
+        }
+      } catch { /* user cancelled share */ }
+      resolve();
+    }, 'image/png');
+  });
+}
+
+// ─── SVG Charts ───────────────────────────────────────────────────────────────
+
+function BarChart({ data }: { data: { label: string; value: number }[] }) {
+  const max = Math.max(...data.map(d => d.value), 0.01);
+  const barW = 300 / data.length;
+  const pad = 4;
+  return (
+    <svg viewBox="0 0 300 100" style={{ width: '100%', height: 160 }} preserveAspectRatio="xMidYMid meet">
+      <defs>
+        <linearGradient id="bGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#4ade80" />
+          <stop offset="100%" stopColor="#16a34a" />
+        </linearGradient>
+      </defs>
+      {data.map((d, i) => {
+        const h = Math.max((d.value / max) * 65, d.value === 0 ? 0 : 2);
+        const x = i * barW + pad / 2;
+        const y = 75 - h;
+        return (
+          <g key={i}>
+            <rect x={x} y={d.value === 0 ? 74 : y} width={barW - pad} height={d.value === 0 ? 1 : h} rx="3" fill="url(#bGrad)" opacity={d.value === 0 ? 0.12 : 1} />
+            <text x={x + (barW - pad) / 2} y={86} textAnchor="middle" fontSize="8" fill="#64748b" fontFamily="sans-serif">{d.label}</text>
+            {d.value > 0 && (
+              <text x={x + (barW - pad) / 2} y={y - 4} textAnchor="middle" fontSize="7" fill="#4ade80" fontFamily="sans-serif" fontWeight="bold">
+                {d.value.toFixed(1)}
+              </text>
+            )}
+          </g>
+        );
+      })}
+      {/* Y-axis label */}
+      <text x="298" y="10" textAnchor="end" fontSize="7" fill="#334155" fontFamily="sans-serif">kg</text>
+    </svg>
+  );
+}
+
+function LineChart({ data, metaLine }: { data: { label: string; value: number }[]; metaLine?: number }) {
+  if (data.length === 0) return <EmptyState icon="📉" text="Registra cosechas con sustrato total para ver la evolución" />;
+  const W = 300, H = 90, padX = 20, padY = 12;
+  const plotW = W - padX * 2;
+  const plotH = H - padY * 2;
+  const max = Math.max(...data.map(d => d.value), metaLine ?? 0, 5);
+  const pts = data.map((d, i) => ({
+    x: padX + (data.length === 1 ? plotW / 2 : (i / (data.length - 1)) * plotW),
+    y: padY + plotH - (d.value / max) * plotH,
+  }));
+  const polyline = pts.map(p => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ');
+  const metaY = metaLine ? padY + plotH - (metaLine / max) * plotH : null;
+  return (
+    <svg viewBox={`0 0 ${W} ${H + 14}`} style={{ width: '100%', height: 140 }} preserveAspectRatio="xMidYMid meet">
+      {metaY !== null && (
+        <>
+          <line x1={padX} y1={metaY} x2={W - padX} y2={metaY} stroke="#f59e0b" strokeWidth="1.2" strokeDasharray="4,3" opacity="0.7" />
+          <text x={W - padX + 2} y={metaY + 4} fontSize="7" fill="#f59e0b" fontFamily="sans-serif">20%</text>
+        </>
+      )}
+      {pts.length > 1 && <polyline points={polyline} fill="none" stroke="#22c55e" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />}
+      {pts.map((p, i) => (
+        <g key={i}>
+          <circle cx={p.x} cy={p.y} r="3.5" fill="#0d1b2a" stroke="#4ade80" strokeWidth="2" />
+          <text x={p.x} y={H + 12} textAnchor="middle" fontSize="7" fill="#64748b" fontFamily="sans-serif">{data[i].label}</text>
+          <text x={p.x} y={p.y - 7} textAnchor="middle" fontSize="7.5" fill="#4ade80" fontFamily="sans-serif" fontWeight="bold">{data[i].value.toFixed(0)}%</text>
+        </g>
+      ))}
+    </svg>
+  );
+}
+
 // ─── Views ────────────────────────────────────────────────────────────────────
 
-type View = 'dashboard' | 'lotes' | 'lote-detail' | 'alimentacion' | 'cosecha' | 'guia' | 'admin' | 'perfil';
+type View = 'dashboard' | 'lotes' | 'lote-detail' | 'alimentacion' | 'cosecha' | 'guia' | 'admin' | 'perfil' | 'estadisticas';
 
 function Dashboard({ lotes, feeds, cosechas, activeLotes, readyLotes, recordatorios, totalKg, avgConv, userName, onViewLote, onNav }: {
   lotes: Lote[]; feeds: FeedLog[]; cosechas: Cosecha[];
@@ -1431,6 +1601,213 @@ function AdminView({ adminCode }: { adminCode: string }) {
   );
 }
 
+// ─── Estadísticas ────────────────────────────────────────────────────────────
+
+function EstadisticasView({ lotes, feeds, cosechas, totalKg, avgConv }: {
+  lotes: Lote[]; feeds: FeedLog[]; cosechas: Cosecha[];
+  totalKg: number; avgConv: number | null;
+}) {
+  const [sharing, setSharing] = useState(false);
+
+  const ahora = new Date();
+  const mesKey = `${ahora.getFullYear()}-${String(ahora.getMonth() + 1).padStart(2, '0')}`;
+  const mesLabel = ahora.toLocaleDateString('es-CO', { month: 'long', year: 'numeric' });
+
+  // Kg por mes (últimos 6)
+  const meses6 = Array.from({ length: 6 }, (_, i) => {
+    const d = new Date(ahora.getFullYear(), ahora.getMonth() - 5 + i, 1);
+    return {
+      key: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`,
+      label: d.toLocaleDateString('es-CO', { month: 'short' }).replace('.', '').slice(0, 3),
+    };
+  });
+  const kgPorMes = meses6.map(m => ({
+    label: m.label,
+    value: cosechas.filter(c => c.fecha.startsWith(m.key)).reduce((a, c) => a + c.peso, 0),
+  }));
+
+  // Conversión histórica (últimas 8 con sustrato)
+  const convData = cosechas
+    .filter(c => c.sustratoTotal > 0)
+    .sort((a, b) => a.fecha.localeCompare(b.fecha))
+    .slice(-8)
+    .map((c, i) => ({ label: `#${i + 1}`, value: (c.peso / c.sustratoTotal) * 100 }));
+
+  // Ranking de lotes por conversión
+  const ranking = lotes.map(l => {
+    const cs = cosechas.filter(c => c.loteId === l.id);
+    const csS = cs.filter(c => c.sustratoTotal > 0);
+    const kg = cs.reduce((a, c) => a + c.peso, 0);
+    const conv = csS.length ? csS.reduce((a, c) => a + (c.peso / c.sustratoTotal) * 100, 0) / csS.length : null;
+    return { ...l, kg, conv };
+  }).filter(l => l.kg > 0 || l.conv !== null)
+    .sort((a, b) => (b.conv ?? -1) - (a.conv ?? -1));
+
+  // Mejor sustrato
+  const sustrMap: Record<string, { t: number; n: number }> = {};
+  cosechas.filter(c => c.sustratoTotal > 0).forEach(c => {
+    const lote = lotes.find(l => l.id === c.loteId);
+    if (!lote?.tipoSustrato) return;
+    const s = lote.tipoSustrato;
+    if (!sustrMap[s]) sustrMap[s] = { t: 0, n: 0 };
+    sustrMap[s].t += (c.peso / c.sustratoTotal) * 100;
+    sustrMap[s].n++;
+  });
+  const mejorSustrato = Object.entries(sustrMap)
+    .map(([k, v]) => ({ sust: k, avg: v.t / v.n }))
+    .sort((a, b) => b.avg - a.avg)[0] ?? null;
+
+  // Stats del mes para compartir
+  const kgMes = cosechas.filter(c => c.fecha.startsWith(mesKey)).reduce((a, c) => a + c.peso, 0);
+  const cosechasMesN = cosechas.filter(c => c.fecha.startsWith(mesKey)).length;
+  const lotesActivos = lotes.filter(l => daysSince(l.fecha) <= 32).length;
+
+  const medalles = ['🥇', '🥈', '🥉'];
+
+  if (cosechas.length === 0 && lotes.length === 0) {
+    return (
+      <div>
+        <h1 style={{ fontSize: 20, fontWeight: 900, marginBottom: 24 }}>📊 Estadísticas</h1>
+        <EmptyState icon="📊" text="Registra tu primer lote y cosecha para ver tus estadísticas aquí" />
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ maxWidth: 640 }}>
+      <h1 style={{ fontSize: 20, fontWeight: 900, marginBottom: 24 }}>📊 Estadísticas</h1>
+
+      {/* Kg por mes */}
+      <div style={{ ...cardStyle, marginBottom: 16 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: S.text }}>🌿 Kg cosechados por mes</div>
+          <div style={{ fontSize: 11, color: S.muted }}>últimos 6 meses</div>
+        </div>
+        {cosechas.length === 0
+          ? <EmptyState icon="⚖️" text="Aún no tienes cosechas registradas" />
+          : <BarChart data={kgPorMes} />
+        }
+        {totalKg > 0 && (
+          <div style={{ fontSize: 12, color: S.muted, marginTop: 4, textAlign: 'right' }}>
+            Total acumulado: <strong style={{ color: S.green2 }}>{totalKg.toFixed(1)} kg</strong>
+          </div>
+        )}
+      </div>
+
+      {/* Conversión histórica */}
+      <div style={{ ...cardStyle, marginBottom: 16 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: S.text }}>📈 Tasa de conversión</div>
+          {avgConv !== null && (
+            <div style={{ fontSize: 11, color: S.amber, fontWeight: 700 }}>Prom: {avgConv.toFixed(1)}%</div>
+          )}
+        </div>
+        <LineChart data={convData} metaLine={20} />
+        <div style={{ fontSize: 11, color: S.muted, display: 'flex', gap: 16, marginTop: 6, flexWrap: 'wrap' }}>
+          <span><span style={{ color: '#f59e0b' }}>— — </span>Meta: 20%</span>
+          {avgConv !== null && (
+            <span>Tu promedio: <strong style={{ color: avgConv >= 20 ? S.green : S.amber }}>{avgConv.toFixed(1)}%</strong></span>
+          )}
+        </div>
+      </div>
+
+      {/* Ranking de lotes */}
+      {ranking.length > 0 && (
+        <div style={{ ...cardStyle, marginBottom: 16 }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: S.text, marginBottom: 14 }}>🏆 Ranking de lotes</div>
+          {ranking.slice(0, 5).map((l, i) => (
+            <div key={l.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 0', borderBottom: i < Math.min(ranking.length, 5) - 1 ? `1px solid ${S.border}` : 'none' }}>
+              <span style={{ fontSize: 20, flexShrink: 0, width: 28 }}>{medalles[i] ?? `${i + 1}.`}</span>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: 13, fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{l.nombre}</div>
+                <div style={{ fontSize: 11, color: S.muted, marginTop: 1 }}>
+                  {l.tipoSustrato && <span style={{ marginRight: 8 }}>🌿 {l.tipoSustrato}</span>}
+                  <span>⚖️ {l.kg.toFixed(1)} kg</span>
+                </div>
+              </div>
+              {l.conv !== null && (
+                <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                  <div style={{ fontSize: 17, fontWeight: 800, color: l.conv >= 20 ? S.green2 : l.conv >= 15 ? S.amber : S.red }}>{l.conv.toFixed(1)}%</div>
+                  <div style={{ fontSize: 9, color: S.muted }}>conversión</div>
+                </div>
+              )}
+            </div>
+          ))}
+          {mejorSustrato && (
+            <div style={{ marginTop: 14, padding: '10px 14px', background: 'rgba(34,197,94,0.08)', borderRadius: 8, border: '1px solid rgba(34,197,94,0.15)' }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: S.green2 }}>🌿 Mejor sustrato: {mejorSustrato.sust}</div>
+              <div style={{ fontSize: 11, color: S.muted, marginTop: 2 }}>
+                Conversión promedio: {mejorSustrato.avg.toFixed(1)}%
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Exportar CSV */}
+      <div style={{ ...cardStyle, marginBottom: 16 }}>
+        <div style={{ fontSize: 13, fontWeight: 700, color: S.text, marginBottom: 14 }}>📥 Exportar datos</div>
+        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+          <button
+            style={{ ...btnOutline, flex: 1, minWidth: 120, opacity: lotes.length === 0 ? 0.4 : 1 }}
+            disabled={lotes.length === 0}
+            onClick={() => {
+              const hdrs = ['Nombre', 'Fecha siembra', 'Objetivo', 'Sustrato inicial (kg)', 'Tipo sustrato', 'Larvas/huevos', 'Temperatura', 'Notas'];
+              const rows = lotes.map(l => [l.nombre, l.fecha, l.objetivo ?? 'cosechar', l.sustrato.toString(), l.tipoSustrato, l.huevos, l.temp?.toString() ?? '', l.notas]);
+              downloadCSV(rows, hdrs, `prolarva-lotes-${ahora.toISOString().slice(0, 10)}.csv`);
+            }}
+          >📦 Lotes</button>
+          <button
+            style={{ ...btnOutline, flex: 1, minWidth: 120, opacity: cosechas.length === 0 ? 0.4 : 1 }}
+            disabled={cosechas.length === 0}
+            onClick={() => {
+              const hdrs = ['Lote', 'Fecha cosecha', 'Peso (kg)', 'Sustrato total (kg)', 'Conversión (%)', 'Calidad', 'Notas'];
+              const rows = cosechas.map(c => {
+                const l = lotes.find(x => x.id === c.loteId);
+                const conv = c.sustratoTotal > 0 ? ((c.peso / c.sustratoTotal) * 100).toFixed(1) : '';
+                return [l?.nombre ?? c.loteId, c.fecha, c.peso.toString(), c.sustratoTotal.toString(), conv, c.calidad, c.notas];
+              });
+              downloadCSV(rows, hdrs, `prolarva-cosechas-${ahora.toISOString().slice(0, 10)}.csv`);
+            }}
+          >⚖️ Cosechas</button>
+          <button
+            style={{ ...btnOutline, flex: 1, minWidth: 120, opacity: feeds.length === 0 ? 0.4 : 1 }}
+            disabled={feeds.length === 0}
+            onClick={() => {
+              const hdrs = ['Lote', 'Fecha', 'Cantidad (kg)', 'Tipo sustrato', 'Rechazo', 'Notas'];
+              const rows = feeds.map(f => {
+                const l = lotes.find(x => x.id === f.loteId);
+                return [l?.nombre ?? f.loteId, f.fecha.slice(0, 10), f.cantidad.toString(), f.tipo, f.rechazo, f.notas];
+              });
+              downloadCSV(rows, hdrs, `prolarva-alimentacion-${ahora.toISOString().slice(0, 10)}.csv`);
+            }}
+          >🌿 Alimentación</button>
+        </div>
+      </div>
+
+      {/* Compartir resultados */}
+      <div style={{ ...cardStyle, marginBottom: 16 }}>
+        <div style={{ fontSize: 13, fontWeight: 700, color: S.text, marginBottom: 6 }}>📤 Compartir resultados del mes</div>
+        <p style={{ fontSize: 12, color: S.muted, lineHeight: 1.6, marginBottom: 14 }}>
+          Genera una imagen lista para WhatsApp o Instagram con tus estadísticas de {mesLabel}.
+          {kgMes === 0 && <span style={{ color: S.amber }}> (Aún no tienes cosechas este mes.)</span>}
+        </p>
+        <button
+          style={{ ...btnPrimary, width: '100%', opacity: sharing ? 0.6 : 1 }}
+          disabled={sharing}
+          onClick={async () => {
+            setSharing(true);
+            await generarImagenMes({ kgMes, cosechasMes: cosechasMesN, lotesActivos, avgConv, mesLabel });
+            setSharing(false);
+          }}
+        >
+          {sharing ? 'Generando imagen...' : `📤 Compartir ${mesLabel}`}
+        </button>
+      </div>
+    </div>
+  );
+}
+
 // ─── Perfil ───────────────────────────────────────────────────────────────────
 
 function PerfilView({
@@ -1461,13 +1838,61 @@ function PerfilView({
   const [passLoading,  setPassLoading]  = useState(false);
   const [passMsg,      setPassMsg]      = useState<{ ok: boolean; text: string } | null>(null);
 
+  const [notifStatus, setNotifStatus] = useState<'unsupported' | 'default' | 'granted' | 'denied'>('default');
+  const [notifLoading, setNotifLoading] = useState(false);
+
   const fileRef = useRef<HTMLInputElement>(null);
   const initials = session.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
 
   useEffect(() => {
     const saved = localStorage.getItem(`prl-avatar-${session.code}`);
     if (saved) setAvatar(saved);
+    if (!('Notification' in window) || !('serviceWorker' in navigator)) {
+      setNotifStatus('unsupported');
+    } else {
+      setNotifStatus(Notification.permission as 'default' | 'granted' | 'denied');
+    }
   }, [session.code]);
+
+  async function toggleNotifications() {
+    if (notifStatus === 'unsupported') return;
+    if (notifStatus === 'granted') {
+      // Cancelar subscripción
+      setNotifLoading(true);
+      const reg = await navigator.serviceWorker.ready;
+      const sub = await reg.pushManager.getSubscription();
+      if (sub) await sub.unsubscribe();
+      await fetch('/api/push/subscribe', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ socioCode: session.code }),
+      });
+      setNotifStatus('default');
+      setNotifLoading(false);
+      return;
+    }
+    setNotifLoading(true);
+    const perm = await Notification.requestPermission();
+    if (perm !== 'granted') { setNotifStatus(perm as 'denied'); setNotifLoading(false); return; }
+    try {
+      const reg = await navigator.serviceWorker.ready;
+      const vapidKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
+      if (!vapidKey) { setNotifStatus('granted'); setNotifLoading(false); return; }
+      const sub = await reg.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: vapidKey,
+      });
+      await fetch('/api/push/subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ socioCode: session.code, subscription: sub.toJSON() }),
+      });
+      setNotifStatus('granted');
+    } catch {
+      setNotifStatus('default');
+    }
+    setNotifLoading(false);
+  }
 
   async function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -1603,6 +2028,46 @@ function PerfilView({
         </button>
       </div>
 
+      {/* Notificaciones */}
+      <div style={{ ...cardStyle, marginBottom: 16 }}>
+        <div style={{ fontSize: 11, fontWeight: 700, color: S.muted, marginBottom: 14, letterSpacing: '0.06em', textTransform: 'uppercase' }}>Notificaciones push</div>
+        {notifStatus === 'unsupported' ? (
+          <div style={{ fontSize: 12, color: S.muted }}>Tu navegador no soporta notificaciones push.</div>
+        ) : notifStatus === 'denied' ? (
+          <div style={{ fontSize: 12, color: S.amber, lineHeight: 1.6 }}>
+            🚫 Bloqueaste las notificaciones. Para activarlas ve a la configuración de tu navegador y permite notificaciones para este sitio.
+          </div>
+        ) : (
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+            <div>
+              <div style={{ fontSize: 13, fontWeight: 600, color: S.text }}>
+                {notifStatus === 'granted' ? '🔔 Activadas' : '🔕 Desactivadas'}
+              </div>
+              <div style={{ fontSize: 11, color: S.muted, marginTop: 2 }}>
+                {notifStatus === 'granted'
+                  ? 'Recibirás alertas cuando tus lotes se acerquen a cosecha'
+                  : 'Actívalas para recibir alertas de cosecha en tu celular'}
+              </div>
+            </div>
+            <button
+              style={{
+                ...btnPrimary,
+                background: notifStatus === 'granted' ? 'rgba(148,163,184,0.15)' : undefined,
+                color: notifStatus === 'granted' ? S.muted : '#fff',
+                border: notifStatus === 'granted' ? `1px solid ${S.border}` : 'none',
+                opacity: notifLoading ? 0.6 : 1,
+                flexShrink: 0,
+                padding: '8px 16px',
+              }}
+              disabled={notifLoading}
+              onClick={toggleNotifications}
+            >
+              {notifLoading ? '...' : notifStatus === 'granted' ? 'Desactivar' : 'Activar'}
+            </button>
+          </div>
+        )}
+      </div>
+
       {/* Herramientas */}
       <div style={{ ...cardStyle, marginBottom: 16 }}>
         <div style={{ fontSize: 11, fontWeight: 700, color: S.muted, marginBottom: 14, letterSpacing: '0.06em', textTransform: 'uppercase' }}>Herramientas</div>
@@ -1630,8 +2095,9 @@ const TOUR_STEPS = [
   { targetId: 'nav-lotes',        title: '📦 Mis Lotes',    desc: 'Cada vez que siembras, creas un lote. La app calcula la etapa del ciclo automáticamente y te avisa cuándo es momento de cosechar.' },
   { targetId: 'nav-alimentacion', title: '🌿 Alimentación', desc: 'Registra qué y cuánto les das a tus larvas. Puedes ver el historial por lote con tipo de residuo y nivel de rechazo observado.' },
   { targetId: 'nav-cosecha',      title: '⚖️ Cosechas',    desc: 'Anota el peso de cada cosecha. La app calcula tu tasa de conversión para que midas qué tan eficiente estás siendo.' },
-  { targetId: 'nav-guia',         title: '📋 Guía Rápida', desc: 'Temperatura ideal, sustratos recomendados, ciclo de vida y conversión esperada — siempre disponible sin tener que buscar.' },
-  { targetId: 'nav-perfil',       title: '👤 Mi Perfil',   desc: 'Edita tu nombre, cambia tu foto, actualiza tu contraseña y revisa tus estadísticas de producción en un solo lugar.' },
+  { targetId: 'nav-guia',          title: '📋 Guía Rápida',   desc: 'Temperatura ideal, sustratos recomendados, ciclo de vida y conversión esperada — siempre disponible sin tener que buscar.' },
+  { targetId: 'nav-estadisticas', title: '📊 Estadísticas',  desc: 'Gráficas de producción, ranking de tus mejores lotes, qué sustrato te funciona mejor, y exporta tus datos a Excel.' },
+  { targetId: 'nav-perfil',       title: '👤 Mi Perfil',     desc: 'Edita tu nombre, cambia tu foto, actualiza tu contraseña y revisa tus estadísticas de producción en un solo lugar.' },
 ];
 
 function SpotlightTour({ step, onNext, onPrev, onDone }: {
@@ -1870,7 +2336,8 @@ function SociosInner() {
     { key: 'lotes',        icon: '📦', label: 'Mis Lotes' },
     { key: 'alimentacion', icon: '🌿', label: 'Alimentación' },
     { key: 'cosecha',      icon: '⚖️', label: 'Cosechas' },
-    { key: 'guia',         icon: '📋', label: 'Guía Rápida' },
+    { key: 'guia',          icon: '📋', label: 'Guía Rápida' },
+    { key: 'estadisticas', icon: '📊', label: 'Estadísticas' },
     { key: 'perfil',       icon: '👤', label: 'Mi Perfil' },
     ...(db.session.rol === 'admin' ? [{ key: 'admin' as View, icon: '🔑', label: 'Admin' }] : []),
   ];
@@ -1967,6 +2434,12 @@ function SociosInner() {
           <CosechaView cosechas={db.cosechas} lotes={db.lotes} totalKg={db.totalKg} avgConv={db.avgConv} onNewCosecha={() => { setModalCosecha(true); setTimeout(() => { if (cFecha.current) cFecha.current.value = todayLocal(); }, 10); }} />
         )}
         {view === 'guia'  && <GuiaView />}
+        {view === 'estadisticas' && (
+          <EstadisticasView
+            lotes={db.lotes} feeds={db.feeds} cosechas={db.cosechas}
+            totalKg={db.totalKg} avgConv={db.avgConv}
+          />
+        )}
         {view === 'perfil' && db.session && (
           <PerfilView
             session={db.session}

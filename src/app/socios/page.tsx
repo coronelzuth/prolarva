@@ -540,7 +540,7 @@ function LineChart({ data, metaLine }: { data: { label: string; value: number }[
 
 // ─── Views ────────────────────────────────────────────────────────────────────
 
-type View = 'dashboard' | 'lotes' | 'lote-detail' | 'alimentacion' | 'cosecha' | 'guia' | 'admin' | 'perfil' | 'estadisticas';
+type View = 'dashboard' | 'lotes' | 'lote-detail' | 'cosecha' | 'guia' | 'admin' | 'perfil' | 'estadisticas';
 
 function Dashboard({ lotes, feeds, cosechas, activeLotes, readyLotes, recordatorios, totalKg, avgConv, userName, onViewLote, onNav }: {
   lotes: Lote[]; feeds: FeedLog[]; cosechas: Cosecha[];
@@ -707,7 +707,7 @@ function Dashboard({ lotes, feeds, cosechas, activeLotes, readyLotes, recordator
         <div style={cardStyle}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
             <h3 style={{ fontSize: 13, fontWeight: 700 }}>Últimas alimentaciones</h3>
-            <button style={{ ...btnOutline, ...btnSm }} onClick={() => onNav('alimentacion')}>Ver todo</button>
+            <button style={{ ...btnOutline, ...btnSm }} onClick={() => onNav('lotes')}>Ver mis lotes</button>
           </div>
           {feeds.length === 0 ? (
             <EmptyState icon="🌿" text="Sin registros de alimentación" />
@@ -2093,7 +2093,6 @@ function PerfilView({
 const TOUR_STEPS = [
   { targetId: 'nav-dashboard',    title: '🏠 Resumen',      desc: 'Tu panel principal. Aquí aparecen alertas automáticas de cosecha, recordatorios activos y el estado general de tu producción en tiempo real.' },
   { targetId: 'nav-lotes',        title: '📦 Mis Lotes',    desc: 'Cada vez que siembras, creas un lote. La app calcula la etapa del ciclo automáticamente y te avisa cuándo es momento de cosechar.' },
-  { targetId: 'nav-alimentacion', title: '🌿 Alimentación', desc: 'Registra qué y cuánto les das a tus larvas. Puedes ver el historial por lote con tipo de residuo y nivel de rechazo observado.' },
   { targetId: 'nav-cosecha',      title: '⚖️ Cosechas',    desc: 'Anota el peso de cada cosecha. La app calcula tu tasa de conversión para que midas qué tan eficiente estás siendo.' },
   { targetId: 'nav-guia',          title: '📋 Guía Rápida',   desc: 'Temperatura ideal, sustratos recomendados, ciclo de vida y conversión esperada — siempre disponible sin tener que buscar.' },
   { targetId: 'nav-estadisticas', title: '📊 Estadísticas',  desc: 'Gráficas de producción, ranking de tus mejores lotes, qué sustrato te funciona mejor, y exporta tus datos a Excel.' },
@@ -2334,7 +2333,6 @@ function SociosInner() {
   const navItems: { key: View; icon: string; label: string }[] = [
     { key: 'dashboard',    icon: '🏠', label: 'Resumen' },
     { key: 'lotes',        icon: '📦', label: 'Mis Lotes' },
-    { key: 'alimentacion', icon: '🌿', label: 'Alimentación' },
     { key: 'cosecha',      icon: '⚖️', label: 'Cosechas' },
     { key: 'guia',          icon: '📋', label: 'Guía Rápida' },
     { key: 'estadisticas', icon: '📊', label: 'Estadísticas' },
@@ -2427,9 +2425,6 @@ function SociosInner() {
             onDeleteFoto={db.deleteFoto}
           />
         )}
-        {view === 'alimentacion' && (
-          <AlimentacionView feeds={db.feeds} lotes={db.lotes} onNewFeed={() => openFeed(null)} />
-        )}
         {view === 'cosecha' && (
           <CosechaView cosechas={db.cosechas} lotes={db.lotes} totalKg={db.totalKg} avgConv={db.avgConv} onNewCosecha={() => { setModalCosecha(true); setTimeout(() => { if (cFecha.current) cFecha.current.value = todayLocal(); }, 10); }} />
         )}
@@ -2467,7 +2462,7 @@ function SociosInner() {
         {navItems.map(item => {
           const active = activeView === item.key;
           const mobileLabel: Record<string, string> = {
-            dashboard: 'Inicio', lotes: 'Lotes', alimentacion: 'Alimento',
+            dashboard: 'Inicio', lotes: 'Lotes',
             cosecha: 'Cosecha', guia: 'Guía', estadisticas: 'Stats',
             perfil: 'Perfil', admin: 'Admin',
           };

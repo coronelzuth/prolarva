@@ -1,4 +1,4 @@
-const CACHE = 'prolarva-v2';
+const CACHE = 'prolarva-v3';
 const OFFLINE_URLS = ['/socios', '/manifest.json'];
 
 self.addEventListener('install', e => {

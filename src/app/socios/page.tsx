@@ -1854,17 +1854,21 @@ function PerfilView({
     } else {
       const perm = Notification.permission as 'default' | 'granted' | 'denied';
       setNotifStatus(perm);
-      // Si el permiso ya está concedido, re-sincronizar la suscripción con el servidor
+      // Si el permiso ya está concedido, verificar que haya suscripción push activa
       if (perm === 'granted') {
         navigator.serviceWorker.ready
           .then(reg => reg.pushManager.getSubscription())
           .then(sub => {
             if (sub) {
+              // Suscripción existe → re-sincronizar con el servidor
               fetch('/api/push/subscribe', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ socioCode: session.code, subscription: sub.toJSON() }),
               }).catch(() => {});
+            } else {
+              // Permiso concedido pero sin suscripción → resetear para que pueda activar de nuevo
+              setNotifStatus('default');
             }
           })
           .catch(() => {});

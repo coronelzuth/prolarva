@@ -2466,10 +2466,15 @@ function SociosInner() {
       <nav className="socios-mobile-nav">
         {navItems.map(item => {
           const active = activeView === item.key;
+          const mobileLabel: Record<string, string> = {
+            dashboard: 'Inicio', lotes: 'Lotes', alimentacion: 'Alimento',
+            cosecha: 'Cosecha', guia: 'Guía', estadisticas: 'Stats',
+            perfil: 'Perfil', admin: 'Admin',
+          };
           return (
             <div id={`m-nav-${item.key}`} key={item.key} onClick={() => navTo(item.key)} className={`socios-tab${active ? ' socios-tab-active' : ''}`}>
               <span style={{ fontSize: 20 }}>{item.icon}</span>
-              <span>{item.label}</span>
+              <span>{mobileLabel[item.key] ?? item.label}</span>
             </div>
           );
         })}
@@ -2500,14 +2505,19 @@ function SociosInner() {
             border-top: 1px solid rgba(34,197,94,0.25);
             z-index: 100;
             padding: 6px 0 max(10px, env(safe-area-inset-bottom));
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
           }
+          .socios-mobile-nav::-webkit-scrollbar { display: none; }
           .socios-tab {
-            flex: 1;
+            flex: 0 0 auto;
+            min-width: 56px;
             display: flex;
             flex-direction: column;
             align-items: center;
             gap: 2px;
-            padding: 4px 2px;
+            padding: 4px 6px;
             cursor: pointer;
             color: #64748b;
             font-family: Montserrat, sans-serif;

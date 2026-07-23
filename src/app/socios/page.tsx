@@ -2142,11 +2142,6 @@ function PerfilView({
             >
               {testLoading ? 'Enviando...' : '🔔 Enviar notificación de prueba'}
             </button>
-            {false && testMsg && (
-              <div style={{ fontSize: 12, marginTop: 8, color: testMsg.startsWith('✅') ? S.emerald : S.amber }}>
-                {testMsg}
-              </div>
-            )}
           </div>
         )}
       </div>

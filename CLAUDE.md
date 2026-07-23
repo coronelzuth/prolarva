@@ -322,6 +322,15 @@ a5cc857  feat: port calculadora BSF a React con paleta de la app
 | `recordatorios` | Recordatorios por lote (dia, titulo, completado) |
 | `fotos_lotes` | Fotos por lote en base64 JPEG comprimido |
 
+**Cambios recientes (2026-07-23):**
+- ✅ **Ojito en contraseña** — toggle show/hide en login y registro (ambos campos de contraseña)
+- ✅ **Spotlight tour de 5 pasos** — SVG overlay (55% opacidad) con máscara que deja el nav item visible y resaltado con borde verde; tooltip posicionado junto al elemento (derecha en desktop, arriba en móvil); dots de progreso, prev/next, "Saltar tour"
+- ✅ **Tour se pausa al explorar** — al tocar un nav item el tour se minimiza; chip flotante con "Ver guía / Siguiente → / ✕"
+- ✅ **Reset total de datos** — botón en sidebar desktop + mobile header; modal de confirmación; borra todo de Supabase y localStorage; reabre tour desde paso 1
+- ✅ `resetAllData()` en `useSocios.ts` — DELETE masivo por `socio_code`
+- ✅ IDs en nav items: `nav-{key}` (sidebar) y `m-nav-{key}` (mobile) para que el tour los encuentre en el DOM
+- Flag del tour: `prl-onboarding-done` en localStorage
+
 **Cambios recientes (2026-07-21 — sesión completa):**
 - ✅ **Fix crítico sync Supabase** — `useSocios` ya no sobreescribe localStorage con Supabase vacío; si Supabase está vacío y local tiene datos, los empuja automáticamente (recuperación)
 - ✅ **Upserts fijados** — `addLote`, `addFeed`, `addCosecha`, `updateLote`, `deleteLote` son `async`, salen del setState, y loguean errores en consola

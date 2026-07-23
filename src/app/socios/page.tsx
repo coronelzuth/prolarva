@@ -2128,6 +2128,11 @@ function PerfilView({
             </button>
           </div>
         )}
+        {testMsg && (
+          <div style={{ fontSize: 12, marginTop: 10, color: testMsg.startsWith('✅') ? S.emerald : S.amber, fontWeight: 600 }}>
+            {testMsg}
+          </div>
+        )}
         {notifStatus === 'granted' && (
           <div style={{ marginTop: 10 }}>
             <button
@@ -2137,7 +2142,7 @@ function PerfilView({
             >
               {testLoading ? 'Enviando...' : '🔔 Enviar notificación de prueba'}
             </button>
-            {testMsg && (
+            {false && testMsg && (
               <div style={{ fontSize: 12, marginTop: 8, color: testMsg.startsWith('✅') ? S.emerald : S.amber }}>
                 {testMsg}
               </div>

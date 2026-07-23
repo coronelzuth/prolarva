@@ -1852,7 +1852,23 @@ function PerfilView({
     if (!('Notification' in window) || !('serviceWorker' in navigator)) {
       setNotifStatus('unsupported');
     } else {
-      setNotifStatus(Notification.permission as 'default' | 'granted' | 'denied');
+      const perm = Notification.permission as 'default' | 'granted' | 'denied';
+      setNotifStatus(perm);
+      // Si el permiso ya está concedido, re-sincronizar la suscripción con el servidor
+      if (perm === 'granted') {
+        navigator.serviceWorker.ready
+          .then(reg => reg.pushManager.getSubscription())
+          .then(sub => {
+            if (sub) {
+              fetch('/api/push/subscribe', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ socioCode: session.code, subscription: sub.toJSON() }),
+              }).catch(() => {});
+            }
+          })
+          .catch(() => {});
+      }
     }
   }, [session.code]);
 

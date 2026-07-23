@@ -2505,24 +2505,21 @@ function SociosInner() {
             border-top: 1px solid rgba(34,197,94,0.25);
             z-index: 100;
             padding: 6px 0 max(10px, env(safe-area-inset-bottom));
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-            scrollbar-width: none;
           }
-          .socios-mobile-nav::-webkit-scrollbar { display: none; }
           .socios-tab {
-            flex: 0 0 auto;
-            min-width: 56px;
+            flex: 1;
+            min-width: 0;
             display: flex;
             flex-direction: column;
             align-items: center;
             gap: 2px;
-            padding: 4px 6px;
+            padding: 4px 2px;
             cursor: pointer;
             color: #64748b;
             font-family: Montserrat, sans-serif;
           }
-          .socios-tab span:last-child { font-size: 9px; font-weight: 700; text-align: center; line-height: 1.2; }
+          .socios-tab span:first-child { font-size: 18px; line-height: 1; }
+          .socios-tab span:last-child { font-size: 8px; font-weight: 700; text-align: center; line-height: 1.2; white-space: nowrap; }
           .socios-tab-active { color: #4ade80 !important; }
         }
       `}</style>

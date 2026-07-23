@@ -322,7 +322,27 @@ a5cc857  feat: port calculadora BSF a React con paleta de la app
 | `recordatorios` | Recordatorios por lote (dia, titulo, completado) |
 | `fotos_lotes` | Fotos por lote en base64 JPEG comprimido |
 
-**Cambios recientes (2026-07-23):**
+**Cambios recientes (2026-07-23 — sesión 2):**
+- ✅ **Vista Perfil** — avatar (localStorage `prl-avatar-{code}`), estadísticas del socio, editar nombre (API update-profile → Supabase), cambiar contraseña (API change-password + bcrypt), relanzar tour, limpiar datos
+- ✅ **Vista Estadísticas** — gráficas SVG puras (kg/mes barras + conversión línea con meta 20%), ranking de lotes por conversión, mejor sustrato automático, exportar CSV (lotes/cosechas/alimentación), compartir imagen del mes (Canvas API 1080×1080 + Web Share API con fallback descarga)
+- ✅ **PWA instalable** — `public/manifest.json` (start_url: /socios, theme: #22c55e), `public/sw.js` (service worker network-first + offline fallback), íconos 192/512, meta tags en layout.tsx, registro automático del SW
+- ✅ **Notificaciones push** — service worker maneja push events + click; API `/api/push/subscribe` (suscribir/cancelar por socio_code); API `/api/push/notify` (alertas por día del ciclo: D7/D14/D21/D22/D25); Vercel cron diario 10am Colombia (15:00 UTC); toggle en Perfil con estado visual
+- ✅ **Tour actualizado** — 7 pasos ahora incluyen Estadísticas (nav-estadisticas) y Perfil (nav-perfil)
+- ✅ Nuevas API routes: `/api/socios/update-profile`, `/api/socios/change-password`, `/api/push/subscribe`, `/api/push/notify`
+- ✅ `updateName()` en `useSocios.ts` — actualiza Supabase + session localStorage
+- ✅ Nav: sidebar y mobile bottom bar con 7 items (+ Estadísticas + Perfil)
+- ✅ Mobile header y sidebar footer: avatar clickeable → va a Perfil (reset quitado de header)
+
+**Tabla Supabase nueva (2026-07-23):**
+- `push_subscriptions` — endpoint, auth, p256dh por socio_code (con RLS)
+
+**Variables de entorno nuevas (Vercel):**
+- `VAPID_PUBLIC_KEY` — clave pública VAPID para firmar push
+- `NEXT_PUBLIC_VAPID_PUBLIC_KEY` — misma clave, expuesta al navegador para subscribe
+- `VAPID_PRIVATE_KEY` — clave privada VAPID (secreta)
+- `VAPID_SUBJECT` — mailto: de contacto para servidores push
+
+**Cambios recientes (2026-07-23 — sesión 1):**
 - ✅ **Ojito en contraseña** — toggle show/hide en login y registro (ambos campos de contraseña)
 - ✅ **Spotlight tour de 5 pasos** — SVG overlay (55% opacidad) con máscara que deja el nav item visible y resaltado con borde verde; tooltip posicionado junto al elemento (derecha en desktop, arriba en móvil); dots de progreso, prev/next, "Saltar tour"
 - ✅ **Tour se pausa al explorar** — al tocar un nav item el tour se minimiza; chip flotante con "Ver guía / Siguiente → / ✕"
@@ -362,11 +382,11 @@ a5cc857  feat: port calculadora BSF a React con paleta de la app
 - Login: por email o código de socio ✅
 
 **Próxima sesión — pendientes:**
-1. **Exportar datos** — CSV/Excel de lotes y cosechas por socio
-2. **Recuperar contraseña** — email reset para socios
-3. **Panel de ventas** — registro de ventas de larva/harina por socio (idea de Juliana, definir alcance)
-4. **Exportar leads en CSV** — datos ya en Supabase, falta UI
-5. **Fotos reales educativas** — agregar fotos en `data/stages.ts` para las etapas BSF
+1. **Panel de ventas** — registro de ventas de larva/harina por socio (definir alcance)
+2. **Recuperar contraseña** — email reset para socios (Resend o similar)
+3. **Exportar leads en CSV** — datos ya en Supabase, falta UI
+4. **Fotos reales educativas** — agregar fotos en `data/stages.ts` (Juliana debe proveer archivos)
+5. **Notificaciones push — probar** — una vez configuradas las VAPID keys en Vercel + tabla push_subscriptions en Supabase
 
 **Cómo arrancar una sesión nueva:**
 1. Abre Claude Code desde la carpeta canónica de arriba

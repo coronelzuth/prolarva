@@ -1492,11 +1492,11 @@ function SpotlightTour({ step, onNext, onPrev, onDone }: {
                 <rect x={rect.left - pad} y={rect.top - pad} width={rect.width + pad * 2} height={rect.height + pad * 2} rx="10" fill="black" />
               </mask>
             </defs>
-            <rect width="100%" height="100%" fill="rgba(0,0,0,0.82)" mask="url(#tour-spot)" />
+            <rect width="100%" height="100%" fill="rgba(0,0,0,0.55)" mask="url(#tour-spot)" />
             <rect x={rect.left - pad} y={rect.top - pad} width={rect.width + pad * 2} height={rect.height + pad * 2} rx="10" fill="none" stroke="#22c55e" strokeWidth="2.5" />
           </>
         ) : (
-          <rect width="100%" height="100%" fill="rgba(0,0,0,0.82)" />
+          <rect width="100%" height="100%" fill="rgba(0,0,0,0.55)" />
         )}
       </svg>
       <div style={{ position: 'fixed', zIndex: 700, width: 300, background: '#152035', border: '1.5px solid rgba(34,197,94,0.4)', borderRadius: 16, padding: '18px 20px', boxShadow: '0 8px 40px rgba(0,0,0,0.6)', fontFamily: 'Montserrat, sans-serif', ...tip }}>
@@ -1536,6 +1536,7 @@ function SociosInner() {
   const [detailLoteId, setDetailLoteId] = useState<string | null>(null);
   const [showOnboarding,   setShowOnboarding]   = useState(false);
   const [onboardingStep,   setOnboardingStep]   = useState(0);
+  const [tourMinimized,    setTourMinimized]    = useState(false);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [resetting,        setResetting]        = useState(false);
 
@@ -1588,7 +1589,7 @@ function SociosInner() {
 
   const detailLote = detailLoteId ? db.lotes.find(l => l.id === detailLoteId) ?? null : null;
 
-  function navTo(v: View) { setView(v); }
+  function navTo(v: View) { setView(v); if (showOnboarding) setTourMinimized(true); }
   function viewLote(id: string) { setDetailLoteId(id); setView('lote-detail'); }
   function openFeed(loteId: string | null) { setPrefillLoteId(loteId); setModalFeed(true); }
 
@@ -1716,7 +1717,10 @@ function SociosInner() {
         {/* Mobile only: user + logout bar */}
         <div className="socios-mobile-header">
           <span style={{ fontSize: 13, fontWeight: 700, color: S.text }}>👤 {db.session.name}</span>
-          <button onClick={db.logout} style={{ ...btnOutline, fontSize: 11, padding: '4px 12px' }}>Salir</button>
+          <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+            <button onClick={() => setShowResetConfirm(true)} style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)', color: '#ef4444', borderRadius: 6, fontSize: 11, padding: '4px 10px', cursor: 'pointer', fontFamily: 'Montserrat, sans-serif', fontWeight: 700 }}>🗑️ Reset</button>
+            <button onClick={db.logout} style={{ ...btnOutline, fontSize: 11, padding: '4px 12px' }}>Salir</button>
+          </div>
         </div>
         {view === 'dashboard' && (
           <Dashboard
@@ -1896,13 +1900,24 @@ function SociosInner() {
       </Modal>
 
       {/* Spotlight tour */}
-      {showOnboarding && (
+      {showOnboarding && !tourMinimized && (
         <SpotlightTour
           step={onboardingStep}
           onNext={() => setOnboardingStep(s => s + 1)}
           onPrev={() => setOnboardingStep(s => s - 1)}
-          onDone={() => { localStorage.setItem('prl-onboarding-done', '1'); setShowOnboarding(false); setOnboardingStep(0); }}
+          onDone={() => { localStorage.setItem('prl-onboarding-done', '1'); setShowOnboarding(false); setOnboardingStep(0); setTourMinimized(false); }}
         />
+      )}
+      {showOnboarding && tourMinimized && (
+        <div style={{ position: 'fixed', bottom: 90, left: '50%', transform: 'translateX(-50%)', zIndex: 700, background: '#152035', border: '1.5px solid rgba(34,197,94,0.35)', borderRadius: 50, padding: '10px 16px', display: 'flex', gap: 10, alignItems: 'center', boxShadow: '0 4px 24px rgba(0,0,0,0.5)', fontFamily: 'Montserrat, sans-serif', whiteSpace: 'nowrap' }}>
+          <span style={{ fontSize: 12, color: S.muted }}>🪲 Explorando · Paso {onboardingStep + 1}/{TOUR_STEPS.length}</span>
+          <button style={{ ...btnPrimary, ...btnSm }} onClick={() => setTourMinimized(false)}>Ver guía</button>
+          {onboardingStep < TOUR_STEPS.length - 1
+            ? <button style={{ ...btnPrimary, ...btnSm }} onClick={() => { setOnboardingStep(s => s + 1); setTourMinimized(false); }}>Siguiente →</button>
+            : <button style={{ ...btnPrimary, ...btnSm }} onClick={() => { localStorage.setItem('prl-onboarding-done', '1'); setShowOnboarding(false); setOnboardingStep(0); setTourMinimized(false); }}>¡Listo! 🚀</button>
+          }
+          <button onClick={() => { localStorage.setItem('prl-onboarding-done', '1'); setShowOnboarding(false); setOnboardingStep(0); setTourMinimized(false); }} style={{ background: 'none', border: 'none', color: S.muted, fontSize: 14, cursor: 'pointer', padding: '0 2px' }}>✕</button>
+        </div>
       )}
 
       {/* Modal: Confirmar reset de datos */}

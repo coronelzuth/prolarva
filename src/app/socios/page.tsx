@@ -1430,30 +1430,100 @@ function AdminView({ adminCode }: { adminCode: string }) {
   );
 }
 
-// ─── Onboarding steps ────────────────────────────────────────────────────────
+// ─── Spotlight tour ───────────────────────────────────────────────────────────
 
-const ONBOARDING_STEPS = [
-  {
-    icon: '🪲',
-    title: '¡Bienvenido a tu zona ProLarva!',
-    desc: 'Aquí llevas el control completo de tu producción BSF: lotes, alimentación, cosechas y más. Todo se guarda en la nube, disponible desde cualquier dispositivo.',
-  },
-  {
-    icon: '📦',
-    title: 'Crea tus Lotes',
-    desc: 'Cada vez que siembras, registra un lote. La app calcula la etapa del ciclo automáticamente y te avisa con una alerta cuando sea momento de cosechar.',
-  },
-  {
-    icon: '🌿',
-    title: 'Alimentación y Cosechas',
-    desc: 'Registra qué y cuánto les das a las larvas. Al cosechar, la app calcula tu tasa de conversión para que veas qué tan eficiente estás siendo.',
-  },
-  {
-    icon: '🏠',
-    title: 'Dashboard con alertas',
-    desc: 'El Resumen te muestra notificaciones automáticas: lotes listos para cosechar, recordatorios por día del ciclo y el estado general de tu producción.',
-  },
+const TOUR_STEPS = [
+  { targetId: 'nav-dashboard',    title: '🏠 Resumen',      desc: 'Tu panel principal. Aquí aparecen alertas automáticas de cosecha, recordatorios activos y el estado general de tu producción en tiempo real.' },
+  { targetId: 'nav-lotes',        title: '📦 Mis Lotes',    desc: 'Cada vez que siembras, creas un lote. La app calcula la etapa del ciclo automáticamente y te avisa cuándo es momento de cosechar.' },
+  { targetId: 'nav-alimentacion', title: '🌿 Alimentación', desc: 'Registra qué y cuánto les das a tus larvas. Puedes ver el historial por lote con tipo de residuo y nivel de rechazo observado.' },
+  { targetId: 'nav-cosecha',      title: '⚖️ Cosechas',    desc: 'Anota el peso de cada cosecha. La app calcula tu tasa de conversión para que midas qué tan eficiente estás siendo.' },
+  { targetId: 'nav-guia',         title: '📋 Guía Rápida', desc: 'Temperatura ideal, sustratos recomendados, ciclo de vida y conversión esperada — siempre disponible sin tener que buscar.' },
 ];
+
+function SpotlightTour({ step, onNext, onPrev, onDone }: {
+  step: number; onNext: () => void; onPrev: () => void; onDone: () => void;
+}) {
+  const [rect, setRect] = useState<DOMRect | null>(null);
+  const [vpW,  setVpW]  = useState(0);
+  const [vpH,  setVpH]  = useState(0);
+  const current = TOUR_STEPS[step];
+  const pad = 10;
+
+  useEffect(() => {
+    function measure() {
+      setVpW(window.innerWidth); setVpH(window.innerHeight);
+      for (const sid of [current.targetId, 'm-' + current.targetId]) {
+        const el = document.getElementById(sid);
+        if (el) {
+          const r = el.getBoundingClientRect();
+          if (r.width > 0 && r.height > 0) { setRect(r); return; }
+        }
+      }
+      setRect(null);
+    }
+    measure();
+    window.addEventListener('resize', measure);
+    return () => window.removeEventListener('resize', measure);
+  }, [step, current.targetId]);
+
+  let tip: React.CSSProperties = { left: '50%', top: '50%', transform: 'translate(-50%,-50%)' };
+  if (rect) {
+    const canRight = rect.right + 316 < vpW;
+    const isBottom = rect.top > vpH * 0.6;
+    if (canRight) {
+      tip = { left: rect.right + 16, top: Math.max(12, Math.min(rect.top + rect.height / 2, vpH - 280)), transform: 'translateY(-50%)' };
+    } else if (isBottom) {
+      const l = Math.min(Math.max(rect.left + rect.width / 2 - 150, 12), vpW - 316);
+      tip = { left: l, bottom: vpH - rect.top + 14 };
+    } else {
+      const l = Math.min(Math.max(rect.left + rect.width / 2 - 150, 12), vpW - 316);
+      tip = { left: l, top: rect.bottom + 14 };
+    }
+  }
+
+  return (
+    <>
+      <svg style={{ position: 'fixed', inset: 0, zIndex: 699, width: '100%', height: '100%', pointerEvents: 'none' }}>
+        {rect ? (
+          <>
+            <defs>
+              <mask id="tour-spot">
+                <rect width="100%" height="100%" fill="white" />
+                <rect x={rect.left - pad} y={rect.top - pad} width={rect.width + pad * 2} height={rect.height + pad * 2} rx="10" fill="black" />
+              </mask>
+            </defs>
+            <rect width="100%" height="100%" fill="rgba(0,0,0,0.82)" mask="url(#tour-spot)" />
+            <rect x={rect.left - pad} y={rect.top - pad} width={rect.width + pad * 2} height={rect.height + pad * 2} rx="10" fill="none" stroke="#22c55e" strokeWidth="2.5" />
+          </>
+        ) : (
+          <rect width="100%" height="100%" fill="rgba(0,0,0,0.82)" />
+        )}
+      </svg>
+      <div style={{ position: 'fixed', zIndex: 700, width: 300, background: '#152035', border: '1.5px solid rgba(34,197,94,0.4)', borderRadius: 16, padding: '18px 20px', boxShadow: '0 8px 40px rgba(0,0,0,0.6)', fontFamily: 'Montserrat, sans-serif', ...tip }}>
+        <div style={{ fontSize: 10, fontWeight: 700, color: S.muted, letterSpacing: '0.08em', marginBottom: 8, textTransform: 'uppercase' }}>
+          Paso {step + 1} de {TOUR_STEPS.length}
+        </div>
+        <h3 style={{ fontSize: 15, fontWeight: 900, color: S.text, marginBottom: 8 }}>{current.title}</h3>
+        <p style={{ fontSize: 13, color: S.muted, lineHeight: 1.6, marginBottom: 10 }}>{current.desc}</p>
+        <div style={{ fontSize: 11, color: S.emerald, fontWeight: 600, marginBottom: 14 }}>✨ Toca el elemento resaltado para probarlo</div>
+        <div style={{ display: 'flex', gap: 5, marginBottom: 14 }}>
+          {TOUR_STEPS.map((_, i) => (
+            <div key={i} style={{ width: 7, height: 7, borderRadius: '50%', background: i === step ? S.green : S.border, transition: 'background 0.2s' }} />
+          ))}
+        </div>
+        <div style={{ display: 'flex', gap: 8 }}>
+          {step > 0 && <button style={{ ...btnOutline, ...btnSm }} onClick={onPrev}>← Atrás</button>}
+          {step < TOUR_STEPS.length - 1
+            ? <button style={{ ...btnPrimary, ...btnSm, flex: 1 }} onClick={onNext}>Siguiente →</button>
+            : <button style={{ ...btnPrimary, ...btnSm, flex: 1 }} onClick={onDone}>¡Comenzar! 🚀</button>}
+        </div>
+        <button onClick={onDone} style={{ marginTop: 10, background: 'none', border: 'none', color: S.muted, fontSize: 10, cursor: 'pointer', fontFamily: 'Montserrat, sans-serif', width: '100%', textAlign: 'center', textDecoration: 'underline' }}>
+          Saltar tour
+        </button>
+      </div>
+    </>
+  );
+}
 
 // ─── Main page ────────────────────────────────────────────────────────────────
 
@@ -1611,7 +1681,7 @@ function SociosInner() {
           {navItems.map(item => {
             const active = activeView === item.key;
             return (
-              <div key={item.key} onClick={() => navTo(item.key)} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '9px 18px', cursor: 'pointer', fontSize: 13, fontWeight: 600, color: active ? S.green2 : S.muted, background: active ? 'rgba(34,197,94,0.1)' : 'transparent', borderRadius: active ? 8 : 0, transition: 'all 0.15s' }}>
+              <div id={`nav-${item.key}`} key={item.key} onClick={() => navTo(item.key)} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '9px 18px', cursor: 'pointer', fontSize: 13, fontWeight: 600, color: active ? S.green2 : S.muted, background: active ? 'rgba(34,197,94,0.1)' : 'transparent', borderRadius: active ? 8 : 0, transition: 'all 0.15s' }}>
                 <span>{item.icon}</span>
                 <span>{item.label}</span>
               </div>
@@ -1695,7 +1765,7 @@ function SociosInner() {
         {navItems.map(item => {
           const active = activeView === item.key;
           return (
-            <div key={item.key} onClick={() => navTo(item.key)} className={`socios-tab${active ? ' socios-tab-active' : ''}`}>
+            <div id={`m-nav-${item.key}`} key={item.key} onClick={() => navTo(item.key)} className={`socios-tab${active ? ' socios-tab-active' : ''}`}>
               <span style={{ fontSize: 20 }}>{item.icon}</span>
               <span>{item.label}</span>
             </div>
@@ -1825,35 +1895,14 @@ function SociosInner() {
         </div>
       </Modal>
 
-      {/* Modal: Onboarding */}
+      {/* Spotlight tour */}
       {showOnboarding && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.88)', zIndex: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1.5rem' }}>
-          <div style={{ background: '#152035', border: `1px solid rgba(34,197,94,0.3)`, borderRadius: 20, padding: '2.5rem 2rem', width: '100%', maxWidth: 440, textAlign: 'center' }}>
-            <div style={{ fontSize: 60, marginBottom: 14, lineHeight: 1 }}>{ONBOARDING_STEPS[onboardingStep].icon}</div>
-            <h2 style={{ fontSize: 20, fontWeight: 900, marginBottom: 10, color: S.text }}>{ONBOARDING_STEPS[onboardingStep].title}</h2>
-            <p style={{ fontSize: 14, color: S.muted, lineHeight: 1.65, marginBottom: 28 }}>{ONBOARDING_STEPS[onboardingStep].desc}</p>
-            <div style={{ display: 'flex', justifyContent: 'center', gap: 6, marginBottom: 28 }}>
-              {ONBOARDING_STEPS.map((_, i) => (
-                <div key={i} style={{ width: 8, height: 8, borderRadius: '50%', background: i === onboardingStep ? S.green : S.border, transition: 'background 0.2s' }} />
-              ))}
-            </div>
-            <div style={{ display: 'flex', gap: 10, justifyContent: 'center' }}>
-              {onboardingStep > 0 && (
-                <button style={btnOutline} onClick={() => setOnboardingStep(s => s - 1)}>← Atrás</button>
-              )}
-              {onboardingStep < ONBOARDING_STEPS.length - 1 ? (
-                <button style={btnPrimary} onClick={() => setOnboardingStep(s => s + 1)}>Siguiente →</button>
-              ) : (
-                <button style={{ ...btnPrimary, padding: '10px 28px' }} onClick={() => { localStorage.setItem('prl-onboarding-done', '1'); setShowOnboarding(false); setOnboardingStep(0); }}>
-                  ¡Comenzar! 🚀
-                </button>
-              )}
-            </div>
-            <button onClick={() => { localStorage.setItem('prl-onboarding-done', '1'); setShowOnboarding(false); setOnboardingStep(0); }} style={{ marginTop: 18, background: 'none', border: 'none', color: S.muted, fontSize: 11, cursor: 'pointer', fontFamily: 'Montserrat, sans-serif', textDecoration: 'underline' }}>
-              Saltar tutorial
-            </button>
-          </div>
-        </div>
+        <SpotlightTour
+          step={onboardingStep}
+          onNext={() => setOnboardingStep(s => s + 1)}
+          onPrev={() => setOnboardingStep(s => s - 1)}
+          onDone={() => { localStorage.setItem('prl-onboarding-done', '1'); setShowOnboarding(false); setOnboardingStep(0); }}
+        />
       )}
 
       {/* Modal: Confirmar reset de datos */}

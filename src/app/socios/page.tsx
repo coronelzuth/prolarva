@@ -12,6 +12,7 @@ import {
   type Cosecha,
   type Recordatorio,
   type Foto,
+  type SocioSession,
 } from '@/hooks/useSocios';
 
 // ─── Compresión de imagen cliente ────────────────────────────────────────────
@@ -369,7 +370,7 @@ function MiniCalendar({ lote }: { lote: Lote }) {
 
 // ─── Views ────────────────────────────────────────────────────────────────────
 
-type View = 'dashboard' | 'lotes' | 'lote-detail' | 'alimentacion' | 'cosecha' | 'guia' | 'admin';
+type View = 'dashboard' | 'lotes' | 'lote-detail' | 'alimentacion' | 'cosecha' | 'guia' | 'admin' | 'perfil';
 
 function Dashboard({ lotes, feeds, cosechas, activeLotes, readyLotes, recordatorios, totalKg, avgConv, userName, onViewLote, onNav }: {
   lotes: Lote[]; feeds: FeedLog[]; cosechas: Cosecha[];
@@ -1430,6 +1431,198 @@ function AdminView({ adminCode }: { adminCode: string }) {
   );
 }
 
+// ─── Perfil ───────────────────────────────────────────────────────────────────
+
+function PerfilView({
+  session, lotes, feeds, cosechas, totalKg,
+  onUpdateName, onChangePassword, onLaunchTour, onReset,
+}: {
+  session: SocioSession;
+  lotes: Lote[];
+  feeds: FeedLog[];
+  cosechas: Cosecha[];
+  totalKg: number;
+  onUpdateName: (nombre: string) => Promise<boolean>;
+  onChangePassword: (current: string, nueva: string) => Promise<{ ok: boolean; error?: string }>;
+  onLaunchTour: () => void;
+  onReset: () => void;
+}) {
+  const [avatar,       setAvatar]       = useState<string | null>(null);
+  const [nombre,       setNombre]       = useState(session.name);
+  const [nombreSaving, setNombreSaving] = useState(false);
+  const [nombreOk,     setNombreOk]     = useState(false);
+
+  const [showCurPass,     setShowCurPass]     = useState(false);
+  const [showNewPass,     setShowNewPass]     = useState(false);
+  const [showConfirmPass, setShowConfirmPass] = useState(false);
+  const [currentPass,  setCurrentPass]  = useState('');
+  const [newPass,      setNewPass]      = useState('');
+  const [confirmPass,  setConfirmPass]  = useState('');
+  const [passLoading,  setPassLoading]  = useState(false);
+  const [passMsg,      setPassMsg]      = useState<{ ok: boolean; text: string } | null>(null);
+
+  const fileRef = useRef<HTMLInputElement>(null);
+  const initials = session.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
+
+  useEffect(() => {
+    const saved = localStorage.getItem(`prl-avatar-${session.code}`);
+    if (saved) setAvatar(saved);
+  }, [session.code]);
+
+  async function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const compressed = await comprimirImagen(file);
+    setAvatar(compressed);
+    localStorage.setItem(`prl-avatar-${session.code}`, compressed);
+  }
+
+  async function handleSaveName() {
+    if (!nombre.trim() || nombre.trim() === session.name) return;
+    setNombreSaving(true);
+    const ok = await onUpdateName(nombre.trim());
+    setNombreSaving(false);
+    if (ok) { setNombreOk(true); setTimeout(() => setNombreOk(false), 2500); }
+  }
+
+  async function handleChangePass() {
+    setPassMsg(null);
+    if (!currentPass || !newPass || !confirmPass) { setPassMsg({ ok: false, text: 'Completa todos los campos.' }); return; }
+    if (newPass !== confirmPass) { setPassMsg({ ok: false, text: 'Las contraseñas nuevas no coinciden.' }); return; }
+    if (newPass.length < 6) { setPassMsg({ ok: false, text: 'Mínimo 6 caracteres.' }); return; }
+    setPassLoading(true);
+    const result = await onChangePassword(currentPass, newPass);
+    setPassLoading(false);
+    if (result.ok) {
+      setPassMsg({ ok: true, text: '✅ Contraseña actualizada correctamente.' });
+      setCurrentPass(''); setNewPass(''); setConfirmPass('');
+    } else {
+      setPassMsg({ ok: false, text: result.error ?? 'Error al cambiar la contraseña.' });
+    }
+  }
+
+  const eyeBtn = (show: boolean, toggle: () => void): React.CSSProperties => ({
+    position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)',
+    background: 'none', border: 'none', cursor: 'pointer', color: S.muted,
+    fontSize: 16, padding: '2px', lineHeight: 1,
+  });
+
+  return (
+    <div style={{ maxWidth: 520 }}>
+      <h1 style={{ fontSize: 20, fontWeight: 900, marginBottom: 24 }}>👤 Mi Perfil</h1>
+
+      {/* Avatar + info */}
+      <div style={{ ...cardStyle, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 18 }}>
+        <div style={{ position: 'relative', flexShrink: 0 }}>
+          {avatar
+            ? <img src={avatar} alt="avatar" style={{ width: 72, height: 72, borderRadius: '50%', objectFit: 'cover', border: '2.5px solid rgba(34,197,94,0.4)' }} />
+            : <div style={{ width: 72, height: 72, borderRadius: '50%', background: 'linear-gradient(135deg,#22c55e,#16a34a)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, color: '#fff', fontSize: 26 }}>{initials}</div>
+          }
+          <button
+            type="button"
+            onClick={() => fileRef.current?.click()}
+            title="Cambiar foto"
+            style={{ position: 'absolute', bottom: 0, right: 0, background: S.navy, border: `1.5px solid ${S.border}`, borderRadius: '50%', width: 24, height: 24, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: 11 }}
+          >✏️</button>
+          <input ref={fileRef} type="file" accept="image/*" capture="user" style={{ display: 'none' }} onChange={handleAvatarChange} />
+        </div>
+        <div>
+          <div style={{ fontSize: 15, fontWeight: 800, color: S.text }}>{session.name}</div>
+          <div style={{ fontSize: 11, color: S.muted, marginTop: 2 }}>Código: {session.code}</div>
+          <div style={{ fontSize: 11, color: S.emerald, fontWeight: 700, marginTop: 6 }}>
+            {session.rol === 'admin' ? '🔑 Administrador' : '🪲 Socio ProLarva'}
+          </div>
+        </div>
+      </div>
+
+      {/* Estadísticas */}
+      <div style={{ ...cardStyle, marginBottom: 16 }}>
+        <div style={{ fontSize: 11, fontWeight: 700, color: S.muted, marginBottom: 14, letterSpacing: '0.06em', textTransform: 'uppercase' }}>Mis estadísticas</div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+          {[
+            { label: 'Lotes totales',    value: lotes.length,      icon: '📦', color: S.green2 },
+            { label: 'Cosechas',         value: cosechas.length,   icon: '⚖️', color: S.emerald },
+            { label: 'Kg cosechados',    value: totalKg > 0 ? `${totalKg.toFixed(1)} kg` : '0 kg', icon: '🌿', color: S.amber },
+            { label: 'Alimentaciones',   value: feeds.length,      icon: '🍃', color: '#38bdf8' },
+          ].map(s => (
+            <div key={s.label} style={{ background: S.navy, borderRadius: 10, padding: '12px 14px' }}>
+              <div style={{ fontSize: 20, marginBottom: 4 }}>{s.icon}</div>
+              <div style={{ fontSize: 20, fontWeight: 800, color: s.color }}>{s.value}</div>
+              <div style={{ fontSize: 10, color: S.muted, fontWeight: 600, marginTop: 2 }}>{s.label}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Editar nombre */}
+      <div style={{ ...cardStyle, marginBottom: 16 }}>
+        <div style={{ fontSize: 11, fontWeight: 700, color: S.muted, marginBottom: 14, letterSpacing: '0.06em', textTransform: 'uppercase' }}>Editar nombre</div>
+        <div style={{ display: 'flex', gap: 10 }}>
+          <input
+            style={{ ...inputStyle, flex: 1 }}
+            value={nombre}
+            onChange={e => { setNombre(e.target.value); setNombreOk(false); }}
+            placeholder="Tu nombre completo"
+          />
+          <button
+            style={{ ...btnPrimary, flexShrink: 0, opacity: !nombre.trim() || nombre.trim() === session.name || nombreSaving ? 0.5 : 1 }}
+            disabled={!nombre.trim() || nombre.trim() === session.name || nombreSaving}
+            onClick={handleSaveName}
+          >
+            {nombreSaving ? '...' : nombreOk ? '✅' : 'Guardar'}
+          </button>
+        </div>
+      </div>
+
+      {/* Cambiar contraseña */}
+      <div style={{ ...cardStyle, marginBottom: 16 }}>
+        <div style={{ fontSize: 11, fontWeight: 700, color: S.muted, marginBottom: 14, letterSpacing: '0.06em', textTransform: 'uppercase' }}>Cambiar contraseña</div>
+        <Field label="Contraseña actual">
+          <div style={{ position: 'relative' }}>
+            <input type={showCurPass ? 'text' : 'password'} style={{ ...inputStyle, paddingRight: 40 }} value={currentPass} onChange={e => { setCurrentPass(e.target.value); setPassMsg(null); }} placeholder="Tu contraseña actual" />
+            <button type="button" onClick={() => setShowCurPass(v => !v)} style={eyeBtn(showCurPass, () => {})}>{showCurPass ? '🙈' : '👁️'}</button>
+          </div>
+        </Field>
+        <Field label="Nueva contraseña">
+          <div style={{ position: 'relative' }}>
+            <input type={showNewPass ? 'text' : 'password'} style={{ ...inputStyle, paddingRight: 40 }} value={newPass} onChange={e => { setNewPass(e.target.value); setPassMsg(null); }} placeholder="Mínimo 6 caracteres" />
+            <button type="button" onClick={() => setShowNewPass(v => !v)} style={eyeBtn(showNewPass, () => {})}>{showNewPass ? '🙈' : '👁️'}</button>
+          </div>
+        </Field>
+        <Field label="Confirmar nueva contraseña">
+          <div style={{ position: 'relative' }}>
+            <input type={showConfirmPass ? 'text' : 'password'} style={{ ...inputStyle, paddingRight: 40 }} value={confirmPass} onChange={e => { setConfirmPass(e.target.value); setPassMsg(null); }} placeholder="Repite la nueva contraseña" />
+            <button type="button" onClick={() => setShowConfirmPass(v => !v)} style={eyeBtn(showConfirmPass, () => {})}>{showConfirmPass ? '🙈' : '👁️'}</button>
+          </div>
+        </Field>
+        {passMsg && (
+          <div style={{ fontSize: 12, color: passMsg.ok ? S.green : S.red, marginBottom: 12, fontWeight: 600 }}>{passMsg.text}</div>
+        )}
+        <button style={{ ...btnPrimary, width: '100%', opacity: passLoading ? 0.6 : 1 }} disabled={passLoading} onClick={handleChangePass}>
+          {passLoading ? 'Cambiando...' : 'Cambiar contraseña'}
+        </button>
+      </div>
+
+      {/* Herramientas */}
+      <div style={{ ...cardStyle, marginBottom: 16 }}>
+        <div style={{ fontSize: 11, fontWeight: 700, color: S.muted, marginBottom: 14, letterSpacing: '0.06em', textTransform: 'uppercase' }}>Herramientas</div>
+        <button
+          style={{ ...btnOutline, width: '100%', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 10, justifyContent: 'flex-start' }}
+          onClick={onLaunchTour}
+        >
+          <span>🗺️</span><span>Ver guía de la app</span>
+        </button>
+        <button
+          style={{ ...btnDanger, width: '100%', display: 'flex', alignItems: 'center', gap: 10, justifyContent: 'flex-start' }}
+          onClick={onReset}
+        >
+          <span>🗑️</span><span>Limpiar mis datos</span>
+        </button>
+      </div>
+    </div>
+  );
+}
+
 // ─── Spotlight tour ───────────────────────────────────────────────────────────
 
 const TOUR_STEPS = [
@@ -1438,6 +1631,7 @@ const TOUR_STEPS = [
   { targetId: 'nav-alimentacion', title: '🌿 Alimentación', desc: 'Registra qué y cuánto les das a tus larvas. Puedes ver el historial por lote con tipo de residuo y nivel de rechazo observado.' },
   { targetId: 'nav-cosecha',      title: '⚖️ Cosechas',    desc: 'Anota el peso de cada cosecha. La app calcula tu tasa de conversión para que midas qué tan eficiente estás siendo.' },
   { targetId: 'nav-guia',         title: '📋 Guía Rápida', desc: 'Temperatura ideal, sustratos recomendados, ciclo de vida y conversión esperada — siempre disponible sin tener que buscar.' },
+  { targetId: 'nav-perfil',       title: '👤 Mi Perfil',   desc: 'Edita tu nombre, cambia tu foto, actualiza tu contraseña y revisa tus estadísticas de producción en un solo lugar.' },
 ];
 
 function SpotlightTour({ step, onNext, onPrev, onDone }: {
@@ -1572,6 +1766,21 @@ function SociosInner() {
   const cCalidad   = useRef<HTMLSelectElement>(null);
   const cNotas     = useRef<HTMLTextAreaElement>(null);
 
+  async function changePassword(current: string, nueva: string): Promise<{ ok: boolean; error?: string }> {
+    try {
+      const res = await fetch('/api/socios/change-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: db.session?.code, currentPassword: current, newPassword: nueva }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) return { ok: false, error: data.error };
+      return { ok: true };
+    } catch {
+      return { ok: false, error: 'Error de conexión' };
+    }
+  }
+
   useEffect(() => {
     if (db.session && !localStorage.getItem('prl-onboarding-done')) {
       setShowOnboarding(true);
@@ -1662,6 +1871,7 @@ function SociosInner() {
     { key: 'alimentacion', icon: '🌿', label: 'Alimentación' },
     { key: 'cosecha',      icon: '⚖️', label: 'Cosechas' },
     { key: 'guia',         icon: '📋', label: 'Guía Rápida' },
+    { key: 'perfil',       icon: '👤', label: 'Mi Perfil' },
     ...(db.session.rol === 'admin' ? [{ key: 'admin' as View, icon: '🔑', label: 'Admin' }] : []),
   ];
 
@@ -1691,23 +1901,17 @@ function SociosInner() {
         </nav>
 
         <div style={{ padding: '14px 18px', borderTop: `1px solid ${S.border}` }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+          <button onClick={() => navTo('perfil')} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10, background: 'none', border: 'none', cursor: 'pointer', padding: 0, width: '100%', textAlign: 'left' }}>
             <div style={{ width: 32, height: 32, borderRadius: '50%', background: 'linear-gradient(135deg,#22c55e,#16a34a)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, color: '#fff', fontSize: 14, flexShrink: 0 }}>
               {db.session.name[0]}
             </div>
             <div>
-              <div style={{ fontSize: 12, fontWeight: 700 }}>{db.session.name}</div>
+              <div style={{ fontSize: 12, fontWeight: 700, color: S.text }}>{db.session.name}</div>
               <div style={{ fontSize: 10, color: S.muted }}>{db.session.code}</div>
             </div>
-          </div>
+          </button>
           <button onClick={db.logout} style={{ ...btnOutline, width: '100%', fontSize: 12, padding: '7px' }}>
             Cerrar sesión
-          </button>
-          <button
-            onClick={() => setShowResetConfirm(true)}
-            style={{ marginTop: 8, background: 'none', border: 'none', color: '#ef4444', fontSize: 10, cursor: 'pointer', fontFamily: 'Montserrat, sans-serif', width: '100%', padding: '3px 0', textDecoration: 'underline', textAlign: 'center' }}
-          >
-            🗑️ Limpiar mis datos
           </button>
         </div>
       </aside>
@@ -1716,11 +1920,13 @@ function SociosInner() {
       <main className="socios-main" style={{ flex: 1, padding: '2rem', minWidth: 0 }}>
         {/* Mobile only: user + logout bar */}
         <div className="socios-mobile-header">
-          <span style={{ fontSize: 13, fontWeight: 700, color: S.text }}>👤 {db.session.name}</span>
-          <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
-            <button onClick={() => setShowResetConfirm(true)} style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)', color: '#ef4444', borderRadius: 6, fontSize: 11, padding: '4px 10px', cursor: 'pointer', fontFamily: 'Montserrat, sans-serif', fontWeight: 700 }}>🗑️ Reset</button>
-            <button onClick={db.logout} style={{ ...btnOutline, fontSize: 11, padding: '4px 12px' }}>Salir</button>
-          </div>
+          <button onClick={() => navTo('perfil')} style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
+            <div style={{ width: 30, height: 30, borderRadius: '50%', background: 'linear-gradient(135deg,#22c55e,#16a34a)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, color: '#fff', fontSize: 13, flexShrink: 0 }}>
+              {db.session.name[0]}
+            </div>
+            <span style={{ fontSize: 13, fontWeight: 700, color: S.text }}>{db.session.name.split(' ')[0]}</span>
+          </button>
+          <button onClick={db.logout} style={{ ...btnOutline, fontSize: 11, padding: '4px 12px' }}>Salir</button>
         </div>
         {view === 'dashboard' && (
           <Dashboard
@@ -1761,6 +1967,25 @@ function SociosInner() {
           <CosechaView cosechas={db.cosechas} lotes={db.lotes} totalKg={db.totalKg} avgConv={db.avgConv} onNewCosecha={() => { setModalCosecha(true); setTimeout(() => { if (cFecha.current) cFecha.current.value = todayLocal(); }, 10); }} />
         )}
         {view === 'guia'  && <GuiaView />}
+        {view === 'perfil' && db.session && (
+          <PerfilView
+            session={db.session}
+            lotes={db.lotes}
+            feeds={db.feeds}
+            cosechas={db.cosechas}
+            totalKg={db.totalKg}
+            onUpdateName={db.updateName}
+            onChangePassword={changePassword}
+            onLaunchTour={() => {
+              localStorage.removeItem('prl-onboarding-done');
+              setOnboardingStep(0);
+              setTourMinimized(false);
+              setShowOnboarding(true);
+              navTo('dashboard');
+            }}
+            onReset={() => setShowResetConfirm(true)}
+          />
+        )}
         {view === 'admin' && db.session.rol === 'admin' && <AdminView adminCode={db.session.code} />}
       </main>
 

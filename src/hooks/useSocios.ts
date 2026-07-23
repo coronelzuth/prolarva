@@ -478,6 +478,25 @@ export function useSocios() {
     }
   }, []);
 
+  const updateName = useCallback(async (nombre: string): Promise<boolean> => {
+    if (!session) return false;
+    try {
+      const res = await fetch('/api/socios/update-profile', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: session.code, nombre }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) return false;
+      const newSession = { ...session, name: data.nombre };
+      setSession(newSession);
+      localSave(KEYS.session, newSession);
+      return true;
+    } catch {
+      return false;
+    }
+  }, [session]);
+
   const resetAllData = useCallback(async () => {
     setLotes([]); setFeeds([]); setCosechas([]); setRecordatorios([]); setFotos([]);
     localSave(KEYS.lotes, []); localSave(KEYS.feeds, []); localSave(KEYS.cosechas, []);
@@ -510,7 +529,7 @@ export function useSocios() {
     addCosecha,
     addRecordatorio, toggleRecordatorio, deleteRecordatorio,
     addFoto, deleteFoto,
-    resetAllData,
+    updateName, resetAllData,
     activeLotes, readyLotes, totalKg, avgConv,
   };
 }

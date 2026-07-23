@@ -1859,18 +1859,20 @@ function PerfilView({
   async function toggleNotifications() {
     if (notifStatus === 'unsupported') return;
     if (notifStatus === 'granted') {
-      // Cancelar subscripción
       setNotifLoading(true);
-      const reg = await navigator.serviceWorker.ready;
-      const sub = await reg.pushManager.getSubscription();
-      if (sub) await sub.unsubscribe();
-      await fetch('/api/push/subscribe', {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ socioCode: session.code }),
-      });
-      setNotifStatus('default');
-      setNotifLoading(false);
+      try {
+        const reg = await navigator.serviceWorker.ready;
+        const sub = await reg.pushManager.getSubscription();
+        if (sub) await sub.unsubscribe();
+        await fetch('/api/push/subscribe', {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ socioCode: session.code }),
+        });
+      } finally {
+        setNotifStatus('default');
+        setNotifLoading(false);
+      }
       return;
     }
     setNotifLoading(true);
@@ -1879,18 +1881,34 @@ function PerfilView({
     try {
       const reg = await navigator.serviceWorker.ready;
       const vapidKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
-      if (!vapidKey) { setNotifStatus('granted'); setNotifLoading(false); return; }
+      if (!vapidKey) {
+        setTestMsg('❌ VAPID key no configurada — contacta al admin.');
+        setNotifLoading(false);
+        return;
+      }
+      // Convertir base64url → Uint8Array (requerido por algunos navegadores)
+      const padding = '='.repeat((4 - vapidKey.length % 4) % 4);
+      const base64 = (vapidKey + padding).replace(/-/g, '+').replace(/_/g, '/');
+      const rawData = atob(base64);
+      const keyArray = new Uint8Array(rawData.length);
+      for (let i = 0; i < rawData.length; i++) keyArray[i] = rawData.charCodeAt(i);
+
       const sub = await reg.pushManager.subscribe({
         userVisibleOnly: true,
-        applicationServerKey: vapidKey,
+        applicationServerKey: keyArray,
       });
-      await fetch('/api/push/subscribe', {
+      const res = await fetch('/api/push/subscribe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ socioCode: session.code, subscription: sub.toJSON() }),
       });
-      setNotifStatus('granted');
-    } catch {
+      if (res.ok) {
+        setNotifStatus('granted');
+      } else {
+        setTestMsg('❌ Error al guardar la suscripción. Intenta de nuevo.');
+      }
+    } catch (err) {
+      setTestMsg('❌ No se pudo activar: ' + (err instanceof Error ? err.message : 'error desconocido'));
       setNotifStatus('default');
     }
     setNotifLoading(false);

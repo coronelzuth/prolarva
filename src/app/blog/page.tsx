@@ -50,6 +50,19 @@ const resources = [
     accentBg: 'rgba(34,197,94,0.08)',
     accentBorder: 'rgba(34,197,94,0.2)',
   },
+  {
+    id: 'alimentacion-larvas',
+    category: 'Manejo' as Cat,
+    emoji: '🌿',
+    title: 'Qué comen las larvas BSF y cómo alimentarlas',
+    desc: 'Sustratos recomendados, porciones por etapa, qué evitar y cómo subir la proteína de la larva antes de cosechar.',
+    items: '4 etapas',
+    readTime: '7 min',
+    href: '/blog/alimentacion-larvas',
+    accent: C.purple,
+    accentBg: 'rgba(168,85,247,0.08)',
+    accentBorder: 'rgba(168,85,247,0.2)',
+  },
 ];
 
 export default function BlogHub() {

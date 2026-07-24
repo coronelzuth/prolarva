@@ -247,6 +247,7 @@ interface Stage {
 - [x] **Videos reales** — todas las 8 etapas tienen videos en `public/fotos/` (ver tabla abajo)
 - [ ] **URL del VSL** — campo listo en `/landing`, falta el link cuando el video esté listo
 - [ ] **Exportar leads en CSV** — tabla `leads` en Supabase ya tiene los datos; falta UI o export desde el dashboard
+- [ ] **Google Analytics 4** — instalar para tener datos históricos de visitas al blog dentro del panel admin. Vercel Analytics plan gratuito no expone API de lectura. GA4 es gratuito y tiene API. Requiere: crear propiedad en analytics.google.com, agregar script en `layout.tsx`, crear API route que consulte GA4 Reporting API y mostrar en tab Blog del AdminView.
 
 ---
 
@@ -286,7 +287,7 @@ a5cc857  feat: port calculadora BSF a React con paleta de la app
 ## Estado actual
 > **Actualizar esta sección al final de cada sesión de trabajo.**
 
-**Última actualización:** 2026-07-23
+**Última actualización:** 2026-07-24
 
 **Qué está funcionando en producción:**
 - Todas las rutas desplegadas y accesibles en móvil y desktop
@@ -329,6 +330,17 @@ a5cc857  feat: port calculadora BSF a React con paleta de la app
 | `guiones_cms` | Guiones del CMS de contenido |
 | `recordatorios` | Recordatorios por lote (dia, titulo, completado) |
 | `fotos_lotes` | Fotos por lote en base64 JPEG comprimido |
+
+**Cambios recientes (2026-07-24 — sesión 6):**
+- ✅ **Panel estadísticas del blog en AdminView** — nueva tab "📝 Blog" visible solo para admin
+- ✅ **Tracking de visitas en Supabase** — tabla `blog_views` (slug, views, last_viewed_at); API `/api/blog/view` incrementa contador al abrir artículo; API `/api/blog/stats` devuelve ranking (solo admin)
+- ✅ **Blog pages trackeadas** — `/blog/problemas`, `/blog/raciones`, `/blog/alimentacion-larvas` registran visita al montar via `useEffect`
+- ✅ **`VERCEL_ANALYTICS_TOKEN`** — agregado como env var en Vercel (no usado aún; quedó pendiente GA4)
+- ⚠️ **Datos históricos no disponibles** — Vercel Analytics plan gratuito no expone API de lectura; tracking arranca desde 2026-07-24
+- 📌 **Pendiente: Google Analytics 4** — ver sección Pendientes conocidos
+
+**Tabla Supabase nueva (2026-07-24):**
+- `blog_views` — slug (PK), views (integer), last_viewed_at (timestamptz). SQL en `supabase/blog_views.sql`
 
 **Cambios recientes (2026-07-23 — sesión 5):**
 - ✅ **Blog hub** — `/blog` con cuadrícula filtrable por categoría (Todos/Problemas/Nutrición/Manejo)

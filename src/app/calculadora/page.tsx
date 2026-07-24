@@ -109,7 +109,7 @@ export default function CalculadoraPage() {
     const d = E[esp || 'pollos'];
     const perdida = result ? cop(result.totalPerd) : '?';
     const url = 'https://prolarva-monitor.vercel.app/calculadora';
-    const texto = `👀 Ojo con esto: calculé que sin BSF estoy perdiendo ${perdida} por ciclo con mis ${nAnim} ${d.pl}.\n\nUsted también puede calcularlo aquí 👇\n${url}`;
+    const texto = `👀 Ojo con esto: calculé que sin BSF estoy perdiendo ${perdida} por ciclo con mis ${nAnim} ${d.pl}.\n\nTú también puedes calcularlo aquí 👇\n${url}`;
     if (navigator.share) {
       navigator.share({ title: 'Calculadora BSF — ProLarva', text: texto, url }).catch(() => {});
     } else {
@@ -135,7 +135,7 @@ export default function CalculadoraPage() {
       {/* Progress bar */}
       <div style={{ background: '#0a1628', borderBottom: `1px solid ${C.border}`, padding: '12px 16px' }}>
         <div style={{ display: 'flex', alignItems: 'center', maxWidth: 420, margin: '0 auto' }}>
-          {[{ n: 1, label: 'Especie' }, { n: 2, label: 'Su lote' }, { n: 3, label: 'BSF' }, { n: 4, label: 'Resultado' }].map((dot, i) => (
+          {[{ n: 1, label: 'Especie' }, { n: 2, label: 'Tu lote' }, { n: 3, label: 'BSF' }, { n: 4, label: 'Resultado' }].map((dot, i) => (
             <div key={dot.n} style={{ display: 'flex', alignItems: 'center', flex: i < 3 ? 1 : 'none' }}>
               <div style={{ textAlign: 'center', flexShrink: 0 }}>
                 <div style={{ width: 26, height: 26, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 3px', fontSize: 11, fontWeight: 800, background: dot.n < step ? C.green : dot.n === step ? '#fff' : 'rgba(255,255,255,0.1)', color: dot.n <= step ? '#0a1628' : 'rgba(255,255,255,0.4)', boxShadow: dot.n === step ? '0 0 0 3px rgba(34,197,94,0.3)' : 'none' }}>

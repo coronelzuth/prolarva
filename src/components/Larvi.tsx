@@ -59,7 +59,7 @@ const tree: Record<string, ConversationNode> = {
 
   // ============ FAQs - ¿Es complicado? ============
   faq_complicado: {
-    message: 'No. Son 5 pasos simples:\n1️⃣ Día 1: Armás el contenedor (2 min) + echás semilla\n2️⃣ Días 2-14: Alimentás con residuos de cocina\n3️⃣ Días 15-18: Cosecharlas (30 min)\n4️⃣ Día 18+: Congelás o deshidratás (opcional)\n5️⃣ Día 20+: Siguiente ciclo\n\nLo más "complicado": aprovechar residuos de cocina. Eso es todo.',
+    message: 'No. Son 5 pasos simples:\n1️⃣ Día 1: Armas el contenedor (2 min) + echas semilla\n2️⃣ Días 2-14: Alimentas con residuos de cocina\n3️⃣ Días 15-18: Cosecharlas (30 min)\n4️⃣ Día 18+: Congelas o deshidratas (opcional)\n5️⃣ Día 20+: Siguiente ciclo\n\nLo más "complicado": aprovechar residuos de cocina. Eso es todo.',
     options: [
       { label: '¿Cuánto trabajo extra tengo?', action: 'faq_trabajo' },
       { label: '¿Necesito mucho espacio?', action: 'faq_espacio' },
@@ -67,7 +67,7 @@ const tree: Record<string, ConversationNode> = {
     ],
   },
   faq_trabajo: {
-    message: 'Cero trabajo extra:\n• Ya tirás residuos → ahora los echás al contenedor (2 min/día)\n• Ya alimentás animales → agregas larvas 1-2 veces/semana (5 min)\n• El resto sucede solo\n\n⏱️ Tiempo total semanal: 20 minutos. Nada.',
+    message: 'Cero trabajo extra:\n• Ya tiras residuos → ahora los echas al contenedor (2 min/día)\n• Ya alimentas animales → agregas larvas 1-2 veces/semana (5 min)\n• El resto sucede solo\n\n⏱️ Tiempo total semanal: 20 minutos. Nada.',
     options: [
       { label: '¿Y si me voy de viaje?', action: 'faq_viaje' },
       { label: 'Siguiente pregunta', action: 'faq_menu' },
@@ -81,7 +81,7 @@ const tree: Record<string, ConversationNode> = {
     ],
   },
   faq_viaje: {
-    message: '✅ Hasta 1 semana: sin problema (les echás comida de más antes de irte)\n❌ 2+ semanas: riesgo de que se coman entre ellas\n\n💡 Para viajes largos: congela las larvas en la mitad del ciclo. Pausa el ciclo y arranca cuando regreses.',
+    message: '✅ Hasta 1 semana: sin problema (les echas comida de más antes de irte)\n❌ 2+ semanas: riesgo de que se coman entre ellas\n\n💡 Para viajes largos: congela las larvas en la mitad del ciclo. Pausa el ciclo y arranca cuando regreses.',
     options: [
       { label: 'Siguiente pregunta', action: 'faq_menu' },
       { label: 'Ver guía de cosecha', action: 'cosecha_link' },
@@ -90,14 +90,14 @@ const tree: Record<string, ConversationNode> = {
 
   // ============ FAQs - Costo & Ahorro ============
   faq_costo: {
-    message: '¿Cuánto ahorras depende de tus animales:\n🐔 Pollos (50): $120–150 USD/mes → Ahorras $30–50 USD/mes (25%)\n🐷 Cerdos (5): $200–300 USD/mes → Ahorras $50–90 USD/mes (20%)\n🐟 Peces (1000): $80–120 USD/mes → Ahorras $20–40 USD/mes (30%)\n\n⏱️ Tiempo al primer resultado: 20 días\n💰 ROI: El Kit ($48 USD) se paga en 2-3 cosechas. Después = cero costo.',
+    message: 'Cuánto ahorras depende de tus animales:\n🐔 Pollos (50): $120–150 USD/mes → Ahorras $30–50 USD/mes (25%)\n🐷 Cerdos (5): $200–300 USD/mes → Ahorras $50–90 USD/mes (20%)\n🐟 Peces (1000): $80–120 USD/mes → Ahorras $20–40 USD/mes (30%)\n\n⏱️ Tiempo al primer resultado: 20 días\n💰 ROI: El Kit ($48 USD) se paga en 2-3 cosechas. Después = cero costo.',
     options: [
       { label: 'Quiero calcular exacto', action: 'faq_calculadora' },
       { label: '¿Qué incluye el kit?', action: 'faq_que_incluye' },
     ],
   },
   faq_calculadora: {
-    message: 'Abre la Calculadora ProLarva — pone tus números (especie, cantidad, gastos) y te dice exactamente cuánto ahorras.',
+    message: 'Abre la Calculadora ProLarva — pon tus números (especie, cantidad, gastos) y te dice exactamente cuánto ahorras.',
     link: '/calculadora',
     options: [
       { label: 'Ir a la calculadora →', action: 'end' },
@@ -105,21 +105,21 @@ const tree: Record<string, ConversationNode> = {
     ],
   },
   faq_que_incluye: {
-    message: 'El Kit ProLarva 20 ($48 USD) incluye TODO:\n✅ Pupas de BSF (semilla viva)\n✅ Larvas de inicio\n✅ Manual impreso paso a paso\n✅ Malla love cage (contenedor armable)\n✅ Trampas de huevos\n✅ 45 días de acompañamiento (WhatsApp + Zoom)\n\nDespués del kit: solo gastos en residuos (restos de cocina, estiércol). Cero costo fijo.',
+    message: 'El Kit ProLarva 25/15 ($48 USD) incluye TODO:\n✅ Semilla viva BSF (3 etapas listas)\n✅ Recipiente de cultivo + 2 trampas + toldillo\n✅ Manual impreso paso a paso\n✅ 45 días de acompañamiento directo con Juliana\n✅ 180 días de soporte extendido (incluido)\n✅ Acceso a la App Monitor ProLarva\n\nDespués del kit: solo gastos en residuos orgánicos. Cero costo fijo.',
     options: [
       { label: '¿Tiene garantía?', action: 'faq_garantia' },
       { label: 'Quiero comprar', action: 'faq_compra' },
     ],
   },
   faq_precio: {
-    message: '💰 **Kit ProLarva 20:** $200.000 COP ≈ $48 USD (todo incluido)\n🤝 **Acompañamiento 45 días:** Incluido (sin costo)\n➕ **Acompañamiento 180 días (opcional):** $35 USD\n\n📦 **Bonos incluidos:**\n• Acceso a /socios (tracker privado)\n• Calculadora personalizada\n• Videos privados\n• Comunidad de productores\n\nSin sorpresas de precio. Transferencia bancaria o tarjeta.',
+    message: '💰 **Kit ProLarva 25/15:** $200.000 COP ≈ $48 USD (todo incluido)\n🤝 **Acompañamiento 45 días:** Incluido\n🛡️ **Soporte 180 días:** Incluido (sin costo adicional)\n\n📦 **Bonos incluidos:**\n• App Monitor ProLarva (tracker privado)\n• Calculadora BSF personalizada\n• Protocolo Anti-Crisis BSF\n• Checklist Arranque Express\n\nSin sorpresas de precio. Un solo pago.',
     options: [
       { label: '¿Tiene garantía?', action: 'faq_garantia' },
       { label: 'Quiero comprar ahora', action: 'faq_compra' },
     ],
   },
   faq_garantia: {
-    message: '✅ **100% garantía de dinero devuelto en 15 días** si:\n• Las larvas no crecen\n• No recibís el kit en 7 días hábiles\n• El contenedor llega dañado\n\nSi después de 15 días no estás satisfecho → reembolso total.\n\n📊 Realidad: +80 productores ya lo hicieron. Ninguno pidió devolución.',
+    message: '✅ **Garantía incondicional — 7 días:** si decides que no es para ti, te devolvemos el 100%. Sin preguntas.\n\n🎯 **Garantía de resultado:** si sigues el sistema 20 días y no tienes tu primer lote produciendo, Juliana continúa el acompañamiento sin costo hasta que lo logres.\n\n📊 Realidad: +80 productores ya lo hicieron. Ninguno pidió devolución.',
     options: [
       { label: 'Estoy convencido, quiero comprar', action: 'faq_compra' },
       { label: 'Otra pregunta', action: 'faq_menu' },
@@ -128,7 +128,7 @@ const tree: Record<string, ConversationNode> = {
 
   // ============ FAQs - Compra ============
   faq_compra: {
-    message: 'Solo 3 pasos:\n1️⃣ Completá el formulario en /sistema-2015 (nombre, WhatsApp, ubicación)\n2️⃣ Juliana te contacta en 24h para confirmar envío y pago\n3️⃣ Recibís el kit en 5-7 días hábiles listo para usar\n\n🌍 Envío: Colombia, Perú, Ecuador, Centroamérica\n💬 WhatsApp de Juliana: +57 322 321 2293',
+    message: 'Solo 3 pasos:\n1️⃣ Escríbele a Juliana por WhatsApp o abre /sistema-2015\n2️⃣ Juliana te contacta en 24h para confirmar envío y pago\n3️⃣ Recibes el kit en 5-7 días hábiles listo para usar\n\n🌍 Envío: Colombia, Perú, Ecuador, Centroamérica\n💬 WhatsApp de Juliana: +57 322 321 2293',
     link: '/sistema-2015',
     options: [
       { label: 'Ir al formulario →', action: 'end' },
@@ -145,7 +145,7 @@ const tree: Record<string, ConversationNode> = {
 
   // ============ FAQs - Dudas técnicas ============
   faq_ciclo: {
-    message: '**El ciclo son ~18 días:**\n📅 Días 0-2: Huevo — Semilla eclosiona\n📅 Días 3-8: Larva pequeña — Crecen rápido, comen mucho\n📅 Días 9-14: Larva grande — Máximo crecimiento\n📅 Días 15-17: Prepupa — Dejan de comer, se oscurecen\n📅 Día 18+: Cosecha — Listas para tus animales\n\n¿Quierés saber más sobre alguna etapa?',
+    message: '**El ciclo son ~18 días:**\n📅 Días 0-2: Huevo — Semilla eclosiona\n📅 Días 3-8: Larva pequeña — Crecen rápido, comen mucho\n📅 Días 9-14: Larva grande — Máximo crecimiento\n📅 Días 15-17: Prepupa — Dejan de comer, se oscurecen\n📅 Día 18+: Cosecha — Listas para tus animales\n\n¿Quieres saber más sobre alguna etapa?',
     link: '/conocimiento',
     options: [
       { label: 'Ver todas las etapas →', action: 'end' },
@@ -161,7 +161,7 @@ const tree: Record<string, ConversationNode> = {
     ],
   },
   faq_cosecha_cuanto: {
-    message: 'Del Kit ProLarva 20 obtenés:\n🔄 Ciclo 1: 2-4 kg de larvas vivas (depende de residuos)\n🔄 Ciclo 2+: 4-8 kg por ciclo (mejor calibrado)\n\n💡 Equivalencia: 1 kg larvas = 1 kg concentrado proteico\n📊 Un ciclo = larvas para 2-4 semanas (según tus animales)',
+    message: 'Del Kit ProLarva 25/15 obtienes:\n🔄 Ciclo 1: 2-4 kg de larvas vivas (depende de residuos)\n🔄 Ciclo 2+: 4-8 kg por ciclo (mejor calibrado)\n\n💡 Equivalencia: 1 kg larvas = 1 kg concentrado proteico\n📊 Un ciclo = larvas para 2-4 semanas (según tus animales)',
     options: [
       { label: 'Quiero calcular mi caso', action: 'faq_calculadora' },
       { label: 'Otra pregunta', action: 'faq_menu' },
@@ -198,7 +198,7 @@ const tree: Record<string, ConversationNode> = {
     ],
   },
   faq_menu: {
-    message: '¿Qué más querés saber?',
+    message: '¿Qué más quieres saber?',
     options: [
       { label: '¿Qué es BSF? (básico)', action: 'faq_que_es' },
       { label: '¿Es complicado?', action: 'faq_complicado' },

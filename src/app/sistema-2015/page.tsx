@@ -527,7 +527,7 @@ export default function Sistema2015Page() {
                 {[
                   'Soy productora de larvas BSF en Colombia. Crío mis propios animales de traspatio y soy la fundadora de ProLarva.',
                   'No soy una empresa grande ni un laboratorio. Soy una productora como tú, que encontró una forma de producir más con menos gasto: lo probé en mi propia granja, lo documenté desde el día cero hasta el sacrificio, y decidí empaquetarlo para que otros productores puedan replicarlo.',
-                  'Sin experiencia previa. Sin tecnología compleja. Con lo que ya tenés en tu finca.',
+                  'Sin experiencia previa. Sin tecnología compleja. Con lo que ya tienes en tu finca.',
                 ].map((p, i) => (
                   <p key={i} style={{ lineHeight: 1.8, fontSize: '0.95rem', color: '#d4e8da', marginBottom: 14 }}>{p}</p>
                 ))}

@@ -1812,7 +1812,7 @@ function EstadisticasView({ lotes, feeds, cosechas, totalKg, avgConv }: {
 
 function PerfilView({
   session, lotes, feeds, cosechas, totalKg,
-  onUpdateName, onChangePassword, onLaunchTour, onReset,
+  onUpdateName, onChangePassword, onLaunchTour, onReset, onGuia,
 }: {
   session: SocioSession;
   lotes: Lote[];
@@ -1823,6 +1823,7 @@ function PerfilView({
   onChangePassword: (current: string, nueva: string) => Promise<{ ok: boolean; error?: string }>;
   onLaunchTour: () => void;
   onReset: () => void;
+  onGuia: () => void;
 }) {
   const [avatar,       setAvatar]       = useState<string | null>(null);
   const [nombre,       setNombre]       = useState(session.name);
@@ -1837,6 +1838,7 @@ function PerfilView({
   const [confirmPass,  setConfirmPass]  = useState('');
   const [passLoading,  setPassLoading]  = useState(false);
   const [passMsg,      setPassMsg]      = useState<{ ok: boolean; text: string } | null>(null);
+  const [passOpen,     setPassOpen]     = useState(false);
 
   const [notifStatus, setNotifStatus] = useState<'unsupported' | 'default' | 'granted' | 'denied'>('default');
   const [notifLoading, setNotifLoading] = useState(false);
@@ -2061,33 +2063,44 @@ function PerfilView({
         </div>
       </div>
 
-      {/* Cambiar contraseña */}
+      {/* Cambiar contraseña — colapsable */}
       <div style={{ ...cardStyle, marginBottom: 16 }}>
-        <div style={{ fontSize: 11, fontWeight: 700, color: S.muted, marginBottom: 14, letterSpacing: '0.06em', textTransform: 'uppercase' }}>Cambiar contraseña</div>
-        <Field label="Contraseña actual">
-          <div style={{ position: 'relative' }}>
-            <input type={showCurPass ? 'text' : 'password'} style={{ ...inputStyle, paddingRight: 40 }} value={currentPass} onChange={e => { setCurrentPass(e.target.value); setPassMsg(null); }} placeholder="Tu contraseña actual" />
-            <button type="button" onClick={() => setShowCurPass(v => !v)} style={eyeBtn(showCurPass, () => {})}>{showCurPass ? '🙈' : '👁️'}</button>
-          </div>
-        </Field>
-        <Field label="Nueva contraseña">
-          <div style={{ position: 'relative' }}>
-            <input type={showNewPass ? 'text' : 'password'} style={{ ...inputStyle, paddingRight: 40 }} value={newPass} onChange={e => { setNewPass(e.target.value); setPassMsg(null); }} placeholder="Mínimo 6 caracteres" />
-            <button type="button" onClick={() => setShowNewPass(v => !v)} style={eyeBtn(showNewPass, () => {})}>{showNewPass ? '🙈' : '👁️'}</button>
-          </div>
-        </Field>
-        <Field label="Confirmar nueva contraseña">
-          <div style={{ position: 'relative' }}>
-            <input type={showConfirmPass ? 'text' : 'password'} style={{ ...inputStyle, paddingRight: 40 }} value={confirmPass} onChange={e => { setConfirmPass(e.target.value); setPassMsg(null); }} placeholder="Repite la nueva contraseña" />
-            <button type="button" onClick={() => setShowConfirmPass(v => !v)} style={eyeBtn(showConfirmPass, () => {})}>{showConfirmPass ? '🙈' : '👁️'}</button>
-          </div>
-        </Field>
-        {passMsg && (
-          <div style={{ fontSize: 12, color: passMsg.ok ? S.green : S.red, marginBottom: 12, fontWeight: 600 }}>{passMsg.text}</div>
-        )}
-        <button style={{ ...btnPrimary, width: '100%', opacity: passLoading ? 0.6 : 1 }} disabled={passLoading} onClick={handleChangePass}>
-          {passLoading ? 'Cambiando...' : 'Cambiar contraseña'}
+        <button
+          type="button"
+          onClick={() => { setPassOpen(v => !v); setPassMsg(null); }}
+          style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+        >
+          <span style={{ fontSize: 13, fontWeight: 700, color: S.muted }}>🔐 Cambiar contraseña</span>
+          <span style={{ fontSize: 12, color: S.muted, transition: 'transform 0.2s', display: 'inline-block', transform: passOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}>▾</span>
         </button>
+        {passOpen && (
+          <div style={{ marginTop: 16 }}>
+            <Field label="Contraseña actual">
+              <div style={{ position: 'relative' }}>
+                <input type={showCurPass ? 'text' : 'password'} style={{ ...inputStyle, paddingRight: 40 }} value={currentPass} onChange={e => { setCurrentPass(e.target.value); setPassMsg(null); }} placeholder="Tu contraseña actual" />
+                <button type="button" onClick={() => setShowCurPass(v => !v)} style={eyeBtn(showCurPass, () => {})}>{showCurPass ? '🙈' : '👁️'}</button>
+              </div>
+            </Field>
+            <Field label="Nueva contraseña">
+              <div style={{ position: 'relative' }}>
+                <input type={showNewPass ? 'text' : 'password'} style={{ ...inputStyle, paddingRight: 40 }} value={newPass} onChange={e => { setNewPass(e.target.value); setPassMsg(null); }} placeholder="Mínimo 6 caracteres" />
+                <button type="button" onClick={() => setShowNewPass(v => !v)} style={eyeBtn(showNewPass, () => {})}>{showNewPass ? '🙈' : '👁️'}</button>
+              </div>
+            </Field>
+            <Field label="Confirmar nueva contraseña">
+              <div style={{ position: 'relative' }}>
+                <input type={showConfirmPass ? 'text' : 'password'} style={{ ...inputStyle, paddingRight: 40 }} value={confirmPass} onChange={e => { setConfirmPass(e.target.value); setPassMsg(null); }} placeholder="Repite la nueva contraseña" />
+                <button type="button" onClick={() => setShowConfirmPass(v => !v)} style={eyeBtn(showConfirmPass, () => {})}>{showConfirmPass ? '🙈' : '👁️'}</button>
+              </div>
+            </Field>
+            {passMsg && (
+              <div style={{ fontSize: 12, color: passMsg.ok ? S.green : S.red, marginBottom: 12, fontWeight: 600 }}>{passMsg.text}</div>
+            )}
+            <button style={{ ...btnPrimary, width: '100%', opacity: passLoading ? 0.6 : 1 }} disabled={passLoading} onClick={handleChangePass}>
+              {passLoading ? 'Cambiando...' : 'Actualizar contraseña'}
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Notificaciones */}
@@ -2151,6 +2164,12 @@ function PerfilView({
         <div style={{ fontSize: 11, fontWeight: 700, color: S.muted, marginBottom: 14, letterSpacing: '0.06em', textTransform: 'uppercase' }}>Herramientas</div>
         <button
           style={{ ...btnOutline, width: '100%', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 10, justifyContent: 'flex-start' }}
+          onClick={onGuia}
+        >
+          <span>📋</span><span>Guía Rápida BSF</span>
+        </button>
+        <button
+          style={{ ...btnOutline, width: '100%', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 10, justifyContent: 'flex-start' }}
           onClick={onLaunchTour}
         >
           <span>🗺️</span><span>Ver guía de la app</span>
@@ -2172,9 +2191,8 @@ const TOUR_STEPS = [
   { targetId: 'nav-dashboard',    title: '🏠 Resumen',      desc: 'Tu panel principal. Aquí aparecen alertas automáticas de cosecha, recordatorios activos y el estado general de tu producción en tiempo real.' },
   { targetId: 'nav-lotes',        title: '📦 Mis Lotes',    desc: 'Cada vez que siembras, creas un lote. La app calcula la etapa del ciclo automáticamente y te avisa cuándo es momento de cosechar.' },
   { targetId: 'nav-cosecha',      title: '⚖️ Cosechas',    desc: 'Anota el peso de cada cosecha. La app calcula tu tasa de conversión para que midas qué tan eficiente estás siendo.' },
-  { targetId: 'nav-guia',          title: '📋 Guía Rápida',   desc: 'Temperatura ideal, sustratos recomendados, ciclo de vida y conversión esperada — siempre disponible sin tener que buscar.' },
   { targetId: 'nav-estadisticas', title: '📊 Estadísticas',  desc: 'Gráficas de producción, ranking de tus mejores lotes, qué sustrato te funciona mejor, y exporta tus datos a Excel.' },
-  { targetId: 'nav-perfil',       title: '👤 Mi Perfil',     desc: 'Edita tu nombre, cambia tu foto, actualiza tu contraseña y revisa tus estadísticas de producción en un solo lugar.' },
+  { targetId: 'nav-perfil',       title: '👤 Mi Perfil',     desc: 'Edita tu nombre, cambia tu foto, actualiza tu contraseña y accede a la Guía Rápida BSF desde un solo lugar.' },
 ];
 
 function SpotlightTour({ step, onNext, onPrev, onDone }: {
@@ -2412,7 +2430,6 @@ function SociosInner() {
     { key: 'dashboard',    icon: '🏠', label: 'Resumen' },
     { key: 'lotes',        icon: '📦', label: 'Mis Lotes' },
     { key: 'cosecha',      icon: '⚖️', label: 'Cosechas' },
-    { key: 'guia',          icon: '📋', label: 'Guía Rápida' },
     { key: 'estadisticas', icon: '📊', label: 'Estadísticas' },
     { key: 'perfil',       icon: '👤', label: 'Mi Perfil' },
     ...(db.session.rol === 'admin' ? [{ key: 'admin' as View, icon: '🔑', label: 'Admin' }] : []),
@@ -2530,6 +2547,7 @@ function SociosInner() {
               navTo('dashboard');
             }}
             onReset={() => setShowResetConfirm(true)}
+            onGuia={() => navTo('guia')}
           />
         )}
         {view === 'admin' && db.session.rol === 'admin' && <AdminView adminCode={db.session.code} />}
@@ -2541,7 +2559,7 @@ function SociosInner() {
           const active = activeView === item.key;
           const mobileLabel: Record<string, string> = {
             dashboard: 'Inicio', lotes: 'Lotes',
-            cosecha: 'Cosecha', guia: 'Guía', estadisticas: 'Stats',
+            cosecha: 'Cosecha', estadisticas: 'Stats',
             perfil: 'Perfil', admin: 'Admin',
           };
           return (

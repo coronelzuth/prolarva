@@ -74,9 +74,9 @@ const FAQS = [
   { q: '¿Qué pasa si las larvas se mueren o algo sale mal?', a: 'El kit incluye el Protocolo Anti-Crisis BSF con soluciones para los 7 imprevistos más comunes: temperatura, humedad, oviposición, mortalidad, plagas y más. Y con la garantía de resultado, Juliana sigue acompañándote sin costo adicional hasta que logres tu primer lote.' },
   { q: '¿Es asqueroso trabajar con larvas?', a: 'Mucho menos de lo que piensas. Las larvas BSF no pican, no vuelan, no huelen mal cuando el sistema está bien manejado y no representan riesgo sanitario. Las herramientas del kit minimizan el contacto directo. Después de la primera semana, la mayoría lo ve como rutina normal.' },
   { q: '¿Mis animales van a comer las larvas?', a: 'Sí, y con entusiasmo. La respuesta es instintiva y natural — pollos, peces y cerdos las reconocen como alimento desde el día uno. Como lo documentó Nicolás López con sus pollos de engorde: piel amarilla, menos grasa y mejor peso final al día 42.' },
-  { q: '¿Cuánto espacio necesito para montarlo?', a: 'Desde 1 m² ya tenés un cultivo funcional. No necesitás instalaciones especiales, ni equipos industriales, ni permisos. Solo un espacio con sombra, ventilación y acceso a residuos orgánicos.' },
+  { q: '¿Cuánto espacio necesito para montarlo?', a: 'Desde 1 m² ya tienes un cultivo funcional. No necesitas instalaciones especiales, ni equipos industriales, ni permisos. Solo un espacio con sombra, ventilación y acceso a residuos orgánicos.' },
   { q: '¿Funciona en el clima de mi región?', a: 'La BSF es nativa de los trópicos — se adapta perfectamente a los climas cálidos colombianos (26–32°C ideal). Juliana trabaja desde Cúcuta y el sistema funciona en toda la franja tropical y templada del país.' },
-  { q: '¿Puedo seguir usando el concentrado normal?', a: 'Sí. BSF complementa el concentrado — no lo reemplaza de golpe. Empezás reemplazando un porcentaje y ajustás según el comportamiento y el peso de tus animales. El sistema te enseña a manejar larvas vivas, larvas secas y harina de larva para que elijas lo que más te favorezca.' },
+  { q: '¿Puedo seguir usando el concentrado normal?', a: 'Sí. BSF complementa el concentrado — no lo reemplaza de golpe. Empiezas reemplazando un porcentaje y ajustas según el comportamiento y el peso de tus animales. El sistema te enseña a manejar larvas vivas, larvas secas y harina de larva para que elijas lo que más te favorezca.' },
   { q: '¿Cuándo recupero lo que invertí?', a: 'Con 100 pollos de engorde, el ahorro en concentrado del primer ciclo ya cubre el costo del kit. La mayoría de productores recuperan la inversión en el primer o segundo lote — y desde ahí, todo es ganancia.' },
 ];
 
@@ -166,7 +166,7 @@ export default function Sistema2015Page() {
             {[
               { emoji: '📈', title: 'El costo sube cada mes', body: 'El concentrado aumenta sin control. Tus márgenes se destruyen sin hacer nada distinto.', d: 0 },
               { emoji: '💸', title: 'La rentabilidad desaparece', body: 'Producir gallinas, peces o cerdos de calidad cada vez te cuesta más. La plata se va sola.', d: 0.1 },
-              { emoji: '🔗', title: 'Dependés del proveedor', body: 'No tenés control. Todo depende del precio y de lo que haya disponible en la tienda.', d: 0.2 },
+              { emoji: '🔗', title: 'Dependes del proveedor', body: 'No tienes control. Todo depende del precio y de lo que haya disponible en la tienda.', d: 0.2 },
             ].map((card, i) => (
               <motion.div key={i} {...up(card.d)} style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: 28 }}>
                 <div style={{ fontSize: '2.2rem', marginBottom: 14 }}>{card.emoji}</div>
@@ -190,8 +190,8 @@ export default function Sistema2015Page() {
 
           <div className="flow-wrap" style={{ display: 'flex', justifyContent: 'center', alignItems: 'flex-start', gap: 0, flexWrap: 'wrap' }}>
             {[
-              { num: 1, emoji: '📦', title: 'Recibís el kit', desc: 'Semilla viva BSF, materiales y manual llegan a tu puerta listos para usar' },
-              { num: 2, emoji: '🐛', title: 'Activás la semilla', desc: 'Colocás la semilla con residuos orgánicos. Sin tecnología ni equipos especiales' },
+              { num: 1, emoji: '📦', title: 'Recibes el kit', desc: 'Semilla viva BSF, materiales y manual llegan a tu puerta listos para usar' },
+              { num: 2, emoji: '🐛', title: 'Activas la semilla', desc: 'Colocas la semilla con residuos orgánicos. Sin tecnología ni equipos especiales' },
               { num: 3, emoji: '⭐', title: 'Cosechás al día 20', desc: 'Las larvas maduras listas. Proteína pura producida en tu propio traspatio' },
               { num: 4, emoji: '🐔', title: 'Das a tus animales', desc: 'Pollos, peces o cerdos más sanos y fuertes. 25% menos concentrado desde el primer lote' },
             ].map((step, i, arr) => (
@@ -222,7 +222,7 @@ export default function Sistema2015Page() {
           {/* Result banner */}
           <motion.div {...up(0.5)} style={{ marginTop: 48, padding: '18px 28px', background: `linear-gradient(135deg, ${C.green}18, ${C.greenD}08)`, border: `1px solid ${C.green}40`, borderRadius: 14, textAlign: 'center' }}>
             <span style={{ fontSize: '1rem', fontWeight: 700, color: C.greenL }}>
-              🎯 Resultado: en 20 días producís proteína propia y ahorras hasta $50.000 COP al mes por cada 100 animales
+              🎯 Resultado: en 20 días produces proteína propia y ahorras hasta $50.000 COP al mes por cada 100 animales
             </span>
           </motion.div>
         </div>
@@ -314,7 +314,7 @@ export default function Sistema2015Page() {
           </div>
 
           <motion.p {...up(0.25)} style={{ textAlign: 'center', fontSize: '0.82rem', color: `${C.muted}80`, marginTop: 20, fontStyle: 'italic' }}>
-            ¿Ya usaste el sistema? Contanos tu resultado por WhatsApp →
+            ¿Ya usaste el sistema? Cuéntanos tu resultado por WhatsApp →
           </motion.p>
         </div>
       </section>
@@ -326,7 +326,7 @@ export default function Sistema2015Page() {
             Qué Recibís: El Kit ProLarva 25/15
           </motion.h2>
           <motion.p {...up(0.05)} style={{ textAlign: 'center', color: C.muted, maxWidth: 520, margin: '0 auto 52px', fontSize: '0.95rem', lineHeight: 1.6 }}>
-            Todo lo que necesitás para empezar el primer día — nada que comprar por separado
+            Todo lo que necesitas para empezar el primer día — nada que comprar por separado
           </motion.p>
 
           {/* Físico */}
@@ -362,7 +362,7 @@ export default function Sistema2015Page() {
           </motion.div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: 12, marginBottom: 44 }}>
             {[
-              { emoji: '📖', title: 'Manual ProLarva', desc: '"Sistema 20/15" completo impreso' },
+              { emoji: '📖', title: 'Manual ProLarva', desc: '"Sistema 25/15" completo impreso' },
               { emoji: '📋', title: 'Ficha de Etapas', desc: 'Seguimiento por cada etapa' },
               { emoji: '📊', title: 'Planilla de Lotes', desc: 'Registro organizado de producción' },
               { emoji: '🗺️', title: 'Guía Paso a Paso', desc: 'Del día 1 al día 20 exacto' },
@@ -472,7 +472,7 @@ export default function Sistema2015Page() {
             Preguntas Frecuentes
           </motion.h2>
           <motion.p {...up(0.05)} style={{ textAlign: 'center', color: C.muted, maxWidth: 480, margin: '0 auto 44px', fontSize: '0.97rem', lineHeight: 1.6 }}>
-            Todo lo que querés saber antes de empezar
+            Todo lo que quieres saber antes de empezar
           </motion.p>
           <motion.div {...up(0.1)} style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 16, padding: '8px 28px 4px' }}>
             {FAQS.map((faq, i) => (
@@ -486,7 +486,7 @@ export default function Sistema2015Page() {
       <section style={{ padding: '68px 20px', background: C.bg2 }}>
         <div style={{ maxWidth: 900, margin: '0 auto' }}>
           <motion.h2 {...up()} style={{ fontSize: 'clamp(1.4rem, 3vw, 2.1rem)', fontWeight: 900, textAlign: 'center', margin: '0 auto 44px', color: C.greenL }}>
-            Comprás con Total Seguridad
+            Compras con Total Seguridad
           </motion.h2>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 16 }}>
             {[
@@ -526,7 +526,7 @@ export default function Sistema2015Page() {
               <div style={{ flex: 1, minWidth: 240 }}>
                 {[
                   'Soy productora de larvas BSF en Colombia. Crío mis propios animales de traspatio y soy la fundadora de ProLarva.',
-                  'No soy una empresa grande ni un laboratorio. Soy una productora como vos, que encontró una forma de producir más con menos gasto: lo probé en mi propia granja, lo documenté desde el día cero hasta el sacrificio, y decidí empaquetarlo para que otros productores puedan replicarlo.',
+                  'No soy una empresa grande ni un laboratorio. Soy una productora como tú, que encontró una forma de producir más con menos gasto: lo probé en mi propia granja, lo documenté desde el día cero hasta el sacrificio, y decidí empaquetarlo para que otros productores puedan replicarlo.',
                   'Sin experiencia previa. Sin tecnología compleja. Con lo que ya tenés en tu finca.',
                 ].map((p, i) => (
                   <p key={i} style={{ lineHeight: 1.8, fontSize: '0.95rem', color: '#d4e8da', marginBottom: 14 }}>{p}</p>

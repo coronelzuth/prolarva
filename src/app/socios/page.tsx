@@ -1392,8 +1392,87 @@ interface SocioRegistrado {
   creado_en: string;
 }
 
+const BLOG_META: Record<string, { title: string; emoji: string; color: string }> = {
+  'problemas':          { title: '8 problemas comunes BSF',       emoji: '🔧', color: '#ef4444' },
+  'raciones':           { title: 'Raciones por animal y etapa',   emoji: '🍽️', color: '#22c55e' },
+  'alimentacion-larvas':{ title: 'Qué comen las larvas BSF',      emoji: '🌿', color: '#a855f7' },
+};
+
+type BlogStatRow = { slug: string; views: number; last_viewed_at: string };
+
+function BlogStatsTab({ stats, loading, onRefresh }: { stats: BlogStatRow[]; loading: boolean; onRefresh: () => void }) {
+  const totalVisitas = stats.reduce((acc, s) => acc + s.views, 0);
+  const top = stats[0];
+
+  return (
+    <div>
+      {/* Resumen */}
+      <div style={{ display: 'flex', gap: 12, marginBottom: 20, flexWrap: 'wrap' }}>
+        {[
+          { label: 'Visitas totales',   value: totalVisitas,    color: S.green },
+          { label: 'Artículos activos', value: stats.length,    color: S.text  },
+          { label: 'Artículo top',      value: top ? BLOG_META[top.slug]?.emoji + ' ' + top.views : '—', color: S.amber },
+        ].map(stat => (
+          <div key={stat.label} style={{ ...cardStyle, flex: 1, minWidth: 120, textAlign: 'center', padding: '14px 12px' }}>
+            <div style={{ fontSize: 22, fontWeight: 900, color: stat.color }}>{stat.value}</div>
+            <div style={{ fontSize: 11, color: S.muted, marginTop: 2 }}>{stat.label}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Lista de artículos */}
+      {loading ? (
+        <p style={{ color: S.muted, fontSize: 13 }}>Cargando estadísticas...</p>
+      ) : stats.length === 0 ? (
+        <div style={{ ...cardStyle, textAlign: 'center', padding: '2rem', color: S.muted }}>
+          <div style={{ fontSize: 32, marginBottom: 8 }}>📊</div>
+          <p style={{ fontSize: 13 }}>Aún no hay visitas registradas.</p>
+          <p style={{ fontSize: 12, marginTop: 4 }}>Las visitas se registran cada vez que alguien abre un artículo del blog.</p>
+        </div>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          {stats.map((s, i) => {
+            const meta = BLOG_META[s.slug] ?? { title: s.slug, emoji: '📄', color: S.muted };
+            const pct  = totalVisitas > 0 ? Math.round((s.views / totalVisitas) * 100) : 0;
+            return (
+              <div key={s.slug} style={{ ...cardStyle, padding: '16px 20px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 }}>
+                  {/* Rank */}
+                  <div style={{ fontSize: 13, fontWeight: 900, color: i === 0 ? S.amber : S.muted, width: 20, flexShrink: 0 }}>
+                    #{i + 1}
+                  </div>
+                  {/* Emoji */}
+                  <div style={{ fontSize: 22, flexShrink: 0 }}>{meta.emoji}</div>
+                  {/* Título */}
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: 14, fontWeight: 700, color: S.text }}>{meta.title}</div>
+                    <div style={{ fontSize: 11, color: S.muted, marginTop: 2 }}>
+                      Última visita: {s.last_viewed_at ? new Date(s.last_viewed_at).toLocaleDateString('es-CO', { day: '2-digit', month: 'short', year: 'numeric' }) : '—'}
+                    </div>
+                  </div>
+                  {/* Contador */}
+                  <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                    <div style={{ fontSize: 22, fontWeight: 900, color: meta.color }}>{s.views}</div>
+                    <div style={{ fontSize: 10, color: S.muted }}>visitas</div>
+                  </div>
+                </div>
+                {/* Barra de progreso */}
+                <div style={{ height: 4, background: 'rgba(255,255,255,0.06)', borderRadius: 4, overflow: 'hidden' }}>
+                  <div style={{ height: '100%', width: `${pct}%`, background: meta.color, borderRadius: 4, transition: 'width 0.5s ease' }} />
+                </div>
+                <div style={{ fontSize: 11, color: S.muted, marginTop: 4 }}>{pct}% del total</div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+      <button onClick={onRefresh} style={{ ...btnOutline, ...btnSm, marginTop: 16 }}>↺ Actualizar</button>
+    </div>
+  );
+}
+
 function AdminView({ adminCode }: { adminCode: string }) {
-  const [tab, setTab] = useState<'invitaciones' | 'socios'>('socios');
+  const [tab, setTab] = useState<'socios' | 'invitaciones' | 'blog'>('socios');
 
   // ── Invitaciones state ────────────────────────────────────────────────────
   const [invitaciones, setInvitaciones] = useState<Invitacion[]>([]);
@@ -1405,6 +1484,11 @@ function AdminView({ adminCode }: { adminCode: string }) {
   // ── Socios state ──────────────────────────────────────────────────────────
   const [socios, setSocios]         = useState<SocioRegistrado[]>([]);
   const [loadingSoc, setLoadingSoc] = useState(false);
+
+  // ── Blog stats state ──────────────────────────────────────────────────────
+  type BlogStat = { slug: string; views: number; last_viewed_at: string };
+  const [blogStats, setBlogStats]   = useState<BlogStat[]>([]);
+  const [loadingBlog, setLoadingBlog] = useState(false);
 
   async function cargarInvitaciones() {
     setLoadingInv(true);
@@ -1422,6 +1506,15 @@ function AdminView({ adminCode }: { adminCode: string }) {
       const data = await res.json();
       if (data.success) setSocios(data.socios);
     } finally { setLoadingSoc(false); }
+  }
+
+  async function cargarBlog() {
+    setLoadingBlog(true);
+    try {
+      const res  = await fetch('/api/blog/stats', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ adminCode }) });
+      const data = await res.json();
+      if (data.success) setBlogStats(data.stats);
+    } finally { setLoadingBlog(false); }
   }
 
   async function generar() {
@@ -1444,6 +1537,7 @@ function AdminView({ adminCode }: { adminCode: string }) {
   useEffect(() => {
     cargarSocios();
     cargarInvitaciones();
+    cargarBlog();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -1473,8 +1567,8 @@ function AdminView({ adminCode }: { adminCode: string }) {
       </div>
 
       {/* Tabs */}
-      <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
-        {([['socios', '👥 Socios'], ['invitaciones', '🎟️ Invitaciones']] as const).map(([key, label]) => (
+      <div style={{ display: 'flex', gap: 8, marginBottom: 20, flexWrap: 'wrap' }}>
+        {([['socios', '👥 Socios'], ['invitaciones', '🎟️ Invitaciones'], ['blog', '📝 Blog']] as const).map(([key, label]) => (
           <button
             key={key}
             onClick={() => setTab(key)}
@@ -1540,6 +1634,9 @@ function AdminView({ adminCode }: { adminCode: string }) {
           <button onClick={cargarSocios} style={{ ...btnOutline, ...btnSm, marginTop: 16 }}>↺ Actualizar</button>
         </div>
       )}
+
+      {/* Tab: Blog */}
+      {tab === 'blog' && <BlogStatsTab stats={blogStats} loading={loadingBlog} onRefresh={cargarBlog} />}
 
       {/* Tab: Invitaciones */}
       {tab === 'invitaciones' && (

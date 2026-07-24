@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 
 const C = {
@@ -147,6 +147,10 @@ const porEtapa = [
 
 export default function AlimentacionLarvasPage() {
   const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    fetch('/api/blog/view', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ slug: 'alimentacion-larvas' }) });
+  }, []);
 
   const handleCopy = () => {
     navigator.clipboard.writeText('https://prolarva-monitor.vercel.app/blog/alimentacion-larvas');

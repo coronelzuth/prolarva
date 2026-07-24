@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 
 const C = {
@@ -97,6 +97,10 @@ const data: Record<Animal, {
 export default function RacionesPage() {
   const [selected, setSelected] = useState<Animal>('pollos');
   const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    fetch('/api/blog/view', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ slug: 'raciones' }) });
+  }, []);
   const d = data[selected];
   const animal = animals.find(a => a.id === selected)!;
 

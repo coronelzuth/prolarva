@@ -113,7 +113,7 @@ export default function BlogHub() {
         </p>
 
         <div style={{ marginTop: 12, fontSize: 13, color: C.muted2 }}>
-          Por Juliana · ProLarva
+          Juliana · ProLarva
         </div>
       </div>
 

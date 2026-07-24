@@ -70,14 +70,14 @@ function FaqItem({ q, a, open, onToggle }: { q: string; a: string; open: boolean
 }
 
 const FAQS = [
-  { q: '¿Necesito experiencia previa con insectos o con larvas?', a: 'Para nada. El sistema está diseñado para empezar desde cero. El manual paso a paso, las videollamadas con Juliana y la App Monitor te guían en cada momento. Si podés alimentar tus animales, podés manejar BSF.' },
+  { q: '¿Necesito experiencia previa con insectos o con larvas?', a: 'Para nada. El sistema está diseñado para empezar desde cero. El manual paso a paso, las videollamadas con Juliana y la App Monitor te guían en cada momento. Si puedes alimentar tus animales, puedes manejar BSF.' },
   { q: '¿Qué pasa si las larvas se mueren o algo sale mal?', a: 'El kit incluye el Protocolo Anti-Crisis BSF con soluciones para los 7 imprevistos más comunes: temperatura, humedad, oviposición, mortalidad, plagas y más. Y con la garantía de resultado, Juliana sigue acompañándote sin costo adicional hasta que logres tu primer lote.' },
-  { q: '¿Es asqueroso trabajar con larvas?', a: 'Mucho menos de lo que pensás. Las larvas BSF no pican, no vuelan, no huelen mal cuando el sistema está bien manejado y no representan riesgo sanitario. Las herramientas del kit minimizan el contacto directo. Después de la primera semana, la mayoría lo ve como rutina normal.' },
+  { q: '¿Es asqueroso trabajar con larvas?', a: 'Mucho menos de lo que piensas. Las larvas BSF no pican, no vuelan, no huelen mal cuando el sistema está bien manejado y no representan riesgo sanitario. Las herramientas del kit minimizan el contacto directo. Después de la primera semana, la mayoría lo ve como rutina normal.' },
   { q: '¿Mis animales van a comer las larvas?', a: 'Sí, y con entusiasmo. La respuesta es instintiva y natural — pollos, peces y cerdos las reconocen como alimento desde el día uno. Como lo documentó Nicolás López con sus pollos de engorde: piel amarilla, menos grasa y mejor peso final al día 42.' },
   { q: '¿Cuánto espacio necesito para montarlo?', a: 'Desde 1 m² ya tenés un cultivo funcional. No necesitás instalaciones especiales, ni equipos industriales, ni permisos. Solo un espacio con sombra, ventilación y acceso a residuos orgánicos.' },
   { q: '¿Funciona en el clima de mi región?', a: 'La BSF es nativa de los trópicos — se adapta perfectamente a los climas cálidos colombianos (26–32°C ideal). Juliana trabaja desde Cúcuta y el sistema funciona en toda la franja tropical y templada del país.' },
   { q: '¿Puedo seguir usando el concentrado normal?', a: 'Sí. BSF complementa el concentrado — no lo reemplaza de golpe. Empezás reemplazando un porcentaje y ajustás según el comportamiento y el peso de tus animales. El sistema te enseña a manejar larvas vivas, larvas secas y harina de larva para que elijas lo que más te favorezca.' },
-  { q: '¿Cuándo recupero lo que invertí?', a: 'Con 100 pollos de engorde, el ahorro en concentrado del primer ciclo ya cubre el costo del kit. La mayoría de productores recuperan la inversión en el primero o segundo lote — y desde ahí, todo es ganancia.' },
+  { q: '¿Cuándo recupero lo que invertí?', a: 'Con 100 pollos de engorde, el ahorro en concentrado del primer ciclo ya cubre el costo del kit. La mayoría de productores recuperan la inversión en el primer o segundo lote — y desde ahí, todo es ganancia.' },
 ];
 
 // ── GALERÍA ─────────────────────────────────────────────
@@ -116,7 +116,7 @@ export default function Sistema2015Page() {
         </motion.div>
 
         <motion.div {...up(0.05)} style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.35)', borderRadius: 20, padding: '6px 16px', marginBottom: 22, fontSize: '0.8rem', color: C.greenL, fontWeight: 700 }}>
-          🌱 Sistema ProLarva 20/15
+          🌱 Sistema ProLarva 25/15
         </motion.div>
 
         <motion.h1 {...up(0.1)} style={{ fontSize: 'clamp(1.85rem, 4.5vw + 0.5rem, 3.2rem)', fontWeight: 900, margin: '0 auto 22px', maxWidth: 840, lineHeight: 1.1 }}>
@@ -146,7 +146,7 @@ export default function Sistema2015Page() {
         </motion.div>
 
         <motion.div {...up(0.25)}>
-          <a href="https://wa.me/573223212293?text=Hola%20Juliana%2C%20quiero%20comprar%20el%20Kit%20ProLarva%2020%2F15"
+          <a href="https://wa.me/573223212293?text=Hola%20Juliana%2C%20quiero%20comprar%20el%20Kit%20ProLarva%2025%2F15"
             style={{ display: 'inline-flex', alignItems: 'center', gap: 10, padding: '18px 38px', background: `linear-gradient(135deg,${C.green},${C.greenD})`, color: '#fff', borderRadius: 10, fontFamily: 'inherit', fontWeight: 900, fontSize: '1.05rem', cursor: 'pointer', textDecoration: 'none', boxShadow: `0 8px 36px ${C.green}45`, letterSpacing: '0.02em' }}>
             💬 Quiero Mi Kit Ahora
           </a>
@@ -323,7 +323,7 @@ export default function Sistema2015Page() {
       <section style={{ padding: '80px 20px', background: C.bg }}>
         <div style={{ maxWidth: 1060, margin: '0 auto' }}>
           <motion.h2 {...up()} style={{ fontSize: 'clamp(1.4rem, 3vw, 2.1rem)', fontWeight: 900, textAlign: 'center', margin: '0 auto 12px', lineHeight: 1.2, color: C.greenL }}>
-            Qué Recibís: El Kit ProLarva 20/15
+            Qué Recibís: El Kit ProLarva 25/15
           </motion.h2>
           <motion.p {...up(0.05)} style={{ textAlign: 'center', color: C.muted, maxWidth: 520, margin: '0 auto 52px', fontSize: '0.95rem', lineHeight: 1.6 }}>
             Todo lo que necesitás para empezar el primer día — nada que comprar por separado
@@ -490,8 +490,8 @@ export default function Sistema2015Page() {
           </motion.h2>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 16 }}>
             {[
-              { icon: '🔒', title: 'Garantía Incondicional — 7 Días', desc: 'Si en los primeros 7 días decidís que no es para vos, te devolvemos el 100% del dinero. Sin preguntas, sin trámites.', d: 0 },
-              { icon: '🎯', title: 'Garantía de Resultado', desc: 'Si seguís el sistema 20 días y no tenés tu primer lote produciendo, Juliana continúa el acompañamiento sin costo adicional hasta que lo logrés.', d: 0.1 },
+              { icon: '🔒', title: 'Garantía Incondicional — 7 Días', desc: 'Si en los primeros 7 días decides que no es para ti, te devolvemos el 100% del dinero. Sin preguntas, sin trámites.', d: 0 },
+              { icon: '🎯', title: 'Garantía de Resultado', desc: 'Si sigues el sistema 20 días y no tienes tu primer lote produciendo, Juliana continúa el acompañamiento sin costo adicional hasta que lo logres.', d: 0.1 },
             ].map((g, i) => (
               <motion.div key={i} {...up(g.d)} style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: '28px', display: 'flex', gap: 16 }}>
                 <div style={{ fontSize: '2.2rem', flexShrink: 0 }}>{g.icon}</div>
@@ -520,11 +520,6 @@ export default function Sistema2015Page() {
                   <div style={{ fontWeight: 800, color: C.text, fontSize: '0.95rem' }}>Juliana Coronel</div>
                   <div style={{ fontSize: '0.78rem', color: C.muted }}>Fundadora · ProLarva</div>
                   <div style={{ fontSize: '0.75rem', color: C.muted }}>Cúcuta, Colombia 🇨🇴</div>
-                </div>
-                {/* Placeholder para foto granja */}
-                <div className="farm-photo-slot" style={{ width: 170, height: 110, borderRadius: 12, background: `${C.green}10`, border: `1px dashed ${C.green}30`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 4 }}>
-                  <span style={{ fontSize: 24 }}>🌿</span>
-                  <span style={{ fontSize: '0.65rem', color: C.muted, textAlign: 'center', padding: '0 8px' }}>foto granja / larvas</span>
                 </div>
               </div>
               {/* Bio col */}
@@ -605,10 +600,10 @@ export default function Sistema2015Page() {
           ¿Listo para la Independencia Animal?
         </motion.h2>
         <motion.p {...up(0.1)} style={{ fontSize: '1.05rem', color: C.muted, margin: '0 auto 36px', maxWidth: 540, lineHeight: 1.65, position: 'relative' }}>
-          Acompañate a los productores colombianos que ya están reduciendo 25% su concentrado y recuperando la rentabilidad
+          Únete a los productores colombianos que ya están reduciendo 25% su concentrado y recuperando la rentabilidad
         </motion.p>
         <motion.div {...up(0.15)} style={{ display: 'flex', gap: 14, justifyContent: 'center', flexWrap: 'wrap', position: 'relative' }}>
-          <a href="https://wa.me/573223212293?text=Hola%20Juliana%2C%20quiero%20comprar%20el%20Kit%20ProLarva%2020%2F15"
+          <a href="https://wa.me/573223212293?text=Hola%20Juliana%2C%20quiero%20comprar%20el%20Kit%20ProLarva%2025%2F15"
             style={{ display: 'inline-flex', alignItems: 'center', gap: 10, padding: '18px 38px', background: `linear-gradient(135deg,${C.green},${C.greenD})`, color: '#fff', borderRadius: 10, fontFamily: 'inherit', fontWeight: 900, fontSize: '1.05rem', cursor: 'pointer', textDecoration: 'none', boxShadow: `0 8px 40px ${C.green}45`, letterSpacing: '0.02em' }}>
             💬 Comprar Mi Kit Ahora
           </a>
@@ -622,7 +617,7 @@ export default function Sistema2015Page() {
       <section style={{ padding: '48px 20px', background: C.bg2, textAlign: 'center', borderTop: `1px solid ${C.border}` }}>
         <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: C.text, marginBottom: 10 }}>¿Dudas Antes de Empezar?</h3>
         <p style={{ fontSize: '0.95rem', color: C.muted, margin: '0 auto 20px', maxWidth: 440, lineHeight: 1.6 }}>
-          Hablá directamente con Juliana — está aquí para responderte
+          Habla directamente con Juliana — está aquí para responderte
         </p>
         <a href="https://wa.me/573223212293" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '14px 28px', background: '#25D366', color: 'white', borderRadius: 8, textDecoration: 'none', fontWeight: 700, fontSize: '1rem', boxShadow: '0 4px 20px rgba(37,211,102,0.35)' }}>
           💬 WhatsApp — +57 322 321 2293
@@ -637,7 +632,6 @@ export default function Sistema2015Page() {
           .flow-arrow { display: none !important; }
           .flow-item { flex: 1 1 140px; }
           .juliana-wrap { flex-direction: column; align-items: center; }
-          .farm-photo-slot { display: none; }
         }
         @media (max-width: 400px) {
           .flow-wrap { gap: 8px; }

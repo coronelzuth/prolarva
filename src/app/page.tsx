@@ -189,7 +189,7 @@ export default function Home() {
       </div>
 
       <div style={{ textAlign: 'center', marginTop: 36, paddingTop: 28, borderTop: '1px solid rgba(34,197,94,0.1)' }}>
-        <p style={{ fontSize: 13, color: '#64748b', marginBottom: 12 }}>¿Le parece útil? Compártelo con otros productores</p>
+        <p style={{ fontSize: 13, color: '#64748b', marginBottom: 12 }}>¿Te parece útil? Compártelo con otros productores</p>
         <ShareButton />
       </div>
 

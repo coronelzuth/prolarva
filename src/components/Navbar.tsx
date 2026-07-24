@@ -17,7 +17,7 @@ const navLinks = [
 
 export default function Navbar() {
   const pathname = usePathname();
-  const { progress, overallPercent } = useProgress();
+  const { progress } = useProgress();
 
   const isSocios = pathname.startsWith('/socios');
 

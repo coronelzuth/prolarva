@@ -13,12 +13,12 @@ export default function GraciasPage() {
     <div style={{ minHeight: '80vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px 20px' }}>
       <div style={{ maxWidth: 480, textAlign: 'center' }}>
         <div style={{ fontSize: 64, marginBottom: 20 }}>🪲</div>
-        <h1 style={{ fontSize: 28, fontWeight: 900, marginBottom: 12, color: '#f1f5f9' }}>¡Ya estás dentro!</h1>
-        <p style={{ fontSize: 15, color: '#94a3b8', lineHeight: 1.65, marginBottom: 28 }}>
-          En segundos te redirigimos a la <strong style={{ color: '#4ade80' }}>Calculadora BSF</strong> para que veas exactamente cuánto puedes ahorrar en tu primer ciclo.
+        <h1 style={{ fontSize: 28, fontWeight: 900, marginBottom: 12, color: '#f1f5f9' }}>¡Mensaje enviado!</h1>
+        <p style={{ fontSize: 15, color: '#94a3b8', lineHeight: 1.65, marginBottom: 20 }}>
+          Juliana te escribirá por WhatsApp en las próximas horas. Mientras tanto, te redirigimos a la <strong style={{ color: '#4ade80' }}>Calculadora BSF</strong> para que veas exactamente cuánto puedes ahorrar.
         </p>
         <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.3)', borderRadius: 12, padding: '10px 20px', marginBottom: 28 }}>
-          <span style={{ fontSize: 13, color: '#10b981', fontWeight: 700 }}>✓ Datos recibidos — te contactamos pronto</span>
+          <span style={{ fontSize: 13, color: '#10b981', fontWeight: 700 }}>✓ Redirigiendo en unos segundos…</span>
         </div>
         <div>
           <Link href="/calculadora" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'linear-gradient(135deg,#22c55e,#16a34a)', color: '#fff', padding: '13px 28px', borderRadius: 12, textDecoration: 'none', fontWeight: 800, fontSize: 14 }}>

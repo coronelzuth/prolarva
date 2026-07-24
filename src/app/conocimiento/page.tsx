@@ -118,8 +118,8 @@ export default function ConocimientoPage() {
           <div>
             <div style={{ fontSize: 20, marginBottom: 8 }}>✅</div>
             <div style={{ fontWeight: 700, color: '#10b981', marginBottom: 12 }}>¡Módulo completado!</div>
-            <Link href="/preparacion" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'linear-gradient(135deg,#f59e0b,#d97706)', color: 'white', padding: '12px 24px', borderRadius: 10, textDecoration: 'none', fontWeight: 700, fontSize: 14 }}>
-              Ir al diagnóstico de preparación 🛠️ →
+            <Link href="/metas" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'linear-gradient(135deg,#10b981,#059669)', color: 'white', padding: '12px 24px', borderRadius: 10, textDecoration: 'none', fontWeight: 700, fontSize: 14 }}>
+              Elegir mi meta de producción 🎯 →
             </Link>
           </div>
         ) : (
@@ -129,8 +129,8 @@ export default function ConocimientoPage() {
             <button onClick={handleComplete} style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'linear-gradient(135deg,#22c55e,#16a34a)', color: 'white', padding: '12px 24px', borderRadius: 10, border: 'none', cursor: 'pointer', fontWeight: 700, fontSize: 14, fontFamily: 'Montserrat, sans-serif', marginRight: 12 }}>
               ✓ Completar Módulo 1
             </button>
-            <Link href="/preparacion" style={{ fontSize: 13, color: '#64748b', textDecoration: 'none' }}>
-              o ir al diagnóstico →
+            <Link href="/metas" style={{ fontSize: 13, color: '#64748b', textDecoration: 'none' }}>
+              o ir directo a metas →
             </Link>
           </div>
         )}

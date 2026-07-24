@@ -92,9 +92,10 @@ export default function CalculadoraPage() {
     const d = E[esp || 'pollos'];
     const p = result ? cop(result.totalPerd) : '?';
     const ac = result ? cop(result.perdAcum) : '?';
+    const animLabel = nAnim === 1 ? d.nom : d.pl;
     let m = tipo === 'pedido'
-      ? `Hola ProLarva 👋 Calculé que sin BSF estoy perdiendo ${p} por ciclo (${ac} este año) con mis ${nAnim} ${d.pl}. Quiero hacer mi primer pedido.`
-      : `Hola ProLarva 👋 Tengo ${nAnim} ${d.pl} y quiero producir mi propio BSF con el Kit para dejar de depender del concentrado. ¿Me cuentan?`;
+      ? `Hola ProLarva 👋 Calculé que sin BSF estoy perdiendo ${p} por ciclo (${ac} este año) con mis ${nAnim} ${animLabel}. Quiero hacer mi primer pedido.`
+      : `Hola ProLarva 👋 Tengo ${nAnim} ${animLabel} y quiero producir mi propio BSF con el Kit para dejar de depender del concentrado. ¿Me cuentan?`;
     if (nombre) m = `Hola ProLarva, soy ${nombre}. ` + m.replace('Hola ProLarva 👋 ', '');
     return m;
   }
@@ -158,11 +159,11 @@ export default function CalculadoraPage() {
             <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: '16px 18px', marginBottom: 22 }}>
               <div style={{ fontSize: 15, fontWeight: 800, color: C.greenL, marginBottom: 8 }}>🧮 ¿Para qué sirve esto?</div>
               <p style={{ fontSize: 13, color: C.muted, lineHeight: 1.65, margin: 0 }}>
-                Esta calculadora estima <strong style={{ color: C.text }}>cuánto está perdiendo por ciclo</strong> al no incluir BSF (mosca soldado negra) en la dieta de sus animales — tanto por mortalidad como por alimento mal aprovechado. Al final le mostramos cuánto podría ahorrarse usándolo.
+                Esta calculadora estima <strong style={{ color: C.text }}>cuánto estás perdiendo por ciclo</strong> al no incluir BSF (mosca soldado negra) en la dieta de tus animales — tanto por mortalidad como por alimento mal aprovechado. Al final te mostramos cuánto podrías ahorrarte usándolo.
               </p>
             </div>
             <div style={{ fontSize: 24, fontWeight: 900, color: C.greenL, marginBottom: 4 }}>¿Qué cría?</div>
-            <div style={{ fontSize: 14, color: C.muted, marginBottom: 20 }}>Toque su especie y arrancamos.</div>
+            <div style={{ fontSize: 14, color: C.muted, marginBottom: 20 }}>Toca tu especie y arrancamos.</div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10, marginBottom: 12 }}>
               {[{ key: 'pollos', ic: '🐔', nm: 'Pollos', sub: 'Engorde' }, { key: 'cerdos', ic: '🐷', nm: 'Cerdos', sub: 'Engorde' }, { key: 'peces', ic: '🐟', nm: 'Peces', sub: 'Tilapia / otros' }].map(sp => (
                 <button key={sp.key} onClick={() => handleEspecie(sp.key)} style={{ border: `2px solid ${esp === sp.key ? C.green : C.border}`, background: esp === sp.key ? 'rgba(34,197,94,0.1)' : C.card, borderRadius: 14, padding: '16px 6px', textAlign: 'center', cursor: 'pointer', fontFamily: 'inherit', width: '100%', transition: 'all 0.2s' }}>
@@ -180,19 +181,19 @@ export default function CalculadoraPage() {
         {step === 2 && (
           <div>
             <button onClick={() => goTo(1)} style={{ background: 'none', border: 'none', color: C.muted, fontSize: 13, fontWeight: 600, cursor: 'pointer', padding: '0 0 14px', fontFamily: 'inherit' }}>← Atrás</button>
-            <div style={{ fontSize: 24, fontWeight: 900, color: C.greenL, marginBottom: 4 }}>Su lote</div>
-            <div style={{ fontSize: 14, color: C.muted, marginBottom: 18 }}>Cuéntenos cómo maneja sus {espD?.pl || 'animales'}.</div>
+            <div style={{ fontSize: 24, fontWeight: 900, color: C.greenL, marginBottom: 4 }}>Tu lote</div>
+            <div style={{ fontSize: 14, color: C.muted, marginBottom: 18 }}>Cuéntanos cómo manejas tus {espD?.pl || 'animales'}.</div>
             <div style={{ background: C.card, borderRadius: 16, padding: 18, marginBottom: 12, border: `1px solid ${C.border}` }}>
-              <Fg label="¿Cuántos animales tiene en el lote?" hint="cabezas">
+              <Fg label="¿Cuántos animales tienes en el lote?" hint="cabezas">
                 <input type="number" value={nAnim} onChange={e => setNAnim(+e.target.value)} min={1} style={inp} />
               </Fg>
-              <Fg label="¿Cuántos días dura su ciclo?" hint={espD?.h}>
+              <Fg label="¿Cuántos días dura tu ciclo?" hint={espD?.h}>
                 <input type="number" value={dias} onChange={e => setDias(+e.target.value)} min={1} max={365} style={inp} />
               </Fg>
-              <Fg label="¿A cuánto le sale el kg de concentrado?">
+              <Fg label="¿A cuánto te sale el kg de concentrado?">
                 <Pfx><input type="number" value={pConc} onChange={e => setPConc(+e.target.value)} min={100} style={inpPfx} /></Pfx>
               </Fg>
-              <Fg label={`¿A cuánto vende cada ${espD?.nom || 'animal'}?`} hint="precio en pie">
+              <Fg label={`¿A cuánto vendes cada ${espD?.nom || 'animal'}?`} hint="precio en pie">
                 <Pfx><input type="number" value={pAnim} onChange={e => setPAnim(+e.target.value)} min={1} style={inpPfx} /></Pfx>
               </Fg>
               <Fg label="Mortalidad actual" hint="% que se pierden por ciclo" noMb>
@@ -209,7 +210,7 @@ export default function CalculadoraPage() {
           <div>
             <button onClick={() => goTo(2)} style={{ background: 'none', border: 'none', color: C.muted, fontSize: 13, fontWeight: 600, cursor: 'pointer', padding: '0 0 14px', fontFamily: 'inherit' }}>← Atrás</button>
             <div style={{ fontSize: 24, fontWeight: 900, color: C.greenL, marginBottom: 4 }}>Con BSF ProLarva</div>
-            <div style={{ fontSize: 14, color: C.muted, marginBottom: 18 }}>Ajuste el escenario que quiere ver.</div>
+            <div style={{ fontSize: 14, color: C.muted, marginBottom: 18 }}>Ajusta el escenario que quieres ver.</div>
             <div style={{ background: C.card, borderRadius: 16, padding: 18, marginBottom: 12, border: `1px solid ${C.border}` }}>
               <Fg label="¿Cómo usaría el BSF?">
                 <div style={{ display: 'flex', background: '#0a1628', borderRadius: 10, padding: 3, gap: 3, marginBottom: 8 }}>
@@ -220,7 +221,7 @@ export default function CalculadoraPage() {
                   ))}
                 </div>
                 <div style={{ fontSize: 11, color: C.muted, lineHeight: 1.4 }}>
-                  {modo === 'compra' ? '📦 Precio ProLarva: $8,000/kg. Pregunte por descuentos por volumen.' : '🏗️ Producción propia con el Kit estimada en ~$3,000/kg. Puede bajar más.'}
+                  {modo === 'compra' ? '📦 Precio ProLarva: $8,000/kg. Pregunta por descuentos por volumen.' : '🏗️ Producción propia con el Kit estimada en ~$3,000/kg. Puede bajar más.'}
                 </div>
               </Fg>
               <Fg label="¿Qué % de la dieta reemplaza con BSF?">
@@ -250,10 +251,10 @@ export default function CalculadoraPage() {
 
             {/* Hero pérdida */}
             <div style={{ background: 'linear-gradient(135deg,#7B1200,#C62828)', borderRadius: 16, padding: '22px 18px', textAlign: 'center', color: '#fff', marginBottom: 12 }}>
-              <div style={{ fontSize: 10, letterSpacing: '.8px', textTransform: 'uppercase', opacity: .75, marginBottom: 8 }}>Sin BSF en su granja</div>
+              <div style={{ fontSize: 10, letterSpacing: '.8px', textTransform: 'uppercase', opacity: .75, marginBottom: 8 }}>Sin BSF en tu granja</div>
               <div style={{ fontSize: 14, fontWeight: 600, opacity: .85, marginBottom: 5 }}>Cada ciclo está dejando ir</div>
               <div style={{ fontSize: 42, fontWeight: 900, lineHeight: 1, color: '#FFCDD2', marginBottom: 4 }}>{cop(result.totalPerd)}</div>
-              <div style={{ fontSize: 12, opacity: .65, marginBottom: 14 }}>en su lote de {nAnim.toLocaleString('es-CO')} {espD?.pl} ({dias} días)</div>
+              <div style={{ fontSize: 12, opacity: .65, marginBottom: 14 }}>en tu lote de {nAnim.toLocaleString('es-CO')} {espD?.pl} ({dias} días)</div>
               <div style={{ background: 'rgba(0,0,0,0.22)', borderRadius: 10, padding: 12 }}>
                 <div style={{ fontSize: 12, opacity: .75, marginBottom: 4 }}>En lo que va del año ya fueron</div>
                 <div style={{ fontSize: 22, fontWeight: 800, color: '#FFCDD2' }}>{cop(result.perdAcum)}</div>
@@ -334,7 +335,7 @@ export default function CalculadoraPage() {
               {[
                 { dot: '1', inv: true,  label: 'Inversión inicial',                     sub: 'Kit ProLarva + primera colonia + instalación' },
                 { dot: '2', inv: false, label: 'Primera cosecha',                        sub: 'Ya produce su propio BSF a costo mínimo. La colonia se multiplica sola.' },
-                { dot: '∞', inv: false, label: 'Proteína ilimitada, prácticamente gratis', sub: 'Sin pedidos, sin facturas, sin depender de nadie. Su propia fábrica de proteína.' },
+                { dot: '∞', inv: false, label: 'Proteína ilimitada, prácticamente gratis', sub: 'Sin pedidos, sin facturas, sin depender de nadie. Tu propia fábrica de proteína.' },
               ].map((row, i) => (
                 <div key={i}>
                   <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
@@ -347,16 +348,16 @@ export default function CalculadoraPage() {
                 </div>
               ))}
               <div style={{ background: 'rgba(34,197,94,0.07)', borderRadius: 10, padding: 12, marginTop: 14, fontSize: 12, color: 'rgba(255,255,255,0.85)', lineHeight: 1.5, fontStyle: 'italic', border: '1px solid rgba(34,197,94,0.2)' }}>
-                "Mientras usted sigue comprando concentrado, su vecino ya produce su propia proteína. Gratis."
+                "Mientras tú sigues comprando concentrado, tu vecino ya produce su propia proteína. Gratis."
               </div>
             </div>
 
             {/* CTA */}
             <div style={{ background: 'rgba(245,158,11,0.08)', border: '2px solid rgba(245,158,11,0.25)', borderRadius: 16, padding: 18, marginBottom: 14 }}>
               <div style={{ color: C.amber, fontSize: 15, fontWeight: 800, marginBottom: 5 }}>¿Listo para dejar de perder? 🚀</div>
-              <div style={{ fontSize: 12, color: C.muted, marginBottom: 14, lineHeight: 1.5 }}>Deje su nombre y WhatsApp y le contactamos para coordinar su pedido o contarle del Kit.</div>
+              <div style={{ fontSize: 12, color: C.muted, marginBottom: 14, lineHeight: 1.5 }}>Deja tu nombre y WhatsApp y te contactamos para coordinar tu pedido o contarte del Kit.</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 12 }}>
-                <input type="text" placeholder="Su nombre" value={nombre} onChange={e => setNombre(e.target.value)} style={{ ...inp, border: '2px solid rgba(245,158,11,0.3)' }} />
+                <input type="text" placeholder="Tu nombre" value={nombre} onChange={e => setNombre(e.target.value)} style={{ ...inp, border: '2px solid rgba(245,158,11,0.3)' }} />
                 <input type="tel" placeholder="WhatsApp (ej: 311 234 5678)" value={waNum} onChange={e => setWaNum(e.target.value)} style={{ ...inp, border: '2px solid rgba(245,158,11,0.3)' }} />
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -367,7 +368,7 @@ export default function CalculadoraPage() {
                   🏗️ Quiero producir mi propio BSF con el Kit
                 </button>
               </div>
-              {confVisible && <div style={{ marginTop: 10, padding: 11, background: 'rgba(34,197,94,0.1)', borderRadius: 10, fontSize: 13, color: C.green, fontWeight: 700, textAlign: 'center', border: '1px solid rgba(34,197,94,0.3)' }}>✅ ¡Listo! Le contactamos pronto por WhatsApp.</div>}
+              {confVisible && <div style={{ marginTop: 10, padding: 11, background: 'rgba(34,197,94,0.1)', borderRadius: 10, fontSize: 13, color: C.green, fontWeight: 700, textAlign: 'center', border: '1px solid rgba(34,197,94,0.3)' }}>✅ ¡Listo! Te contactamos pronto por WhatsApp.</div>}
               <button onClick={compartir} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, width: '100%', padding: 13, background: 'transparent', border: `2px solid ${C.border}`, borderRadius: 11, fontSize: 13, fontWeight: 700, color: C.text, cursor: 'pointer', fontFamily: 'inherit', marginTop: 10 }}>
                 🤝 Compartir con un vecino productor
               </button>

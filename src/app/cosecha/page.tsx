@@ -25,8 +25,8 @@ const steps = [
     description: [
       'Tienes dos caminos para empezar:',
       '🛒 Con ProLarva — la forma más segura. Recibes semilla lista para empezar sin adivinar.',
-      '🌿 De forma natural — creá un sustrato atrayente y colocá tiras de cartón corrugado para que las hembras depositen los huevos entre las capas.',
-      'Los huevos son puntos crema casi invisibles, del tamaño de una semilla de mostaza. Los encontrás entre las capas del cartón.',
+      '🌿 De forma natural — crea un sustrato atrayente y coloca tiras de cartón corrugado para que las hembras depositen los huevos entre las capas.',
+      'Los huevos son puntos crema casi invisibles, del tamaño de una semilla de mostaza. Los encuentras entre las capas del cartón.',
     ],
     tips: [
       'Para atraer hembras naturalmente: banano maduro + gallinaza + un poco de aceite vegetal funciona muy bien.',
@@ -34,7 +34,7 @@ const steps = [
       'Revisa el cartón cada 2 días. Cuando veas los puntitos crema, ya puedes separar los huevos.',
     ],
     alerts: [],
-    registro: 'Anotá la fecha exacta en que recolectás los huevos. Ese es tu Día 0 de ciclo.',
+    registro: 'Anota la fecha exacta en que recolectas los huevos. Ese es tu Día 0 de ciclo.',
   },
   {
     n: 2,
@@ -44,8 +44,8 @@ const steps = [
     color: '#eab308',
     summary: 'Los huevos eclosionan a los 4 días si están en el ambiente correcto.',
     description: [
-      'Una vez que tenés los huevos, hay que darles el ambiente ideal para que eclosionen bien:',
-      '1. Separá los huevos del cartón y colocalos sobre una malla fina o una hoja de papel.',
+      'Una vez que tienes los huevos, hay que darles el ambiente ideal para que eclosionen bien:',
+      '1. Separa los huevos del cartón y colócalos sobre una malla fina o una hoja de papel.',
       '2. Pon esa malla/papel encima de una capa de sustrato muy triturado y suave — casi pastoso.',
       '3. Una excelente opción: purina de pollo humedecida. Las larvitas pueden comerla directamente al nacer sin que tengas que hacer nada más.',
     ],
@@ -58,7 +58,7 @@ const steps = [
       'No expongas los huevos a luz solar directa — se secan y mueren.',
       'No muevas ni sacudas el recipiente durante estos 4 días.',
     ],
-    registro: 'Calculá tu fecha estimada de cosecha: Día 0 + 18 días. Ponela visible donde vas a trabajar.',
+    registro: 'Calcula tu fecha estimada de cosecha: Día 0 + 18 días. Ponla visible donde vas a trabajar.',
   },
   {
     n: 3,
@@ -69,8 +69,8 @@ const steps = [
     summary: 'Eclosionan a los 4 días y empiezan a comer de inmediato. Hay que dejarlas 5 días en el contenedor inicial.',
     description: [
       'Al día 4 las larvas salen. Son diminutas (menos de 1 mm) pero muy activas y hambrientas.',
-      'Como ya nacieron encima del sustrato, empiezan a comer solas de inmediato — no necesitás hacer nada.',
-      'Dejá que coman durante 5 días en ese mismo contenedor inicial. No las muevas todavía.',
+      'Como ya nacieron encima del sustrato, empiezan a comer solas de inmediato — no necesitas hacer nada.',
+      'Deja que coman durante 5 días en ese mismo contenedor inicial. No las muevas todavía.',
       'En estos 5 días van a triplicar o cuadruplicar su tamaño.',
     ],
     tips: [
@@ -82,7 +82,7 @@ const steps = [
       'No sacudas ni agites el contenedor — las larvitas son muy frágiles en esta etapa.',
       'Evitá alimentos ácidos, muy salados o con aceite al inicio.',
     ],
-    registro: 'Anotá la fecha de eclosión (día real) y cualquier observación: cuántas larvas ves, aspecto del sustrato.',
+    registro: 'Anota la fecha de eclosión (día real) y cualquier observación: cuántas larvas ves, aspecto del sustrato.',
   },
   {
     n: 4,
@@ -107,7 +107,7 @@ const steps = [
       'No uses alimentos podridos, con hongos, ni cítricos en exceso.',
       'Sin sal y sin aceite — los dañan.',
     ],
-    registro: 'Anotá cada alimentación: qué diste, cuántos kg y la fecha. Con esto calculas la tasa de conversión al final.',
+    registro: 'Anota cada alimentación: qué diste, cuántos kg y la fecha. Con esto calculas la tasa de conversión al final.',
   },
   {
     n: 5,
@@ -122,7 +122,7 @@ const steps = [
       '✓ Color blanco-crema, cuerpo gordo y firme',
       '✓ Muy activas — algunas intentan "escapar" del contenedor',
       '✓ Ya casi no consumen más alimento',
-      'Recogelas, pesalas y dáselas directamente a tus animales. Las consumen de forma instintiva.',
+      'Recógelas, pésalas y dáselas directamente a tus animales. Las consumen de forma instintiva.',
     ],
     tips: [
       'La mejor hora para cosechar es temprano en la mañana — las larvas están menos activas.',
@@ -150,7 +150,7 @@ const cicloSteps = [
       'Sigue agregando comida cada 2 días como hasta ahora. Las larvas siguen comiendo.',
       'Con el tiempo empiezas a notar que algunas larvas se oscurecen — pasan de blanco-crema a marrón oscuro. Esas son las prepupas.',
       'Siguen activas y se mueven, pero ya no comen. Por instinto, empiezan a alejarse de la humedad y buscan un lugar seco.',
-      'No tenés que hacer nada todavía — este cambio es natural y progresivo.',
+      'No tienes que hacer nada todavía — este cambio es natural y progresivo.',
     ],
     tips: [
       'No todas se oscurecen al mismo tiempo — es normal que haya una mezcla de larvas blancas y prepupas marrones.',
@@ -161,7 +161,7 @@ const cicloSteps = [
       'No agregues demasiada humedad cuando ya hay muchas prepupas — buscan escapar de la humedad y se dispersan.',
       'Si ves prepupas intentando salirse del contenedor, es la señal para preparar las trampas del siguiente paso.',
     ],
-    registro: 'Anotá cuando empieza el cambio de color. Eso te da la referencia para saber cuándo armar las trampas.',
+    registro: 'Anota cuando empieza el cambio de color. Eso te da la referencia para saber cuándo armar las trampas.',
   },
   {
     n: 7,
@@ -173,8 +173,8 @@ const cicloSteps = [
     description: [
       'Cuando la mayoría del lote ya está en prepupa, es hora de facilitarles la salida.',
       'Las prepupas se alejan de la humedad por instinto — usás ese instinto a tu favor.',
-      'Armá unas rampas o tablitas de madera que salgan del sustrato y "caigan" hacia afuera del contenedor. Las prepupas van a subirlas solas y caer al otro lado.',
-      'Del otro lado ponés un contenedor nuevo con una cama de afrecho (salvado de trigo) o aserrín. Ahí es donde van a pupar.',
+      'Arma unas rampas o tablitas de madera que salgan del sustrato y "caigan" hacia afuera del contenedor. Las prepupas van a subirlas solas y caer al otro lado.',
+      'Del otro lado pon un contenedor nuevo con una cama de afrecho (salvado de trigo) o aserrín. Ahí es donde van a pupar.',
       'En ese segundo contenedor, en un lugar oscuro, fresco y ventilado, las prepupas se transforman en pupas durante 10–14 días.',
     ],
     tips: [
@@ -187,7 +187,7 @@ const cicloSteps = [
       'Las hormigas son el peor enemigo en esta etapa — asegurate de que no puedan entrar.',
       'No manipules las pupas — son frágiles y el movimiento las daña.',
     ],
-    registro: 'Anotá cuántas prepupas lograste recolectar. En 10–14 días eclosionan como adultos, se aparean, ponen huevos, y el ciclo comienza de nuevo.',
+    registro: 'Anota cuántas prepupas lograste recolectar. En 10–14 días eclosionan como adultos, se aparean, ponen huevos, y el ciclo comienza de nuevo.',
   },
 ];
 
@@ -518,6 +518,18 @@ export default function CosechaPage() {
         >
           Pedir mi semilla BSF →
         </a>
+      </div>
+
+      {/* Kit ProLarva CTA */}
+      <div style={{ marginTop: 16, background: 'rgba(16,185,129,0.06)', border: '2px solid rgba(16,185,129,0.3)', borderRadius: 16, padding: '24px 20px', textAlign: 'center' }}>
+        <div style={{ fontSize: 28, marginBottom: 10 }}>🎓</div>
+        <div style={{ fontSize: 16, fontWeight: 800, color: '#f1f5f9', marginBottom: 8 }}>¿Quieres hacerlo con acompañamiento real?</div>
+        <p style={{ fontSize: 13, color: '#94a3b8', lineHeight: 1.65, maxWidth: 440, margin: '0 auto 20px' }}>
+          El Kit ProLarva 25/15 incluye semilla viva, materiales, manual y 45 días de acompañamiento directo con Juliana. Tu primer ciclo sin adivinar.
+        </p>
+        <Link href="/sistema-2015" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'linear-gradient(135deg,#10b981,#059669)', color: '#fff', borderRadius: 12, padding: '13px 28px', fontWeight: 800, fontSize: 14, textDecoration: 'none' }}>
+          Ver el Kit ProLarva 25/15 →
+        </Link>
       </div>
 
       {/* Calculadora recommendation */}

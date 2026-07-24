@@ -17,7 +17,7 @@
 **Deploy:** `vercel --prod --yes` desde esta carpeta
 **Dueña:** Juliana Coronel — fundadora de ProLarva, Cúcuta Colombia
 **WhatsApp ProLarva:** +57 322 321 2293 (`573223212293` en formato WA)
-**Sync:** Local = GitHub = Vercel (todo sincronizado, 2026-07-10)
+**Sync:** Local = GitHub = Vercel (todo sincronizado, 2026-07-23)
 
 ---
 
@@ -54,7 +54,10 @@ Están en `.env.local` (local, ignorado por git) y en Vercel → Settings → En
 | `/sistema-2015` | Landing de venta — Kit ProLarva 25/15, acompañamiento, bonos, garantías, Juliana |
 | `/socios` | Zona privada — tracker de lotes, alimentación y cosechas (sin Larvi ni WhatsApp) |
 | `/gracias` | Página post-formulario — confirmación + redirect automático a /calculadora en 4 seg |
-| `/blog`      | Mini blog educativo — 8 problemas comunes en cría BSF con solución rápida, acordeón expandible |
+| `/blog` | Hub del blog — cuadrícula filtrable por categoría (Problemas, Nutrición, Manejo). 3 artículos publicados |
+| `/blog/problemas` | 8 problemas comunes en cría BSF — acordeón expandible + botones compartir (copiar enlace / WhatsApp) |
+| `/blog/raciones` | Raciones por animal y etapa — selector de especie (pollos/gallinas/cerdos/peces), tablas, tips + compartir |
+| `/blog/alimentacion-larvas` | Qué comen las larvas BSF — sustratos, porciones por etapa del ciclo, qué evitar, variación proteica + compartir |
 | `/contenido` | CMS de guiones — lista de 83 guiones, editor, calendario, cambio de estados |
 
 ---
@@ -72,7 +75,10 @@ src/
 │   ├── preparacion/page.tsx  # Módulo 2 — quiz diagnóstico + recommendation card
 │   ├── metas/page.tsx        # Módulo 3 — rutas + links a /cosecha y /calculadora
 │   ├── cosecha/page.tsx      # Guía práctica — 7 pasos + panel recomendación calculadora
-│   ├── blog/page.tsx         # Blog — 8 problemas BSF, acordeón, CTA WhatsApp
+│   ├── blog/page.tsx                      # Hub blog — cuadrícula con filtro por categoría
+│   ├── blog/problemas/page.tsx            # 8 problemas BSF con acordeón + compartir
+│   ├── blog/raciones/page.tsx             # Raciones por animal/etapa con selector + compartir
+│   ├── blog/alimentacion-larvas/page.tsx  # Sustratos, porciones, qué evitar, proteína + compartir
 │   ├── calculadora/page.tsx  # Calculadora wizard completa (React nativo, 4 pasos)
 │   ├── socios/page.tsx       # Zona de Socios (login + tracker)
 │   └── gracias/page.tsx      # Página de confirmación post-formulario
@@ -159,10 +165,12 @@ Cálculo en `useEffect` que se dispara cuando `step === 4`.
 
 ### `socios/page.tsx`
 Login con credenciales demo: `SOCIO-2025 / larva123`, `coronelzulieth@gmail.com / prolarva2025`, `PROLARVA-ADMIN / admin2025`.
-5 vistas: Resumen, Mis Lotes, Alimentación, Cosechas, Guía Rápida.
+**Nav:** 5 tabs — Resumen, Mis Lotes, Cosechas, Estadísticas, Mi Perfil. (Guía Rápida ya NO está en el nav, vive dentro de Perfil → Herramientas)
 Sidebar sticky a `top: 60px` (debajo del Navbar), `height: calc(100vh - 60px)`.
-**Móvil (<768px):** sidebar oculto → bottom tab bar fijo + mobile header con nombre y logout.
+**Móvil (<768px):** sidebar oculto → bottom tab bar fijo (5 tabs: Inicio/Lotes/Cosecha/Stats/Perfil) + mobile header.
 Estado en `localStorage` via `useSocios`.
+**PerfilView — sección Herramientas:** botones 📋 Guía Rápida BSF / 🗺️ Ver guía de la app / 🗑️ Limpiar mis datos.
+**PerfilView — Cambiar contraseña:** colapsable con toggle. Por defecto cerrado, se expande al tocar "🔐 Cambiar contraseña ▾".
 **Funcionalidades en detalle de lote:**
 - `LoteDetail` tiene botón ✏️ Editar (modal para cambiar nombre/fecha)
 - `MiniCalendar`: strip de hitos + botón "📅 Ver calendario" que despliega grid real Lu–Do con emojis de hitos sobre sus fechas. Si el ciclo cruza dos meses se muestran ambos apilados.
@@ -278,7 +286,7 @@ a5cc857  feat: port calculadora BSF a React con paleta de la app
 ## Estado actual
 > **Actualizar esta sección al final de cada sesión de trabajo.**
 
-**Última actualización:** 2026-07-16
+**Última actualización:** 2026-07-23
 
 **Qué está funcionando en producción:**
 - Todas las rutas desplegadas y accesibles en móvil y desktop
@@ -321,6 +329,17 @@ a5cc857  feat: port calculadora BSF a React con paleta de la app
 | `guiones_cms` | Guiones del CMS de contenido |
 | `recordatorios` | Recordatorios por lote (dia, titulo, completado) |
 | `fotos_lotes` | Fotos por lote en base64 JPEG comprimido |
+
+**Cambios recientes (2026-07-23 — sesión 5):**
+- ✅ **Blog hub** — `/blog` con cuadrícula filtrable por categoría (Todos/Problemas/Nutrición/Manejo)
+- ✅ **3 artículos publicados en el blog:**
+  - `/blog/problemas` — 8 problemas BSF con solución (ya existía, commiteado y pusheado)
+  - `/blog/raciones` — raciones por animal y etapa, selector de especie (ya existía, commiteado)
+  - `/blog/alimentacion-larvas` — NUEVO: sustratos recomendados, porciones por etapa del ciclo, qué evitar, cómo variar proteína de la larva antes de cosechar
+- ✅ **Botones compartir en cada artículo** — "🔗 Copiar enlace" (clipboard + feedback "¡Copiado!" 2s) + "WhatsApp" (texto preescrito con el URL del artículo específico), junto al breadcrumb
+- ✅ **Guía Rápida movida del nav al Perfil** — quitada de `navItems` (sidebar y mobile bottom bar). Ahora es un botón "📋 Guía Rápida BSF" en la sección Herramientas de PerfilView. Nav quedó con 5 tabs.
+- ✅ **Cambiar contraseña colapsable** — en PerfilView, muestra solo "🔐 Cambiar contraseña ▾" por defecto. Se expande/colapsa al tocar. Campos y botón ocultos hasta que se abre.
+- ✅ **Tour actualizado** — quitado el paso de `nav-guia`. Tour ahora tiene 5 pasos (dashboard/lotes/cosecha/estadisticas/perfil). Descripción de Perfil actualizada.
 
 **Cambios recientes (2026-07-23 — sesión 4):**
 - ✅ **Blog commiteado** — `src/app/blog/page.tsx` nunca había sido commiteado; ahora en GitHub y producción
@@ -411,7 +430,7 @@ a5cc857  feat: port calculadora BSF a React con paleta de la app
 3. **Loading state en botones de guardar** — los botones no se deshabilitan mientras el request a Supabase está en curso; el usuario puede tocar dos veces y duplicar registros
 4. **Modal alimentación preselecciona lote** — cuando se llama `openFeed(loteId)` desde el detalle de un lote, el select de lote debe quedar preseleccionado (y ocultarse si solo hay un lote disponible). Actualmente `defaultValue` en React no actualiza al re-renderizar; solución: añadir `key={prefillLoteId}` al modal o usar estado controlado
 5. **Dashboard "Últimas alimentaciones" huérfano** — ahora que alimentación vive dentro de cada lote, este bloque del dashboard es confuso. Reemplazar con "Actividad reciente" (últimas 3 acciones: feeds + cosechas mezcladas) o eliminar el bloque
-6. **Admin tab → dentro de Perfil** — el tab Admin en la barra móvil suma un 7mo tab cuando el usuario es admin, volviendo a causar overflow. Mover el acceso al panel admin como botón dentro de PerfilView (visible solo para `rol === 'admin'`) y eliminar el tab de la barra
+6. ~~**Admin tab → dentro de Perfil**~~ — ya hay 5 tabs en el nav (sin Guía). El tab Admin sería el 6to si el usuario es admin; aún puede causar overflow en pantallas muy pequeñas. Pendiente: mover Admin a un botón dentro de PerfilView (visible solo para `rol === 'admin'`)
 7. **Mobile header simplificado** — el header móvil muestra avatar+nombre (→ Perfil) y botón "Salir". El avatar es redundante con el tab Perfil. Simplificar: mostrar solo el título "ProLarva" a la izquierda y botón "Salir" a la derecha
 8. **Sidebar avatar refleja foto personalizada** — si el usuario subió foto de perfil (localStorage `prl-avatar-{code}`), el círculo con inicial en el footer del sidebar no la muestra. Leer el avatar en `SociosInner` y pasarlo al sidebar
 9. **Eliminar `AlimentacionView`** — función muerta en el código desde que se integró alimentación al detalle de lote. Borrar para limpiar ~20 líneas

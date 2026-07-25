@@ -589,7 +589,7 @@ function Dashboard({ lotes, feeds, cosechas, activeLotes, readyLotes, recordator
               <div style={{ fontSize: 13, fontWeight: 700, color: S.red }}>{l.nombre} — ¡Ventana de cosecha vencida!</div>
               <div style={{ fontSize: 11, color: S.muted, marginTop: 2 }}>Día {d} — ya pasaron los 28 días óptimos. Las larvas se están encapando.</div>
             </div>
-            <button onClick={e => { e.stopPropagation(); onNav('cosecha'); }} style={{ ...btnDanger, flexShrink: 0, fontSize: 11 }}>Registrar igual</button>
+            <button onClick={e => { e.stopPropagation(); onViewLote(l.id); }} style={{ ...btnDanger, flexShrink: 0, fontSize: 11 }}>Registrar igual</button>
           </div>
         );
       })}
@@ -603,7 +603,7 @@ function Dashboard({ lotes, feeds, cosechas, activeLotes, readyLotes, recordator
               <div style={{ fontSize: 13, fontWeight: 700, color: S.green2 }}>{l.nombre} — ¡Lista para cosechar!</div>
               <div style={{ fontSize: 11, color: S.muted, marginTop: 2 }}>Día {d} de 28 — estás en la ventana óptima. No esperes más.</div>
             </div>
-            <button onClick={e => { e.stopPropagation(); onNav('cosecha'); }} style={{ ...btnPrimary, ...btnSm, flexShrink: 0, fontSize: 11 }}>Registrar cosecha</button>
+            <button onClick={e => { e.stopPropagation(); onViewLote(l.id); }} style={{ ...btnPrimary, ...btnSm, flexShrink: 0, fontSize: 11 }}>Registrar cosecha</button>
           </div>
         );
       })}
@@ -991,8 +991,8 @@ function FotosGaleria({ lote, fotos, onAdd, onDelete }: {
 
 // ─── Lote detail ──────────────────────────────────────────────────────────────
 
-function LoteDetail({ lote, feeds, lotes, recordatorios, fotos, onBack, onAddFeed, onEdit, onAddRecordatorio, onToggleRecordatorio, onDeleteRecordatorio, onAddFoto, onDeleteFoto }: {
-  lote: Lote; feeds: FeedLog[]; lotes: Lote[];
+function LoteDetail({ lote, feeds, lotes, cosechas, recordatorios, fotos, onBack, onAddFeed, onEdit, onAddRecordatorio, onToggleRecordatorio, onDeleteRecordatorio, onAddFoto, onDeleteFoto, onNewCosecha }: {
+  lote: Lote; feeds: FeedLog[]; lotes: Lote[]; cosechas: Cosecha[];
   recordatorios: Recordatorio[]; fotos: Foto[];
   onBack: () => void; onAddFeed: (loteId: string) => void; onEdit: () => void;
   onAddRecordatorio: (r: Omit<Recordatorio, 'id' | 'completado' | 'creadoEn'>) => void;
@@ -1000,11 +1000,14 @@ function LoteDetail({ lote, feeds, lotes, recordatorios, fotos, onBack, onAddFee
   onDeleteRecordatorio: (id: string) => void;
   onAddFoto: (f: Omit<Foto, 'id' | 'creadoEn'>) => void;
   onDeleteFoto: (id: string) => void;
+  onNewCosecha: () => void;
 }) {
   const d = daysSince(lote.fecha);
   const pct = Math.min(Math.round((d / 28) * 100), 100);
   const loteFeds = feeds.filter(f => f.loteId === lote.id);
   const loteRecs = recordatorios.filter(r => r.loteId === lote.id);
+  const loteCosechas = cosechas.filter(c => c.loteId === lote.id);
+  const kgTotal = loteCosechas.reduce((a, c) => a + c.peso, 0);
   let daysMsg = '';
   if (d >= 22 && d <= 28) daysMsg = '✅ ¡Tu lote está listo para cosechar!';
   else if (d > 28) daysMsg = '⚠️ Pasó la ventana óptima. Revisa si hay prepupas.';
@@ -1069,6 +1072,38 @@ function LoteDetail({ lote, feeds, lotes, recordatorios, fotos, onBack, onAddFee
           <EmptyState icon="🌿" text="Sin alimentaciones registradas para este lote" />
         ) : (
           [...loteFeds].reverse().map(f => <FeedEntry key={f.id} feed={f} lotes={lotes} />)
+        )}
+      </div>
+
+      <div style={cardStyle}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
+          <div>
+            <h3 style={{ fontSize: 13, fontWeight: 700 }}>⚖️ Cosechas de este lote</h3>
+            {loteCosechas.length > 0 && (
+              <div style={{ fontSize: 12, color: S.emerald, marginTop: 4 }}>
+                {kgTotal.toFixed(1)} kg cosechados en {loteCosechas.length} cosecha{loteCosechas.length !== 1 ? 's' : ''}
+              </div>
+            )}
+          </div>
+          <button style={{ ...btnPrimary, ...btnSm }} onClick={onNewCosecha}>+ Registrar cosecha</button>
+        </div>
+        {loteCosechas.length === 0 ? (
+          <EmptyState icon="⚖️" text="Sin cosechas registradas para este lote" />
+        ) : (
+          [...loteCosechas].reverse().map(c => (
+            <div key={c.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: `1px solid ${S.border}` }}>
+              <div>
+                <div style={{ fontSize: 14, fontWeight: 700, color: S.emerald }}>{c.peso} kg</div>
+                <div style={{ fontSize: 11, color: S.muted, marginTop: 2 }}>{fmtDate(c.fecha)}{c.sustratoTotal ? ` · Conv. ${((c.peso / c.sustratoTotal) * 100).toFixed(1)}%` : ''}</div>
+                {c.notas && <div style={{ fontSize: 11, color: S.muted, marginTop: 2 }}>{c.notas}</div>}
+              </div>
+              {c.calidad && (
+                <div style={{ fontSize: 20 }}>
+                  {c.calidad === 'excelente' ? '⭐' : c.calidad === 'buena' ? '👍' : c.calidad === 'regular' ? '😐' : '👎'}
+                </div>
+              )}
+            </div>
+          ))
         )}
       </div>
     </div>
@@ -2748,8 +2783,7 @@ function PerfilView({
 
 const TOUR_STEPS = [
   { targetId: 'nav-dashboard',    title: '🏠 Resumen',      desc: 'Tu panel principal. Aquí aparecen alertas automáticas de cosecha, recordatorios activos y el estado general de tu producción en tiempo real.' },
-  { targetId: 'nav-lotes',        title: '📦 Mis Lotes',    desc: 'Cada vez que siembras, creas un lote. La app calcula la etapa del ciclo automáticamente y te avisa cuándo es momento de cosechar.' },
-  { targetId: 'nav-cosecha',      title: '⚖️ Cosechas',    desc: 'Anota el peso de cada cosecha. La app calcula tu tasa de conversión para que midas qué tan eficiente estás siendo.' },
+  { targetId: 'nav-lotes',        title: '📦 Mis Lotes',    desc: 'Cada vez que siembras, creas un lote. Dentro del lote puedes registrar alimentaciones y cosechas directamente.' },
   { targetId: 'nav-estadisticas', title: '📊 Estadísticas',  desc: 'Gráficas de producción, ranking de tus mejores lotes, qué sustrato te funciona mejor, y exporta tus datos a Excel.' },
   { targetId: 'nav-perfil',       title: '👤 Mi Perfil',     desc: 'Edita tu nombre, cambia tu foto, actualiza tu contraseña y accede a la Guía Rápida BSF desde un solo lugar.' },
 ];
@@ -2992,7 +3026,6 @@ function SociosInner() {
   const navItems: { key: View; icon: string; label: string }[] = [
     { key: 'dashboard',    icon: '🏠', label: 'Resumen' },
     { key: 'lotes',        icon: '📦', label: 'Mis Lotes' },
-    { key: 'cosecha',      icon: '⚖️', label: 'Cosechas' },
     { key: 'estadisticas', icon: '📊', label: 'Estadísticas' },
     { key: 'perfil',       icon: '👤', label: 'Mi Perfil' },
     ...(db.session.rol === 'admin' ? [{ key: 'admin' as View, icon: '🔑', label: 'Admin' }] : []),
@@ -3074,6 +3107,7 @@ function SociosInner() {
         {view === 'lote-detail' && detailLote && (
           <LoteDetail
             lote={detailLote} feeds={db.feeds} lotes={db.lotes}
+            cosechas={db.cosechas}
             recordatorios={db.recordatorios} fotos={db.fotos}
             onBack={() => setView('lotes')} onAddFeed={openFeed}
             onEdit={() => { setEditNombre(detailLote.nombre); setEditFecha(detailLote.fecha); setEditLoteId(detailLote.id); }}
@@ -3082,10 +3116,8 @@ function SociosInner() {
             onDeleteRecordatorio={db.deleteRecordatorio}
             onAddFoto={db.addFoto}
             onDeleteFoto={db.deleteFoto}
+            onNewCosecha={() => { setModalCosecha(true); setTimeout(() => { if (cFecha.current) cFecha.current.value = todayLocal(); }, 10); }}
           />
-        )}
-        {view === 'cosecha' && (
-          <CosechaView cosechas={db.cosechas} lotes={db.lotes} totalKg={db.totalKg} avgConv={db.avgConv} onNewCosecha={() => { setModalCosecha(true); setTimeout(() => { if (cFecha.current) cFecha.current.value = todayLocal(); }, 10); }} />
         )}
         {view === 'guia'  && <GuiaView />}
         {view === 'estadisticas' && (

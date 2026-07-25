@@ -289,12 +289,21 @@ a5cc857  feat: port calculadora BSF a React con paleta de la app
 
 **Última actualización:** 2026-07-25
 
+**Cambios recientes (2026-07-25 — sesión 10):**
+- ✅ **Navbar: link 📋 Contenido solo admin** — lee `prl-session` de localStorage; visible solo cuando `rol === 'admin'`
+- ✅ **Lotes + Cosechas unificados** — tab "Cosechas" eliminado del nav (4 tabs). Cosechas visibles y registrables dentro de `LoteDetail` con kg totales del lote
+- ✅ **Mobile header eliminado** — quitado el bloque nombre + "Salir" sobre el contenido en móvil (redundante con tab Perfil)
+- ✅ **Tour actualizado** — paso cosecha fusionado con lotes
+
 **Cambios recientes (2026-07-25 — sesión 9):**
-- ✅ **Notificaciones push funcionando end-to-end** — suscripción, guardado en Supabase y envío confirmado
-- ✅ **VAPID keys regeneradas** — keys limpias generadas con `web-push`, hardcodeadas en `socios/page.tsx` (clave pública) y actualizadas en Vercel
-- ✅ **RLS fix** — `push_subscriptions` tenía RLS bloqueando INSERT anon; corregido con policy `allow_all_anon`
-- ✅ **Cuentas admin limpiadas** — eliminadas cuentas demo viejas; admin activos: `admin.zuth`/`prolarva2025` y `admin`/`pl2025`
-- ✅ **Service worker v4** — fuerza descarte del caché v3
+- ✅ **Notificaciones push funcionando end-to-end** — suscripción desde browser, guardado en Supabase, envío desde servidor confirmado en dispositivo real
+- ✅ **VAPID keys regeneradas** — keys limpias con `web-push`; clave pública hardcodeada en `socios/page.tsx` (elimina dependencia del env var); Vercel actualizado con nuevo par
+- ✅ **RLS fix `push_subscriptions`** — política `allow_all_anon` ejecutada en Supabase SQL Editor; antes bloqueaba INSERT del anon key silenciosamente
+- ✅ **`urgency: 'high'`** — ambos endpoints de `/api/push/notify` ahora envían con prioridad alta a FCM
+- ✅ **Service worker v4** — fuerza descarte del caché v3 en todos los navegadores
+- ✅ **Ícono PWA** — `icon-192.png` e `icon-512.png` reemplazados con Larvi (`LARVI.png`) sobre fondo verde #22c55e. Pendiente: reescalar con más padding y probar fondo negro/blanco
+- ✅ **Cuentas admin limpiadas** — eliminadas cuentas demo viejas (PROLARVA-ADMIN, SOCIO-2025, coronelzulieth@gmail.com); admins activos: `admin.zuth`/`prolarva2025` y `admin`/`pl2025`
+- ⚠️ **Notificaciones flotantes en Android** — por defecto Android pone Chrome en "Silenciosa"; el socio debe mantener presionada la notificación → ⚙️ → Importancia → **Urgente** para que aparezcan en pantalla
 
 **Cambios recientes (2026-07-25 — sesión 8):**
 - ✅ **`/contenido` desplegado** — CMS de guiones activo en producción. Lista los 83 guiones, filtra por tipo/estado/búsqueda, panel lateral de edición, vista calendario

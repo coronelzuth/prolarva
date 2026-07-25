@@ -542,10 +542,11 @@ function LineChart({ data, metaLine }: { data: { label: string; value: number }[
 
 type View = 'dashboard' | 'lotes' | 'lote-detail' | 'cosecha' | 'guia' | 'admin' | 'perfil' | 'estadisticas';
 
-function Dashboard({ lotes, feeds, cosechas, activeLotes, readyLotes, recordatorios, totalKg, avgConv, userName, onViewLote, onNav }: {
+function Dashboard({ lotes, feeds, cosechas, activeLotes, readyLotes, recordatorios, totalKg, avgConv, userName, anuncio, onViewLote, onNav }: {
   lotes: Lote[]; feeds: FeedLog[]; cosechas: Cosecha[];
   activeLotes: Lote[]; readyLotes: Lote[]; recordatorios: Recordatorio[];
   totalKg: number; avgConv: number | null; userName: string;
+  anuncio?: string | null;
   onViewLote: (id: string) => void; onNav: (v: View) => void;
 }) {
   const statCard = (num: string, label: string, accent: string) => (
@@ -560,12 +561,23 @@ function Dashboard({ lotes, feeds, cosechas, activeLotes, readyLotes, recordator
   const lotesUrgentes  = lotes.filter(l => { const d = daysSince(l.fecha); return d >= 22 && d <= 28; });
   const lotesPróximos  = lotes.filter(l => { const d = daysSince(l.fecha); return d >= 18 && d < 22; });
 
+  const [anuncioDismissed, setAnuncioDismissed] = useState(false);
+
   return (
     <div>
       <div style={{ marginBottom: 28 }}>
         <h1 style={{ fontSize: 22, fontWeight: 900 }}>¡Hola, {userName.split(' ')[0]}! 🪲</h1>
         <p style={{ color: S.muted, fontSize: 13, marginTop: 4 }}>Resumen de tu producción BSF de hoy</p>
       </div>
+
+      {/* Banner de anuncio admin */}
+      {anuncio && !anuncioDismissed && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', borderRadius: 12, background: 'rgba(56,189,248,0.08)', border: '1.5px solid rgba(56,189,248,0.3)', marginBottom: 16 }}>
+          <span style={{ fontSize: 20, flexShrink: 0 }}>📌</span>
+          <div style={{ flex: 1, fontSize: 13, color: '#e2e8f0', lineHeight: 1.5 }}>{anuncio}</div>
+          <button onClick={() => setAnuncioDismissed(true)} style={{ background: 'none', border: 'none', color: S.muted, cursor: 'pointer', fontSize: 16, flexShrink: 0, padding: 4 }}>✕</button>
+        </div>
+      )}
 
       {/* Notificaciones — vencidos primero */}
       {lotesVencidos.map(l => {
@@ -1844,7 +1856,15 @@ function AdminView({ adminCode }: { adminCode: string }) {
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               {leads.map(lead => {
                 const espEmoji: Record<string, string> = { pollos: '🐔', cerdos: '🐷', peces: '🐟' };
-                const ctaColor = lead.tipo_cta === 'pedido' ? S.green : S.amber;
+                const ESTADO_CFG: Record<string, { color: 'green'|'amber'|'red'|'blue'|'gray'; label: string }> = {
+                  nuevo:      { color: 'blue',  label: '🆕 Nuevo' },
+                  contactado: { color: 'amber', label: '📞 Contactado' },
+                  en_proceso: { color: 'green', label: '🔄 En proceso' },
+                  cerrado:    { color: 'green', label: '✅ Cerrado' },
+                  perdido:    { color: 'gray',  label: '❌ Perdido' },
+                };
+                const cfg = ESTADO_CFG[lead.estado ?? 'nuevo'] ?? ESTADO_CFG.nuevo;
+                const expanded = expandedLead === lead.id;
                 return (
                   <div key={lead.id} style={{ ...cardStyle, padding: '14px 16px' }}>
                     <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12, flexWrap: 'wrap' }}>
@@ -1859,12 +1879,43 @@ function AdminView({ adminCode }: { adminCode: string }) {
                             {lead.n_animales} {lead.especie} · pérdida: {new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(lead.perdida_cop)}
                           </div>
                         )}
+                        {lead.notas_crm && <div style={{ fontSize: 11, color: S.muted, fontStyle: 'italic', marginTop: 3 }}>📝 {lead.notas_crm}</div>}
                       </div>
-                      <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                        <Badge color={lead.tipo_cta === 'pedido' ? 'green' : 'amber'}>{lead.tipo_cta || '—'}</Badge>
-                        <div style={{ fontSize: 10, color: S.muted, marginTop: 4 }}>{fmtDate(lead.creado_en)}</div>
+                      <div style={{ textAlign: 'right', flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6 }}>
+                        <Badge color={cfg.color}>{cfg.label}</Badge>
+                        <div style={{ fontSize: 10, color: S.muted }}>{fmtDate(lead.creado_en)}</div>
+                        <button onClick={() => { setExpandedLead(expanded ? null : lead.id); setEditLeadNotas(lead.notas_crm ?? ''); }} style={{ ...btnOutline, ...btnSm, fontSize: 10 }}>
+                          {expanded ? '▲ Cerrar' : '✏️ Editar'}
+                        </button>
                       </div>
                     </div>
+                    {expanded && (
+                      <div style={{ marginTop: 12, paddingTop: 12, borderTop: `1px solid ${S.border}` }}>
+                        <div style={{ marginBottom: 8 }}>
+                          <label style={labelStyle}>Estado CRM</label>
+                          <select
+                            value={lead.estado ?? 'nuevo'}
+                            onChange={e => actualizarLead(lead.id, { estado: e.target.value })}
+                            style={inputStyle}
+                          >
+                            {Object.entries(ESTADO_CFG).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
+                          </select>
+                        </div>
+                        <div style={{ marginBottom: 8 }}>
+                          <label style={labelStyle}>Notas de seguimiento</label>
+                          <input
+                            type="text"
+                            value={editLeadNotas}
+                            onChange={e => setEditLeadNotas(e.target.value)}
+                            placeholder="Llamado el 25 jul, está interesado, pide precio..."
+                            style={inputStyle}
+                          />
+                        </div>
+                        <button onClick={() => { actualizarLead(lead.id, { notas_crm: editLeadNotas }); setExpandedLead(null); }} style={{ ...btnPrimary, ...btnSm }}>
+                          Guardar notas
+                        </button>
+                      </div>
+                    )}
                   </div>
                 );
               })}
@@ -1993,6 +2044,49 @@ function AdminView({ adminCode }: { adminCode: string }) {
             </div>
           )}
           <button onClick={cargarVentas} style={{ ...btnOutline, ...btnSm, marginTop: 12 }}>↺ Actualizar</button>
+        </div>
+      )}
+
+      {/* Tab: Comunicación */}
+      {tab === 'comunicacion' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+
+          {/* Push masivo */}
+          <div style={{ ...cardStyle, padding: 20 }}>
+            <div style={{ fontSize: 15, fontWeight: 800, color: S.text, marginBottom: 4 }}>📢 Notificación push masiva</div>
+            <div style={{ fontSize: 12, color: S.muted, marginBottom: 16 }}>Llega a todos los socios que tienen las notificaciones activadas en su dispositivo.</div>
+            <div style={{ marginBottom: 10 }}>
+              <label style={labelStyle}>Título</label>
+              <input type="text" value={pushTitulo} onChange={e => setPushTitulo(e.target.value)} placeholder="Ej: Nueva actualización disponible" style={inputStyle} />
+            </div>
+            <div style={{ marginBottom: 14 }}>
+              <label style={labelStyle}>Mensaje</label>
+              <input type="text" value={pushCuerpo} onChange={e => setPushCuerpo(e.target.value)} placeholder="Ej: Revisa tus lotes activos, hay novedades." style={inputStyle} />
+            </div>
+            <button onClick={enviarPushMasivo} disabled={sendingPush || !pushTitulo || !pushCuerpo} style={{ ...btnPrimary, opacity: (sendingPush || !pushTitulo || !pushCuerpo) ? 0.5 : 1, cursor: (sendingPush || !pushTitulo || !pushCuerpo) ? 'not-allowed' : 'pointer' }}>
+              {sendingPush ? 'Enviando…' : '📤 Enviar a todos'}
+            </button>
+            {pushResult && <div style={{ marginTop: 10, fontSize: 13, color: pushResult.startsWith('✅') ? S.green : S.red, fontWeight: 700 }}>{pushResult}</div>}
+          </div>
+
+          {/* Anuncio para socios */}
+          <div style={{ ...cardStyle, padding: 20 }}>
+            <div style={{ fontSize: 15, fontWeight: 800, color: S.text, marginBottom: 4 }}>📌 Anuncio en el dashboard</div>
+            <div style={{ fontSize: 12, color: S.muted, marginBottom: 16 }}>Aparece como banner en el resumen de todos los socios al abrir la app. Solo puede haber uno activo a la vez.</div>
+            <div style={{ marginBottom: 14 }}>
+              <label style={labelStyle}>Texto del anuncio</label>
+              <input type="text" value={anuncioTexto} onChange={e => setAnuncioTexto(e.target.value)} placeholder="Ej: ¡Nuevo video publicado! Revísalo en @prolarva.co" style={inputStyle} />
+            </div>
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+              <button onClick={() => guardarAnuncio(false)} disabled={savingAnuncio || !anuncioTexto.trim()} style={{ ...btnPrimary, opacity: (savingAnuncio || !anuncioTexto.trim()) ? 0.5 : 1, cursor: (savingAnuncio || !anuncioTexto.trim()) ? 'not-allowed' : 'pointer' }}>
+                {savingAnuncio ? 'Guardando…' : '📌 Publicar anuncio'}
+              </button>
+              <button onClick={() => guardarAnuncio(true)} disabled={savingAnuncio} style={{ ...btnOutline, ...btnSm, color: S.red, borderColor: 'rgba(239,68,68,0.3)' }}>
+                Desactivar anuncio actual
+              </button>
+            </div>
+            {anuncioOk && <div style={{ marginTop: 10, fontSize: 13, color: anuncioOk.startsWith('✅') ? S.green : S.red, fontWeight: 700 }}>{anuncioOk}</div>}
+          </div>
         </div>
       )}
 
@@ -2759,6 +2853,7 @@ function SociosInner() {
   const [tourMinimized,    setTourMinimized]    = useState(false);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [resetting,        setResetting]        = useState(false);
+  const [anuncio,          setAnuncio]          = useState<string | null>(null);
 
   const [modalLote,    setModalLote]    = useState(false);
   const [modalFeed,    setModalFeed]    = useState(false);
@@ -2810,6 +2905,9 @@ function SociosInner() {
   useEffect(() => {
     if (db.session && !localStorage.getItem('prl-onboarding-done')) {
       setShowOnboarding(true);
+    }
+    if (db.session) {
+      fetch('/api/anuncios/obtener').then(r => r.json()).then(d => { if (d.anuncio) setAnuncio(d.anuncio); }).catch(() => {});
     }
   }, [db.session]);
 
@@ -2960,6 +3058,7 @@ function SociosInner() {
             recordatorios={db.recordatorios}
             totalKg={db.totalKg} avgConv={db.avgConv}
             userName={db.session.name}
+            anuncio={anuncio}
             onViewLote={viewLote}
             onNav={navTo}
           />

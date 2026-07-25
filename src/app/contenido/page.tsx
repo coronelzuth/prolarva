@@ -67,6 +67,32 @@ function TipoBadge({ tipo }: { tipo: GuionTipo }) {
   )
 }
 
+// ─── Botón copiar ─────────────────────────────────────────────────
+function CopyButton({ text }: { text: string }) {
+  const [copied, setCopied] = useState(false)
+  function handleCopy() {
+    navigator.clipboard.writeText(text).then(() => {
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    })
+  }
+  return (
+    <button
+      onClick={handleCopy}
+      style={{
+        background: copied ? '#16a34a' : 'rgba(34,197,94,0.15)',
+        border: `1px solid ${copied ? '#16a34a' : 'rgba(34,197,94,0.4)'}`,
+        color: copied ? '#fff' : '#22c55e',
+        borderRadius: 8, padding: '5px 14px',
+        fontSize: 12, fontWeight: 700, cursor: 'pointer',
+        transition: 'all 0.2s', whiteSpace: 'nowrap',
+      }}
+    >
+      {copied ? '✓ Copiado' : '📋 Copiar guión'}
+    </button>
+  )
+}
+
 // ─── Panel lateral de edición ──────────────────────────────────────
 function GuionPanel({
   guion,
@@ -293,11 +319,14 @@ function GuionPanel({
 
         {tab === 'guion' && (
           <div>
-            <div style={{ fontSize: 12, color: '#64748b', fontWeight: 600, marginBottom: 8 }}>
-              TEXTO DEL GUIÓN{' '}
-              <span style={{ fontWeight: 400 }}>
-                — pega el contenido del archivo .txt o escribe aquí
-              </span>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+              <div style={{ fontSize: 12, color: '#64748b', fontWeight: 600 }}>
+                TEXTO DEL GUIÓN{' '}
+                <span style={{ fontWeight: 400 }}>— pega el contenido o escribe aquí</span>
+              </div>
+              {contenido && (
+                <CopyButton text={contenido} />
+              )}
             </div>
             <textarea
               value={contenido}

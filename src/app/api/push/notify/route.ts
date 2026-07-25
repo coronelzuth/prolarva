@@ -49,7 +49,8 @@ export async function POST(req: NextRequest) {
     try {
       await webpush.sendNotification(
         { endpoint: sub.endpoint, keys: { auth: sub.auth, p256dh: sub.p256dh } },
-        payload
+        payload,
+        { urgency: 'high' }
       );
       sent++;
     } catch (err: unknown) {
@@ -137,7 +138,8 @@ export async function GET(req: NextRequest) {
     try {
       await webpush.sendNotification(
         { endpoint: sub.endpoint, keys: { auth: sub.auth, p256dh: sub.p256dh } },
-        payload
+        payload,
+        { urgency: 'high' }
       );
       sent++;
     } catch (err: unknown) {

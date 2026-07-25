@@ -289,6 +289,13 @@ a5cc857  feat: port calculadora BSF a React con paleta de la app
 
 **Última actualización:** 2026-07-25
 
+**Cambios recientes (2026-07-25 — sesión 9):**
+- ✅ **Notificaciones push funcionando end-to-end** — suscripción, guardado en Supabase y envío confirmado
+- ✅ **VAPID keys regeneradas** — keys limpias generadas con `web-push`, hardcodeadas en `socios/page.tsx` (clave pública) y actualizadas en Vercel
+- ✅ **RLS fix** — `push_subscriptions` tenía RLS bloqueando INSERT anon; corregido con policy `allow_all_anon`
+- ✅ **Cuentas admin limpiadas** — eliminadas cuentas demo viejas; admin activos: `admin.zuth`/`prolarva2025` y `admin`/`pl2025`
+- ✅ **Service worker v4** — fuerza descarte del caché v3
+
 **Cambios recientes (2026-07-25 — sesión 8):**
 - ✅ **`/contenido` desplegado** — CMS de guiones activo en producción. Lista los 83 guiones, filtra por tipo/estado/búsqueda, panel lateral de edición, vista calendario
 - ✅ **Tabla `guiones_cms` en Supabase** — ya ejecutada. Primera carga auto-popula los 83 guiones desde `src/data/guiones.ts`
@@ -444,14 +451,15 @@ a5cc857  feat: port calculadora BSF a React con paleta de la app
 
 **Próxima sesión — pendientes:**
 
-### 🔴 BLOQUEADO — Notificaciones push (resolver primero)
-- **Error:** `atob` falla con "characters outside of the Latin1 range" al intentar suscribirse
-- **Causa probable:** `NEXT_PUBLIC_VAPID_PUBLIC_KEY` llega al browser con caracteres no-Latin1 (posible encoding de Vercel/PowerShell al guardar la key)
-- **Diagnóstico pendiente:** En el browser abrir DevTools → Console → escribir `console.log(process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY)` y ver qué valor llega exactamente
-- **Fix probable:** En lugar de convertir a Uint8Array con `atob`, pasar la key directamente como string a `applicationServerKey` — Chrome 60+ soporta base64url nativo sin conversión. Código a cambiar en `toggleNotifications` en `socios/page.tsx` (~línea 1900)
-- **Alternativa:** Hardcodear la public key directamente en el código (no es sensible, es pública) para eliminar la dependencia del env var en el browser
+### ✅ RESUELTO — Notificaciones push
+- VAPID keys hardcodeadas en `socios/page.tsx` (clave pública `BAgFCZDb8Ns26...`)
+- RLS en `push_subscriptions` corregido con policy `allow_all_anon`
+- Cron diario activo: alertas D7/D14/D21/D22/D25 por lote
+- Servidor envía con `urgency: 'high'` en ambos endpoints de `/api/push/notify`
+- **⚠️ IMPORTANTE para usuarios nuevos:** Android pone las notificaciones web en "Silenciosa" por defecto — no aparecen en pantalla. El socio debe activar **notificaciones flotantes** manualmente: mantener presionada la notificación → ⚙️ → Importancia → **Urgente**. Sin esto solo aparecen en la barra al deslizar.
 
 ### UX/UI (en orden de prioridad)
+0. **Ícono PWA y notificación** — Larvi (`LARVI.png`) ya está puesta pero necesita reescalar con más padding para que no se vea apretada. Probar fondo negro (`#0d1b2a`) o blanco (`#ffffff`) en vez del verde actual. Archivos a regenerar: `public/icon-192.png` y `public/icon-512.png`. Fuente: `03 - B-Rolls y Recursos/Iconos y Emojis/LARVI.png`.
 1. **alert() → inline errors** — los formularios usan `alert()` nativo para errores de validación. Reemplazar con mensajes inline bajo el campo o un sistema de toast
 2. **Toast de éxito** — al guardar un lote, feed o cosecha el modal se cierra sin feedback. Agregar toast global (`✅ Guardado`) que aparece 2s y desaparece
 3. **Loading state en botones de guardar** — los botones no se deshabilitan mientras el request a Supabase está en curso; el usuario puede tocar dos veces y duplicar registros

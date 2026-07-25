@@ -1750,7 +1750,7 @@ function AdminView({ adminCode }: { adminCode: string }) {
   return (
     <div style={{ maxWidth: 800 }}>
       <div style={{ marginBottom: 20 }}>
-        <h2 style={{ fontSize: 20, fontWeight: 900, marginBottom: 4 }}>Panel de Admin</h2>
+        <h2 style={{ fontSize: 20, fontWeight: 900, marginBottom: 4 }}>🔑 Centro de Mando</h2>
       </div>
 
       {/* Stats globales — fila 1 */}
@@ -3074,16 +3074,6 @@ function SociosInner() {
 
       {/* Main */}
       <main className="socios-main" style={{ flex: 1, padding: '2rem', minWidth: 0 }}>
-        {/* Mobile only: user + logout bar */}
-        <div className="socios-mobile-header">
-          <button onClick={() => navTo('perfil')} style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
-            <div style={{ width: 30, height: 30, borderRadius: '50%', background: 'linear-gradient(135deg,#22c55e,#16a34a)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, color: '#fff', fontSize: 13, flexShrink: 0 }}>
-              {db.session.name[0]}
-            </div>
-            <span style={{ fontSize: 13, fontWeight: 700, color: S.text }}>{db.session.name.split(' ')[0]}</span>
-          </button>
-          <button onClick={db.logout} style={{ ...btnOutline, fontSize: 11, padding: '4px 12px' }}>Salir</button>
-        </div>
         {view === 'dashboard' && (
           <Dashboard
             lotes={db.lotes} feeds={db.feeds} cosechas={db.cosechas}

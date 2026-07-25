@@ -102,7 +102,22 @@ export default function CalculadoraPage() {
 
   function openWA(tipo: 'pedido' | 'kit') {
     window.open(`https://wa.me/${WA}?text=${encodeURIComponent(buildMsg(tipo))}`, '_blank');
-    if (nombre || waNum) setConfVisible(true);
+    if (nombre || waNum) {
+      setConfVisible(true);
+      fetch('/api/leads/guardar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          nombre,
+          whatsapp: waNum,
+          fuente: 'calculadora',
+          especie: esp ?? '',
+          n_animales: nAnim,
+          perdida_cop: result?.totalPerd ?? 0,
+          tipo_cta: tipo,
+        }),
+      }).catch(() => {});
+    }
   }
 
   function compartir() {

@@ -1471,8 +1471,39 @@ function BlogStatsTab({ stats, loading, onRefresh }: { stats: BlogStatRow[]; loa
   );
 }
 
+interface Lead {
+  id: string;
+  nombre: string;
+  whatsapp: string;
+  fuente: string;
+  especie: string;
+  n_animales: number;
+  perdida_cop: number;
+  tipo_cta: string;
+  creado_en: string;
+}
+
+interface Venta {
+  id: string;
+  fecha: string;
+  cliente: string;
+  producto: string;
+  monto: number;
+  canal: string;
+  notas: string;
+  creado_en: string;
+}
+
+interface GlobalStats {
+  totalLotes: number;
+  totalKg: number;
+  totalLeads: number;
+  totalVentasCOP: number;
+  totalVentasCount: number;
+}
+
 function AdminView({ adminCode }: { adminCode: string }) {
-  const [tab, setTab] = useState<'socios' | 'invitaciones' | 'blog'>('socios');
+  const [tab, setTab] = useState<'socios' | 'invitaciones' | 'blog' | 'leads' | 'ventas'>('socios');
 
   // ── Invitaciones state ────────────────────────────────────────────────────
   const [invitaciones, setInvitaciones] = useState<Invitacion[]>([]);
@@ -1489,6 +1520,29 @@ function AdminView({ adminCode }: { adminCode: string }) {
   type BlogStat = { slug: string; views: number; last_viewed_at: string };
   const [blogStats, setBlogStats]   = useState<BlogStat[]>([]);
   const [loadingBlog, setLoadingBlog] = useState(false);
+
+  // ── Leads state ───────────────────────────────────────────────────────────
+  const [leads, setLeads]           = useState<Lead[]>([]);
+  const [loadingLeads, setLoadingLeads] = useState(false);
+
+  // ── Ventas state ──────────────────────────────────────────────────────────
+  const [ventas, setVentas]         = useState<Venta[]>([]);
+  const [loadingVentas, setLoadingVentas] = useState(false);
+  const [savingVenta, setSavingVenta]     = useState(false);
+  const [ventaError, setVentaError]       = useState('');
+  const [ventaForm, setVentaForm]         = useState({
+    fecha: new Date().toISOString().split('T')[0],
+    cliente: '',
+    producto: 'Kit ProLarva 25/15',
+    monto: 350000,
+    canal: 'WhatsApp',
+    notas: '',
+  });
+  const [showVentaForm, setShowVentaForm] = useState(false);
+
+  // ── Global stats ──────────────────────────────────────────────────────────
+  const [globalStats, setGlobalStats]   = useState<GlobalStats | null>(null);
+  const [loadingGStats, setLoadingGStats] = useState(false);
 
   async function cargarInvitaciones() {
     setLoadingInv(true);
@@ -1517,6 +1571,50 @@ function AdminView({ adminCode }: { adminCode: string }) {
     } finally { setLoadingBlog(false); }
   }
 
+  async function cargarLeads() {
+    setLoadingLeads(true);
+    try {
+      const res  = await fetch('/api/leads/listar', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ adminCode }) });
+      const data = await res.json();
+      if (data.success) setLeads(data.leads);
+    } finally { setLoadingLeads(false); }
+  }
+
+  async function cargarVentas() {
+    setLoadingVentas(true);
+    try {
+      const res  = await fetch('/api/ventas/listar', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ adminCode }) });
+      const data = await res.json();
+      if (data.success) setVentas(data.ventas);
+    } finally { setLoadingVentas(false); }
+  }
+
+  async function cargarGlobalStats() {
+    setLoadingGStats(true);
+    try {
+      const res  = await fetch('/api/admin/stats', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ adminCode }) });
+      const data = await res.json();
+      if (data.success) setGlobalStats(data.stats);
+    } finally { setLoadingGStats(false); }
+  }
+
+  async function guardarVenta() {
+    if (!ventaForm.cliente.trim()) { setVentaError('El nombre del cliente es requerido'); return; }
+    if (!ventaForm.monto) { setVentaError('El monto es requerido'); return; }
+    setSavingVenta(true); setVentaError('');
+    try {
+      const res  = await fetch('/api/ventas/guardar', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ adminCode, ...ventaForm }) });
+      const data = await res.json();
+      if (data.success) {
+        setVentaForm({ fecha: new Date().toISOString().split('T')[0], cliente: '', producto: 'Kit ProLarva 25/15', monto: 350000, canal: 'WhatsApp', notas: '' });
+        setShowVentaForm(false);
+        await Promise.all([cargarVentas(), cargarGlobalStats()]);
+      } else {
+        setVentaError(data.error ?? 'Error al guardar');
+      }
+    } finally { setSavingVenta(false); }
+  }
+
   async function generar() {
     setGenerating(true); setGenError('');
     try {
@@ -1538,6 +1636,9 @@ function AdminView({ adminCode }: { adminCode: string }) {
     cargarSocios();
     cargarInvitaciones();
     cargarBlog();
+    cargarLeads();
+    cargarVentas();
+    cargarGlobalStats();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -1545,35 +1646,57 @@ function AdminView({ adminCode }: { adminCode: string }) {
   const usados      = invitaciones.filter(i => i.usado).length;
   const sociosActivos = socios.filter(s => s.estado === 'activo' && s.rol !== 'admin').length;
 
+  const copCurrency = (v: number) => new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(v);
+
   return (
-    <div style={{ maxWidth: 760 }}>
+    <div style={{ maxWidth: 800 }}>
       <div style={{ marginBottom: 20 }}>
         <h2 style={{ fontSize: 20, fontWeight: 900, marginBottom: 4 }}>Panel de Admin</h2>
       </div>
 
-      {/* Stats globales */}
-      <div style={{ display: 'flex', gap: 12, marginBottom: 24, flexWrap: 'wrap' }}>
+      {/* Stats globales — fila 1 */}
+      <div style={{ display: 'flex', gap: 10, marginBottom: 10, flexWrap: 'wrap' }}>
         {[
-          { label: 'Socios activos',   value: sociosActivos,        color: S.green },
-          { label: 'Invitaciones',     value: invitaciones.length,  color: S.text  },
-          { label: 'Disponibles',      value: disponibles,          color: S.emerald },
-          { label: 'Usadas',           value: usados,               color: S.muted },
+          { label: 'Socios activos',   value: sociosActivos,                              color: S.green   },
+          { label: 'Leads capturados', value: loadingGStats ? '…' : (globalStats?.totalLeads ?? leads.length), color: S.emerald },
+          { label: 'Kits vendidos',    value: loadingGStats ? '…' : (globalStats?.totalVentasCount ?? ventas.length), color: S.amber   },
+          { label: 'Ingresos totales', value: loadingGStats ? '…' : (globalStats ? copCurrency(globalStats.totalVentasCOP) : '—'), color: '#a78bfa' },
         ].map(stat => (
           <div key={stat.label} style={{ ...cardStyle, flex: 1, minWidth: 110, textAlign: 'center', padding: '14px 12px' }}>
-            <div style={{ fontSize: 26, fontWeight: 900, color: stat.color }}>{stat.value}</div>
+            <div style={{ fontSize: stat.label === 'Ingresos totales' ? 14 : 26, fontWeight: 900, color: stat.color }}>{stat.value}</div>
             <div style={{ fontSize: 11, color: S.muted, marginTop: 2 }}>{stat.label}</div>
+          </div>
+        ))}
+      </div>
+      {/* Stats globales — fila 2 */}
+      <div style={{ display: 'flex', gap: 10, marginBottom: 22, flexWrap: 'wrap' }}>
+        {[
+          { label: 'Lotes BSF totales',    value: loadingGStats ? '…' : (globalStats?.totalLotes ?? '—'),                      color: S.text   },
+          { label: 'Kg cosechados total',  value: loadingGStats ? '…' : (globalStats ? `${globalStats.totalKg.toFixed(1)} kg` : '—'), color: S.text },
+          { label: 'Invit. disponibles',   value: disponibles,                                                                  color: S.emerald },
+          { label: 'Invit. usadas',        value: usados,                                                                       color: S.muted  },
+        ].map(stat => (
+          <div key={stat.label} style={{ ...cardStyle, flex: 1, minWidth: 110, textAlign: 'center', padding: '12px 10px' }}>
+            <div style={{ fontSize: 20, fontWeight: 900, color: stat.color }}>{stat.value}</div>
+            <div style={{ fontSize: 10, color: S.muted, marginTop: 2 }}>{stat.label}</div>
           </div>
         ))}
       </div>
 
       {/* Tabs */}
       <div style={{ display: 'flex', gap: 8, marginBottom: 20, flexWrap: 'wrap' }}>
-        {([['socios', '👥 Socios'], ['invitaciones', '🎟️ Invitaciones'], ['blog', '📝 Blog']] as const).map(([key, label]) => (
+        {([
+          ['socios',       '👥 Socios'],
+          ['leads',        '📊 Leads'],
+          ['ventas',       '💰 Ventas'],
+          ['invitaciones', '🎟️ Invitaciones'],
+          ['blog',         '📝 Blog'],
+        ] as const).map(([key, label]) => (
           <button
             key={key}
             onClick={() => setTab(key)}
             style={{
-              padding: '8px 18px', borderRadius: 8, fontSize: 13, fontWeight: 700,
+              padding: '8px 14px', borderRadius: 8, fontSize: 12, fontWeight: 700,
               fontFamily: 'Montserrat, sans-serif', cursor: 'pointer',
               background: tab === key ? 'linear-gradient(135deg, #22c55e, #16a34a)' : 'transparent',
               color: tab === key ? '#fff' : S.muted,
@@ -1637,6 +1760,190 @@ function AdminView({ adminCode }: { adminCode: string }) {
 
       {/* Tab: Blog */}
       {tab === 'blog' && <BlogStatsTab stats={blogStats} loading={loadingBlog} onRefresh={cargarBlog} />}
+
+      {/* Tab: Leads */}
+      {tab === 'leads' && (
+        <div>
+          {/* Header + export */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16, flexWrap: 'wrap', gap: 8 }}>
+            <div style={{ fontSize: 13, color: S.muted }}>
+              Leads capturados desde la Calculadora BSF cuando alguien toca el botón de WhatsApp con nombre o número.
+            </div>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button
+                onClick={() => {
+                  const hdrs = ['Fecha', 'Nombre', 'WhatsApp', 'Especie', 'Animales', 'Pérdida COP', 'CTA'];
+                  const rows = leads.map(l => [fmtDate(l.creado_en), l.nombre, l.whatsapp, l.especie, String(l.n_animales), String(l.perdida_cop), l.tipo_cta]);
+                  downloadCSV(rows, hdrs, `prolarva-leads-${new Date().toISOString().slice(0, 10)}.csv`);
+                }}
+                style={{ ...btnOutline, ...btnSm }}
+              >⬇ CSV</button>
+              <button onClick={cargarLeads} style={{ ...btnOutline, ...btnSm }}>↺</button>
+            </div>
+          </div>
+
+          {loadingLeads ? (
+            <p style={{ color: S.muted, fontSize: 13 }}>Cargando leads...</p>
+          ) : leads.length === 0 ? (
+            <div style={{ ...cardStyle, textAlign: 'center', padding: '2rem', color: S.muted }}>
+              <div style={{ fontSize: 32, marginBottom: 8 }}>📊</div>
+              <p style={{ fontSize: 13 }}>Aún no hay leads. Aparecerán cuando alguien complete la Calculadora y toque WhatsApp.</p>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {leads.map(lead => {
+                const espEmoji: Record<string, string> = { pollos: '🐔', cerdos: '🐷', peces: '🐟' };
+                const ctaColor = lead.tipo_cta === 'pedido' ? S.green : S.amber;
+                return (
+                  <div key={lead.id} style={{ ...cardStyle, padding: '14px 16px' }}>
+                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12, flexWrap: 'wrap' }}>
+                      <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'rgba(34,197,94,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, flexShrink: 0 }}>
+                        {espEmoji[lead.especie] ?? '🪲'}
+                      </div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: 14, fontWeight: 700, color: S.text }}>{lead.nombre || '(sin nombre)'}</div>
+                        <div style={{ fontSize: 12, color: S.green2, fontWeight: 600 }}>📱 {lead.whatsapp || '—'}</div>
+                        {lead.especie && (
+                          <div style={{ fontSize: 11, color: S.muted, marginTop: 2 }}>
+                            {lead.n_animales} {lead.especie} · pérdida: {new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(lead.perdida_cop)}
+                          </div>
+                        )}
+                      </div>
+                      <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                        <Badge color={lead.tipo_cta === 'pedido' ? 'green' : 'amber'}>{lead.tipo_cta || '—'}</Badge>
+                        <div style={{ fontSize: 10, color: S.muted, marginTop: 4 }}>{fmtDate(lead.creado_en)}</div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Tab: Ventas */}
+      {tab === 'ventas' && (
+        <div>
+          {/* Header */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16, flexWrap: 'wrap', gap: 8 }}>
+            <div>
+              <div style={{ fontSize: 15, fontWeight: 700, color: S.text }}>Registro de Ventas</div>
+              <div style={{ fontSize: 12, color: S.muted }}>Kits ProLarva vendidos</div>
+            </div>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button
+                onClick={() => {
+                  const hdrs = ['Fecha', 'Cliente', 'Producto', 'Monto COP', 'Canal', 'Notas'];
+                  const rows = ventas.map(v => [v.fecha, v.cliente, v.producto, String(v.monto), v.canal, v.notas]);
+                  downloadCSV(rows, hdrs, `prolarva-ventas-${new Date().toISOString().slice(0, 10)}.csv`);
+                }}
+                style={{ ...btnOutline, ...btnSm }}
+              >⬇ CSV</button>
+              <button onClick={() => { setShowVentaForm(v => !v); setVentaError(''); }} style={{ ...btnPrimary, ...btnSm }}>
+                {showVentaForm ? '✕ Cancelar' : '+ Registrar venta'}
+              </button>
+            </div>
+          </div>
+
+          {/* Formulario nueva venta */}
+          {showVentaForm && (
+            <div style={{ ...cardStyle, padding: 20, marginBottom: 20, border: `1.5px solid rgba(245,158,11,0.3)` }}>
+              <div style={{ fontSize: 14, fontWeight: 700, color: S.amber, marginBottom: 16 }}>Nueva venta</div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
+                <div>
+                  <label style={labelStyle}>Fecha</label>
+                  <input type="date" value={ventaForm.fecha} onChange={e => setVentaForm(f => ({ ...f, fecha: e.target.value }))} style={inputStyle} />
+                </div>
+                <div>
+                  <label style={labelStyle}>Canal</label>
+                  <select value={ventaForm.canal} onChange={e => setVentaForm(f => ({ ...f, canal: e.target.value }))} style={inputStyle}>
+                    {['WhatsApp', 'Instagram', 'TikTok', 'Directo', 'Referido'].map(c => <option key={c} value={c}>{c}</option>)}
+                  </select>
+                </div>
+              </div>
+              <div style={{ marginBottom: 12 }}>
+                <label style={labelStyle}>Cliente (nombre)</label>
+                <input type="text" placeholder="Ej: Juan Pérez" value={ventaForm.cliente} onChange={e => setVentaForm(f => ({ ...f, cliente: e.target.value }))} style={inputStyle} />
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
+                <div>
+                  <label style={labelStyle}>Producto</label>
+                  <select value={ventaForm.producto} onChange={e => setVentaForm(f => ({ ...f, producto: e.target.value }))} style={inputStyle}>
+                    {['Kit ProLarva 25/15', 'Acompañamiento adicional', 'Consultoría'].map(p => <option key={p} value={p}>{p}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label style={labelStyle}>Monto (COP)</label>
+                  <input type="number" value={ventaForm.monto} onChange={e => setVentaForm(f => ({ ...f, monto: Number(e.target.value) }))} style={inputStyle} />
+                </div>
+              </div>
+              <div style={{ marginBottom: 16 }}>
+                <label style={labelStyle}>Notas (opcional)</label>
+                <input type="text" placeholder="Pago en efectivo, envío a Cúcuta..." value={ventaForm.notas} onChange={e => setVentaForm(f => ({ ...f, notas: e.target.value }))} style={inputStyle} />
+              </div>
+              {ventaError && <div style={{ fontSize: 12, color: S.red, marginBottom: 10 }}>{ventaError}</div>}
+              <button
+                onClick={guardarVenta}
+                disabled={savingVenta}
+                style={{ ...btnPrimary, width: '100%', opacity: savingVenta ? 0.6 : 1, cursor: savingVenta ? 'not-allowed' : 'pointer' }}
+              >
+                {savingVenta ? 'Guardando...' : '✅ Guardar venta'}
+              </button>
+            </div>
+          )}
+
+          {/* Stats del mes */}
+          {ventas.length > 0 && (() => {
+            const mesKey = new Date().toISOString().slice(0, 7);
+            const ventasMes = ventas.filter(v => v.fecha.startsWith(mesKey));
+            const totalMes  = ventasMes.reduce((s, v) => s + v.monto, 0);
+            const totalAll  = ventas.reduce((s, v) => s + v.monto, 0);
+            return (
+              <div style={{ display: 'flex', gap: 10, marginBottom: 16, flexWrap: 'wrap' }}>
+                {[
+                  { label: 'Ventas este mes', value: ventasMes.length, color: S.green },
+                  { label: 'Ingresos este mes', value: copCurrency(totalMes), color: S.amber },
+                  { label: 'Ingresos totales', value: copCurrency(totalAll), color: '#a78bfa' },
+                ].map(st => (
+                  <div key={st.label} style={{ ...cardStyle, flex: 1, minWidth: 120, textAlign: 'center', padding: '12px 10px' }}>
+                    <div style={{ fontSize: st.label.includes('Ingresos') ? 13 : 22, fontWeight: 900, color: st.color }}>{st.value}</div>
+                    <div style={{ fontSize: 10, color: S.muted, marginTop: 2 }}>{st.label}</div>
+                  </div>
+                ))}
+              </div>
+            );
+          })()}
+
+          {/* Lista */}
+          {loadingVentas ? (
+            <p style={{ color: S.muted, fontSize: 13 }}>Cargando ventas...</p>
+          ) : ventas.length === 0 ? (
+            <div style={{ ...cardStyle, textAlign: 'center', padding: '2rem', color: S.muted }}>
+              <div style={{ fontSize: 32, marginBottom: 8 }}>💰</div>
+              <p style={{ fontSize: 13 }}>Aún no hay ventas registradas. Registra tu primera venta arriba.</p>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {ventas.map(v => (
+                <div key={v.id} style={{ ...cardStyle, display: 'flex', alignItems: 'center', gap: 14, padding: '14px 16px', flexWrap: 'wrap' }}>
+                  <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'rgba(167,139,250,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, flexShrink: 0 }}>💰</div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: 14, fontWeight: 700, color: S.text }}>{v.cliente}</div>
+                    <div style={{ fontSize: 12, color: S.muted }}>{v.producto} · {v.canal}</div>
+                    {v.notas && <div style={{ fontSize: 11, color: S.muted, fontStyle: 'italic', marginTop: 2 }}>{v.notas}</div>}
+                  </div>
+                  <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                    <div style={{ fontSize: 15, fontWeight: 900, color: '#a78bfa' }}>{copCurrency(v.monto)}</div>
+                    <div style={{ fontSize: 11, color: S.muted, marginTop: 2 }}>{fmtDate(v.fecha)}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+          <button onClick={cargarVentas} style={{ ...btnOutline, ...btnSm, marginTop: 12 }}>↺ Actualizar</button>
+        </div>
+      )}
 
       {/* Tab: Invitaciones */}
       {tab === 'invitaciones' && (

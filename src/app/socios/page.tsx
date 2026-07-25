@@ -1390,6 +1390,7 @@ interface SocioRegistrado {
   estado: string;
   rol: string;
   creado_en: string;
+  last_activity?: string | null;
 }
 
 const BLOG_META: Record<string, { title: string; emoji: string; color: string }> = {
@@ -1480,6 +1481,8 @@ interface Lead {
   n_animales: number;
   perdida_cop: number;
   tipo_cta: string;
+  estado: string;
+  notas_crm: string;
   creado_en: string;
 }
 
@@ -1500,10 +1503,12 @@ interface GlobalStats {
   totalLeads: number;
   totalVentasCOP: number;
   totalVentasCount: number;
+  totalSocios: number;
+  conversionPct: number;
 }
 
 function AdminView({ adminCode }: { adminCode: string }) {
-  const [tab, setTab] = useState<'socios' | 'invitaciones' | 'blog' | 'leads' | 'ventas'>('socios');
+  const [tab, setTab] = useState<'socios' | 'invitaciones' | 'blog' | 'leads' | 'ventas' | 'comunicacion'>('socios');
 
   // ── Invitaciones state ────────────────────────────────────────────────────
   const [invitaciones, setInvitaciones] = useState<Invitacion[]>([]);
@@ -1543,6 +1548,18 @@ function AdminView({ adminCode }: { adminCode: string }) {
   // ── Global stats ──────────────────────────────────────────────────────────
   const [globalStats, setGlobalStats]   = useState<GlobalStats | null>(null);
   const [loadingGStats, setLoadingGStats] = useState(false);
+
+  // ── Comunicación state ────────────────────────────────────────────────────
+  const [pushTitulo, setPushTitulo]     = useState('');
+  const [pushCuerpo, setPushCuerpo]     = useState('');
+  const [sendingPush, setSendingPush]   = useState(false);
+  const [pushResult, setPushResult]     = useState('');
+  const [anuncioTexto, setAnuncioTexto] = useState('');
+  const [savingAnuncio, setSavingAnuncio] = useState(false);
+  const [anuncioOk, setAnuncioOk]       = useState('');
+  const [togglingId, setTogglingId]     = useState<string | null>(null);
+  const [expandedLead, setExpandedLead] = useState<string | null>(null);
+  const [editLeadNotas, setEditLeadNotas] = useState('');
 
   async function cargarInvitaciones() {
     setLoadingInv(true);
@@ -1615,6 +1632,41 @@ function AdminView({ adminCode }: { adminCode: string }) {
     } finally { setSavingVenta(false); }
   }
 
+  async function toggleSocioEstado(socio: SocioRegistrado) {
+    setTogglingId(socio.id);
+    const nuevoEstado = socio.estado === 'activo' ? 'inactivo' : 'activo';
+    try {
+      await fetch('/api/socios/toggle-estado', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ adminCode, socioId: socio.id, estado: nuevoEstado }) });
+      setSocios(prev => prev.map(s => s.id === socio.id ? { ...s, estado: nuevoEstado } : s));
+    } finally { setTogglingId(null); }
+  }
+
+  async function actualizarLead(leadId: string, campo: { estado?: string; notas_crm?: string }) {
+    await fetch('/api/leads/actualizar', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ adminCode, leadId, ...campo }) });
+    setLeads(prev => prev.map(l => l.id === leadId ? { ...l, ...campo } : l));
+  }
+
+  async function enviarPushMasivo() {
+    if (!pushTitulo.trim() || !pushCuerpo.trim()) return;
+    setSendingPush(true); setPushResult('');
+    try {
+      const res  = await fetch('/api/push/notify-all', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ adminCode, titulo: pushTitulo, cuerpo: pushCuerpo }) });
+      const data = await res.json();
+      if (data.success) { setPushResult(`✅ Enviado a ${data.sent} suscripción${data.sent !== 1 ? 'es' : ''}`); setPushTitulo(''); setPushCuerpo(''); }
+      else setPushResult(`❌ ${data.error}`);
+    } finally { setSendingPush(false); }
+  }
+
+  async function guardarAnuncio(desactivar = false) {
+    setSavingAnuncio(true); setAnuncioOk('');
+    try {
+      const res  = await fetch('/api/anuncios/guardar', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ adminCode, texto: desactivar ? '' : anuncioTexto, activo: !desactivar }) });
+      const data = await res.json();
+      if (data.success) { setAnuncioOk(desactivar ? '✅ Anuncio desactivado' : '✅ Anuncio publicado'); if (desactivar) setAnuncioTexto(''); }
+      else setAnuncioOk(`❌ ${data.error}`);
+    } finally { setSavingAnuncio(false); }
+  }
+
   async function generar() {
     setGenerating(true); setGenError('');
     try {
@@ -1657,40 +1709,42 @@ function AdminView({ adminCode }: { adminCode: string }) {
       {/* Stats globales — fila 1 */}
       <div style={{ display: 'flex', gap: 10, marginBottom: 10, flexWrap: 'wrap' }}>
         {[
-          { label: 'Socios activos',   value: sociosActivos,                              color: S.green   },
-          { label: 'Leads capturados', value: loadingGStats ? '…' : (globalStats?.totalLeads ?? leads.length), color: S.emerald },
-          { label: 'Kits vendidos',    value: loadingGStats ? '…' : (globalStats?.totalVentasCount ?? ventas.length), color: S.amber   },
+          { label: 'Socios activos',   value: sociosActivos, color: S.green },
+          { label: 'Leads totales',    value: loadingGStats ? '…' : (globalStats?.totalLeads ?? leads.length), color: S.emerald },
+          { label: 'Conversión',       value: loadingGStats ? '…' : (globalStats ? `${globalStats.conversionPct}%` : '—'), color: '#38bdf8' },
+          { label: 'Kits vendidos',    value: loadingGStats ? '…' : (globalStats?.totalVentasCount ?? ventas.length), color: S.amber },
           { label: 'Ingresos totales', value: loadingGStats ? '…' : (globalStats ? copCurrency(globalStats.totalVentasCOP) : '—'), color: '#a78bfa' },
         ].map(stat => (
-          <div key={stat.label} style={{ ...cardStyle, flex: 1, minWidth: 110, textAlign: 'center', padding: '14px 12px' }}>
-            <div style={{ fontSize: stat.label === 'Ingresos totales' ? 14 : 26, fontWeight: 900, color: stat.color }}>{stat.value}</div>
-            <div style={{ fontSize: 11, color: S.muted, marginTop: 2 }}>{stat.label}</div>
+          <div key={stat.label} style={{ ...cardStyle, flex: 1, minWidth: 90, textAlign: 'center', padding: '12px 8px' }}>
+            <div style={{ fontSize: typeof stat.value === 'string' && stat.value.length > 8 ? 12 : 22, fontWeight: 900, color: stat.color }}>{stat.value}</div>
+            <div style={{ fontSize: 10, color: S.muted, marginTop: 2 }}>{stat.label}</div>
           </div>
         ))}
       </div>
       {/* Stats globales — fila 2 */}
       <div style={{ display: 'flex', gap: 10, marginBottom: 22, flexWrap: 'wrap' }}>
         {[
-          { label: 'Lotes BSF totales',    value: loadingGStats ? '…' : (globalStats?.totalLotes ?? '—'),                      color: S.text   },
-          { label: 'Kg cosechados total',  value: loadingGStats ? '…' : (globalStats ? `${globalStats.totalKg.toFixed(1)} kg` : '—'), color: S.text },
-          { label: 'Invit. disponibles',   value: disponibles,                                                                  color: S.emerald },
-          { label: 'Invit. usadas',        value: usados,                                                                       color: S.muted  },
+          { label: 'Lotes BSF totales',   value: loadingGStats ? '…' : (globalStats?.totalLotes ?? '—'), color: S.text },
+          { label: 'Kg cosechados total', value: loadingGStats ? '…' : (globalStats ? `${globalStats.totalKg.toFixed(1)} kg` : '—'), color: S.text },
+          { label: 'Invit. disponibles',  value: disponibles, color: S.emerald },
+          { label: 'Invit. usadas',       value: usados, color: S.muted },
         ].map(stat => (
-          <div key={stat.label} style={{ ...cardStyle, flex: 1, minWidth: 110, textAlign: 'center', padding: '12px 10px' }}>
-            <div style={{ fontSize: 20, fontWeight: 900, color: stat.color }}>{stat.value}</div>
+          <div key={stat.label} style={{ ...cardStyle, flex: 1, minWidth: 90, textAlign: 'center', padding: '10px 8px' }}>
+            <div style={{ fontSize: 18, fontWeight: 900, color: stat.color }}>{stat.value}</div>
             <div style={{ fontSize: 10, color: S.muted, marginTop: 2 }}>{stat.label}</div>
           </div>
         ))}
       </div>
 
       {/* Tabs */}
-      <div style={{ display: 'flex', gap: 8, marginBottom: 20, flexWrap: 'wrap' }}>
+      <div style={{ display: 'flex', gap: 6, marginBottom: 20, flexWrap: 'wrap' }}>
         {([
-          ['socios',       '👥 Socios'],
-          ['leads',        '📊 Leads'],
-          ['ventas',       '💰 Ventas'],
-          ['invitaciones', '🎟️ Invitaciones'],
-          ['blog',         '📝 Blog'],
+          ['socios',        '👥 Socios'],
+          ['leads',         '📊 Leads'],
+          ['ventas',        '💰 Ventas'],
+          ['comunicacion',  '📢 Comunicación'],
+          ['invitaciones',  '🎟️ Invitaciones'],
+          ['blog',          '📝 Blog'],
         ] as const).map(([key, label]) => (
           <button
             key={key}
@@ -1718,40 +1772,37 @@ function AdminView({ adminCode }: { adminCode: string }) {
             </div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-              {socios.filter(s => s.rol !== 'admin').map(socio => (
-                <div key={socio.id} style={{ ...cardStyle, display: 'flex', alignItems: 'center', gap: 14, padding: '14px 16px', flexWrap: 'wrap' }}>
-                  {/* Avatar inicial */}
-                  <div style={{
-                    width: 38, height: 38, borderRadius: '50%', flexShrink: 0,
-                    background: socio.estado === 'activo' ? 'rgba(34,197,94,0.15)' : 'rgba(148,163,184,0.1)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: 16, fontWeight: 900, color: socio.estado === 'activo' ? S.green : S.muted,
-                  }}>
-                    {socio.nombre.charAt(0).toUpperCase()}
+              {socios.filter(s => s.rol !== 'admin').map(socio => {
+                const diasSinActividad = socio.last_activity
+                  ? Math.floor((Date.now() - new Date(socio.last_activity).getTime()) / 86_400_000)
+                  : null;
+                const activo14 = diasSinActividad !== null && diasSinActividad <= 14;
+                return (
+                  <div key={socio.id} style={{ ...cardStyle, display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', flexWrap: 'wrap', opacity: socio.estado === 'inactivo' ? 0.55 : 1 }}>
+                    <div style={{ width: 38, height: 38, borderRadius: '50%', flexShrink: 0, background: socio.estado === 'activo' ? 'rgba(34,197,94,0.15)' : 'rgba(148,163,184,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, fontWeight: 900, color: socio.estado === 'activo' ? S.green : S.muted }}>
+                      {socio.nombre.charAt(0).toUpperCase()}
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: 14, fontWeight: 700, color: S.text, marginBottom: 2 }}>{socio.nombre}</div>
+                      <div style={{ fontSize: 12, color: S.muted }}>{socio.email}</div>
+                      <div style={{ fontSize: 11, color: activo14 ? S.green : S.muted, marginTop: 2 }}>
+                        {diasSinActividad === null ? '🕳️ Sin actividad registrada' : activo14 ? `✅ Activo hace ${diasSinActividad}d` : `⚠️ Inactivo hace ${diasSinActividad}d`}
+                      </div>
+                    </div>
+                    <code style={{ fontSize: 11, color: S.green2, background: 'rgba(34,197,94,0.08)', padding: '3px 8px', borderRadius: 6, fontWeight: 700, flexShrink: 0 }}>
+                      {socio.codigo}
+                    </code>
+                    <div style={{ fontSize: 11, color: S.muted, flexShrink: 0 }}>{fmtDate(socio.creado_en)}</div>
+                    <button
+                      onClick={() => toggleSocioEstado(socio)}
+                      disabled={togglingId === socio.id}
+                      style={{ ...btnOutline, ...btnSm, flexShrink: 0, color: socio.estado === 'activo' ? S.red : S.green, borderColor: socio.estado === 'activo' ? 'rgba(239,68,68,0.3)' : 'rgba(34,197,94,0.3)', opacity: togglingId === socio.id ? 0.5 : 1 }}
+                    >
+                      {togglingId === socio.id ? '…' : socio.estado === 'activo' ? 'Desactivar' : 'Activar'}
+                    </button>
                   </div>
-
-                  {/* Info principal */}
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: 14, fontWeight: 700, color: S.text, marginBottom: 2 }}>{socio.nombre}</div>
-                    <div style={{ fontSize: 12, color: S.muted }}>{socio.email}</div>
-                  </div>
-
-                  {/* Código */}
-                  <code style={{ fontSize: 11, color: S.green2, background: 'rgba(34,197,94,0.08)', padding: '3px 8px', borderRadius: 6, fontWeight: 700, flexShrink: 0 }}>
-                    {socio.codigo}
-                  </code>
-
-                  {/* Fecha */}
-                  <div style={{ fontSize: 11, color: S.muted, textAlign: 'right', flexShrink: 0 }}>
-                    {fmtDate(socio.creado_en)}
-                  </div>
-
-                  {/* Estado */}
-                  <Badge color={socio.estado === 'activo' ? 'green' : 'gray'}>
-                    {socio.estado}
-                  </Badge>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
           <button onClick={cargarSocios} style={{ ...btnOutline, ...btnSm, marginTop: 16 }}>↺ Actualizar</button>
@@ -2306,23 +2357,33 @@ function PerfilView({
     if (perm !== 'granted') { setNotifStatus(perm as 'denied'); setNotifLoading(false); return; }
     try {
       const reg = await navigator.serviceWorker.ready;
-      const vapidKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
-      if (!vapidKey) {
-        setTestMsg('❌ VAPID key no configurada — contacta al admin.');
+      // Limpiar suscripción anterior (keys viejas causan "push service error")
+      try {
+        const existing = await reg.pushManager.getSubscription();
+        if (existing) await existing.unsubscribe();
+      } catch { /* ignorar error de unsubscribe */ }
+      // Convertir base64url → Uint8Array sin depender del env var (clave pública, no es secreta)
+      const VAPID_PUBLIC = 'BAgFCZDb8Ns26uwWupdTa7FMmmmuB9X8vxcEdjQWjJx5hORuzNS9ceoGU0xTbXB9Vm0_mS4g7pK8n8bcZTS5iDo';
+      let keyArray: Uint8Array;
+      try {
+        const padding = '='.repeat((4 - (VAPID_PUBLIC.length % 4)) % 4);
+        const base64 = (VAPID_PUBLIC + padding).replace(/-/g, '+').replace(/_/g, '/');
+        const binary = atob(base64);
+        keyArray = Uint8Array.from(binary, c => c.charCodeAt(0));
+      } catch (keyErr) {
+        setTestMsg('❌ Error interno de key: ' + (keyErr instanceof Error ? keyErr.message : String(keyErr)));
         setNotifLoading(false);
         return;
       }
-      // Convertir base64url → Uint8Array (requerido por algunos navegadores)
-      const padding = '='.repeat((4 - vapidKey.length % 4) % 4);
-      const base64 = (vapidKey + padding).replace(/-/g, '+').replace(/_/g, '/');
-      const rawData = atob(base64);
-      const keyArray = new Uint8Array(rawData.length);
-      for (let i = 0; i < rawData.length; i++) keyArray[i] = rawData.charCodeAt(i);
-
-      const sub = await reg.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: keyArray,
-      });
+      let sub: PushSubscription;
+      try {
+        sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: keyArray.buffer.slice(keyArray.byteOffset, keyArray.byteOffset + keyArray.byteLength) as ArrayBuffer });
+      } catch (subErr) {
+        const msg = subErr instanceof Error ? subErr.message : String(subErr);
+        setTestMsg('❌ Error suscripción push: ' + msg + ' · SW: ' + (reg.active?.state ?? 'sin SW'));
+        setNotifLoading(false);
+        return;
+      }
       const res = await fetch('/api/push/subscribe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

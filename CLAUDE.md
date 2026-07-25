@@ -246,7 +246,7 @@ interface Stage {
 - [ ] **Fotos reales** — infraestructura lista en `stages.ts`, Juliana debe proveer archivos para `public/fotos/`
 - [x] **Videos reales** — todas las 8 etapas tienen videos en `public/fotos/` (ver tabla abajo)
 - [ ] **URL del VSL** — campo listo en `/landing`, falta el link cuando el video esté listo
-- [ ] **Exportar leads en CSV** — tabla `leads` en Supabase ya tiene los datos; falta UI o export desde el dashboard
+- [x] **Exportar leads en CSV** — Tab Leads en AdminView con lista + CSV export. Tabla `leads` SQL en `supabase/leads.sql` (ejecutar en Supabase)
 - [ ] **Google Analytics 4** — instalar para tener datos históricos de visitas al blog dentro del panel admin. Vercel Analytics plan gratuito no expone API de lectura. GA4 es gratuito y tiene API. Requiere: crear propiedad en analytics.google.com, agregar script en `layout.tsx`, crear API route que consulte GA4 Reporting API y mostrar en tab Blog del AdminView.
 
 ---
@@ -287,7 +287,12 @@ a5cc857  feat: port calculadora BSF a React con paleta de la app
 ## Estado actual
 > **Actualizar esta sección al final de cada sesión de trabajo.**
 
-**Última actualización:** 2026-07-24
+**Última actualización:** 2026-07-25
+
+**Cambios recientes (2026-07-25 — sesión 8):**
+- ✅ **`/contenido` desplegado** — CMS de guiones activo en producción. Lista los 83 guiones, filtra por tipo/estado/búsqueda, panel lateral de edición, vista calendario
+- ✅ **Tabla `guiones_cms` en Supabase** — ya ejecutada. Primera carga auto-popula los 83 guiones desde `src/data/guiones.ts`
+- ✅ **Git commit:** incluye api/anuncios, api/leads/actualizar, api/push/notify-all, api/socios/toggle-estado, admin-migrations.sql y demás cambios acumulados
 
 **Qué está funcionando en producción:**
 - Todas las rutas desplegadas y accesibles en móvil y desktop
@@ -330,6 +335,16 @@ a5cc857  feat: port calculadora BSF a React con paleta de la app
 | `guiones_cms` | Guiones del CMS de contenido |
 | `recordatorios` | Recordatorios por lote (dia, titulo, completado) |
 | `fotos_lotes` | Fotos por lote en base64 JPEG comprimido |
+
+**Cambios recientes (2026-07-25 — sesión 7):**
+- ✅ **AdminView expandido** — ahora 5 tabs: 👥 Socios, 📊 Leads, 💰 Ventas, 🎟️ Invitaciones, 📝 Blog
+- ✅ **Stats globales en 2 filas** — socios activos, leads capturados, kits vendidos, ingresos totales, lotes BSF totales, kg cosechados en total (via `/api/admin/stats`)
+- ✅ **Tab Leads** — lista todos los leads de la Calculadora con nombre, WhatsApp, especie, animales, pérdida COP, CTA, fecha; export CSV
+- ✅ **Tab Ventas** — formulario para registrar ventas del Kit (fecha, cliente, producto, monto, canal, notas); stats del mes (ventas + ingresos); lista completa; export CSV
+- ✅ **Calculadora captura leads** — al tocar WhatsApp con nombre o número guarda automáticamente el lead en Supabase (`/api/leads/guardar`)
+- ✅ **Nuevas API routes:** `/api/leads/guardar` (público), `/api/leads/listar` (admin), `/api/ventas/guardar` (admin), `/api/ventas/listar` (admin), `/api/admin/stats` (admin)
+- ✅ **Git commit:** e692167 | Push: main → GitHub
+- 📌 **Pendiente DB:** Ejecutar `supabase/leads.sql` y `supabase/ventas.sql` en Supabase → SQL Editor para crear las tablas nuevas
 
 **Cambios recientes (2026-07-24 — sesión 6):**
 - ✅ **Panel estadísticas del blog en AdminView** — nueva tab "📝 Blog" visible solo para admin

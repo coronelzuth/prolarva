@@ -18,15 +18,17 @@ const C = {
   amber:  '#f59e0b',
   amberL: '#fbbf24',
   blue:   '#3b82f6',
+  purple: '#a855f7',
 };
 
-type Animal = 'pollos' | 'gallinas' | 'cerdos' | 'peces';
+type Animal = 'pollos' | 'gallinas' | 'cerdos' | 'peces' | 'codornices';
 
 const animals: { id: Animal; emoji: string; label: string }[] = [
-  { id: 'pollos',   emoji: '🐔', label: 'Pollos de engorde' },
-  { id: 'gallinas', emoji: '🥚', label: 'Gallinas ponedoras' },
-  { id: 'cerdos',   emoji: '🐷', label: 'Cerdos' },
-  { id: 'peces',    emoji: '🐟', label: 'Peces (tilapia/cachama)' },
+  { id: 'pollos',     emoji: '🐔', label: 'Pollos de engorde' },
+  { id: 'gallinas',   emoji: '🥚', label: 'Gallinas ponedoras' },
+  { id: 'cerdos',     emoji: '🐷', label: 'Cerdos' },
+  { id: 'peces',      emoji: '🐟', label: 'Peces (tilapia/cachama)' },
+  { id: 'codornices', emoji: '🐦', label: 'Codornices' },
 ];
 
 const data: Record<Animal, {
@@ -34,6 +36,7 @@ const data: Record<Animal, {
   rows: { etapa: string; detalle: string; racion: string; equiv: string; nota?: string }[];
   tips: string[];
   reemplazo: string;
+  insectNote?: string;
 }> = {
   pollos: {
     intro: 'El pollo de engorde responde muy bien a la larva BSF porque es alta en proteína y grasa. El truco está en dar la cantidad correcta por etapa y bajar el concentrado de forma gradual.',
@@ -91,6 +94,22 @@ const data: Record<Animal, {
       'Si tienes estanque, suelta las larvas directamente al agua: el movimiento activa el instinto de caza.',
     ],
     reemplazo: 'En tilapia adulta puedes reemplazar entre el 20 y el 35% del alimento balanceado con larva fresca.',
+  },
+  codornices: {
+    intro: 'La codorniz ponedora (Coturnix coturnix japonica) tiene uno de los requerimientos proteicos más altos del traspatio: 20–24% de proteína cruda en la dieta. La larva BSF —como fuente alternativa de proteína de origen insecto— se adapta perfectamente a ese perfil: 42–48% de proteína en base seca, ácido láurico con efecto antibacterial, y una eficiencia de conversión que ninguna fuente convencional iguala (2 kg de sustrato orgánico producen 1 kg de biomasa fresca). Además, produce hasta 70% menos CO₂ que la harina de pescado y casi no requiere agua ni tierra.',
+    rows: [
+      { etapa: 'Pollita', detalle: '0–3 semanas', racion: '3–5% del peso vivo', equiv: '1–2 g por pollita/día', nota: 'Larva picada muy fina, inicio gradual' },
+      { etapa: 'Levante', detalle: '3–6 semanas', racion: '5–8% del peso vivo', equiv: '3–5 g por codorniz/día', nota: 'Larva entera de 10–12 días' },
+      { etapa: 'Postura activa', detalle: '6 sem en adelante', racion: '5–10% del peso vivo', equiv: '5–10 g por codorniz/día', nota: 'Constante; suplementar calcio si superas 15%' },
+    ],
+    tips: [
+      'La codorniz tiene metabolismo muy rápido — suministra la larva fresca en la mañana cuando el nivel de actividad es alto.',
+      'Yemas más oscuras y ricas a partir de la semana 2–3 de inclusión: señal de que la ración está funcionando.',
+      'Con más de 100 codornices, 2 bandejas BSF de 60×40 cm en rotación cubren la ración diaria sin complicaciones.',
+      'No superes el 20% de inclusión sin compensar el calcio — la grasa de la larva puede competir con su absorción.',
+    ],
+    reemplazo: 'En codornices en postura activa puedes reemplazar entre el 15 y el 20% del concentrado proteico con larva fresca, sin afectar producción de huevo ni peso promedio.',
+    insectNote: 'La larva BSF usa residuos orgánicos del traspatio como sustrato, cierra el ciclo de nutrientes y no depende de cadenas de suministro externas — ventaja clave frente a la soya importada o la harina de pescado.',
   },
 };
 
@@ -329,6 +348,26 @@ export default function RacionesPage() {
             </table>
           </div>
         </div>
+
+        {/* NOTA INSECTO (solo codornices) */}
+        {d.insectNote && (
+          <div style={{
+            background: 'rgba(245,158,11,0.07)',
+            border: '1px solid rgba(245,158,11,0.2)',
+            borderRadius: 14,
+            padding: '18px 20px',
+            marginBottom: 24,
+            display: 'flex', alignItems: 'flex-start', gap: 12,
+          }}>
+            <span style={{ fontSize: 24, flexShrink: 0 }}>🪰</span>
+            <div>
+              <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '1.2px', textTransform: 'uppercase', color: C.amber, marginBottom: 6 }}>
+                Proteína de insecto — ventaja BSF
+              </div>
+              <p style={{ fontSize: 14, color: '#cbd5e1', lineHeight: 1.65, margin: 0 }}>{d.insectNote}</p>
+            </div>
+          </div>
+        )}
 
         {/* REEMPLAZO DE CONCENTRADO */}
         <div style={{

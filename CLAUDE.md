@@ -51,7 +51,7 @@ Están en `.env.local` (local, ignorado por git) y en Vercel → Settings → En
 | `/metas` | Módulo 3 — rutas de producción + links a /cosecha y /calculadora |
 | `/cosecha` | Guía Práctica — 7 pasos + panel recomendación calculadora al final |
 | `/calculadora` | Calculadora BSF completa (wizard 4 pasos) |
-| `/sistema-2015` | Landing de venta — Kit ProLarva 25/15 ($200.000 COP / ~$48 USD), acompañamiento, bonos, garantías, Juliana |
+| `/sistema-2015` | Landing de venta — Kit ProLarva 25/15 ($450.000 COP / ~$107 USD), acompañamiento, bonos, garantías, Juliana |
 | `/socios` | Zona privada — tracker de lotes, alimentación y cosechas (sin Larvi ni WhatsApp) |
 | `/gracias` | Página post-formulario — confirmación + redirect automático a /calculadora en 4 seg |
 | `/blog` | Hub del blog — cuadrícula filtrable por categoría (Problemas, Nutrición, Manejo). 3 artículos publicados |

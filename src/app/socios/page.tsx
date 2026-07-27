@@ -1586,7 +1586,7 @@ function AdminView({ adminCode }: { adminCode: string }) {
     fecha: new Date().toISOString().split('T')[0],
     cliente: '',
     producto: 'Kit ProLarva 25/15',
-    monto: 350000,
+    monto: 450000,
     canal: 'WhatsApp',
     notas: '',
   });
@@ -1670,7 +1670,7 @@ function AdminView({ adminCode }: { adminCode: string }) {
       const res  = await fetch('/api/ventas/guardar', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ adminCode, ...ventaForm }) });
       const data = await res.json();
       if (data.success) {
-        setVentaForm({ fecha: new Date().toISOString().split('T')[0], cliente: '', producto: 'Kit ProLarva 25/15', monto: 350000, canal: 'WhatsApp', notas: '' });
+        setVentaForm({ fecha: new Date().toISOString().split('T')[0], cliente: '', producto: 'Kit ProLarva 25/15', monto: 450000, canal: 'WhatsApp', notas: '' });
         setShowVentaForm(false);
         await Promise.all([cargarVentas(), cargarGlobalStats()]);
       } else {

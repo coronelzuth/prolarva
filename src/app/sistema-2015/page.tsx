@@ -95,10 +95,31 @@ const GALLERY: { type: 'image' | 'video'; src: string; caption: string }[] = [
 export default function Sistema2015Page() {
   const [faqOpen, setFaqOpen] = useState<number | null>(null);
   const [galleryIdx, setGalleryIdx] = useState(0);
+  const [copied, setCopied] = useState(false);
   const prevSlide = () => setGalleryIdx(i => (i - 1 + GALLERY.length) % GALLERY.length);
   const nextSlide = () => setGalleryIdx(i => (i + 1) % GALLERY.length);
+  const handleCopy = () => {
+    navigator.clipboard.writeText('https://prolarva-monitor.vercel.app/sistema-2015');
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
   return (
     <div style={{ background: C.bg, color: C.text, fontFamily: "'Montserrat', sans-serif", minHeight: '100vh', overflowX: 'hidden' }}>
+
+      {/* ── SHARE BAR ── */}
+      <div style={{ maxWidth: 1060, margin: '0 auto', padding: '16px 20px 0', display: 'flex', justifyContent: 'flex-end' }}>
+        <button onClick={handleCopy} style={{
+          display: 'inline-flex', alignItems: 'center', gap: 6,
+          fontSize: 12, fontWeight: 600, cursor: 'pointer',
+          padding: '6px 14px', borderRadius: 8,
+          background: copied ? 'rgba(34,197,94,0.12)' : 'rgba(255,255,255,0.04)',
+          border: copied ? '1px solid rgba(34,197,94,0.3)' : '1px solid rgba(255,255,255,0.08)',
+          color: copied ? C.greenL : C.muted,
+          transition: 'all 0.2s',
+        }}>
+          {copied ? '✓ ¡Copiado!' : '🔗 Copiar enlace'}
+        </button>
+      </div>
 
       {/* ── HERO ── */}
       <section style={{ position: 'relative', padding: '90px 20px 72px', textAlign: 'center', overflow: 'hidden' }}>
@@ -412,10 +433,13 @@ export default function Sistema2015Page() {
           <motion.h2 {...up()} style={{ fontSize: 'clamp(1.4rem, 3vw, 2.1rem)', fontWeight: 900, margin: '0 0 10px', color: C.greenL }}>
             Tu Inversión
           </motion.h2>
-          <motion.div {...up(0.1)} style={{ background: `linear-gradient(135deg, ${C.green}, ${C.greenD})`, padding: '44px 32px', borderRadius: 18, marginTop: 36, color: '#fff', boxShadow: `0 20px 60px ${C.green}30` }}>
+          <motion.div {...up(0.1)} style={{ background: `linear-gradient(135deg, ${C.green}, ${C.greenD})`, padding: '44px 32px', borderRadius: 18, marginTop: 36, color: '#fff', boxShadow: `0 20px 60px ${C.green}30`, position: 'relative', overflow: 'hidden' }}>
+            <div style={{ display: 'inline-block', background: 'rgba(0,0,0,0.25)', border: '1px solid rgba(255,255,255,0.3)', borderRadius: 20, padding: '5px 14px', fontSize: '0.78rem', fontWeight: 700, letterSpacing: '0.04em', textTransform: 'uppercase', marginBottom: 14 }}>
+              ⚡ Último acompañamiento 1:1 antes de mi programa corto
+            </div>
             <div style={{ fontSize: '0.88rem', opacity: 0.9, marginBottom: 10, fontWeight: 600 }}>Precio especial — oferta limitada</div>
-            <div style={{ fontSize: 'clamp(2.4rem, 5vw, 4rem)', fontWeight: 900, marginBottom: 6, lineHeight: 1 }}>$200,000 COP</div>
-            <div style={{ fontSize: '1rem', opacity: 0.85 }}>≈ $48 USD · Pago único · Todo incluido</div>
+            <div style={{ fontSize: 'clamp(2.4rem, 5vw, 4rem)', fontWeight: 900, marginBottom: 6, lineHeight: 1 }}>$450,000 COP</div>
+            <div style={{ fontSize: '1rem', opacity: 0.85 }}>≈ $107 USD · Pago único · Todo incluido</div>
           </motion.div>
           <motion.p {...up(0.15)} style={{ color: C.muted, fontSize: '0.95rem', margin: '22px 0 0', lineHeight: 1.6 }}>
             Kit físico + manual + 45 días acompañamiento intensivo + 180 días soporte
@@ -458,8 +482,8 @@ export default function Sistema2015Page() {
             </div>
             <div style={{ background: `linear-gradient(135deg, ${C.green}, ${C.greenD})`, borderRadius: 14, padding: '24px', textAlign: 'center', color: '#fff', boxShadow: `0 8px 32px ${C.green}30` }}>
               <div style={{ fontSize: '0.78rem', opacity: 0.9, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 6, fontWeight: 700 }}>Hoy por solo</div>
-              <div style={{ fontSize: 'clamp(1.8rem, 4vw, 2.5rem)', fontWeight: 900, marginBottom: 8 }}>$48 USD</div>
-              <div style={{ fontSize: '0.92rem', fontWeight: 700 }}>📊 Ahorras 94%</div>
+              <div style={{ fontSize: 'clamp(1.8rem, 4vw, 2.5rem)', fontWeight: 900, marginBottom: 8 }}>$107 USD</div>
+              <div style={{ fontSize: '0.92rem', fontWeight: 700 }}>📊 Ahorras 86%</div>
             </div>
           </motion.div>
         </div>

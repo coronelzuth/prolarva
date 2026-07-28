@@ -916,20 +916,22 @@ function FotosGaleria({ lote, fotos, onAdd, onDelete }: {
   onAdd: (foto: Omit<Foto, 'id' | 'creadoEn'>) => void;
   onDelete: (id: string) => void;
 }) {
-  const [uploading, setUploading] = useState(false);
-  const [expanded, setExpanded]   = useState<Foto | null>(null);
-  const inputRef                  = useRef<HTMLInputElement>(null);
-  const loteFotos                 = fotos.filter(f => f.loteId === lote.id);
+  const [uploading,   setUploading]   = useState(false);
+  const [expanded,    setExpanded]    = useState<Foto | null>(null);
+  const [fotoError,   setFotoError]   = useState('');
+  const inputRef                      = useRef<HTMLInputElement>(null);
+  const loteFotos                     = fotos.filter(f => f.loteId === lote.id);
 
   async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
     setUploading(true);
+    setFotoError('');
     try {
       const data = await comprimirImagen(file);
       onAdd({ loteId: lote.id, data, descripcion: '' });
     } catch {
-      alert('No se pudo procesar la imagen. Intenta con otra.');
+      setFotoError('No se pudo procesar la imagen. Intenta con otra.');
     } finally {
       setUploading(false);
       if (inputRef.current) inputRef.current.value = '';
@@ -949,6 +951,8 @@ function FotosGaleria({ lote, fotos, onAdd, onDelete }: {
         </button>
         <input ref={inputRef} type="file" accept="image/*" capture="environment" style={{ display: 'none' }} onChange={handleFile} />
       </div>
+
+      {fotoError && <p style={{ color: '#ef4444', fontSize: 12, margin: '0 0 10px', fontWeight: 600 }}>{fotoError}</p>}
 
       {loteFotos.length === 0 ? (
         <EmptyState icon="📷" text="Sin fotos. Documenta el progreso de tus larvas." />
@@ -2894,6 +2898,15 @@ function SociosInner() {
   const [modalCosecha, setModalCosecha] = useState(false);
   const [prefillLoteId, setPrefillLoteId] = useState<string | null>(null);
 
+  const [loteError,     setLoteError]     = useState('');
+  const [feedError,     setFeedError]     = useState('');
+  const [cosechaError,  setCosechaError]  = useState('');
+  const [editLoteError, setEditLoteError] = useState('');
+  const [saving,        setSaving]        = useState(false);
+  const [toast,         setToast]         = useState('');
+
+  function showToast(msg: string) { setToast(msg); setTimeout(() => setToast(''), 2000); }
+
   const [lObjetivo, setLObjetivo] = useState<'cosechar' | 'continuar'>('cosechar');
   const [editLoteId, setEditLoteId] = useState<string | null>(null);
   const [editNombre, setEditNombre] = useState('');
@@ -2960,11 +2973,12 @@ function SociosInner() {
   function viewLote(id: string) { setDetailLoteId(id); setView('lote-detail'); }
   function openFeed(loteId: string | null) { setPrefillLoteId(loteId); setModalFeed(true); }
 
-  function saveLote() {
+  async function saveLote() {
     const nombre = lNombre.current?.value.trim() ?? '';
     const fecha  = lFecha.current?.value ?? '';
-    if (!nombre || !fecha) { alert('Ingresa nombre y fecha.'); return; }
-    db.addLote({
+    if (!nombre || !fecha) { setLoteError('Ingresa nombre y fecha.'); return; }
+    setSaving(true);
+    await db.addLote({
       nombre, fecha,
       objetivo:     lObjetivo,
       sustrato:     parseFloat(lSustrato.current?.value ?? '0') || 0,
@@ -2973,6 +2987,8 @@ function SociosInner() {
       temp:         lTemp.current?.value ? parseFloat(lTemp.current.value) : null,
       notas:        lNotas.current?.value ?? '',
     });
+    setSaving(false);
+    setLoteError('');
     setModalLote(false);
     setLObjetivo('cosechar');
     if (lNombre.current)   lNombre.current.value   = '';
@@ -2980,47 +2996,60 @@ function SociosInner() {
     if (lHuevos.current)   lHuevos.current.value   = '';
     if (lTemp.current)     lTemp.current.value      = '';
     if (lNotas.current)    lNotas.current.value     = '';
+    showToast('✅ Lote guardado');
   }
 
-  function saveEditLote() {
+  async function saveEditLote() {
     if (!editLoteId) return;
     const nombre = editNombre.trim();
-    if (!nombre || !editFecha) { alert('Ingresa nombre y fecha.'); return; }
-    db.updateLote(editLoteId, { nombre, fecha: editFecha });
+    if (!nombre || !editFecha) { setEditLoteError('Ingresa nombre y fecha.'); return; }
+    setSaving(true);
+    await db.updateLote(editLoteId, { nombre, fecha: editFecha });
+    setSaving(false);
+    setEditLoteError('');
     setEditLoteId(null);
+    showToast('✅ Lote actualizado');
   }
 
-  function saveFeed() {
+  async function saveFeed() {
     const loteId   = fLote.current?.value ?? '';
     const cantidad = parseFloat(fCantidad.current?.value ?? '0');
-    if (!loteId || !cantidad) { alert('Selecciona un lote e ingresa la cantidad.'); return; }
-    db.addFeed({
+    if (!loteId || !cantidad) { setFeedError('Selecciona un lote e ingresa la cantidad.'); return; }
+    setSaving(true);
+    await db.addFeed({
       loteId, cantidad,
       fecha:    fFecha.current?.value ?? new Date().toISOString(),
       tipo:     fTipo.current?.value ?? '',
       rechazo:  (fRechazo.current?.value ?? 'ninguno') as FeedLog['rechazo'],
       notas:    fNotas.current?.value ?? '',
     });
+    setSaving(false);
+    setFeedError('');
     setModalFeed(false);
     if (fCantidad.current) fCantidad.current.value = '';
     if (fNotas.current)    fNotas.current.value    = '';
+    showToast('✅ Alimentación registrada');
   }
 
-  function saveCosecha() {
+  async function saveCosecha() {
     const loteId = cLote.current?.value ?? '';
     const peso   = parseFloat(cPeso.current?.value ?? '0');
-    if (!loteId || !peso) { alert('Selecciona un lote e ingresa el peso.'); return; }
-    db.addCosecha({
+    if (!loteId || !peso) { setCosechaError('Selecciona un lote e ingresa el peso.'); return; }
+    setSaving(true);
+    await db.addCosecha({
       loteId, peso,
       fecha:         cFecha.current?.value ?? todayLocal(),
       sustratoTotal: parseFloat(cSustTotal.current?.value ?? '0') || 0,
       calidad:       (cCalidad.current?.value ?? 'buena') as Cosecha['calidad'],
       notas:         cNotas.current?.value ?? '',
     });
+    setSaving(false);
+    setCosechaError('');
     setModalCosecha(false);
     if (cPeso.current)      cPeso.current.value      = '';
     if (cSustTotal.current) cSustTotal.current.value = '';
     if (cNotas.current)     cNotas.current.value     = '';
+    showToast('✅ Cosecha registrada');
   }
 
   const navItems: { key: View; icon: string; label: string }[] = [
@@ -3202,7 +3231,7 @@ function SociosInner() {
       `}</style>
 
       {/* Modal: Nuevo Lote */}
-      <Modal open={modalLote} onClose={() => { setModalLote(false); setLObjetivo('cosechar'); }} title="📦 Nuevo Lote BSF">
+      <Modal open={modalLote} onClose={() => { setModalLote(false); setLObjetivo('cosechar'); setLoteError(''); }} title="📦 Nuevo Lote BSF">
         <Field label="Objetivo del lote">
           <div style={{ display: 'flex', gap: 8 }}>
             {([['cosechar', '⚖️ Cosechar larvas'], ['continuar', '🔄 Continuar camada']] as const).map(([val, label]) => (
@@ -3226,14 +3255,15 @@ function SociosInner() {
           <Field label="Temperatura ambiente (°C)"><input ref={lTemp} type="number" style={inputStyle} placeholder="ej. 30" min="0" max="50" /></Field>
         </div>
         <Field label="Notas iniciales"><textarea ref={lNotas} style={{ ...inputStyle, minHeight: 70, resize: 'vertical' }} placeholder="Observaciones al inicio..." /></Field>
+        {loteError && <p style={{ color: '#ef4444', fontSize: 12, margin: '8px 0 0', fontWeight: 600 }}>{loteError}</p>}
         <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', marginTop: 16 }}>
-          <button style={btnOutline} onClick={() => setModalLote(false)}>Cancelar</button>
-          <button style={btnPrimary} onClick={saveLote}>Guardar lote</button>
+          <button style={btnOutline} onClick={() => { setModalLote(false); setLoteError(''); }} disabled={saving}>Cancelar</button>
+          <button style={{ ...btnPrimary, opacity: saving ? 0.6 : 1, cursor: saving ? 'not-allowed' : 'pointer' }} onClick={saveLote} disabled={saving}>{saving ? 'Guardando...' : 'Guardar lote'}</button>
         </div>
       </Modal>
 
       {/* Modal: Alimentación */}
-      <Modal open={modalFeed} onClose={() => setModalFeed(false)} title="🌿 Registrar Alimentación">
+      <Modal open={modalFeed} onClose={() => { setModalFeed(false); setFeedError(''); }} title="🌿 Registrar Alimentación">
         <Field label="Lote">
           <select ref={fLote} style={inputStyle} defaultValue={prefillLoteId ?? ''}>
             {db.lotes.length === 0
@@ -3261,23 +3291,25 @@ function SociosInner() {
           </Field>
         </div>
         <Field label="Observaciones"><textarea ref={fNotas} style={{ ...inputStyle, minHeight: 70, resize: 'vertical' }} placeholder="Color, olor, comportamiento..." /></Field>
+        {feedError && <p style={{ color: '#ef4444', fontSize: 12, margin: '8px 0 0', fontWeight: 600 }}>{feedError}</p>}
         <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', marginTop: 16 }}>
-          <button style={btnOutline} onClick={() => setModalFeed(false)}>Cancelar</button>
-          <button style={btnPrimary} onClick={saveFeed}>Guardar</button>
+          <button style={btnOutline} onClick={() => { setModalFeed(false); setFeedError(''); }} disabled={saving}>Cancelar</button>
+          <button style={{ ...btnPrimary, opacity: saving ? 0.6 : 1, cursor: saving ? 'not-allowed' : 'pointer' }} onClick={saveFeed} disabled={saving}>{saving ? 'Guardando...' : 'Guardar'}</button>
         </div>
       </Modal>
 
       {/* Modal: Editar Lote */}
-      <Modal open={editLoteId !== null} onClose={() => setEditLoteId(null)} title="✏️ Editar Lote">
+      <Modal open={editLoteId !== null} onClose={() => { setEditLoteId(null); setEditLoteError(''); }} title="✏️ Editar Lote">
         <Field label="Nombre / código del lote">
           <input style={inputStyle} value={editNombre} onChange={e => setEditNombre(e.target.value)} placeholder="ej. Lote-07 Julio" />
         </Field>
         <Field label="Fecha de siembra">
           <input type="date" style={inputStyle} value={editFecha} onChange={e => setEditFecha(e.target.value)} />
         </Field>
+        {editLoteError && <p style={{ color: '#ef4444', fontSize: 12, margin: '8px 0 0', fontWeight: 600 }}>{editLoteError}</p>}
         <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', marginTop: 16 }}>
-          <button style={btnOutline} onClick={() => setEditLoteId(null)}>Cancelar</button>
-          <button style={btnPrimary} onClick={saveEditLote}>Guardar cambios</button>
+          <button style={btnOutline} onClick={() => { setEditLoteId(null); setEditLoteError(''); }} disabled={saving}>Cancelar</button>
+          <button style={{ ...btnPrimary, opacity: saving ? 0.6 : 1, cursor: saving ? 'not-allowed' : 'pointer' }} onClick={saveEditLote} disabled={saving}>{saving ? 'Guardando...' : 'Guardar cambios'}</button>
         </div>
       </Modal>
 
@@ -3299,6 +3331,13 @@ function SociosInner() {
             : <button style={{ ...btnPrimary, ...btnSm }} onClick={() => { localStorage.setItem('prl-onboarding-done', '1'); setShowOnboarding(false); setOnboardingStep(0); setTourMinimized(false); }}>¡Listo! 🚀</button>
           }
           <button onClick={() => { localStorage.setItem('prl-onboarding-done', '1'); setShowOnboarding(false); setOnboardingStep(0); setTourMinimized(false); }} style={{ background: 'none', border: 'none', color: S.muted, fontSize: 14, cursor: 'pointer', padding: '0 2px' }}>✕</button>
+        </div>
+      )}
+
+      {/* Toast global */}
+      {toast && (
+        <div style={{ position: 'fixed', bottom: 90, left: '50%', transform: 'translateX(-50%)', zIndex: 999, background: '#22c55e', color: '#0d1b2a', padding: '10px 22px', borderRadius: 50, fontWeight: 700, fontSize: 13, fontFamily: 'Montserrat, sans-serif', boxShadow: '0 4px 16px rgba(0,0,0,0.4)', whiteSpace: 'nowrap', pointerEvents: 'none' }}>
+          {toast}
         </div>
       )}
 
@@ -3335,7 +3374,7 @@ function SociosInner() {
       </Modal>
 
       {/* Modal: Cosecha */}
-      <Modal open={modalCosecha} onClose={() => setModalCosecha(false)} title="⚖️ Registrar Cosecha">
+      <Modal open={modalCosecha} onClose={() => { setModalCosecha(false); setCosechaError(''); }} title="⚖️ Registrar Cosecha">
         <Field label="Lote cosechado">
           <select ref={cLote} style={inputStyle}>
             {db.lotes.length === 0
@@ -3358,9 +3397,10 @@ function SociosInner() {
           </Field>
         </div>
         <Field label="Observaciones"><textarea ref={cNotas} style={{ ...inputStyle, minHeight: 70, resize: 'vertical' }} placeholder="Tamaño, % prepupas, incidencias..." /></Field>
+        {cosechaError && <p style={{ color: '#ef4444', fontSize: 12, margin: '8px 0 0', fontWeight: 600 }}>{cosechaError}</p>}
         <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', marginTop: 16 }}>
-          <button style={btnOutline} onClick={() => setModalCosecha(false)}>Cancelar</button>
-          <button style={btnPrimary} onClick={saveCosecha}>Registrar cosecha</button>
+          <button style={btnOutline} onClick={() => { setModalCosecha(false); setCosechaError(''); }} disabled={saving}>Cancelar</button>
+          <button style={{ ...btnPrimary, opacity: saving ? 0.6 : 1, cursor: saving ? 'not-allowed' : 'pointer' }} onClick={saveCosecha} disabled={saving}>{saving ? 'Guardando...' : 'Registrar cosecha'}</button>
         </div>
       </Modal>
     </div>

@@ -407,6 +407,7 @@ export default function EscuelaView({
   const [foroText,    setForoText]    = useState('');
   const [posting,     setPosting]     = useState(false);
   const [foroSuccess, setForoSuccess] = useState(false);
+  const [foroSearch,  setForoSearch]  = useState('');
 
   // Respuestas
   const [replyingTo,  setReplyingTo]  = useState<string | null>(null);
@@ -468,6 +469,19 @@ export default function EscuelaView({
     const ok = await esc.publicarPost(foroText, socioNombre);
     if (ok) { setForoText(''); setForoSuccess(true); setTimeout(() => setForoSuccess(false), 2000); }
     setPosting(false);
+  }
+
+  async function handleLike(postId: string, tipo: string, authorCode: string) {
+    const post = esc.posts.find(p => p.id === postId);
+    const wasReacted = post?.reactions.some(r => r.socio_code === socioCode && r.tipo === tipo);
+    await esc.toggleLike(postId, tipo);
+    if (!wasReacted && authorCode !== socioCode) {
+      fetch('/api/foro/notify-like', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ to_code: authorCode, from_name: socioNombre, tipo }),
+      }).catch(() => {});
+    }
   }
 
   async function handleReply(parentId: string, authorCode: string) {
@@ -1125,15 +1139,57 @@ export default function EscuelaView({
                 </div>
               </div>
 
+              {/* Búsqueda */}
+              <div style={{ position: 'relative', marginBottom: 16 }}>
+                <span style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', fontSize: 14, color: S.muted, pointerEvents: 'none' }}>🔍</span>
+                <input
+                  type="text"
+                  value={foroSearch}
+                  onChange={e => setForoSearch(e.target.value)}
+                  placeholder="Buscar en el foro..."
+                  style={{ ...inputStyle, paddingLeft: 34, fontSize: 13 }}
+                />
+                {foroSearch && (
+                  <button onClick={() => setForoSearch('')} style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: S.muted, fontSize: 14 }}>✕</button>
+                )}
+              </div>
+
               {/* Feed */}
-              {esc.posts.filter(p => !p.parent_id).length === 0 ? (
+              {(() => {
+                const topPosts = esc.posts.filter(p => !p.parent_id);
+                const filtrados = foroSearch.trim()
+                  ? topPosts.filter(p =>
+                      p.contenido.toLowerCase().includes(foroSearch.toLowerCase()) ||
+                      p.socio_nombre.toLowerCase().includes(foroSearch.toLowerCase())
+                    )
+                  : topPosts;
+                const ordenados = [...filtrados].sort((a, b) => {
+                  if (a.fijado && !b.fijado) return -1;
+                  if (!a.fijado && b.fijado) return 1;
+                  return 0;
+                });
+                return ordenados;
+              })().length === 0 ? (
                 <div style={{ textAlign: 'center', padding: '3rem 1rem', color: S.muted }}>
                   <div style={{ fontSize: '2.5rem', marginBottom: 10 }}>💬</div>
-                  <p style={{ fontSize: 13 }}>El foro está vacío. ¡Sé el primero en publicar!</p>
+                  <p style={{ fontSize: 13 }}>{foroSearch ? 'Sin resultados para esa búsqueda.' : 'El foro está vacío. ¡Sé el primero en publicar!'}</p>
                 </div>
               ) : (
                 <div>
-                  {esc.posts.filter(p => !p.parent_id).map(post => {
+                  {(() => {
+                    const topPosts2 = esc.posts.filter(p => !p.parent_id);
+                    const filtrados2 = foroSearch.trim()
+                      ? topPosts2.filter(p =>
+                          p.contenido.toLowerCase().includes(foroSearch.toLowerCase()) ||
+                          p.socio_nombre.toLowerCase().includes(foroSearch.toLowerCase())
+                        )
+                      : topPosts2;
+                    return [...filtrados2].sort((a, b) => {
+                      if (a.fijado && !b.fijado) return -1;
+                      if (!a.fijado && b.fijado) return 1;
+                      return 0;
+                    });
+                  })().map(post => {
                     const myReaction = post.reactions.find(r => r.socio_code === socioCode)?.tipo ?? null;
                     const isOwn      = post.socio_code === socioCode;
                     const isPostAdmin = adminCodes.has(post.socio_code);
@@ -1149,9 +1205,14 @@ export default function EscuelaView({
                         {/* Post principal */}
                         <div style={{
                           background: S.navy2,
-                          border: `1px solid ${isPostAdmin ? 'rgba(34,197,94,0.4)' : S.border}`,
+                          border: `1px solid ${post.fijado ? 'rgba(245,158,11,0.4)' : isPostAdmin ? 'rgba(34,197,94,0.4)' : S.border}`,
                           borderRadius: 14, padding: '1rem 1.25rem',
                         }}>
+                          {post.fijado && (
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 10, color: S.amber, fontWeight: 700, marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                              📌 Fijado
+                            </div>
+                          )}
                           <div style={{ display: 'flex', gap: 12 }}>
                             <div style={{ width: 38, height: 38, borderRadius: '50%', background: isPostAdmin ? 'linear-gradient(135deg,#22c55e,#16a34a)' : 'linear-gradient(135deg,#334155,#1e293b)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, color: '#fff', fontSize: 15, flexShrink: 0, marginTop: 1 }}>
                               {post.socio_nombre[0]?.toUpperCase() ?? '?'}
@@ -1175,7 +1236,7 @@ export default function EscuelaView({
                                   const count = post.reactions.filter(r => r.tipo === emoji).length;
                                   const active = myReaction === emoji;
                                   return (
-                                    <button key={emoji} onClick={() => esc.toggleLike(post.id, emoji)}
+                                    <button key={emoji} onClick={() => handleLike(post.id, emoji, post.socio_code)}
                                       style={{ display: 'flex', alignItems: 'center', gap: 3, background: active ? 'rgba(34,197,94,0.1)' : 'none', border: active ? '1px solid rgba(34,197,94,0.3)' : '1px solid transparent', borderRadius: 6, padding: '3px 7px', cursor: 'pointer', fontSize: 12, color: active ? S.green2 : S.muted, fontFamily: 'Montserrat,sans-serif', fontWeight: 600, transition: 'all 0.1s' }}>
                                       {emoji}{count > 0 && ` ${count}`}
                                     </button>
@@ -1205,10 +1266,19 @@ export default function EscuelaView({
                                     {isExpanded ? '▲' : '▼'} {replies.length} respuesta{replies.length > 1 ? 's' : ''}
                                   </button>
                                 )}
+                                {asAdmin && (
+                                  <button
+                                    onClick={() => esc.fijarPost(post.id, !post.fijado)}
+                                    style={{ background: 'none', border: 'none', cursor: 'pointer', color: post.fijado ? S.amber : '#475569', fontSize: 12, padding: '3px', fontFamily: 'Montserrat,sans-serif', marginLeft: 'auto' }}
+                                    title={post.fijado ? 'Quitar pin' : 'Fijar post'}
+                                  >
+                                    📌
+                                  </button>
+                                )}
                                 {(isOwn || asAdmin) && (
                                   <button
                                     onClick={() => { if (confirm('¿Eliminar este post y sus respuestas?')) esc.eliminarPost(post.id); }}
-                                    style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#475569', fontSize: 12, padding: '3px', fontFamily: 'Montserrat,sans-serif', marginLeft: 'auto' }}
+                                    style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#475569', fontSize: 12, padding: '3px', fontFamily: 'Montserrat,sans-serif', marginLeft: asAdmin ? 0 : 'auto' }}
                                   >
                                     🗑️
                                   </button>
@@ -1250,7 +1320,7 @@ export default function EscuelaView({
                                           const cnt = reply.reactions.filter(r => r.tipo === emoji).length;
                                           const act = myRReaction === emoji;
                                           return (
-                                            <button key={emoji} onClick={() => esc.toggleLike(reply.id, emoji)}
+                                            <button key={emoji} onClick={() => handleLike(reply.id, emoji, reply.socio_code)}
                                               style={{ display: 'flex', alignItems: 'center', gap: 2, background: act ? 'rgba(34,197,94,0.1)' : 'none', border: act ? '1px solid rgba(34,197,94,0.3)' : '1px solid transparent', borderRadius: 5, padding: '2px 5px', cursor: 'pointer', fontSize: 11, color: act ? S.green2 : S.muted, fontFamily: 'Montserrat,sans-serif', fontWeight: 600 }}>
                                               {emoji}{cnt > 0 && ` ${cnt}`}
                                             </button>

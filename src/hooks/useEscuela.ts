@@ -38,6 +38,7 @@ export interface ForoPost {
   socio_nombre: string;
   contenido: string;
   creado_en: string;
+  fijado?: boolean;
   reactions: { socio_code: string; tipo: string }[];
 }
 
@@ -244,6 +245,13 @@ export function useEscuela(socioCode: string) {
     setPosts(prev => prev.filter(p => p.id !== id && p.parent_id !== id));
   };
 
+  const fijarPost = async (id: string, fijado: boolean) => {
+    const sb = getSupabase();
+    if (!sb) return;
+    await sb.from('foro_posts').update({ fijado }).eq('id', id);
+    setPosts(prev => prev.map(p => p.id === id ? { ...p, fijado } : p));
+  };
+
   // ── Tablón ───────────────────────────────────────────────────────────────────
 
   const publicarAnuncio = async (contenido: string, socioNombre: string, fijado = false): Promise<boolean> => {
@@ -350,7 +358,7 @@ export function useEscuela(socioCode: string) {
 
   return {
     loaded, clases, progreso, plantillas, posts, anuncios, proxClase, tareas, entregas, sociosColonia,
-    marcarVisto, publicarPost, toggleLike, eliminarPost, toggleColonia,
+    marcarVisto, publicarPost, toggleLike, eliminarPost, fijarPost, toggleColonia,
     guardarClase, eliminarClase,
     guardarPlantilla, eliminarPlantilla,
     publicarAnuncio, eliminarAnuncio, toggleFijarAnuncio,

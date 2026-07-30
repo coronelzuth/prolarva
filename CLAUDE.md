@@ -312,6 +312,13 @@ a5cc857  feat: port calculadora BSF a React con paleta de la app
 
 **Última actualización:** 2026-07-30
 
+**Cambios recientes (2026-07-30 — sesión 16):**
+- ✅ **Cronograma de la Escuela** — nueva tab "📅 Cronograma" como vista principal de la Escuela. Grid de 4 columnas (una por semana), colapsable por semana, días individuales con tipo de actividad. Panel expandible inline al hacer clic en un día: clase (embed YouTube + marcar vista), tarea (entrega), recurso (PDFs).
+- ✅ **Sem 1-4 ocultas para socios** — los tabs/items de navegación de semanas desaparecen para socios. Solo el admin los ve en sección "Gestionar". Vista inicial cambiada a 'cronograma'.
+- ✅ **Push recordatorio cronograma** — endpoint `/api/push/cronograma-reminder` envía push a todos los suscritos con la próxima actividad activa del cronograma. Botón "📲 Enviar recordatorio" en el panel admin del cronograma.
+- ✅ **Tabla `cronograma_dias`** — campos: id, fecha, semana, tipo (clase/tarea/reporte/recurso/libre), titulo, descripcion, orden, activo. SQL en `supabase/cronograma_escuela.sql` (ya ejecutado).
+- ✅ **`useEscuela.ts`** — nuevo tipo `DiaCronograma` + `TipoDia`, métodos `guardarDia` y `eliminarDia`, fetch de `cronograma_dias` en `load()`.
+
 **Cambios recientes (2026-07-30 — sesión 15):**
 - ✅ **Panel "Mis Ventas" para socios** — Nueva vista `💰 ventas` en la zona de socios. Stats del mes (ingresos COP, kg vendidos, precio promedio). Lista de ventas. Modal para registrar: producto (larva/harina/abono), kg, precio/kg, comprador, notas. Conectado a Supabase tabla `ventas_socios` via `useSocios`. SQL en `supabase/ventas_socios.sql`.
 - ✅ **Recuperar contraseña (Resend)** — Flujo completo: "¿Olvidaste tu contraseña?" en login → ingresa email → recibe enlace por Resend. Token de 1 hora en tabla `password_resets`. URL: `https://prolarva.co/socios?reset=TOKEN`. Pantalla `ResetPasswordScreen` inline. SQL en `supabase/password_resets.sql`. **Requiere: crear cuenta Resend, obtener RESEND_API_KEY, agregar a Vercel, verificar dominio prolarva.co en Resend.**
@@ -413,6 +420,7 @@ a5cc857  feat: port calculadora BSF a React con paleta de la app
 | `plantillas` | PDFs descargables por semana | **escuela.sql** |
 | `foro_posts` | Posts del foro del grupo | **escuela.sql** |
 | `foro_likes` | Likes de posts del foro | **escuela.sql** |
+| `cronograma_dias` | Días individuales del programa Colonia con actividades | **cronograma_escuela.sql** |
 
 **Cambios recientes (2026-07-25 — sesión 7):**
 - ✅ **AdminView expandido** — ahora 5 tabs: 👥 Socios, 📊 Leads, 💰 Ventas, 🎟️ Invitaciones, 📝 Blog

@@ -1811,6 +1811,8 @@ const BLOG_META: Record<string, { title: string; emoji: string; color: string }>
   'alimentacion-larvas':{ title: 'Qué comen las larvas BSF',      emoji: '🌿', color: '#a855f7' },
 };
 
+const GA4_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || '';
+
 type BlogStatRow = { slug: string; views: number; last_viewed_at: string };
 
 function BlogStatsTab({ stats, loading, onRefresh }: { stats: BlogStatRow[]; loading: boolean; onRefresh: () => void }) {
@@ -1880,6 +1882,32 @@ function BlogStatsTab({ stats, loading, onRefresh }: { stats: BlogStatRow[]; loa
         </div>
       )}
       <button onClick={onRefresh} style={{ ...btnOutline, ...btnSm, marginTop: 16 }}>↺ Actualizar</button>
+
+      {/* Card GA4 */}
+      <div style={{ ...cardStyle, marginTop: 20, padding: '16px 20px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: GA4_ID ? 0 : 10 }}>
+          <span style={{ fontSize: 22 }}>📈</span>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: S.text }}>Google Analytics 4</div>
+            <div style={{ fontSize: 11, color: GA4_ID ? S.green : S.amber, marginTop: 2 }}>
+              {GA4_ID ? `✅ Activo · ${GA4_ID}` : '⚠️ Measurement ID no configurado'}
+            </div>
+          </div>
+          <a
+            href="https://analytics.google.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ ...btnPrimary, fontSize: 11, padding: '6px 14px', textDecoration: 'none', display: 'inline-block', whiteSpace: 'nowrap' }}
+          >
+            Abrir GA4 →
+          </a>
+        </div>
+        {!GA4_ID && (
+          <div style={{ fontSize: 11, color: S.muted, lineHeight: 1.7, marginTop: 4 }}>
+            Para activar: crea una propiedad en <strong style={{ color: S.text }}>analytics.google.com</strong> → copia el Measurement ID (G-XXXXXXXX) → agrégalo como env var <strong style={{ color: S.text }}>NEXT_PUBLIC_GA_MEASUREMENT_ID</strong> en Vercel → redeploy.
+          </div>
+        )}
+      </div>
     </div>
   );
 }

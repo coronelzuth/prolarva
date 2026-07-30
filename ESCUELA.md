@@ -15,6 +15,8 @@ Programa **Colonia**: 4 semanas de clases en vivo para socios inscritos.
 | `supabase/escuela-alta-prioridad.sql` | SQL: config_escuela, anuncios_escuela, tareas, entregas_tareas |
 | `supabase/escuela-media-prioridad.sql` | SQL: foro_likes.tipo, socios.en_colonia |
 | `supabase/escuela-baja-prioridad.sql` | SQL: foro_posts.fijado |
+| `supabase/cronograma_escuela.sql` | SQL tabla cronograma_dias |
+| `src/app/api/push/cronograma-reminder/route.ts` | Endpoint push recordatorio del cronograma |
 
 ---
 
@@ -32,21 +34,44 @@ Programa **Colonia**: 4 semanas de clases en vivo para socios inscritos.
 | `tareas` | Tareas semanales: pregunta, semana, activa/inactiva |
 | `entregas_tareas` | Respuestas de socios a las tareas (UNIQUE tarea_id+socio_code) |
 | `socios` | Campo `en_colonia boolean` para gestión de cohorte |
+| `cronograma_dias` | Días individuales del programa: fecha, semana, tipo, título, descripción |
 
 ---
 
 ## Funcionalidades actuales
 
+### Cronograma (2026-07-30) ← NUEVA VISTA PRINCIPAL
+- Tab **📅 Cronograma** es ahora la vista de entrada de la Escuela
+- Grid de 4 columnas (una por semana) con días individuales y sus actividades
+- Cada semana es colapsable (clic en header ▶/▼) — muestra emoji + título, sin "Sem X"
+- Badge **HOY** en verde cuando hay actividad ese día
+- Días pasados con opacidad reducida; día de hoy resaltado en verde
+- **Al hacer clic en un día** se expande un panel inline con el contenido:
+  - Tipo `clase` → embed YouTube + botón "Marcar como vista"
+  - Tipo `tarea` → pregunta + textarea + botón entregar
+  - Tipo `recurso` → grid de PDFs descargables
+  - Tipos `reporte` / `libre` → solo info descriptiva
+- Clic de nuevo → colapsa el panel
+- Admin: botón **"+ Agregar actividad"** con modal (fecha, semana, tipo, título, descripción)
+- Admin: botón **"+"** en el header de cada semana para agregar rápido
+- Admin: botón ✏️ en cada día para editar/eliminar
+- Admin: botón **"📲 Enviar recordatorio"** → push inmediato a todos los suscritos con la próxima actividad
+- Tipos de actividad: `clase` 🎥 / `tarea` 📝 / `reporte` 📊 / `recurso` 📄 / `libre` 🗓️
+
+### Navegación actualizada
+- **Socios**: sidebar y tabs móviles muestran solo Cronograma → Foro → Directorio
+- **Admin**: además tiene sección "Gestionar" con ⚙️ Semana 1-4 para gestionar clases, plantillas y tareas
+- Los tabs "Sem 1-4" ya NO aparecen para socios — el cronograma es el punto de entrada
+
 ### Clases
-- Admin agrega/edita/activa clases con URL de YouTube
-- Embed de YouTube visible para el estudiante
+- Admin agrega/edita/activa clases con URL de YouTube, asignadas a una semana
+- Embed de YouTube accesible desde el panel expandible del cronograma (tipo `clase`)
 - Botón "Marcar como vista" → guarda en `progreso_clases`
-- Badge de progreso por semana en el sidebar (`vis/total` o `✓`)
-- Banner informativo por semana (emoji, título, 4 temas — hardcodeado en `SEMANAS_INFO`)
+- Badge de progreso por semana visible en la sección Gestionar (admin)
 
 ### Plantillas
-- Admin sube link (Google Drive) con título y tamaño
-- Grid de cards con botón "⬇️ Descargar PDF"
+- Admin sube link (Google Drive) con título y tamaño, asignadas a semana
+- Accesibles desde el panel expandible del cronograma (tipo `recurso`)
 
 ### Foro
 - Publicar posts (máx 500 chars)
@@ -72,7 +97,7 @@ Programa **Colonia**: 4 semanas de clases en vivo para socios inscritos.
 
 ### Tareas semanales
 - Admin crea pregunta por semana (activa/inactiva)
-- Socios entregan texto (máx 1000 chars) — upsert, pueden actualizar
+- Socios entregan texto (máx 1000 chars) desde el panel expandible del cronograma (tipo `tarea`)
 - Admin ve todas las entregas con nombre, código y timestamp
 
 ### Certificado de completación
@@ -90,7 +115,18 @@ Programa **Colonia**: 4 semanas de clases en vivo para socios inscritos.
 
 ### Vista de preview (solo admin)
 - Botón **"👁️ Vista de socio"** en header — oculta todos los controles de admin
-- Permite ver exactamente lo que ven los socios sin cerrar sesión
+
+---
+
+## Tipos del cronograma (`TipoDia`)
+
+| Tipo | Emoji | Label | Panel expandible muestra |
+|---|---|---|---|
+| `clase` | 🎥 | Clase en vivo | Embed YouTube + marcar vista |
+| `tarea` | 📝 | Tarea | Pregunta + textarea entrega |
+| `recurso` | 📄 | Recurso | Grid PDFs descargables |
+| `reporte` | 📊 | Reporte | Descripción del día |
+| `libre` | 🗓️ | Actividad libre | Descripción del día |
 
 ---
 
@@ -107,8 +143,8 @@ Programa **Colonia**: 4 semanas de clases en vivo para socios inscritos.
 
 ## Navegación
 
-**Desktop:** sidebar propio de 176px con semanas + Foro + Directorio + Progreso (admin)
-**Móvil:** tabs horizontales superiores (Sem 1/2/3/4 + Foro + 👥 + 📊) + sub-tabs (Clase / Plantillas / Tarea)
+**Desktop:** sidebar 176px — Cronograma (vista principal) → Foro → Directorio → sección Gestionar solo para admin (Semana 1-4 con sub-items Clase/Plantillas/Tarea) → Progreso (admin)
+**Móvil:** tabs horizontales — Cronograma → Foro → 👥 → para admin: ⚙️ S1-S4 + 📊
 
 El navbar global de la app está oculto dentro de `/socios`.
 
@@ -120,10 +156,11 @@ El navbar global de la app está oculto dentro de `/socios`.
 |---|---|---|
 | `/api/foro/notify-reply` | POST | Push al autor de un post cuando alguien le responde |
 | `/api/foro/notify-like` | POST | Push al autor cuando alguien reacciona a su post |
+| `/api/push/cronograma-reminder` | POST | Push a todos los suscritos con la próxima actividad del cronograma |
 
 ---
 
-## Estado actual (2026-07-29)
+## Estado actual (2026-07-30)
 
 - ✅ Clases + plantillas + foro funcionando en producción
 - ✅ Respuestas anidadas con collapse y notificación push
@@ -136,3 +173,6 @@ El navbar global de la app está oculto dentro de `/socios`.
 - ✅ Vista de preview para admin ("👁️ Vista de socio")
 - ✅ Búsqueda en el foro (client-side)
 - ✅ Pin de posts en el foro (solo admin)
+- ✅ **Cronograma con días individuales** — tabla `cronograma_dias`, grid colapsable por semana, panel expandible inline por actividad
+- ✅ **Sem 1-4 ocultas para socios** — solo accesibles vía cronograma o para admin en sección Gestionar
+- ✅ **Push de recordatorio del cronograma** — endpoint `/api/push/cronograma-reminder`

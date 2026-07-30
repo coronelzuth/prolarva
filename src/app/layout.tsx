@@ -6,6 +6,8 @@ import Navbar from '@/components/Navbar';
 import FloatingWidgets from '@/components/FloatingWidgets';
 import { Analytics } from '@vercel/analytics/react';
 
+const GA_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
+
 const montserrat = Montserrat({
   subsets: ['latin'],
   weight: ['400', '500', '600', '700', '800', '900'],
@@ -55,6 +57,17 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </footer>
         <FloatingWidgets />
         <Analytics />
+        {GA_ID && (
+          <>
+            <Script src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`} strategy="afterInteractive" />
+            <Script id="ga4-init" strategy="afterInteractive">{`
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', '${GA_ID}', { page_path: window.location.pathname });
+            `}</Script>
+          </>
+        )}
         <Script id="sw-register" strategy="afterInteractive">{`
           if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('/sw.js', { scope: '/' })

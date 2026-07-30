@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useEffect } from 'react';
 
@@ -123,7 +123,7 @@ export default function CalculadoraPage() {
   function compartir() {
     const d = E[esp || 'pollos'];
     const perdida = result ? cop(result.totalPerd) : '?';
-    const url = 'https://prolarva-monitor.vercel.app/calculadora';
+    const url = 'https://prolarva.co/calculadora';
     const texto = `👀 Ojo con esto: calculé que sin BSF estoy perdiendo ${perdida} por ciclo con mis ${nAnim} ${d.pl}.\n\nTú también puedes calcularlo aquí 👇\n${url}`;
     if (navigator.share) {
       navigator.share({ title: 'Calculadora BSF — ProLarva', text: texto, url }).catch(() => {});
@@ -451,3 +451,4 @@ function CardSection({ icon, iconBg, title, children }: { icon: string; iconBg: 
     </div>
   );
 }
+

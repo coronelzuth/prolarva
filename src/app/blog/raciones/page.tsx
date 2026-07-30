@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
@@ -124,7 +124,7 @@ export default function RacionesPage() {
   const animal = animals.find(a => a.id === selected)!;
 
   const handleCopy = () => {
-    navigator.clipboard.writeText('https://prolarva-monitor.vercel.app/blog/raciones');
+    navigator.clipboard.writeText('https://prolarva.co/blog/raciones');
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -158,7 +158,7 @@ export default function RacionesPage() {
               {copied ? '✓ ¡Copiado!' : '🔗 Copiar enlace'}
             </button>
             <a
-              href={`https://wa.me/?text=${encodeURIComponent('🍽️ Raciones recomendadas de larva BSF por animal y etapa — tablas para pollos, gallinas, cerdos y peces: https://prolarva-monitor.vercel.app/blog/raciones')}`}
+              href={`https://wa.me/?text=${encodeURIComponent('🍽️ Raciones recomendadas de larva BSF por animal y etapa — tablas para pollos, gallinas, cerdos y peces: https://prolarva.co/blog/raciones')}`}
               target="_blank" rel="noopener noreferrer"
               style={{
                 display: 'inline-flex', alignItems: 'center', gap: 6,
@@ -493,3 +493,4 @@ export default function RacionesPage() {
     </main>
   );
 }
+

@@ -1,7 +1,7 @@
 'use client';
 
 export default function ShareButton() {
-  const url = 'https://prolarva-monitor.vercel.app';
+  const url = 'https://prolarva.co';
   const texto = encodeURIComponent('🪲 Aprende a cultivar Larva BSF y reduce tus costos de concentrado. Ruta de aprendizaje gratuita: ' + url);
 
   const compartirWhatsApp = () => {

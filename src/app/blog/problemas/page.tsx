@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
@@ -79,7 +79,7 @@ export default function ProblemasPage() {
   }, []);
 
   const handleCopy = () => {
-    navigator.clipboard.writeText('https://prolarva-monitor.vercel.app/blog/problemas');
+    navigator.clipboard.writeText('https://prolarva.co/blog/problemas');
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -114,7 +114,7 @@ export default function ProblemasPage() {
               {copied ? '✓ ¡Copiado!' : '🔗 Copiar enlace'}
             </button>
             <a
-              href={`https://wa.me/?text=${encodeURIComponent('🪲 8 problemas comunes en la cría BSF — con solución rápida para cada uno: https://prolarva-monitor.vercel.app/blog/problemas')}`}
+              href={`https://wa.me/?text=${encodeURIComponent('🪲 8 problemas comunes en la cría BSF — con solución rápida para cada uno: https://prolarva.co/blog/problemas')}`}
               target="_blank" rel="noopener noreferrer"
               style={{
                 display: 'inline-flex', alignItems: 'center', gap: 6,
@@ -317,3 +317,4 @@ export default function ProblemasPage() {
     </main>
   );
 }
+

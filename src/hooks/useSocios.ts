@@ -196,6 +196,32 @@ function fotoFromRow(r: any): Foto {
   };
 }
 
+// ─── Demo ─────────────────────────────────────────────────────────────────────
+
+const DEMO_CODE = 'DEMO';
+
+function demoData(): { lotes: Lote[]; feeds: FeedLog[]; cosechas: Cosecha[]; recordatorios: Recordatorio[]; fotos: Foto[] } {
+  const d   = (days: number) => new Date(Date.now() - days * 86_400_000);
+  const ds  = (days: number) => d(days).toISOString().split('T')[0];
+  const di  = (days: number) => d(days).toISOString();
+  const lotes: Lote[] = [
+    { id: 'demo-l1', nombre: 'Lote A — Cáscaras de frutas', fecha: ds(4),  sustrato: 2, tipoSustrato: 'Cáscaras de frutas', huevos: '3 g', temp: 27,   notas: 'Primer lote, buena eclosión',       creadoEn: di(4),  objetivo: 'cosechar' },
+    { id: 'demo-l2', nombre: 'Lote B — Gallinaza',          fecha: ds(15), sustrato: 3, tipoSustrato: 'Gallinaza',          huevos: '5 g', temp: 28,   notas: '',                                  creadoEn: di(15), objetivo: 'cosechar' },
+    { id: 'demo-l3', nombre: 'Lote C — Residuos cocina',    fecha: ds(23), sustrato: 4, tipoSustrato: 'Restos de verduras', huevos: '4 g', temp: null, notas: '¡Casi listo para cosechar!',        creadoEn: di(23), objetivo: 'cosechar' },
+  ];
+  const feeds: FeedLog[] = [
+    { id: 'demo-f1', loteId: 'demo-l2', fecha: ds(12), cantidad: 0.5, tipo: 'Gallinaza',          rechazo: 'ninguno', notas: '' },
+    { id: 'demo-f2', loteId: 'demo-l2', fecha: ds(9),  cantidad: 0.8, tipo: 'Gallinaza',          rechazo: 'leve',    notas: 'Temperatura alta esa semana' },
+    { id: 'demo-f3', loteId: 'demo-l3', fecha: ds(20), cantidad: 1.2, tipo: 'Restos de verduras', rechazo: 'ninguno', notas: '' },
+    { id: 'demo-f4', loteId: 'demo-l3', fecha: ds(17), cantidad: 1.0, tipo: 'Restos de verduras', rechazo: 'ninguno', notas: 'Buena conversión' },
+    { id: 'demo-f5', loteId: 'demo-l3', fecha: ds(13), cantidad: 1.1, tipo: 'Mezcla orgánica',    rechazo: 'ninguno', notas: '' },
+  ];
+  const cosechas: Cosecha[] = [
+    { id: 'demo-c1', loteId: 'demo-l3', fecha: ds(2), peso: 0.9, sustratoTotal: 4.5, calidad: 'buena', notas: 'Primera cosecha parcial' },
+  ];
+  return { lotes, feeds, cosechas, recordatorios: [], fotos: [] };
+}
+
 // ─── Supabase sync ────────────────────────────────────────────────────────────
 
 async function syncFromSupabase(
@@ -282,7 +308,7 @@ export function useSocios() {
       setFotos(local.fotos);
 
       const db = getSupabase();
-      if (db && sess) {
+      if (db && sess && sess.code !== DEMO_CODE) {
         const result = await syncFromSupabase(db, sess.code, local);
         if (result) {
           if (result.lotes)         { setLotes(result.lotes);                       localSave(KEYS.lotes, result.lotes); }
@@ -302,6 +328,23 @@ export function useSocios() {
 
   const login = useCallback(async (code: string, pass: string): Promise<boolean> => {
     try {
+      // Bypass de API para modo demo — no requiere cuenta en Supabase
+      if (code.toUpperCase() === DEMO_CODE) {
+        const s: SocioSession = { code: DEMO_CODE, name: 'Visitante', rol: 'socio' };
+        setSession(s);
+        localSave(KEYS.session, s);
+        const existingLotes = load<Lote[]>(KEYS.lotes, []);
+        if (existingLotes.length === 0) {
+          const demo = demoData();
+          setLotes(demo.lotes); setFeeds(demo.feeds); setCosechas(demo.cosechas);
+          setRecordatorios([]); setFotos([]);
+          localSave(KEYS.lotes, demo.lotes); localSave(KEYS.feeds, demo.feeds);
+          localSave(KEYS.cosechas, demo.cosechas);
+          localSave(KEYS.recordatorios, []); localSave(KEYS.fotos, []);
+        }
+        return true;
+      }
+
       const res = await fetch('/api/socios/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -313,6 +356,19 @@ export function useSocios() {
       const s: SocioSession = { code: data.codigo, name: data.nombre, rol: data.rol ?? 'socio' };
       setSession(s);
       localSave(KEYS.session, s);
+
+      if (s.code === DEMO_CODE) {
+        const existingLotes = load<Lote[]>(KEYS.lotes, []);
+        if (existingLotes.length === 0) {
+          const demo = demoData();
+          setLotes(demo.lotes); setFeeds(demo.feeds); setCosechas(demo.cosechas);
+          setRecordatorios([]); setFotos([]);
+          localSave(KEYS.lotes, demo.lotes); localSave(KEYS.feeds, demo.feeds);
+          localSave(KEYS.cosechas, demo.cosechas);
+          localSave(KEYS.recordatorios, []); localSave(KEYS.fotos, []);
+        }
+        return true;
+      }
 
       const db = getSupabase();
       if (db) {
@@ -369,7 +425,7 @@ export function useSocios() {
     const next: Lote = { ...lote, id: uid(), creadoEn: new Date().toISOString() };
     setLotes(prev => { const arr = [...prev, next]; localSave(KEYS.lotes, arr); return arr; });
     const db = getSupabase();
-    if (db && session) {
+    if (db && session && session.code !== DEMO_CODE) {
       const { error } = await db.from('lotes').upsert(loteToRow(session.code, next));
       if (error) console.error('[ProLarva] addLote:', error.message);
     }
@@ -382,7 +438,8 @@ export function useSocios() {
     setRecordatorios(prev => { const arr = prev.filter(r => r.loteId !== id); localSave(KEYS.recordatorios, arr); return arr; });
     setFotos(prev => { const arr = prev.filter(f => f.loteId !== id); localSave(KEYS.fotos, arr); return arr; });
     const db = getSupabase();
-    if (db) {
+    const sess = load<SocioSession | null>(KEYS.session, null);
+    if (db && sess?.code !== DEMO_CODE) {
       const { error } = await db.from('lotes').delete().eq('id', id);
       if (error) console.error('[ProLarva] deleteLote:', error.message);
     }
@@ -391,7 +448,7 @@ export function useSocios() {
   const updateLote = useCallback(async (id: string, updates: Partial<Pick<Lote, 'nombre' | 'fecha'>>) => {
     setLotes(prev => { const arr = prev.map(l => l.id === id ? { ...l, ...updates } : l); localSave(KEYS.lotes, arr); return arr; });
     const db = getSupabase();
-    if (db && session) {
+    if (db && session && session.code !== DEMO_CODE) {
       const { error } = await db.from('lotes').update(updates).eq('id', id);
       if (error) console.error('[ProLarva] updateLote:', error.message);
     }
@@ -403,7 +460,7 @@ export function useSocios() {
     const next: FeedLog = { ...feed, id: uid() };
     setFeeds(prev => { const arr = [...prev, next]; localSave(KEYS.feeds, arr); return arr; });
     const db = getSupabase();
-    if (db && session) {
+    if (db && session && session.code !== DEMO_CODE) {
       const { error } = await db.from('feed_logs').upsert(feedToRow(session.code, next));
       if (error) console.error('[ProLarva] addFeed:', error.message);
     }
@@ -415,7 +472,7 @@ export function useSocios() {
     const next: Cosecha = { ...cosecha, id: uid() };
     setCosechas(prev => { const arr = [...prev, next]; localSave(KEYS.cosechas, arr); return arr; });
     const db = getSupabase();
-    if (db && session) {
+    if (db && session && session.code !== DEMO_CODE) {
       const { error } = await db.from('cosechas').upsert(cosechaToRow(session.code, next));
       if (error) console.error('[ProLarva] addCosecha:', error.message);
     }
@@ -427,7 +484,7 @@ export function useSocios() {
     const next: Recordatorio = { ...rec, id: uid(), completado: false, creadoEn: new Date().toISOString() };
     setRecordatorios(prev => { const arr = [...prev, next]; localSave(KEYS.recordatorios, arr); return arr; });
     const db = getSupabase();
-    if (db && session) {
+    if (db && session && session.code !== DEMO_CODE) {
       const { error } = await db.from('recordatorios').upsert(recToRow(session.code, next));
       if (error) console.error('[ProLarva] addRecordatorio:', error.message);
     }
@@ -442,7 +499,8 @@ export function useSocios() {
       return arr;
     });
     const db = getSupabase();
-    if (db) {
+    const sess = load<SocioSession | null>(KEYS.session, null);
+    if (db && sess?.code !== DEMO_CODE) {
       const { error } = await db.from('recordatorios').update({ completado }).eq('id', id);
       if (error) console.error('[ProLarva] toggleRecordatorio:', error.message);
     }
@@ -451,7 +509,8 @@ export function useSocios() {
   const deleteRecordatorio = useCallback(async (id: string) => {
     setRecordatorios(prev => { const arr = prev.filter(r => r.id !== id); localSave(KEYS.recordatorios, arr); return arr; });
     const db = getSupabase();
-    if (db) {
+    const sess = load<SocioSession | null>(KEYS.session, null);
+    if (db && sess?.code !== DEMO_CODE) {
       const { error } = await db.from('recordatorios').delete().eq('id', id);
       if (error) console.error('[ProLarva] deleteRecordatorio:', error.message);
     }
@@ -463,7 +522,7 @@ export function useSocios() {
     const next: Foto = { ...foto, id: uid(), creadoEn: new Date().toISOString() };
     setFotos(prev => { const arr = [...prev, next]; localSave(KEYS.fotos, arr); return arr; });
     const db = getSupabase();
-    if (db && session) {
+    if (db && session && session.code !== DEMO_CODE) {
       const { error } = await db.from('fotos_lotes').upsert(fotoToRow(session.code, next));
       if (error) console.error('[ProLarva] addFoto:', error.message);
     }
@@ -472,7 +531,8 @@ export function useSocios() {
   const deleteFoto = useCallback(async (id: string) => {
     setFotos(prev => { const arr = prev.filter(f => f.id !== id); localSave(KEYS.fotos, arr); return arr; });
     const db = getSupabase();
-    if (db) {
+    const sess = load<SocioSession | null>(KEYS.session, null);
+    if (db && sess?.code !== DEMO_CODE) {
       const { error } = await db.from('fotos_lotes').delete().eq('id', id);
       if (error) console.error('[ProLarva] deleteFoto:', error.message);
     }
@@ -502,7 +562,7 @@ export function useSocios() {
     localSave(KEYS.lotes, []); localSave(KEYS.feeds, []); localSave(KEYS.cosechas, []);
     localSave(KEYS.recordatorios, []); localSave(KEYS.fotos, []);
     const db = getSupabase();
-    if (db && session) {
+    if (db && session && session.code !== DEMO_CODE) {
       await Promise.all([
         db.from('lotes').delete().eq('socio_code', session.code),
         db.from('feed_logs').delete().eq('socio_code', session.code),

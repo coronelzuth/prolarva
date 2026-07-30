@@ -660,4 +660,170 @@ export const GUIONES_BASE: Guion[] = [
     duracion: '~45s', nc: 2, angulo: 'solucion',
     plataforma: ['TikTok', 'Instagram'], contenido: '',
   },
+
+  // ─── RETO ROAD TO 1K ─────────────────────────────────────────
+  {
+    id: 'RETO13C', numero: 84, codigo: 'RETO13C',
+    titulo: 'Trucos para mejorar tu producción de larva BSF (carrusel)',
+    tipo: 'E', pilar: 'Educación con Gancho', bloque: 'Reto Road to 1K', estado: 'GUIONIZADO',
+    duracion: '7 slides', nc: 2, angulo: 'solucion',
+    plataforma: ['Instagram'],
+    contenido: `SLIDE 1 — PORTADA
+"Trucos para mejorar tu producción de larva BSF" @prolarva.co
+
+SLIDE 2 — TEMPERATURA
+❌ ANTES: Módulo en un rincón frío y húmedo. Las larvas están pequeñas y casi no se mueven.
+✅ DESPUÉS: Módulo en lugar cálido, entre 24 y 30°C. Las larvas crecen el doble de rápido.
+Por qué funciona: el calor es el motor de la larva. Sin él, come poco y crece poco.
+
+SLIDE 3 — MATERIA ORGÁNICA
+❌ ANTES: Echaba los residuos enteros. La larva tardaba días en procesarlos.
+✅ DESPUÉS: Los pico antes de echarlos. La larva los consume en horas.
+Por qué funciona: más superficie expuesta = más come = más crece.
+
+SLIDE 4 — RACIÓN A LOS ANIMALES
+❌ ANTES: Le daba larva a ojo. El concentrado casi no bajaba.
+✅ DESPUÉS: Mido la ración según el peso del animal. El concentrado bajó 25% en el primer ciclo.
+Por qué funciona: sin la dosis correcta, el animal sigue dependiendo del concentrado.
+
+SLIDE 5 — COSECHA
+❌ ANTES: Cosechaba cuando "se veía que había bastante". Mezcla de larvas pequeñas y grandes.
+✅ DESPUÉS: Cosecho entre el día 14 y 18 del ciclo. Larvas en el punto exacto de proteína.
+Por qué funciona: la larva tiene un pico de proteína en esos días. Después prepupa y pierde valor.
+
+SLIDE 6 — HUMEDAD
+❌ ANTES: Echaba residuos muy líquidos. Olores fuertes y bichos no deseados.
+✅ DESPUÉS: Escurro bien los residuos. El módulo huele neutro y las larvas están activas.
+Por qué funciona: el exceso de líquido fermenta el sustrato y puede asfixiar las larvas.
+
+SLIDE 7 — CTA
+Guárdalo para tu próximo ciclo. ¿Cuál truco aplicarías?`,
+    notas: 'DÍA 13 del Reto — versión CARRUSEL 7 slides. Archivo fuente: DIA-13-educacion-trucos-produccion-bsf.md',
+  },
+  {
+    id: 'RETO13', numero: 85, codigo: 'RETO13',
+    titulo: 'Trucos que cambiaron mi producción BSF',
+    tipo: 'E', pilar: 'Educación con Gancho', bloque: 'Reto Road to 1K', estado: 'GUIONIZADO',
+    duracion: '40-52s', nc: 2, angulo: 'solucion',
+    plataforma: ['TikTok', 'Instagram'],
+    contenido: `GANCHO (0-3s): "Moví el módulo dos metros... y mi larva creció el doble."
+
+CONTEXTO (3-8s): "Y no fue lo único que estaba haciendo mal — hay tres cosas que en verdad cambiaron todo. Y son más fáciles de lo que uno cree."
+
+TRUCO 1 — Temperatura (8-20s): "Uno: el módulo estaba en un rincón frío y húmedo. Lo moví a donde la temperatura pegue entre 24 y 30 grados — y la larva se duplicó. Creeme. El calor es el motor — sin él, la larva te come poco y te crece poco."
+
+TRUCO 2 — Ración medida (20-35s): "Dos: estaba echando la larva a ojo. No es echar un puño y ya. Empecé a medir la ración según el peso del animal — y el concentrado bajó 25% en el primer ciclo. Sin eso pues el animal sigue dependiendo del concentrado. Con la dosis exacta, no."
+
+TRUCO 3 — Cosecha exacta (35-47s): "Tres: cosechaba cuando 'se veía que había bastante'. Naa, mentiras — hay un momento exacto. Entre el día 14 y el 18 es el pico de proteína. Después la larva prepupa y pierde valor. Empecé a llevar la fecha de siembra. Eso."
+
+CTA (47-52s): "Si tú ya tienes BSF, pero aún así la larva no te está rindiendo — guarda esto. Y comenta cuál de los tres vas a cambiar primero."`,
+    notas: 'DÍA 13 del Reto Road to 1K. Gancho evaluado 92/100. Formato reel 40-52s. Archivo fuente: DIA-13-educacion-reel-trucos-bsf.md',
+  },
+  {
+    id: 'RETO14', numero: 86, codigo: 'RETO14',
+    titulo: 'Malo / Bueno / Excelente para bajar el concentrado',
+    tipo: 'E', pilar: 'Disrupción / Anti-consejo', bloque: 'Reto Road to 1K', estado: 'GUIONIZADO',
+    duracion: '52-58s', nc: 2, angulo: 'solucion',
+    plataforma: ['TikTok', 'Instagram'],
+    contenido: `GANCHO (0-4s): "Cambiar de concentrado es malo para bajar tus costos. Hacer concentrado casero es bueno. Producir tu propia proteína en el traspatio — eso sí es excelente."
+
+MALO (4-18s): "Cambiar de marca: lo único que haces es mover el problema. Hoy sube uno, mañana sube el otro. Tu granja sigue dependiendo de lo que decida el mercado. No resuelves nada — solo postergás la angustia."
+
+BUENO (18-33s): "El concentrado casero es mejor — compras maíz y soya directamente y bajas el costo. Pero si sube el maíz, tú también subes. Sigues atado a algo externo. Es un paso. Pero no es la salida."
+
+EXCELENTE (33-48s): "Producir tu propia larva BSF en el traspatio: usas los residuos orgánicos de tu misma granja para criar la proteína que necesitan tus animales. El concentrado puede subir lo que quiera. A ti ya te importa menos. Eso es independencia real."
+
+CTA (48-55s): "Comenta LARVA si quieres el paso a paso por DM."`,
+    notas: 'DÍA 14 del Reto. Palabra clave CTA: LARVA. Archivo fuente: DIA-14-disrupcion-malo-bueno-excelente-concentrado.md',
+  },
+  {
+    id: 'RETO15', numero: 87, codigo: 'RETO15',
+    titulo: 'Lento vs. Rápido para bajar el concentrado',
+    tipo: 'E', pilar: 'Disrupción / Anti-consejo', bloque: 'Reto Road to 1K', estado: 'GUIONIZADO',
+    duracion: '55-60s', nc: 2, angulo: 'solucion',
+    plataforma: ['TikTok', 'Instagram'],
+    contenido: `GANCHO (0-4s): "Bajar el costo del concentrado en 2 años vs. en 20 días. Los dos son posibles — y la mayoría elige el largo sin darse cuenta."
+
+LENTO (4-22s): "La forma lenta: cambias de marca, ajustas a ojo, buscas en YouTube soluciones para granjas industriales de otro país. Pasan meses. El costo sigue igual. No es falta de ganas — es que estás atacando el síntoma, no la causa."
+
+RÁPIDO (22-42s): "La forma rápida: montas una colonia de larva BSF con un sistema probado para traspatio colombiano. En 20 días tienes tu primera cosecha. La proteína la produces tú, con residuos de tu misma granja. En el primer ciclo ya ves la diferencia — 25% menos concentrado. Documentado."
+
+REENCUADRE (42-50s): "La diferencia no es cuánto tiempo llevas en esto. Es si tienes un sistema o no."
+
+CTA (50-58s): "Sígueme para hacerlo de la forma rápida, no la lenta."`,
+    notas: 'DÍA 15 del Reto. Archivo fuente: DIA-15-disrupcion-lento-vs-rapido-concentrado.md',
+  },
+  {
+    id: 'RETO16', numero: 88, codigo: 'RETO16',
+    titulo: 'Calculadora BSF + Monitor App: cómo usarlas juntas',
+    tipo: 'E', pilar: 'Utilidad Práctica', bloque: 'Reto Road to 1K', estado: 'GUIONIZADO',
+    duracion: '55-60s', nc: 2, angulo: 'solucion',
+    plataforma: ['TikTok', 'Instagram'],
+    contenido: `GANCHO (0-4s): "Cómo usar la Calculadora BSF y la Monitor App juntas para saber exactamente cuánto estás ahorrando en concentrado."
+
+HERRAMIENTA 1 (4-20s): "Primero: la Calculadora BSF — gratis, tarda 2 minutos. Metes cuántos animales tienes y te dice cuánto puedes bajar en concentrado produciendo larva BSF. Ese es tu número meta. El que tienes que llegar a superar."
+
+HERRAMIENTA 2 (20-36s): "Después: la Monitor App — también gratis. Registras semana a semana cuánta larva produjiste, cuánto concentrado usaste y cómo van pesando los animales. Te muestra la curva real de tu granja — no una promesa, tu propio avance."
+
+COMBINACIÓN (36-50s): "Juntas funcionan así: la Calculadora te dice adónde puedes llegar. La Monitor te dice si vas llegando. Si los números no coinciden, ya sabes qué ajustar — temperatura, ración, frecuencia de cosecha. Sin adivinar. Sin esperar a fin de mes para darte cuenta."
+
+CTA (50-57s): "Combínalas tú: comenta SISTEMA y te guío por DM."`,
+    notas: 'DÍA 16 del Reto. Palabra clave CTA: SISTEMA. Herramientas: prolarva-calculadora.vercel.app + prolarva-monitor.vercel.app. Archivo fuente: DIA-16-educacion-calculadora-monitor-app-bsf.md',
+  },
+  {
+    id: 'RETO17C', numero: 89, codigo: 'RETO17C',
+    titulo: 'Todo sobre la larva BSF antes de usarla (carrusel)',
+    tipo: 'E', pilar: 'Utilidad Práctica', bloque: 'Reto Road to 1K', estado: 'GUIONIZADO',
+    duracion: '7 slides', nc: 2, angulo: 'solucion',
+    plataforma: ['Instagram'],
+    contenido: `SLIDE 1 — PORTADA
+"Todo lo que debes saber sobre la larva BSF antes de usarla en tu granja" @prolarva.co
+
+SLIDE 2 — ¿CUÁNDO TIENE SENTIDO USARLA?
+La larva BSF aporta más valor cuando tienes gallinas, cerdos o peces de traspatio, el concentrado es tu mayor gasto, quieres bajar costos sin bajar calidad nutricional, y tienes residuos orgánicos disponibles.
+
+SLIDE 3 — LARVA VIVA
+Para qué: alimentar directamente a tus animales.
+Beneficios: hasta 40% de proteína, activa el instinto de caza, mejora peso y color.
+Cuándo: cosechar entre el día 14 y 18 y dar de inmediato.
+Precaución: no refrigerar — pierde movimiento y los animales la rechazan.
+
+SLIDE 4 — LARVA SECA
+Para qué: almacenar cuando no tienes cosecha fresca.
+Beneficios: más fácil de manejar, menos olor, se guarda varios días.
+Precaución: pierde proteína vs la viva — úsala como complemento.
+
+SLIDE 5 — HARINA DE LARVA
+Para qué: mezclar con el concentrado en proporciones definidas.
+Beneficios: fácil de dosificar, se integra al alimento que ya usas.
+Precaución: requiere secar y moler bien. Para traspatio pequeño, la larva viva es más práctica.
+
+SLIDE 6 — MITOS Y ERRORES COMUNES
+❌ "A mis animales no les gusta" → casi siempre es porque la dieron muerta o fría.
+❌ "Es asqueroso manejarla" → cuando ves el resultado, ese pensamiento desaparece solo.
+❌ "Es muy difícil de producir" → con el sistema correcto son 10 minutos al día.
+
+SLIDE 7 — RECOMENDACIÓN + CTA
+Si tienes traspatio con gallinas, cerdos o peces: la larva viva es tu mejor punto de entrada. Guárdalo. Y si te sirvió, mándaselo a alguien que lo necesita.`,
+    notas: 'DÍA 17 del Reto — versión CARRUSEL 7 slides. Archivo fuente: DIA-17-educacion-todo-sobre-larva-bsf.md',
+  },
+  {
+    id: 'RETO17', numero: 90, codigo: 'RETO17',
+    titulo: 'Los errores que todos cometen al dar larva BSF',
+    tipo: 'E', pilar: 'Disrupción / Revelación', bloque: 'Reto Road to 1K', estado: 'GUIONIZADO',
+    duracion: '42-52s', nc: 2, angulo: 'solucion',
+    plataforma: ['TikTok', 'Instagram'],
+    contenido: `GANCHO (0-3s): "Le di larva BSF a mis gallinas y 'no les gustó'. El problema no era la larva."
+
+CONTEXTO (3-7s): "Hay tres errores que casi todos cometen al empezar con BSF — y ninguno tiene que ver con la larva en sí."
+
+ERROR 1 — La larva muerta (7-18s): "Uno: le dieron la larva muerta o fría. La larva viva se mueve — eso activa el instinto de caza del animal. Si la diste quieta o refrigerada, el animal no la reconoce como comida. Viva y fresca: historia diferente."
+
+ERROR 2 — Cosechar sin fecha (18-32s): "Dos: esperaban a cosechar cuando 'se veía que había bastante'. La larva tiene su pico de proteína entre el día 14 y el 18. Después ya prepupa y pierde valor. Sin llevar la fecha, dizque toda esa proteína se les fue."
+
+ERROR 3 — Sin sistema (32-44s): "Tres: empezaron sin sistema. No es cuestión de ganas — es que sin un protocolo claro, uno no sabe qué está fallando. Con el sistema correcto son 10 minutos al día. El problema nunca fue la larva."
+
+CTA (44-52s): "Si tú ya tienes BSF, pero aún así la larva no te está rindiendo — guarda esto. Y comenta cuál de los tres cometiste al principio."`,
+    notas: 'DÍA 17 del Reto — versión REEL. Gancho F1+Dolor. Adaptado del carrusel DIA-17. Archivo fuente: DIA-17-educacion-reel-mitos-larva-bsf.md',
+  },
 ]

@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
@@ -153,7 +153,7 @@ export default function AlimentacionLarvasPage() {
   }, []);
 
   const handleCopy = () => {
-    navigator.clipboard.writeText('https://prolarva-monitor.vercel.app/blog/alimentacion-larvas');
+    navigator.clipboard.writeText('https://prolarva.co/blog/alimentacion-larvas');
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -187,7 +187,7 @@ export default function AlimentacionLarvasPage() {
               {copied ? '✓ ¡Copiado!' : '🔗 Copiar enlace'}
             </button>
             <a
-              href={`https://wa.me/?text=${encodeURIComponent('🌿 Qué comen las larvas BSF y cómo alimentarlas bien — sustratos, porciones y cómo subir la proteína antes de cosechar: https://prolarva-monitor.vercel.app/blog/alimentacion-larvas')}`}
+              href={`https://wa.me/?text=${encodeURIComponent('🌿 Qué comen las larvas BSF y cómo alimentarlas bien — sustratos, porciones y cómo subir la proteína antes de cosechar: https://prolarva.co/blog/alimentacion-larvas')}`}
               target="_blank" rel="noopener noreferrer"
               style={{
                 display: 'inline-flex', alignItems: 'center', gap: 6,
@@ -566,3 +566,4 @@ export default function AlimentacionLarvasPage() {
     </main>
   );
 }
+

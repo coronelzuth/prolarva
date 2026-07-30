@@ -1,7 +1,7 @@
 import type { MetadataRoute } from 'next';
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const base = 'https://prolarva-monitor.vercel.app';
+  const base = 'https://prolarva.co';
   const now = new Date();
 
   return [

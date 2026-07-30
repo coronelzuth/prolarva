@@ -174,20 +174,6 @@ export default function Home() {
         })}
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 12 }}>
-        {[
-          { icon: '⏱️', value: '30 min', label: 'Ruta completa' },
-          { icon: '📋', value: '3 metas', label: 'Para elegir' },
-          { icon: '🤖', value: 'Larvi', label: 'Asistente 24/7' },
-        ].map((stat, i) => (
-          <div key={i} style={{ textAlign: 'center', padding: '16px 12px', background: 'rgba(21,32,53,0.5)', borderRadius: 12, border: '1px solid rgba(34,197,94,0.1)' }}>
-            <div style={{ fontSize: 20, marginBottom: 4 }}>{stat.icon}</div>
-            <div style={{ fontSize: 16, fontWeight: 800, color: '#4ade80' }}>{stat.value}</div>
-            <div style={{ fontSize: 11, color: '#64748b' }}>{stat.label}</div>
-          </div>
-        ))}
-      </div>
-
       <div style={{ textAlign: 'center', marginTop: 36, paddingTop: 28, borderTop: '1px solid rgba(34,197,94,0.1)' }}>
         <p style={{ fontSize: 13, color: '#64748b', marginBottom: 12 }}>¿Te parece útil? Compártelo con otros productores</p>
         <ShareButton />

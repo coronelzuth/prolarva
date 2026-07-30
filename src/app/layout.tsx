@@ -27,16 +27,16 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'ProLarva 🪲',
     description: 'Aprendé a cultivar BSF y reducí tus costos de concentrado hasta un 50%. Ruta gratuita con Larvi.',
-    url: 'https://prolarva-monitor.vercel.app',
+    url: 'https://prolarva.co',
     siteName: 'ProLarva',
     type: 'website',
-    images: [{ url: 'https://prolarva-monitor.vercel.app/og-image.png', width: 1200, height: 630, alt: 'ProLarva' }],
+    images: [{ url: 'https://prolarva.co/og-image.png', width: 1200, height: 630, alt: 'ProLarva' }],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'ProLarva 🪲',
     description: 'Aprendé a cultivar BSF y reducí tus costos de concentrado.',
-    images: ['https://prolarva-monitor.vercel.app/og-image.png'],
+    images: ['https://prolarva.co/og-image.png'],
   },
 };
 

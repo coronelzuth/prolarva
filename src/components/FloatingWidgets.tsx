@@ -6,7 +6,7 @@ import WhatsApp from './WhatsApp';
 
 export default function FloatingWidgets() {
   const path = usePathname();
-  if (path === '/socios') return null;
+  if (path === '/socios' || path === '/contenido') return null;
   return (
     <>
       <Larvi />

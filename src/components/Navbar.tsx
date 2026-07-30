@@ -7,7 +7,7 @@ import { useState, useEffect } from 'react';
 
 const navLinks = [
   { href: '/',            label: 'Inicio',       icon: '🏠' },
-  { href: '/sistema-2015', label: 'Oferta',      icon: '💰' },
+  { href: '/kit',          label: 'Kit',           icon: '💰' },
   { href: '/conocimiento',label: 'Conocimiento',  icon: '🧠' },
   { href: '/preparacion', label: 'Preparación',   icon: '🛠️', hidden: true },
   { href: '/metas',       label: 'Mi Meta',       icon: '🎯' },
@@ -29,6 +29,8 @@ export default function Navbar() {
   }, [pathname]);
 
   const isSocios = pathname.startsWith('/socios');
+
+  if (isSocios) return null;
 
   return (
     <nav style={{ background: 'rgba(13,27,42,0.95)', borderBottom: '1px solid rgba(14,165,233,0.2)', backdropFilter: 'blur(12px)', position: 'sticky', top: 0, zIndex: 50 }}>

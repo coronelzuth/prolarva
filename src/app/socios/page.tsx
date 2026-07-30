@@ -8,11 +8,13 @@ import {
   BSF_STAGES,
   daysSince,
   getStage,
+  uid,
   type Lote,
   type FeedLog,
   type Cosecha,
   type Recordatorio,
   type Foto,
+  type VentaSocio,
   type SocioSession,
 } from '@/hooks/useSocios';
 
@@ -541,7 +543,7 @@ function LineChart({ data, metaLine }: { data: { label: string; value: number }[
 
 // ─── Views ────────────────────────────────────────────────────────────────────
 
-type View = 'dashboard' | 'lotes' | 'lote-detail' | 'cosecha' | 'guia' | 'admin' | 'perfil' | 'estadisticas' | 'escuela';
+type View = 'dashboard' | 'lotes' | 'lote-detail' | 'cosecha' | 'guia' | 'admin' | 'perfil' | 'estadisticas' | 'escuela' | 'ventas';
 
 function Dashboard({ lotes, feeds, cosechas, activeLotes, readyLotes, recordatorios, totalKg, avgConv, userName, anuncio, onViewLote, onNav }: {
   lotes: Lote[]; feeds: FeedLog[]; cosechas: Cosecha[];
@@ -719,16 +721,22 @@ function Dashboard({ lotes, feeds, cosechas, activeLotes, readyLotes, recordator
 
         <div style={cardStyle}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
-            <h3 style={{ fontSize: 13, fontWeight: 700 }}>Últimas alimentaciones</h3>
+            <h3 style={{ fontSize: 13, fontWeight: 700 }}>Actividad reciente</h3>
             <button style={{ ...btnOutline, ...btnSm }} onClick={() => onNav('lotes')}>Ver mis lotes</button>
           </div>
-          {feeds.length === 0 ? (
-            <EmptyState icon="🌿" text="Sin registros de alimentación" />
-          ) : (
-            [...feeds].reverse().slice(0, 3).map(f => (
-              <FeedEntry key={f.id} feed={f} lotes={lotes} />
-            ))
-          )}
+          {feeds.length === 0 && cosechas.length === 0 ? (
+            <EmptyState icon="🌿" text="Sin actividad registrada todavía" />
+          ) : (() => {
+            const items = [
+              ...feeds.map(f => ({ type: 'feed' as const, fecha: f.fecha, data: f })),
+              ...cosechas.map(c => ({ type: 'cosecha' as const, fecha: c.fecha, data: c })),
+            ].sort((a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime()).slice(0, 3);
+            return items.map(item =>
+              item.type === 'feed'
+                ? <FeedEntry key={`f-${item.data.id}`} feed={item.data as FeedLog} lotes={lotes} />
+                : <CosechaEntry key={`c-${item.data.id}`} cosecha={item.data as Cosecha} lotes={lotes} />
+            );
+          })()}
         </div>
       </div>
     </div>
@@ -751,6 +759,33 @@ function FeedEntry({ feed: f, lotes }: { feed: FeedLog; lotes: Lote[] }) {
       <div style={{ textAlign: 'right', flexShrink: 0 }}>
         <div style={{ fontSize: 14, fontWeight: 700, color: S.emerald }}>{f.cantidad} kg</div>
         <div style={{ fontSize: 10, color: S.muted }}>{fmtDateTime(f.fecha)}</div>
+      </div>
+    </div>
+  );
+}
+
+function CosechaEntry({ cosecha: c, lotes }: { cosecha: Cosecha; lotes: Lote[] }) {
+  const lote = lotes.find(l => l.id === c.loteId);
+  const calidadBadge = (q: Cosecha['calidad']) => {
+    if (q === 'excelente' || q === 'buena') return <Badge color="green">{q}</Badge>;
+    if (q === 'regular') return <Badge color="amber">{q}</Badge>;
+    return <Badge color="red">{q}</Badge>;
+  };
+  const calidadTextColor = (q: Cosecha['calidad']) =>
+    q === 'excelente' || q === 'buena' ? S.green : q === 'regular' ? S.amber : S.red;
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 12px', background: S.navy2, borderRadius: 10, marginBottom: 8, border: '1px solid rgba(245,158,11,0.18)' }}>
+      <div style={{ fontSize: 22 }}>⚖️</div>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+          <strong style={{ fontSize: 13 }}>Cosecha</strong>
+          {calidadBadge(c.calidad)}
+        </div>
+        <span style={{ fontSize: 11, color: S.muted }}>{lote?.nombre ?? '—'}{c.notas ? ` · ${c.notas}` : ''}</span>
+      </div>
+      <div style={{ textAlign: 'right', flexShrink: 0 }}>
+        <div style={{ fontSize: 14, fontWeight: 700, color: calidadTextColor(c.calidad) }}>{c.peso} kg</div>
+        <div style={{ fontSize: 10, color: S.muted }}>{fmtDate(c.fecha)}</div>
       </div>
     </div>
   );
@@ -1115,26 +1150,6 @@ function LoteDetail({ lote, feeds, lotes, cosechas, recordatorios, fotos, onBack
   );
 }
 
-function AlimentacionView({ feeds, lotes, onNewFeed }: { feeds: FeedLog[]; lotes: Lote[]; onNewFeed: () => void }) {
-  return (
-    <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 24 }}>
-        <div>
-          <h1 style={{ fontSize: 22, fontWeight: 900 }}>Registro de Alimentación</h1>
-          <p style={{ color: S.muted, fontSize: 13, marginTop: 4 }}>Qué, cuánto y cuándo comen las larvas</p>
-        </div>
-        <button style={btnPrimary} onClick={onNewFeed}>+ Registrar alimentación</button>
-      </div>
-      <div style={cardStyle}>
-        {feeds.length === 0 ? (
-          <EmptyState icon="🌿" text="Sin registros de alimentación todavía." />
-        ) : (
-          [...feeds].reverse().map(f => <FeedEntry key={f.id} feed={f} lotes={lotes} />)
-        )}
-      </div>
-    </div>
-  );
-}
 
 function CosechaView({ cosechas, lotes, totalKg, avgConv, onNewCosecha }: {
   cosechas: Cosecha[]; lotes: Lote[];
@@ -1268,12 +1283,248 @@ const DEMO_FEATURES = [
   { icon: '⏰', title: 'Recordatorios', desc: 'Alertas diarias para no perder ningún hito del ciclo' },
 ];
 
+// ─── VentasView ──────────────────────────────────────────────────────────────
+
+const PRODUCTO_LABELS: Record<string, string> = { larva: 'Larva fresca', harina: 'Harina BSF', abono: 'Abono orgánico' };
+const PRODUCTO_ICONS:  Record<string, string> = { larva: '🐛', harina: '🌾', abono: '🌱' };
+
+function VentasView({ ventas, onAdd, onDelete }: {
+  ventas: VentaSocio[];
+  onAdd: (v: Omit<VentaSocio, 'id' | 'creadoEn'>) => void;
+  onDelete: (id: string) => void;
+}) {
+  const [showModal, setShowModal] = useState(false);
+  const [producto,   setProducto]  = useState<'larva' | 'harina' | 'abono'>('larva');
+  const [fecha,      setFecha]     = useState(new Date().toISOString().split('T')[0]);
+  const [kg,         setKg]        = useState('');
+  const [precioPor,  setPrecioPor] = useState('');
+  const [comprador,  setComprador] = useState('');
+  const [notas,      setNotas]     = useState('');
+  const [saving,     setSaving]    = useState(false);
+  const [error,      setError]     = useState('');
+  const [deleteId,   setDeleteId]  = useState<string | null>(null);
+
+  const mesActual = new Date().toISOString().slice(0, 7);
+  const ventasMes = ventas.filter(v => v.fecha.slice(0, 7) === mesActual);
+  const ingresosMes = ventasMes.reduce((a, v) => a + v.totalCop, 0);
+  const kgMes       = ventasMes.reduce((a, v) => a + v.kg, 0);
+  const precioPromed = ventasMes.length > 0
+    ? Math.round(ventasMes.reduce((a, v) => a + v.precioCopKg, 0) / ventasMes.length)
+    : 0;
+
+  const sorted = [...ventas].sort((a, b) => b.fecha.localeCompare(a.fecha));
+
+  function openModal() {
+    setProducto('larva'); setFecha(new Date().toISOString().split('T')[0]);
+    setKg(''); setPrecioPor(''); setComprador(''); setNotas(''); setError('');
+    setShowModal(true);
+  }
+
+  async function handleSave() {
+    const kgN = parseFloat(kg);
+    const precioN = parseInt(precioPor);
+    if (!kg || isNaN(kgN) || kgN <= 0) { setError('Ingresa los kg vendidos'); return; }
+    if (!precioPor || isNaN(precioN) || precioN <= 0) { setError('Ingresa el precio por kg'); return; }
+    setSaving(true);
+    onAdd({
+      fecha, producto,
+      kg: kgN,
+      precioCopKg: precioN,
+      totalCop: Math.round(kgN * precioN),
+      comprador: comprador.trim(),
+      notas: notas.trim(),
+    });
+    setSaving(false);
+    setShowModal(false);
+  }
+
+  const fmt = (n: number) => n.toLocaleString('es-CO');
+
+  return (
+    <div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 24 }}>
+        <div>
+          <h1 style={{ fontSize: 22, fontWeight: 900, margin: 0 }}>💰 Mis Ventas</h1>
+          <p style={{ color: S.muted, fontSize: 13, marginTop: 4 }}>Registra tus ventas de larva, harina y abono BSF</p>
+        </div>
+        <button onClick={openModal} style={{ ...btnPrimary, flexShrink: 0 }}>+ Registrar venta</button>
+      </div>
+
+      {/* Stats del mes */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginBottom: 24 }}>
+        <div style={cardStyle}>
+          <div style={{ fontSize: 22, fontWeight: 800, color: S.green }}>${fmt(ingresosMes)}</div>
+          <div style={{ fontSize: 11, color: S.muted, marginTop: 4, fontWeight: 600 }}>Ingresos este mes (COP)</div>
+        </div>
+        <div style={cardStyle}>
+          <div style={{ fontSize: 22, fontWeight: 800, color: S.amber }}>{kgMes.toFixed(1)} kg</div>
+          <div style={{ fontSize: 11, color: S.muted, marginTop: 4, fontWeight: 600 }}>Kg vendidos este mes</div>
+        </div>
+        <div style={cardStyle}>
+          <div style={{ fontSize: 22, fontWeight: 800, color: '#38bdf8' }}>${fmt(precioPromed)}/kg</div>
+          <div style={{ fontSize: 11, color: S.muted, marginTop: 4, fontWeight: 600 }}>Precio promedio</div>
+        </div>
+      </div>
+
+      {/* Lista */}
+      {sorted.length === 0 ? (
+        <EmptyState icon="💰" text="Aún no has registrado ventas. Toca «+ Registrar venta» para empezar." />
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          {sorted.map(v => (
+            <div key={v.id} style={{ ...cardStyle, display: 'flex', alignItems: 'center', gap: 14 }}>
+              <div style={{ fontSize: 28, flexShrink: 0 }}>{PRODUCTO_ICONS[v.producto] ?? '📦'}</div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                  <span style={{ fontWeight: 700, fontSize: 14 }}>{PRODUCTO_LABELS[v.producto]}</span>
+                  <Badge color="green">{v.kg} kg</Badge>
+                  {v.comprador && <Badge color="blue">{v.comprador}</Badge>}
+                </div>
+                <div style={{ fontSize: 12, color: S.muted, marginTop: 3 }}>
+                  {fmtDate(v.fecha)} · ${fmt(v.precioCopKg)}/kg
+                  {v.notas && <span style={{ marginLeft: 8, color: '#475569' }}>· {v.notas}</span>}
+                </div>
+              </div>
+              <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                <div style={{ fontWeight: 800, fontSize: 15, color: S.green }}>${fmt(v.totalCop)}</div>
+                <button onClick={() => setDeleteId(v.id)} style={{ ...btnDanger, ...btnSm, marginTop: 4 }}>🗑️</button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Modal registrar venta */}
+      <Modal open={showModal} onClose={() => setShowModal(false)} title="Registrar venta">
+        <Field label="Producto">
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            {(['larva', 'harina', 'abono'] as const).map(p => (
+              <button key={p} onClick={() => setProducto(p)} style={{ padding: '7px 14px', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: 'Montserrat, sans-serif', border: `1.5px solid ${producto === p ? S.green : S.border}`, background: producto === p ? 'rgba(34,197,94,0.12)' : 'transparent', color: producto === p ? S.green2 : S.muted }}>
+                {PRODUCTO_ICONS[p]} {PRODUCTO_LABELS[p]}
+              </button>
+            ))}
+          </div>
+        </Field>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+          <Field label="Fecha">
+            <input type="date" style={inputStyle} value={fecha} onChange={e => setFecha(e.target.value)} />
+          </Field>
+          <Field label="Kg vendidos">
+            <input type="number" step="0.1" min="0" style={inputStyle} value={kg} onChange={e => setKg(e.target.value)} placeholder="ej. 2.5" />
+          </Field>
+        </div>
+        <Field label="Precio por kg (COP)">
+          <input type="number" min="0" style={inputStyle} value={precioPor} onChange={e => setPrecioPor(e.target.value)} placeholder="ej. 5000" />
+        </Field>
+        {kg && precioPor && !isNaN(parseFloat(kg)) && !isNaN(parseInt(precioPor)) && (
+          <div style={{ background: 'rgba(34,197,94,0.08)', border: `1px solid ${S.border}`, borderRadius: 8, padding: '10px 14px', marginBottom: 14, fontSize: 13 }}>
+            Total: <strong style={{ color: S.green }}>${(parseFloat(kg) * parseInt(precioPor)).toLocaleString('es-CO')} COP</strong>
+          </div>
+        )}
+        <Field label="Comprador (opcional)">
+          <input style={inputStyle} value={comprador} onChange={e => setComprador(e.target.value)} placeholder="ej. Finca Las Palmas" />
+        </Field>
+        <Field label="Notas (opcional)">
+          <input style={inputStyle} value={notas} onChange={e => setNotas(e.target.value)} placeholder="ej. Pago en efectivo" />
+        </Field>
+        {error && <p style={{ color: S.red, fontSize: 12, marginBottom: 10 }}>{error}</p>}
+        <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', marginTop: 6 }}>
+          <button onClick={() => setShowModal(false)} style={btnOutline}>Cancelar</button>
+          <button onClick={handleSave} disabled={saving} style={{ ...btnPrimary, opacity: saving ? 0.6 : 1 }}>
+            {saving ? 'Guardando...' : 'Registrar'}
+          </button>
+        </div>
+      </Modal>
+
+      {/* Confirmación eliminar */}
+      <Modal open={!!deleteId} onClose={() => setDeleteId(null)} title="¿Eliminar venta?">
+        <p style={{ color: S.muted, fontSize: 13, marginBottom: 20 }}>Esta acción no se puede deshacer.</p>
+        <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
+          <button onClick={() => setDeleteId(null)} style={btnOutline}>Cancelar</button>
+          <button onClick={() => { if (deleteId) { onDelete(deleteId); setDeleteId(null); } }} style={{ ...btnPrimary, background: S.red }}>Eliminar</button>
+        </div>
+      </Modal>
+    </div>
+  );
+}
+
+// ─── ResetPasswordScreen ─────────────────────────────────────────────────────
+
+function ResetPasswordScreen({ token, onDone }: { token: string; onDone: () => void }) {
+  const [pass,     setPass]     = useState('');
+  const [confirm,  setConfirm]  = useState('');
+  const [showP,    setShowP]    = useState(false);
+  const [loading,  setLoading]  = useState(false);
+  const [error,    setError]    = useState('');
+  const [success,  setSuccess]  = useState(false);
+
+  async function handleReset() {
+    if (!pass || pass.length < 6) { setError('Mínimo 6 caracteres'); return; }
+    if (pass !== confirm)          { setError('Las contraseñas no coinciden'); return; }
+    setError(''); setLoading(true);
+    const res  = await fetch('/api/socios/reset-password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token, newPassword: pass }),
+    });
+    const data = await res.json();
+    setLoading(false);
+    if (!res.ok) { setError(data.error ?? 'Error al cambiar contraseña'); return; }
+    setSuccess(true);
+    setTimeout(onDone, 2500);
+  }
+
+  return (
+    <div style={{ minHeight: '100vh', background: 'radial-gradient(ellipse at 50% 20%, rgba(34,197,94,0.07) 0%, #0d1b2a 65%)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1.5rem' }}>
+      <div style={{ maxWidth: 420, width: '100%' }}>
+        <div style={{ textAlign: 'center', marginBottom: 28 }}>
+          <div style={{ fontSize: 40 }}>🔐</div>
+          <h1 style={{ fontSize: 22, fontWeight: 900, marginTop: 8 }}>
+            Pro<span style={{ background: 'linear-gradient(135deg,#4ade80,#22c55e)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Larva</span>
+          </h1>
+          <p style={{ fontSize: 13, color: S.muted, marginTop: 4 }}>Crea tu nueva contraseña</p>
+        </div>
+        <div style={{ background: S.navy2, border: `1px solid ${S.border}`, borderRadius: 16, padding: '1.75rem 1.5rem' }}>
+          {success ? (
+            <div style={{ textAlign: 'center', padding: '1rem 0' }}>
+              <div style={{ fontSize: 40, marginBottom: 10 }}>✅</div>
+              <p style={{ fontWeight: 700, color: S.green2 }}>¡Contraseña actualizada!</p>
+              <p style={{ color: S.muted, fontSize: 13, marginTop: 6 }}>Redirigiendo al login…</p>
+            </div>
+          ) : (
+            <>
+              <Field label="Nueva contraseña">
+                <div style={{ position: 'relative' }}>
+                  <input type={showP ? 'text' : 'password'} style={{ ...inputStyle, paddingRight: 40 }} value={pass} onChange={e => setPass(e.target.value)} placeholder="Mínimo 6 caracteres" />
+                  <button type="button" onClick={() => setShowP(v => !v)} style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: S.muted, fontSize: 16 }}>{showP ? '🙈' : '👁️'}</button>
+                </div>
+              </Field>
+              <Field label="Confirmar contraseña">
+                <input type={showP ? 'text' : 'password'} style={inputStyle} value={confirm} onChange={e => setConfirm(e.target.value)} placeholder="Repite la contraseña" onKeyDown={e => e.key === 'Enter' && !loading && handleReset()} />
+              </Field>
+              {error && <p style={{ color: S.red, fontSize: 12, marginBottom: 10 }}>{error}</p>}
+              <button onClick={handleReset} disabled={loading} style={{ ...btnPrimary, width: '100%', padding: '12px', opacity: loading ? 0.6 : 1 }}>
+                {loading ? 'Actualizando...' : 'Guardar nueva contraseña →'}
+              </button>
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function LoginScreen({ onLogin, onSwitchToRegister }: { onLogin: (code: string, pass: string) => Promise<boolean>; onSwitchToRegister: () => void }) {
   const [code, setCode] = useState('');
   const [pass, setPass] = useState('');
   const [showPass, setShowPass] = useState(false);
   const [error, setError] = useState<string>('');
   const [loading, setLoading] = useState(false);
+  const [showForgot, setShowForgot] = useState(false);
+  const [forgotEmail, setForgotEmail] = useState('');
+  const [forgotSent, setForgotSent] = useState(false);
+  const [forgotLoading, setForgotLoading] = useState(false);
+
   const attempt = async () => {
     if (!code || !pass) { setError('Completa todos los campos'); return; }
     setError('');
@@ -1282,6 +1533,18 @@ function LoginScreen({ onLogin, onSwitchToRegister }: { onLogin: (code: string, 
     setLoading(false);
     if (!success) { setError('Código o contraseña incorrectos.'); }
   };
+
+  async function handleForgot() {
+    if (!forgotEmail) return;
+    setForgotLoading(true);
+    await fetch('/api/socios/forgot-password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: forgotEmail }),
+    });
+    setForgotLoading(false);
+    setForgotSent(true);
+  }
 
   const tryDemo = async () => {
     if (loading) return;
@@ -1337,6 +1600,27 @@ function LoginScreen({ onLogin, onSwitchToRegister }: { onLogin: (code: string, 
           >
             {loading ? 'Entrando...' : 'Entrar a mi zona →'}
           </button>
+
+          {/* Forgot password */}
+          <div style={{ textAlign: 'center', marginTop: 10 }}>
+            {!showForgot ? (
+              <button onClick={() => setShowForgot(true)} style={{ background: 'none', border: 'none', color: S.muted, fontSize: 12, cursor: 'pointer', fontFamily: 'Montserrat, sans-serif', textDecoration: 'underline' }}>
+                ¿Olvidaste tu contraseña?
+              </button>
+            ) : forgotSent ? (
+              <p style={{ fontSize: 12, color: S.green2, margin: 0 }}>✅ Si el email está registrado, recibirás un enlace para recuperarla.</p>
+            ) : (
+              <div style={{ marginTop: 4 }}>
+                <input style={{ ...inputStyle, marginBottom: 8 }} type="email" value={forgotEmail} onChange={e => setForgotEmail(e.target.value)} placeholder="tu@email.com" disabled={forgotLoading} onKeyDown={e => e.key === 'Enter' && !forgotLoading && handleForgot()} />
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <button onClick={() => setShowForgot(false)} style={{ ...btnOutline, flex: 1, fontSize: 12 }}>Cancelar</button>
+                  <button onClick={handleForgot} disabled={forgotLoading || !forgotEmail} style={{ ...btnPrimary, flex: 1, fontSize: 12, opacity: forgotLoading || !forgotEmail ? 0.6 : 1 }}>
+                    {forgotLoading ? 'Enviando...' : 'Enviar enlace'}
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
 
           {/* Divider */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, margin: '16px 0' }}>
@@ -2465,7 +2749,7 @@ function EstadisticasView({ lotes, feeds, cosechas, totalKg, avgConv }: {
 
 function PerfilView({
   session, lotes, feeds, cosechas, totalKg,
-  onUpdateName, onChangePassword, onLaunchTour, onReset, onGuia,
+  onUpdateName, onChangePassword, onLaunchTour, onReset, onGuia, onGoAdmin,
 }: {
   session: SocioSession;
   lotes: Lote[];
@@ -2477,6 +2761,7 @@ function PerfilView({
   onLaunchTour: () => void;
   onReset: () => void;
   onGuia: () => void;
+  onGoAdmin?: () => void;
 }) {
   const isDemo = session.code === 'DEMO';
 
@@ -2629,6 +2914,7 @@ function PerfilView({
     const compressed = await comprimirImagen(file);
     setAvatar(compressed);
     localStorage.setItem(`prl-avatar-${session.code}`, compressed);
+    window.dispatchEvent(new CustomEvent('prl-avatar-changed', { detail: compressed }));
   }
 
   async function handleSaveName() {
@@ -2846,6 +3132,19 @@ function PerfilView({
           <span>🗑️</span><span>Limpiar mis datos</span>
         </button>
       </div>
+
+      {/* Panel Admin — solo para admins */}
+      {session.rol === 'admin' && onGoAdmin && (
+        <div style={{ ...cardStyle, marginBottom: 16 }}>
+          <div style={{ fontSize: 11, fontWeight: 700, color: S.muted, marginBottom: 14, letterSpacing: '0.06em', textTransform: 'uppercase' }}>Administración</div>
+          <button
+            style={{ background: 'rgba(245,158,11,0.1)', color: S.amber, border: '1.5px solid rgba(245,158,11,0.35)', borderRadius: 8, padding: '10px 16px', width: '100%', display: 'flex', alignItems: 'center', gap: 10, justifyContent: 'flex-start', fontFamily: 'Montserrat, sans-serif', fontWeight: 700, fontSize: 13, cursor: 'pointer' }}
+            onClick={onGoAdmin}
+          >
+            <span>🔑</span><span>Panel de Administración</span>
+          </button>
+        </div>
+      )}
     </div>
   );
 }
@@ -2949,7 +3248,8 @@ function SpotlightTour({ step, onNext, onPrev, onDone }: {
 function SociosInner() {
   const db = useSocios();
   const searchParams = useSearchParams();
-  const invParam = searchParams.get('inv')?.toUpperCase() ?? undefined;
+  const invParam   = searchParams.get('inv')?.toUpperCase() ?? undefined;
+  const resetParam = searchParams.get('reset') ?? undefined;
   const [authMode, setAuthMode] = useState<'login' | 'register'>(invParam ? 'register' : 'login');
   const [view,        setView]        = useState<View>('dashboard');
   const [detailLoteId, setDetailLoteId] = useState<string | null>(null);
@@ -2959,6 +3259,8 @@ function SociosInner() {
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [resetting,        setResetting]        = useState(false);
   const [anuncio,          setAnuncio]          = useState<string | null>(null);
+
+  const [sidebarAvatar, setSidebarAvatar] = useState<string | null>(null);
 
   const [modalLote,    setModalLote]    = useState(false);
   const [modalFeed,    setModalFeed]    = useState(false);
@@ -3022,10 +3324,25 @@ function SociosInner() {
     }
     if (db.session) {
       fetch('/api/anuncios/obtener').then(r => r.json()).then(d => { if (d.anuncio) setAnuncio(d.anuncio); }).catch(() => {});
+      const saved = localStorage.getItem(`prl-avatar-${db.session.code}`);
+      setSidebarAvatar(saved);
     }
   }, [db.session]);
 
+  useEffect(() => {
+    function onAvatarChanged(e: Event) {
+      setSidebarAvatar((e as CustomEvent<string>).detail);
+    }
+    window.addEventListener('prl-avatar-changed', onAvatarChanged);
+    return () => window.removeEventListener('prl-avatar-changed', onAvatarChanged);
+  }, []);
+
   if (!db.loaded) return null;
+
+  if (resetParam) {
+    return <ResetPasswordScreen token={resetParam} onDone={() => { window.history.replaceState({}, '', '/socios'); }} />;
+  }
+
   if (!db.session) {
     if (authMode === 'login') {
       return <LoginScreen onLogin={db.login} onSwitchToRegister={() => setAuthMode('register')} />;
@@ -3122,10 +3439,10 @@ function SociosInner() {
   const navItems: { key: View; icon: string; label: string }[] = [
     { key: 'dashboard',    icon: '🏠', label: 'Resumen' },
     { key: 'lotes',        icon: '📦', label: 'Mis Lotes' },
+    { key: 'ventas',       icon: '💰', label: 'Mis Ventas' },
     { key: 'escuela',      icon: '🎓', label: 'Escuela' },
     { key: 'estadisticas', icon: '📊', label: 'Estadísticas' },
     { key: 'perfil',       icon: '👤', label: 'Mi Perfil' },
-    ...(db.session.rol === 'admin' ? [{ key: 'admin' as View, icon: '🔑', label: 'Admin' }] : []),
   ];
 
   const activeView = view === 'lote-detail' ? 'lotes' : view === 'cosecha' ? 'lotes' : view;
@@ -3155,9 +3472,12 @@ function SociosInner() {
 
         <div style={{ padding: '14px 18px', borderTop: `1px solid ${S.border}` }}>
           <button onClick={() => navTo('perfil')} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10, background: 'none', border: 'none', cursor: 'pointer', padding: 0, width: '100%', textAlign: 'left' }}>
-            <div style={{ width: 32, height: 32, borderRadius: '50%', background: 'linear-gradient(135deg,#22c55e,#16a34a)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, color: '#fff', fontSize: 14, flexShrink: 0 }}>
-              {db.session.name[0]}
-            </div>
+            {sidebarAvatar
+              ? <img src={sidebarAvatar} alt="avatar" style={{ width: 32, height: 32, borderRadius: '50%', objectFit: 'cover', border: '2px solid rgba(34,197,94,0.4)', flexShrink: 0 }} />
+              : <div style={{ width: 32, height: 32, borderRadius: '50%', background: 'linear-gradient(135deg,#22c55e,#16a34a)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, color: '#fff', fontSize: 14, flexShrink: 0 }}>
+                  {db.session.name[0]}
+                </div>
+            }
             <div>
               <div style={{ fontSize: 12, fontWeight: 700, color: S.text }}>{db.session.name}</div>
               <div style={{ fontSize: 10, color: S.muted }}>{db.session.code}</div>
@@ -3224,6 +3544,13 @@ function SociosInner() {
             onNewCosecha={() => { setModalCosecha(true); setTimeout(() => { if (cFecha.current) cFecha.current.value = todayLocal(); }, 10); }}
           />
         )}
+        {view === 'ventas' && (
+          <VentasView
+            ventas={db.ventasSocios}
+            onAdd={db.addVentaSocio}
+            onDelete={db.deleteVentaSocio}
+          />
+        )}
         {view === 'guia'  && <GuiaView />}
         {view === 'escuela' && db.session && (
           <EscuelaView
@@ -3256,6 +3583,7 @@ function SociosInner() {
             }}
             onReset={() => setShowResetConfirm(true)}
             onGuia={() => navTo('guia')}
+            onGoAdmin={db.session.rol === 'admin' ? () => navTo('admin') : undefined}
           />
         )}
         {view === 'admin' && db.session.rol === 'admin' && <AdminView adminCode={db.session.code} />}
@@ -3268,8 +3596,8 @@ function SociosInner() {
           const active = activeView === item.key;
           const mobileLabel: Record<string, string> = {
             dashboard: 'Inicio', lotes: 'Lotes',
-            cosecha: 'Cosecha', estadisticas: 'Stats',
-            perfil: 'Perfil', admin: 'Admin',
+            ventas: 'Ventas', escuela: 'Escuela',
+            estadisticas: 'Stats', perfil: 'Perfil', admin: 'Admin',
           };
           return (
             <div id={`m-nav-${item.key}`} key={item.key} onClick={() => navTo(item.key)} className={`socios-tab${active ? ' socios-tab-active' : ''}`}>
@@ -3281,7 +3609,6 @@ function SociosInner() {
       </nav>
 
       <style>{`
-        .socios-mobile-header { display: none; }
         .socios-mobile-nav { display: none; }
         .socios-content { padding: 2rem; }
         @media (max-width: 768px) {
@@ -3289,16 +3616,6 @@ function SociosInner() {
           .socios-sidebar { display: none !important; }
           .socios-main { padding: 0 !important; }
           .socios-content { padding: 1rem 1rem 80px !important; }
-          .socios-mobile-header {
-            display: flex !important;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-            padding: 10px 14px;
-            background: rgba(21,32,53,0.7);
-            border-radius: 10px;
-            border: 1px solid rgba(34,197,94,0.2);
-          }
           .socios-mobile-nav {
             display: flex !important;
             position: fixed;
@@ -3359,7 +3676,7 @@ function SociosInner() {
       </Modal>
 
       {/* Modal: Alimentación */}
-      <Modal open={modalFeed} onClose={() => { setModalFeed(false); setFeedError(''); }} title="🌿 Registrar Alimentación">
+      <Modal key={prefillLoteId ?? 'none'} open={modalFeed} onClose={() => { setModalFeed(false); setFeedError(''); }} title="🌿 Registrar Alimentación">
         <Field label="Lote">
           <select ref={fLote} style={inputStyle} defaultValue={prefillLoteId ?? ''}>
             {db.lotes.length === 0

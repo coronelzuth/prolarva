@@ -310,7 +310,17 @@ a5cc857  feat: port calculadora BSF a React con paleta de la app
 ## Estado actual
 > **Actualizar esta sección al final de cada sesión de trabajo.**
 
-**Última actualización:** 2026-07-29
+**Última actualización:** 2026-07-30
+
+**Cambios recientes (2026-07-30 — sesión 15):**
+- ✅ **Panel "Mis Ventas" para socios** — Nueva vista `💰 ventas` en la zona de socios. Stats del mes (ingresos COP, kg vendidos, precio promedio). Lista de ventas. Modal para registrar: producto (larva/harina/abono), kg, precio/kg, comprador, notas. Conectado a Supabase tabla `ventas_socios` via `useSocios`. SQL en `supabase/ventas_socios.sql`.
+- ✅ **Recuperar contraseña (Resend)** — Flujo completo: "¿Olvidaste tu contraseña?" en login → ingresa email → recibe enlace por Resend. Token de 1 hora en tabla `password_resets`. URL: `https://prolarva.co/socios?reset=TOKEN`. Pantalla `ResetPasswordScreen` inline. SQL en `supabase/password_resets.sql`. **Requiere: crear cuenta Resend, obtener RESEND_API_KEY, agregar a Vercel, verificar dominio prolarva.co en Resend.**
+- ✅ **Resend instalado** — `resend@6.18.1` en package.json.
+
+**Cambios recientes (2026-07-30 — sesión 14):**
+- ✅ **Admin → botón dentro de Perfil** — Quitado de `navItems`. Aparece como botón ámbar en sección "Administración" de `PerfilView` solo para `rol === 'admin'`. Evita overflow en bottom nav móvil.
+- ✅ **Sidebar avatar personalizado** — Estado `sidebarAvatar` en `SociosInner`. Se carga desde `localStorage` al login y se sincroniza via `CustomEvent('prl-avatar-changed')` cuando el socio cambia su foto en Perfil.
+- ✅ **AlimentacionView eliminada** — Código muerto borrado (~20 líneas).
 
 **Cambios recientes (2026-07-29 — sesión 13):**
 - ✅ **Navbar oculto en /socios** — `Navbar.tsx` retorna `null` cuando `pathname.startsWith('/socios')`. La zona de socios tiene su propia nav y no necesita el navbar global. Sidebar ajustado a `top: 0` / `height: 100vh`.
@@ -520,23 +530,22 @@ a5cc857  feat: port calculadora BSF a React con paleta de la app
 - **⚠️ IMPORTANTE para usuarios nuevos:** Android pone las notificaciones web en "Silenciosa" por defecto — no aparecen en pantalla. El socio debe activar **notificaciones flotantes** manualmente: mantener presionada la notificación → ⚙️ → Importancia → **Urgente**. Sin esto solo aparecen en la barra al deslizar.
 
 ### UX/UI (en orden de prioridad)
-0. **Ícono PWA y notificación** — Larvi (`LARVI.png`) ya está puesta pero necesita reescalar con más padding para que no se vea apretada. Probar fondo negro (`#0d1b2a`) o blanco (`#ffffff`) en vez del verde actual. Archivos a regenerar: `public/icon-192.png` y `public/icon-512.png`. Fuente: `03 - B-Rolls y Recursos/Iconos y Emojis/LARVI.png`.
-1. **alert() → inline errors** — los formularios usan `alert()` nativo para errores de validación. Reemplazar con mensajes inline bajo el campo o un sistema de toast
-2. **Toast de éxito** — al guardar un lote, feed o cosecha el modal se cierra sin feedback. Agregar toast global (`✅ Guardado`) que aparece 2s y desaparece
-3. **Loading state en botones de guardar** — los botones no se deshabilitan mientras el request a Supabase está en curso; el usuario puede tocar dos veces y duplicar registros
-4. **Modal alimentación preselecciona lote** — cuando se llama `openFeed(loteId)` desde el detalle de un lote, el select de lote debe quedar preseleccionado (y ocultarse si solo hay un lote disponible). Actualmente `defaultValue` en React no actualiza al re-renderizar; solución: añadir `key={prefillLoteId}` al modal o usar estado controlado
-5. **Dashboard "Últimas alimentaciones" huérfano** — ahora que alimentación vive dentro de cada lote, este bloque del dashboard es confuso. Reemplazar con "Actividad reciente" (últimas 3 acciones: feeds + cosechas mezcladas) o eliminar el bloque
-6. ~~**Admin tab → dentro de Perfil**~~ — ya hay 5 tabs en el nav (sin Guía). El tab Admin sería el 6to si el usuario es admin; aún puede causar overflow en pantallas muy pequeñas. Pendiente: mover Admin a un botón dentro de PerfilView (visible solo para `rol === 'admin'`)
-7. **Mobile header simplificado** — el header móvil muestra avatar+nombre (→ Perfil) y botón "Salir". El avatar es redundante con el tab Perfil. Simplificar: mostrar solo el título "ProLarva" a la izquierda y botón "Salir" a la derecha
-8. **Sidebar avatar refleja foto personalizada** — si el usuario subió foto de perfil (localStorage `prl-avatar-{code}`), el círculo con inicial en el footer del sidebar no la muestra. Leer el avatar en `SociosInner` y pasarlo al sidebar
-9. **Eliminar `AlimentacionView`** — función muerta en el código desde que se integró alimentación al detalle de lote. Borrar para limpiar ~20 líneas
+0. ✅ **Ícono PWA** — Regenerado con Larvi + 18% padding + fondo #0d1b2a (navy). `public/icon-192.png` y `public/icon-512.png` actualizados. (2026-07-30)
+1. ✅ **alert() → inline errors** — Ya implementado. Errores inline bajo el campo: `loteError`, `feedError`, `cosechaError`, `editLoteError`. (ya estaba)
+2. ✅ **Toast de éxito** — Ya implementado. `showToast()` + toast UI flotante verde en bottom-center. (ya estaba)
+3. ✅ **Loading state en botones** — Ya implementado. Estado `saving` con `disabled` + `opacity: 0.6` + texto "Guardando...". (ya estaba)
+4. ✅ **Modal alimentación preselecciona lote** — Corregido agregando `key={prefillLoteId ?? 'none'}` al Modal de alimentación, forzando re-mount al cambiar el lote. (2026-07-30)
+5. ✅ **Dashboard "Actividad reciente"** — Reemplazado "Últimas alimentaciones" por "Actividad reciente": mezcla feeds + cosechas, ordenados por fecha desc, muestra las últimas 3. Nuevo componente `CosechaEntry`. (2026-07-30)
+6. ✅ **Admin tab → botón dentro de Perfil** — Quitado `Admin` de `navItems` (ya no overflow en móvil). Dentro de `PerfilView`, sección "Administración" con botón ámbar visible solo para `rol === 'admin'`. Props: `onGoAdmin?: () => void`. (2026-07-30)
+7. ✅ **Mobile header simplificado** — Ya resuelto en sesión 10 (eliminado completamente). No hay header móvil en el código actual.
+8. ✅ **Sidebar avatar refleja foto personalizada** — `sidebarAvatar` state en `SociosInner`. Se carga al login desde localStorage y se actualiza via evento `prl-avatar-changed` cuando el socio cambia su foto en PerfilView. (2026-07-30)
+9. ✅ **Eliminar `AlimentacionView`** — Función eliminada del código. (2026-07-30)
 
 ### Funcionalidades
-10. **Panel de ventas** — registro de ventas de larva/harina por socio (definir alcance)
-11. **Recuperar contraseña** — email reset para socios (Resend o similar)
-12. **Exportar leads en CSV** — datos ya en Supabase, falta UI
+10. ✅ **Panel de ventas para socios** — Vista `💰 ventas` completa. Tabla Supabase `ventas_socios` creada. (2026-07-30)
+11. ✅ **Recuperar contraseña** — Flujo Resend con token 1h. Falta: configurar RESEND_API_KEY en Vercel + verificar dominio prolarva.co en Resend. (2026-07-30)
+12. **Google Analytics 4** — instalar para datos históricos de blog en panel admin
 13. **Fotos reales educativas** — agregar fotos en `data/stages.ts` (Juliana debe proveer archivos)
-14. **Notificaciones push — probar** — VAPID keys ya en Vercel + tabla push_subscriptions en Supabase. Probar flujo completo end-to-end
 
 **Cómo arrancar una sesión nueva:**
 1. Abre Claude Code desde la carpeta canónica de arriba

@@ -55,6 +55,18 @@ export interface Foto {
   creadoEn: string;
 }
 
+export interface VentaSocio {
+  id: string;
+  fecha: string;
+  producto: 'larva' | 'harina' | 'abono';
+  kg: number;
+  precioCopKg: number;
+  totalCop: number;
+  comprador: string;
+  notas: string;
+  creadoEn: string;
+}
+
 export interface SocioSession {
   code: string;
   name: string;
@@ -101,6 +113,7 @@ const KEYS = {
   cosechas:       'prl-cosechas',
   recordatorios:  'prl-recordatorios',
   fotos:          'prl-fotos',
+  ventasSocios:   'prl-ventas-socios',
 };
 
 function load<T>(key: string, def: T): T {
@@ -196,6 +209,25 @@ function fotoFromRow(r: any): Foto {
   };
 }
 
+function ventaToRow(socioCode: string, v: VentaSocio) {
+  return {
+    id: v.id, socio_code: socioCode,
+    fecha: v.fecha, producto: v.producto,
+    kg: v.kg, precio_cop_kg: v.precioCopKg,
+    total_cop: v.totalCop, comprador: v.comprador,
+    notas: v.notas, creado_en: v.creadoEn,
+  };
+}
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function ventaFromRow(r: any): VentaSocio {
+  return {
+    id: r.id, fecha: r.fecha, producto: r.producto,
+    kg: r.kg, precioCopKg: r.precio_cop_kg,
+    totalCop: r.total_cop, comprador: r.comprador ?? '',
+    notas: r.notas ?? '', creadoEn: r.creado_en,
+  };
+}
+
 // ─── Demo ─────────────────────────────────────────────────────────────────────
 
 const DEMO_CODE = 'DEMO';
@@ -229,7 +261,7 @@ async function syncFromSupabase(
   code: string,
   local: {
     lotes: Lote[]; feeds: FeedLog[]; cosechas: Cosecha[];
-    recordatorios: Recordatorio[]; fotos: Foto[];
+    recordatorios: Recordatorio[]; fotos: Foto[]; ventasSocios: VentaSocio[];
   }
 ) {
   if (!db) return null;
@@ -240,12 +272,14 @@ async function syncFromSupabase(
     { data: dbCosechas },
     { data: dbRecs },
     { data: dbFotos },
+    { data: dbVentas },
   ] = await Promise.all([
     db.from('lotes').select('*').eq('socio_code', code),
     db.from('feed_logs').select('*').eq('socio_code', code),
     db.from('cosechas').select('*').eq('socio_code', code),
     db.from('recordatorios').select('*').eq('socio_code', code),
     db.from('fotos_lotes').select('*').eq('socio_code', code),
+    db.from('ventas_socios').select('*').eq('socio_code', code),
   ]);
 
   // db is guaranteed non-null here (checked above)
@@ -267,15 +301,16 @@ async function syncFromSupabase(
     return [];
   }
 
-  const [lotes, feeds, cosechas, recordatorios, fotos] = await Promise.all([
+  const [lotes, feeds, cosechas, recordatorios, fotos, ventasSocios] = await Promise.all([
     resolveTable(dbLotes, local.lotes, l => loteToRow(code, l as Lote), loteFromRow, 'lotes'),
     resolveTable(dbFeeds, local.feeds, f => feedToRow(code, f as FeedLog), feedFromRow, 'feed_logs'),
     resolveTable(dbCosechas, local.cosechas, c => cosechaToRow(code, c as Cosecha), cosechaFromRow, 'cosechas'),
     resolveTable(dbRecs, local.recordatorios, r => recToRow(code, r as Recordatorio), recFromRow, 'recordatorios'),
     resolveTable(dbFotos, local.fotos, f => fotoToRow(code, f as Foto), fotoFromRow, 'fotos_lotes'),
+    resolveTable(dbVentas, local.ventasSocios, v => ventaToRow(code, v as VentaSocio), ventaFromRow, 'ventas_socios'),
   ]);
 
-  return { lotes, feeds, cosechas, recordatorios, fotos };
+  return { lotes, feeds, cosechas, recordatorios, fotos, ventasSocios };
 }
 
 // ─── Hook ────────────────────────────────────────────────────────────────────
@@ -287,6 +322,7 @@ export function useSocios() {
   const [cosechas,       setCosechas]       = useState<Cosecha[]>([]);
   const [recordatorios,  setRecordatorios]  = useState<Recordatorio[]>([]);
   const [fotos,          setFotos]          = useState<Foto[]>([]);
+  const [ventasSocios,   setVentasSocios]   = useState<VentaSocio[]>([]);
   const [loaded,         setLoaded]         = useState(false);
 
   useEffect(() => {
@@ -300,12 +336,14 @@ export function useSocios() {
         cosechas:      load<Cosecha[]>(KEYS.cosechas, []),
         recordatorios: load<Recordatorio[]>(KEYS.recordatorios, []),
         fotos:         load<Foto[]>(KEYS.fotos, []),
+        ventasSocios:  load<VentaSocio[]>(KEYS.ventasSocios, []),
       };
       setLotes(local.lotes);
       setFeeds(local.feeds);
       setCosechas(local.cosechas);
       setRecordatorios(local.recordatorios);
       setFotos(local.fotos);
+      setVentasSocios(local.ventasSocios);
 
       const db = getSupabase();
       if (db && sess && sess.code !== DEMO_CODE) {
@@ -316,6 +354,7 @@ export function useSocios() {
           if (result.cosechas)      { setCosechas(result.cosechas);                 localSave(KEYS.cosechas, result.cosechas); }
           if (result.recordatorios) { setRecordatorios(result.recordatorios);       localSave(KEYS.recordatorios, result.recordatorios); }
           if (result.fotos)         { setFotos(result.fotos);                       localSave(KEYS.fotos, result.fotos); }
+          if (result.ventasSocios)  { setVentasSocios(result.ventasSocios);         localSave(KEYS.ventasSocios, result.ventasSocios); }
         }
       }
 
@@ -378,6 +417,7 @@ export function useSocios() {
           cosechas:      load<Cosecha[]>(KEYS.cosechas, []),
           recordatorios: load<Recordatorio[]>(KEYS.recordatorios, []),
           fotos:         load<Foto[]>(KEYS.fotos, []),
+          ventasSocios:  load<VentaSocio[]>(KEYS.ventasSocios, []),
         };
         const result = await syncFromSupabase(db, s.code, local);
         if (result) {
@@ -386,6 +426,7 @@ export function useSocios() {
           if (result.cosechas)      { setCosechas(result.cosechas);           localSave(KEYS.cosechas, result.cosechas); }
           if (result.recordatorios) { setRecordatorios(result.recordatorios); localSave(KEYS.recordatorios, result.recordatorios); }
           if (result.fotos)         { setFotos(result.fotos);                 localSave(KEYS.fotos, result.fotos); }
+          if (result.ventasSocios)  { setVentasSocios(result.ventasSocios);   localSave(KEYS.ventasSocios, result.ventasSocios); }
         }
       }
 
@@ -538,6 +579,28 @@ export function useSocios() {
     }
   }, []);
 
+  // ─── Ventas socios ─────────────────────────────────────────────────────────
+
+  const addVentaSocio = useCallback(async (venta: Omit<VentaSocio, 'id' | 'creadoEn'>) => {
+    const next: VentaSocio = { ...venta, id: uid(), creadoEn: new Date().toISOString() };
+    setVentasSocios(prev => { const arr = [...prev, next]; localSave(KEYS.ventasSocios, arr); return arr; });
+    const db = getSupabase();
+    if (db && session && session.code !== DEMO_CODE) {
+      const { error } = await db.from('ventas_socios').upsert(ventaToRow(session.code, next));
+      if (error) console.error('[ProLarva] addVentaSocio:', error.message);
+    }
+  }, [session]);
+
+  const deleteVentaSocio = useCallback(async (id: string) => {
+    setVentasSocios(prev => { const arr = prev.filter(v => v.id !== id); localSave(KEYS.ventasSocios, arr); return arr; });
+    const db = getSupabase();
+    const sess = load<SocioSession | null>(KEYS.session, null);
+    if (db && sess?.code !== DEMO_CODE) {
+      const { error } = await db.from('ventas_socios').delete().eq('id', id);
+      if (error) console.error('[ProLarva] deleteVentaSocio:', error.message);
+    }
+  }, []);
+
   const updateName = useCallback(async (nombre: string): Promise<boolean> => {
     if (!session) return false;
     try {
@@ -583,12 +646,13 @@ export function useSocios() {
 
   return {
     loaded, session, login, logout, register,
-    lotes, feeds, cosechas, recordatorios, fotos,
+    lotes, feeds, cosechas, recordatorios, fotos, ventasSocios,
     addLote, deleteLote, updateLote,
     addFeed,
     addCosecha,
     addRecordatorio, toggleRecordatorio, deleteRecordatorio,
     addFoto, deleteFoto,
+    addVentaSocio, deleteVentaSocio,
     updateName, resetAllData,
     activeLotes, readyLotes, totalKg, avgConv,
   };

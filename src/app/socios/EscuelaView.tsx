@@ -117,7 +117,7 @@ function ClaseModal({ open, onClose, semana, clase, onSave }: {
   }
 
   return (
-    <Modal open={open} onClose={onClose} title={clase?.id ? 'Editar clase' : `Nueva clase — Semana ${semana}`}>
+    <Modal open={open} onClose={onClose} title={clase?.id ? 'Editar clase' : `Nueva clase — Fase ${semana}`}>
       <div style={{ marginBottom: 14 }}>
         <label style={labelStyle}>Título de la clase</label>
         <input style={inputStyle} value={titulo} onChange={e => setTitulo(e.target.value)} placeholder="ej: Montaje del criadero BSF" />
@@ -182,7 +182,7 @@ function PlantillaModal({ open, onClose, semana, plantilla, onSave }: {
   }
 
   return (
-    <Modal open={open} onClose={onClose} title={plantilla?.id ? 'Editar plantilla' : `Nueva plantilla — Semana ${semana}`}>
+    <Modal open={open} onClose={onClose} title={plantilla?.id ? 'Editar plantilla' : `Nueva plantilla — Fase ${semana}`}>
       <div style={{ marginBottom: 14 }}>
         <label style={labelStyle}>Nombre</label>
         <input style={inputStyle} value={titulo} onChange={e => setTitulo(e.target.value)} placeholder="ej: Registro de alimentación semanal" />
@@ -215,14 +215,36 @@ function PlantillaModal({ open, onClose, semana, plantilla, onSave }: {
 // ─── Contenido por semana ─────────────────────────────────────────────────────
 
 const SEMANAS_INFO = [
-  { num: 1, emoji: '🌱', title: 'Bases del Sistema',
+  { num: 1, emoji: '🌱', title: 'Mentalidad y Uso de la App',
+    dias: [
+      { titulo: 'Mentalidad y Uso de la App', desc: 'Cómo aprovechar la app, tu espacio en la comunidad y la mentalidad para arrancar tu primera colonia BSF sin errores.' },
+      { titulo: 'Bases del Sistema', desc: 'El ciclo completo de la BSF explicado sin tecnicismos. Qué espacio necesitas, materiales que ya tienes y cómo activar tu primera semilla.' },
+    ],
     items: ['El ciclo completo de la BSF explicado sin tecnicismos', 'Qué espacio necesitas (desde 1 m²)', 'Materiales que ya tienes vs. los que consigues local', 'Cómo activar tu primera semilla correctamente'] },
   { num: 2, emoji: '🐛', title: 'Manejo del Lote',
+    dias: [
+      { titulo: 'Manejo del Lote', desc: 'Alimentación diaria: qué darles, cuánto y cuándo. Control de temperatura y humedad sin equipos especiales.' },
+      { titulo: 'Preguntas y Respuestas + Avances', desc: 'Sesión en vivo para resolver dudas del grupo, compartir avances y ajustar lo que sea necesario.' },
+    ],
     items: ['Alimentación diaria: qué darles, cuánto y cuándo', 'Control de temperatura y humedad sin equipos especiales', 'Cómo leer el estado de las larvas en cada etapa', 'Qué hacer si algo sale diferente a lo esperado'] },
   { num: 3, emoji: '⚖️', title: 'Cosecha y Uso',
+    dias: [
+      { titulo: 'Cosecha y Uso', desc: 'Cuándo y cómo cosechar (señales exactas). Larva viva, seca y harina — cuál usar y cuándo.' },
+      { titulo: 'Preguntas y Respuestas', desc: 'Sesión en vivo para resolver dudas de la cosecha y ajustar el proceso según tus resultados.' },
+    ],
     items: ['Cuándo y cómo cosechar (señales exactas)', 'Larva viva, larva seca y harina — cuál usar y cuándo', 'Raciones por especie: pollos, peces y cerdos', 'Cómo documentar tus resultados y calcular el ahorro real'] },
   { num: 4, emoji: '🔄', title: 'Ciclo Cerrado',
+    dias: [
+      { titulo: 'Ciclo Cerrado', desc: 'Cómo generar tu propia semilla. Montaje de trampas de oviposición y plan de sostenibilidad.' },
+      { titulo: 'Manejo de Huevos y Neonatos', desc: 'Cómo identificar, cuidar y trasladar huevos y larvas neonatas para mantener el ciclo activo.' },
+    ],
     items: ['Cómo generar tu propia semilla sin comprar más', 'Montaje de trampas de oviposición', 'Plan de sostenibilidad: cómo mantener el sistema activo solo', 'Preguntas finales + revisión de avances del grupo'] },
+  { num: 5, emoji: '💰', title: 'Comercialización y Subproductos',
+    dias: [
+      { titulo: 'Comercialización', desc: 'Cómo vender tu larva y a quién: canales locales y digitales. Compost y abono de BSFL: cómo procesarlo, presentarlo y ponerle precio.' },
+      { titulo: 'Manejo de Redes Sociales', desc: 'Cómo usar redes para posicionarte como productor BSF y atraer compradores locales.' },
+    ],
+    items: ['Cómo vender tu larva y a quién: canales locales y digitales', 'Manejo de redes sociales para productores BSF', 'Compost y abono de BSFL: cómo procesarlo y usarlo', 'De subproducto a ingreso extra: precio y presentación del abono'] },
 ];
 
 // ─── Countdown ────────────────────────────────────────────────────────────────
@@ -324,7 +346,7 @@ function DiaCronogramaModal({ open, onClose, dia, onSave, onDelete }: {
           <div style={{ flex: 1 }}>
             <label style={labelStyle}>Semana</label>
             <select style={inputStyle} value={semana} onChange={e => setSemana(Number(e.target.value))}>
-              {[1,2,3,4].map(s => <option key={s} value={s}>Semana {s}</option>)}
+              {[1,2,3,4,5].map(s => <option key={s} value={s}>Semana {s}</option>)}
             </select>
           </div>
         </div>
@@ -394,7 +416,7 @@ function TareaModal({ open, onClose, semana, tarea, onSave }: {
   }
 
   return (
-    <Modal open={open} onClose={onClose} title={tarea?.id ? 'Editar tarea' : `Nueva tarea — Semana ${semana}`}>
+    <Modal open={open} onClose={onClose} title={tarea?.id ? 'Editar tarea' : `Nueva tarea — Fase ${semana}`}>
       <div style={{ marginBottom: 14 }}>
         <label style={labelStyle}>Pregunta / enunciado</label>
         <textarea style={{ ...inputStyle, resize: 'vertical', minHeight: 88 }} value={pregunta} onChange={e => setPregunta(e.target.value)} placeholder="ej: ¿Qué observaste en tu lote esta semana? Comparte temperatura, humedad y cualquier novedad." />
@@ -485,6 +507,158 @@ function descargarCertificado(nombre: string) {
   link.click();
 }
 
+// ─── Modal de Fase ─────────────────────────────────────────────────────────────
+
+function FaseModal({ open, onClose, fase, clases, plantillas, tareas, estaVisto, marcarVisto }: {
+  open: boolean; onClose: () => void; fase: number;
+  clases: Clase[]; plantillas: Plantilla[]; tareas: Tarea[];
+  estaVisto: (id: string) => boolean; marcarVisto: (id: string) => void;
+}) {
+  const [diaActivo, setDiaActivo] = useState<1|2>(1);
+  const [icono, setIcono] = useState<'desc'|'clase'|'plantillas'|'preguntas'>('desc');
+
+  useEffect(() => { if (open) { setDiaActivo(1); setIcono('desc'); } }, [open]);
+
+  if (!open) return null;
+  const info = SEMANAS_INFO[fase - 1];
+  if (!info) return null;
+  const diaInfo = info.dias[diaActivo - 1];
+
+  const ICONOS: { id: 'desc'|'clase'|'plantillas'|'preguntas'; emoji: string; label: string }[] = [
+    { id: 'desc',       emoji: '📋', label: 'Descripción' },
+    { id: 'clase',      emoji: '🎥', label: 'Clase' },
+    { id: 'plantillas', emoji: '📄', label: 'Plantillas' },
+    { id: 'preguntas',  emoji: '❓', label: 'Preguntas' },
+  ];
+
+  return (
+    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.75)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}
+      onClick={e => { if (e.target === e.currentTarget) onClose(); }}>
+      <div style={{ background: '#0d1b2a', border: '1px solid rgba(34,197,94,0.3)', borderRadius: 16, width: '100%', maxWidth: 480, maxHeight: '90vh', overflowY: 'auto', padding: '20px' }}>
+
+        {/* Header */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
+          <div>
+            <div style={{ fontSize: 10, fontWeight: 900, color: '#22c55e', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 3 }}>Fase {fase}</div>
+            <div style={{ fontSize: 15, fontWeight: 800, color: '#f1f5f9', lineHeight: 1.3 }}>{info.emoji} {info.title}</div>
+          </div>
+          <button onClick={onClose} style={{ background: 'none', border: 'none', color: '#64748b', fontSize: 20, cursor: 'pointer', padding: '0 4px', lineHeight: 1 }}>✕</button>
+        </div>
+
+        {/* Tabs Día 1 / Día 2 */}
+        <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
+          {([1,2] as const).map(d => (
+            <button key={d} onClick={() => { setDiaActivo(d); setIcono('desc'); }}
+              style={{ flex: 1, padding: '9px', borderRadius: 8, border: `2px solid ${diaActivo === d ? '#22c55e' : 'rgba(34,197,94,0.2)'}`, background: diaActivo === d ? 'rgba(34,197,94,0.12)' : 'transparent', color: diaActivo === d ? '#4ade80' : '#64748b', fontWeight: 700, fontSize: 12, cursor: 'pointer', fontFamily: 'Montserrat,sans-serif' }}>
+              Día {d}
+            </button>
+          ))}
+        </div>
+
+        {/* Título del día */}
+        <div style={{ fontSize: 13, fontWeight: 800, color: '#e2e8f0', marginBottom: 12, paddingBottom: 12, borderBottom: '1px solid rgba(34,197,94,0.12)' }}>
+          {diaInfo.titulo}
+        </div>
+
+        {/* 4 íconos de navegación */}
+        <div style={{ display: 'flex', gap: 6, marginBottom: 16 }}>
+          {ICONOS.map(ic => (
+            <button key={ic.id} onClick={() => setIcono(ic.id)}
+              style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 5, padding: '10px 4px', borderRadius: 10, border: `2px solid ${icono === ic.id ? '#22c55e' : 'rgba(34,197,94,0.15)'}`, background: icono === ic.id ? 'rgba(34,197,94,0.12)' : '#152035', cursor: 'pointer', transition: 'all 0.15s', fontFamily: 'Montserrat,sans-serif' }}>
+              <span style={{ fontSize: 20 }}>{ic.emoji}</span>
+              <span style={{ fontSize: 8, fontWeight: 800, color: icono === ic.id ? '#22c55e' : '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{ic.label}</span>
+            </button>
+          ))}
+        </div>
+
+        {/* Contenido */}
+        <div style={{ minHeight: 120 }}>
+
+          {icono === 'desc' && (
+            <div>
+              <p style={{ fontSize: 13, color: '#94a3b8', lineHeight: 1.7, marginBottom: 16 }}>{diaInfo.desc}</p>
+              <div style={{ fontSize: 11, fontWeight: 700, color: '#22c55e', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 8 }}>Temas de esta fase</div>
+              <ul style={{ margin: 0, padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 6 }}>
+                {info.items.map((item, i) => (
+                  <li key={i} style={{ display: 'flex', gap: 8, alignItems: 'flex-start', fontSize: 12, color: '#e2e8f0', lineHeight: 1.5 }}>
+                    <span style={{ color: '#22c55e', flexShrink: 0, marginTop: 1 }}>✓</span>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {icono === 'clase' && (
+            <div>
+              {clases.length === 0 ? (
+                <p style={{ fontSize: 12, color: '#64748b', textAlign: 'center', padding: '24px 0' }}>La clase grabada estará disponible pronto.</p>
+              ) : clases.map(clase => {
+                const vid = clase.url_video ? getYouTubeId(clase.url_video) : null;
+                const visto = estaVisto(clase.id);
+                return (
+                  <div key={clase.id} style={{ marginBottom: 14 }}>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: '#f1f5f9', marginBottom: 6 }}>{clase.titulo}</div>
+                    {clase.descripcion && <p style={{ fontSize: 11, color: '#94a3b8', marginBottom: 10, lineHeight: 1.5 }}>{clase.descripcion}</p>}
+                    {vid ? (
+                      <div style={{ position: 'relative', paddingBottom: '56.25%', borderRadius: 8, overflow: 'hidden', marginBottom: 10 }}>
+                        <iframe src={`https://www.youtube.com/embed/${vid}`} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', border: 'none' }} allowFullScreen title={clase.titulo} />
+                      </div>
+                    ) : (
+                      <p style={{ fontSize: 11, color: '#64748b', marginBottom: 10 }}>Clase en vivo — el video grabado estará aquí después de la sesión.</p>
+                    )}
+                    <button onClick={() => { if (!visto) marcarVisto(clase.id); }}
+                      style={{ background: visto ? 'rgba(16,185,129,0.1)' : 'linear-gradient(135deg,#22c55e,#16a34a)', color: visto ? '#10b981' : '#fff', border: visto ? '1px solid rgba(16,185,129,0.3)' : 'none', borderRadius: 8, padding: '8px 16px', fontSize: 11, fontWeight: 700, cursor: visto ? 'default' : 'pointer', fontFamily: 'Montserrat,sans-serif' }}>
+                      {visto ? '✅ Ya vista' : '👁️ Marcar como vista'}
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          {icono === 'plantillas' && (
+            <div>
+              {plantillas.length === 0 ? (
+                <p style={{ fontSize: 12, color: '#64748b', textAlign: 'center', padding: '24px 0' }}>Las plantillas de esta fase estarán disponibles pronto.</p>
+              ) : plantillas.map(p => (
+                <a key={p.id} href={p.url_archivo} target="_blank" rel="noreferrer"
+                  style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px', background: '#152035', borderRadius: 10, textDecoration: 'none', marginBottom: 8, border: '1px solid rgba(34,197,94,0.15)' }}>
+                  <span style={{ fontSize: 22 }}>📄</span>
+                  <div>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: '#f1f5f9' }}>{p.titulo}</div>
+                    {p.tamano_aprox && <div style={{ fontSize: 10, color: '#64748b' }}>{p.tamano_aprox}</div>}
+                  </div>
+                  <span style={{ marginLeft: 'auto', fontSize: 11, color: '#22c55e', fontWeight: 700 }}>Descargar →</span>
+                </a>
+              ))}
+            </div>
+          )}
+
+          {icono === 'preguntas' && (
+            <div>
+              <p style={{ fontSize: 13, color: '#94a3b8', lineHeight: 1.6, marginBottom: 16 }}>
+                ¿Tienes dudas sobre el tema de esta fase? Prepara tus preguntas para la siguiente clase en vivo con Juliana.
+              </p>
+              {tareas.length === 0 ? (
+                <p style={{ fontSize: 12, color: '#64748b', textAlign: 'center', padding: '16px 0' }}>Las preguntas de práctica estarán disponibles pronto.</p>
+              ) : tareas.map(t => (
+                <div key={t.id} style={{ background: '#152035', borderRadius: 10, padding: '14px', border: '1px solid rgba(245,158,11,0.2)', marginBottom: 8 }}>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: '#f59e0b', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 6 }}>Reflexión para la próxima clase</div>
+                  <p style={{ fontSize: 13, color: '#e2e8f0', lineHeight: 1.6, margin: 0 }}>{t.pregunta}</p>
+                </div>
+              ))}
+            </div>
+          )}
+
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── EscuelaView ───────────────────────────────────────────────────────────────
+
 export default function EscuelaView({
   socioCode, socioNombre, isAdmin,
 }: {
@@ -497,6 +671,7 @@ export default function EscuelaView({
   const [semana,      setSemana]      = useState(1);
   const [sub,         setSub]         = useState<EscuelaSub>('cronograma');
   const [expandedDia, setExpandedDia] = useState<string | null>(null);
+  const [faseMod,     setFaseMod]     = useState<number | null>(null);
 
   // Admin modals
   const [modalClase,      setModalClase]      = useState(false);
@@ -551,7 +726,7 @@ export default function EscuelaView({
   const [previewMode, setPreviewMode] = useState(false);
   const asAdmin = isAdmin && !previewMode;
 
-  const SEMANAS = [1, 2, 3, 4];
+  const SEMANAS = [1, 2, 3, 4, 5];
 
   const clasesActuales = esc.clasesPorSemana(semana).filter(c => c.activa || asAdmin);
   const plantillasActuales = esc.plantillasPorSemana(semana);
@@ -683,7 +858,7 @@ export default function EscuelaView({
         <div>
           <h1 style={{ fontSize: 22, fontWeight: 900 }}>🎓 Mi Escuela</h1>
           <p style={{ color: S.muted, fontSize: 13, marginTop: 4 }}>
-            Programa Colonia · 4 semanas
+            Programa Colonia · 5 fases
             {esc.totalClases > 0 && (
               <span style={{ marginLeft: 10, color: S.green2, fontWeight: 700 }}>
                 · {esc.totalVistos}/{esc.totalClases} clases completadas
@@ -862,7 +1037,7 @@ export default function EscuelaView({
         {asAdmin && SEMANAS.map(s => (
           <button key={s} className={`esc-mob-tab${semana === s && inSemana ? ' esc-mob-tab-active' : ''}`}
             onClick={() => { setSemana(s); setSub('clase'); }}>
-            ⚙️ S{s}
+            F{s}
           </button>
         ))}
         {asAdmin && (
@@ -907,7 +1082,7 @@ export default function EscuelaView({
               {navSemanas.map(({ s, total, vis, completa }) => (
                 <div key={s}>
                   <NavItem
-                    label={`⚙️ Semana ${s}`}
+                    label={`⚙️ Fase ${s}`}
                     active={semana === s && inSemana}
                     onClick={() => { setSemana(s); setSub('clase'); }}
                     badge={completa ? '✓' : total > 0 ? `${vis}/${total}` : undefined}
@@ -963,7 +1138,7 @@ export default function EscuelaView({
           {sub === 'clase' && (
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-                <h2 style={{ fontSize: 17, fontWeight: 800 }}>📅 Semana {semana} — Clase</h2>
+                <h2 style={{ fontSize: 17, fontWeight: 800 }}>📅 Fase {semana} — Clase</h2>
                 {asAdmin && (
                   <button
                     style={{ ...btnOutline, fontSize: 12, color: S.amber, borderColor: 'rgba(245,158,11,0.35)' }}
@@ -1082,7 +1257,7 @@ export default function EscuelaView({
           {sub === 'plantillas' && (
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-                <h2 style={{ fontSize: 17, fontWeight: 800 }}>📄 Plantillas — Semana {semana}</h2>
+                <h2 style={{ fontSize: 17, fontWeight: 800 }}>📄 Plantillas — Fase {semana}</h2>
                 {asAdmin && (
                   <button
                     style={{ ...btnOutline, fontSize: 12, color: S.amber, borderColor: 'rgba(245,158,11,0.35)' }}
@@ -1144,7 +1319,7 @@ export default function EscuelaView({
           {sub === 'tarea' && (
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-                <h2 style={{ fontSize: 17, fontWeight: 800 }}>📝 Tarea — Semana {semana}</h2>
+                <h2 style={{ fontSize: 17, fontWeight: 800 }}>📝 Tarea — Fase {semana}</h2>
                 {asAdmin && (
                   <button style={{ ...btnOutline, fontSize: 12, color: S.amber, borderColor: 'rgba(245,158,11,0.35)' }}
                     onClick={() => { setEditTarea(undefined); setModalTarea(true); }}>
@@ -1654,7 +1829,7 @@ export default function EscuelaView({
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 20, gap: 12, flexWrap: 'wrap' }}>
                   <div>
                     <h2 style={{ fontSize: 17, fontWeight: 800, margin: 0 }}>📅 Cronograma del programa</h2>
-                    <p style={{ fontSize: 12, color: S.muted, margin: '4px 0 0' }}>Recorrido completo — 4 semanas, actividades día a día</p>
+                    <p style={{ fontSize: 12, color: S.muted, margin: '4px 0 0' }}>5 fases · 2 días por fase · haz clic en una fase para ver el detalle</p>
                   </div>
                   {asAdmin && (
                     <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
@@ -1687,27 +1862,21 @@ export default function EscuelaView({
                   </div>
                 ) : (
                   <div className="crono-grid">
-                    {[1,2,3,4].map(s => {
+                    {[1,2,3,4,5].map(s => {
                       const info = SEMANAS_INFO[s - 1];
                       const diasSemana = diasPorSemana(s);
                       const collapsed = cronoCollapsed.has(s);
                       const tieneHoy = diasSemana.some(d => esHoy(d.fecha));
                       return (
                         <div key={s} className="crono-col">
-                          {/* Header semana — clickeable para colapsar */}
+                          {/* Header fase */}
                           <div
-                            onClick={() => setCronoCollapsed(prev => {
-                              const next = new Set(prev);
-                              next.has(s) ? next.delete(s) : next.add(s);
-                              return next;
-                            })}
                             style={{
                               background: tieneHoy ? 'rgba(34,197,94,0.13)' : 'rgba(34,197,94,0.06)',
                               border: `1px solid ${tieneHoy ? 'rgba(34,197,94,0.4)' : 'rgba(34,197,94,0.18)'}`,
                               borderRadius: collapsed ? 10 : '10px 10px 0 0',
                               padding: '11px 14px',
                               marginBottom: collapsed ? 0 : 2,
-                              cursor: 'pointer',
                               userSelect: 'none',
                               display: 'flex',
                               alignItems: 'center',
@@ -1715,11 +1884,14 @@ export default function EscuelaView({
                               gap: 8,
                             }}
                           >
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                            {/* Clic en info → abre modal de fase */}
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 10, flex: 1, cursor: 'pointer' }}
+                              onClick={() => setFaseMod(s)}>
                               <span style={{ fontSize: 20 }}>{info.emoji}</span>
                               <div>
+                                <div style={{ fontSize: 9, fontWeight: 900, color: S.green, textTransform: 'uppercase', letterSpacing: '0.1em', lineHeight: 1.2 }}>Fase {s}</div>
                                 <div style={{ fontSize: 12, fontWeight: 800, color: tieneHoy ? S.green2 : S.text, lineHeight: 1.3 }}>{info.title}</div>
-                                <div style={{ fontSize: 10, color: S.muted }}>{diasSemana.length} actividad{diasSemana.length !== 1 ? 'es' : ''}</div>
+                                <div style={{ fontSize: 10, color: S.muted }}>{diasSemana.length} actividad{diasSemana.length !== 1 ? 'es' : ''} · <span style={{ color: S.green }}>Ver detalles →</span></div>
                               </div>
                             </div>
                             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -1732,7 +1904,11 @@ export default function EscuelaView({
                                   +
                                 </button>
                               )}
-                              <span style={{ fontSize: 10, color: S.muted }}>{collapsed ? '▶' : '▼'}</span>
+                              {/* Colapsar */}
+                              <span style={{ fontSize: 10, color: S.muted, cursor: 'pointer' }}
+                                onClick={() => setCronoCollapsed(prev => { const next = new Set(prev); next.has(s) ? next.delete(s) : next.add(s); return next; })}>
+                                {collapsed ? '▶' : '▼'}
+                              </span>
                             </div>
                           </div>
 
@@ -1947,6 +2123,19 @@ export default function EscuelaView({
         onSave={esc.guardarDia}
         onDelete={esc.eliminarDia}
       />
+
+      {faseMod !== null && (
+        <FaseModal
+          open={faseMod !== null}
+          onClose={() => setFaseMod(null)}
+          fase={faseMod}
+          clases={esc.clasesPorSemana(faseMod).filter(c => c.activa || (isAdmin))}
+          plantillas={esc.plantillasPorSemana(faseMod)}
+          tareas={esc.tareasPorSemana(faseMod).filter(t => t.activa || (isAdmin))}
+          estaVisto={esc.estaVisto}
+          marcarVisto={esc.marcarVisto}
+        />
+      )}
 
       {/* ── Estilos ─────────────────────────────────────────── */}
       <style>{`

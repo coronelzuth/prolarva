@@ -1,7 +1,8 @@
-'use client';
+﻿'use client';
 
 import { useState, useRef, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
+import EscuelaView from './EscuelaView';
 import {
   useSocios,
   BSF_STAGES,
@@ -540,7 +541,7 @@ function LineChart({ data, metaLine }: { data: { label: string; value: number }[
 
 // ─── Views ────────────────────────────────────────────────────────────────────
 
-type View = 'dashboard' | 'lotes' | 'lote-detail' | 'cosecha' | 'guia' | 'admin' | 'perfil' | 'estadisticas';
+type View = 'dashboard' | 'lotes' | 'lote-detail' | 'cosecha' | 'guia' | 'admin' | 'perfil' | 'estadisticas' | 'escuela';
 
 function Dashboard({ lotes, feeds, cosechas, activeLotes, readyLotes, recordatorios, totalKg, avgConv, userName, anuncio, onViewLote, onNav }: {
   lotes: Lote[]; feeds: FeedLog[]; cosechas: Cosecha[];
@@ -1260,13 +1261,19 @@ function GuiaView() {
 
 // ─── Auth screens ─────────────────────────────────────────────────────────────
 
+const DEMO_FEATURES = [
+  { icon: '📦', title: 'Mis Lotes BSF', desc: 'Registra cada camada y ve el día del ciclo en tiempo real' },
+  { icon: '📅', title: 'Calendario', desc: 'Hitos automáticos: eclosión, cosecha y prepupa por lote' },
+  { icon: '📊', title: 'Estadísticas', desc: 'Kg cosechados, conversión y ranking de sustratos' },
+  { icon: '⏰', title: 'Recordatorios', desc: 'Alertas diarias para no perder ningún hito del ciclo' },
+];
+
 function LoginScreen({ onLogin, onSwitchToRegister }: { onLogin: (code: string, pass: string) => Promise<boolean>; onSwitchToRegister: () => void }) {
   const [code, setCode] = useState('');
   const [pass, setPass] = useState('');
   const [showPass, setShowPass] = useState(false);
   const [error, setError] = useState<string>('');
   const [loading, setLoading] = useState(false);
-
   const attempt = async () => {
     if (!code || !pass) { setError('Completa todos los campos'); return; }
     setError('');
@@ -1276,40 +1283,98 @@ function LoginScreen({ onLogin, onSwitchToRegister }: { onLogin: (code: string, 
     if (!success) { setError('Código o contraseña incorrectos.'); }
   };
 
-  return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem', background: 'radial-gradient(ellipse at 60% 30%, rgba(34,197,94,0.06) 0%, #0d1b2a 70%)' }}>
-      <div style={{ background: S.navy2, border: `1px solid ${S.border}`, borderRadius: 20, padding: '2.5rem 2rem', width: '100%', maxWidth: 400, boxShadow: '0 20px 60px rgba(0,0,0,0.5)' }}>
-        <div style={{ textAlign: 'center', marginBottom: 28 }}>
-          <div style={{ fontSize: 48, marginBottom: 8 }}>🪲</div>
-          <h1 style={{ fontSize: 22, fontWeight: 900 }}>
-            Pro<span style={{ background: 'linear-gradient(135deg,#4ade80,#22c55e)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Larva</span>
-          </h1>
-          <p style={{ fontSize: 12, color: S.emerald, fontWeight: 700, letterSpacing: '0.1em', marginTop: 2 }}>ZONA DE SOCIOS</p>
-        </div>
+  const tryDemo = async () => {
+    if (loading) return;
+    setLoading(true);
+    await onLogin('DEMO', 'demo');
+    setLoading(false);
+  };
 
-        <Field label="Código de socio o email">
-          <input style={inputStyle} value={code} onChange={e => setCode(e.target.value)} onKeyDown={e => e.key === 'Enter' && !loading && attempt()} placeholder="ej. SOCIO-001" autoComplete="off" disabled={loading} />
-        </Field>
-        <Field label="Contraseña">
-          <div style={{ position: 'relative' }}>
-            <input style={{ ...inputStyle, paddingRight: 40 }} type={showPass ? 'text' : 'password'} value={pass} onChange={e => setPass(e.target.value)} onKeyDown={e => e.key === 'Enter' && !loading && attempt()} placeholder="••••••••" disabled={loading} />
-            <button type="button" onClick={() => setShowPass(v => !v)} style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: S.muted, fontSize: 16, padding: '2px', lineHeight: 1 }}>
-              {showPass ? '🙈' : '👁️'}
+  return (
+    <div style={{ minHeight: '100vh', background: 'radial-gradient(ellipse at 50% 20%, rgba(34,197,94,0.07) 0%, #0d1b2a 65%)', overflowX: 'hidden' }}>
+
+      {/* Hero compacto */}
+      <div style={{ textAlign: 'center', padding: '2.5rem 1.5rem 1.25rem' }}>
+        <div style={{ fontSize: 44, marginBottom: 8 }}>🪲</div>
+        <h1 style={{ fontSize: 24, fontWeight: 900, margin: 0 }}>
+          Pro<span style={{ background: 'linear-gradient(135deg,#4ade80,#22c55e)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Larva</span>
+        </h1>
+        <p style={{ fontSize: 10, color: S.emerald, fontWeight: 800, letterSpacing: '0.14em', marginTop: 3 }}>ZONA DE SOCIOS</p>
+      </div>
+
+      {/* Card principal de login */}
+      <div style={{ maxWidth: 420, margin: '0 auto', padding: '0 1.25rem' }}>
+        <div style={{ background: S.navy2, border: `1px solid ${S.border}`, borderRadius: 16, padding: '1.75rem 1.5rem', boxShadow: '0 12px 40px rgba(0,0,0,0.4)' }}>
+
+          <Field label="Código de socio o email">
+            <input
+              style={inputStyle} value={code}
+              onChange={e => setCode(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && !loading && attempt()}
+              placeholder="ej. SOCIO-001" autoComplete="off" disabled={loading}
+            />
+          </Field>
+          <Field label="Contraseña">
+            <div style={{ position: 'relative' }}>
+              <input
+                style={{ ...inputStyle, paddingRight: 40 }}
+                type={showPass ? 'text' : 'password'} value={pass}
+                onChange={e => setPass(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && !loading && attempt()}
+                placeholder="••••••••" disabled={loading}
+              />
+              <button type="button" onClick={() => setShowPass(v => !v)} style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: S.muted, fontSize: 16, padding: '2px', lineHeight: 1 }}>
+                {showPass ? '🙈' : '👁️'}
+              </button>
+            </div>
+          </Field>
+
+          {error && <p style={{ color: S.red, fontSize: 12, marginBottom: 10, textAlign: 'center' }}>{error}</p>}
+
+          <button
+            style={{ ...btnPrimary, width: '100%', padding: '12px', opacity: loading ? 0.6 : 1, cursor: loading ? 'not-allowed' : 'pointer' }}
+            onClick={attempt} disabled={loading}
+          >
+            {loading ? 'Entrando...' : 'Entrar a mi zona →'}
+          </button>
+
+          {/* Divider */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, margin: '16px 0' }}>
+            <div style={{ flex: 1, height: 1, background: S.border }} />
+            <span style={{ fontSize: 11, color: '#475569' }}>o</span>
+            <div style={{ flex: 1, height: 1, background: S.border }} />
+          </div>
+
+          {/* Demo — secundario pero claro */}
+          <button
+            onClick={tryDemo} disabled={loading}
+            style={{ width: '100%', padding: '10px', borderRadius: 8, background: 'transparent', color: '#f59e0b', border: '1.5px solid rgba(245,158,11,0.35)', fontFamily: 'Montserrat, sans-serif', fontWeight: 700, fontSize: 13, cursor: loading ? 'not-allowed' : 'pointer', opacity: loading ? 0.6 : 1 }}
+          >
+            👀 Explorar en modo demo
+          </button>
+          <p style={{ textAlign: 'center', fontSize: 10, color: '#475569', marginTop: 6 }}>
+            Sin registrarte · Los datos no se guardan en el servidor
+          </p>
+
+          <div style={{ borderTop: `1px solid ${S.border}`, marginTop: 14, paddingTop: 14, textAlign: 'center' }}>
+            <button onClick={onSwitchToRegister} style={{ background: 'none', border: 'none', color: S.muted, fontSize: 12, cursor: 'pointer', fontFamily: 'Montserrat, sans-serif', textDecoration: 'underline' }}>
+              ¿Eres nuevo? Crear cuenta como socio
             </button>
           </div>
-        </Field>
+        </div>
+      </div>
 
-        {error && <p style={{ color: S.red, fontSize: 12, marginBottom: 10, textAlign: 'center' }}>{error}</p>}
-
-        <button style={{ ...btnPrimary, width: '100%', padding: '12px', marginTop: 4, opacity: loading ? 0.6 : 1, cursor: loading ? 'not-allowed' : 'pointer' }} onClick={attempt} disabled={loading}>
-          {loading ? 'Entrando...' : 'Entrar a mi zona →'}
-        </button>
-
-        <div style={{ borderTop: `1px solid ${S.border}`, marginTop: 18, paddingTop: 18, textAlign: 'center' }}>
-          <p style={{ fontSize: 12, color: S.muted, marginBottom: 10 }}>¿Eres nuevo en la comunidad?</p>
-          <button style={{ ...btnOutline, width: '100%' }} onClick={onSwitchToRegister}>
-            Crear cuenta como socio
-          </button>
+      {/* Preview — qué hay adentro (referencial, al fondo) */}
+      <div style={{ maxWidth: 420, margin: '1.5rem auto 0', padding: '0 1.25rem 2.5rem' }}>
+        <p style={{ fontSize: 10, color: '#334155', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', textAlign: 'center', marginBottom: 10 }}>Qué vas a encontrar adentro</p>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 8 }}>
+          {DEMO_FEATURES.map(f => (
+            <div key={f.title} style={{ background: 'rgba(15,30,48,0.6)', border: '1px solid rgba(34,197,94,0.1)', borderRadius: 10, padding: '12px 10px' }}>
+              <div style={{ fontSize: 20, marginBottom: 4 }}>{f.icon}</div>
+              <div style={{ fontSize: 11, fontWeight: 700, color: '#94a3b8', marginBottom: 3 }}>{f.title}</div>
+              <div style={{ fontSize: 10, color: '#475569', lineHeight: 1.4 }}>{f.desc}</div>
+            </div>
+          ))}
         </div>
       </div>
     </div>
@@ -1729,7 +1794,7 @@ function AdminView({ adminCode }: { adminCode: string }) {
   }
 
   function copiar(codigo: string) {
-    const link = `https://prolarva-monitor.vercel.app/socios?inv=${codigo}`;
+    const link = `https://prolarva.co/socios?inv=${codigo}`;
     navigator.clipboard.writeText(link).catch(() => {});
     setCopied(codigo);
     setTimeout(() => setCopied(null), 2000);
@@ -2413,6 +2478,8 @@ function PerfilView({
   onReset: () => void;
   onGuia: () => void;
 }) {
+  const isDemo = session.code === 'DEMO';
+
   const [avatar,       setAvatar]       = useState<string | null>(null);
   const [nombre,       setNombre]       = useState(session.name);
   const [nombreSaving, setNombreSaving] = useState(false);
@@ -2661,8 +2728,8 @@ function PerfilView({
         </div>
       </div>
 
-      {/* Cambiar contraseña — colapsable */}
-      <div style={{ ...cardStyle, marginBottom: 16 }}>
+      {/* Cambiar contraseña — colapsable (oculto en modo demo) */}
+      {!isDemo && <div style={{ ...cardStyle, marginBottom: 16 }}>
         <button
           type="button"
           onClick={() => { setPassOpen(v => !v); setPassMsg(null); }}
@@ -2699,7 +2766,7 @@ function PerfilView({
             </button>
           </div>
         )}
-      </div>
+      </div>}
 
       {/* Notificaciones */}
       <div style={{ ...cardStyle, marginBottom: 16 }}>
@@ -3055,17 +3122,18 @@ function SociosInner() {
   const navItems: { key: View; icon: string; label: string }[] = [
     { key: 'dashboard',    icon: '🏠', label: 'Resumen' },
     { key: 'lotes',        icon: '📦', label: 'Mis Lotes' },
+    { key: 'escuela',      icon: '🎓', label: 'Escuela' },
     { key: 'estadisticas', icon: '📊', label: 'Estadísticas' },
     { key: 'perfil',       icon: '👤', label: 'Mi Perfil' },
     ...(db.session.rol === 'admin' ? [{ key: 'admin' as View, icon: '🔑', label: 'Admin' }] : []),
   ];
 
-  const activeView = view === 'lote-detail' ? 'lotes' : view;
+  const activeView = view === 'lote-detail' ? 'lotes' : view === 'cosecha' ? 'lotes' : view;
 
   return (
     <div className="socios-wrap" style={{ display: 'flex', minHeight: '100vh' }}>
       {/* Sidebar */}
-      <aside className="socios-sidebar" style={{ width: 220, background: S.navy2, borderRight: `1px solid ${S.border}`, display: 'flex', flexDirection: 'column', flexShrink: 0, position: 'sticky', top: 60, height: 'calc(100vh - 60px)', zIndex: 40 }}>
+      <aside className="socios-sidebar" style={{ width: 220, background: S.navy2, borderRight: `1px solid ${S.border}`, display: 'flex', flexDirection: 'column', flexShrink: 0, position: 'sticky', top: 0, height: '100vh', zIndex: 40 }}>
         <div style={{ padding: '20px 18px', borderBottom: `1px solid ${S.border}` }}>
           <div style={{ fontSize: 15, fontWeight: 900 }}>
             Pro<span style={{ background: 'linear-gradient(135deg,#4ade80,#22c55e)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Larva</span>
@@ -3102,7 +3170,25 @@ function SociosInner() {
       </aside>
 
       {/* Main */}
-      <main className="socios-main" style={{ flex: 1, padding: '2rem', minWidth: 0 }}>
+      <main className="socios-main" style={{ flex: 1, minWidth: 0 }}>
+        {db.session.code === 'DEMO' && (
+          <div style={{ position: 'sticky', top: 0, zIndex: 90, background: 'rgba(180,110,0,0.97)', backdropFilter: 'blur(8px)', padding: '9px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, boxShadow: '0 2px 12px rgba(0,0,0,0.3)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}>
+              <span style={{ fontSize: 16, flexShrink: 0 }}>👀</span>
+              <div style={{ minWidth: 0 }}>
+                <span style={{ color: '#fff8e1', fontWeight: 800, fontSize: 12, letterSpacing: '0.04em' }}>MODO DEMO</span>
+                <span style={{ color: 'rgba(255,248,225,0.7)', fontSize: 11, marginLeft: 8, display: 'inline' }}> · Nada se guarda en el servidor</span>
+              </div>
+            </div>
+            <button
+              onClick={db.logout}
+              style={{ background: 'rgba(0,0,0,0.2)', color: '#fff8e1', border: '1px solid rgba(255,255,255,0.3)', borderRadius: 6, padding: '4px 12px', fontSize: 11, fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap', flexShrink: 0, fontFamily: 'Montserrat, sans-serif' }}
+            >
+              Salir del demo
+            </button>
+          </div>
+        )}
+        <div className="socios-content">
         {view === 'dashboard' && (
           <Dashboard
             lotes={db.lotes} feeds={db.feeds} cosechas={db.cosechas}
@@ -3139,6 +3225,13 @@ function SociosInner() {
           />
         )}
         {view === 'guia'  && <GuiaView />}
+        {view === 'escuela' && db.session && (
+          <EscuelaView
+            socioCode={db.session.code}
+            socioNombre={db.session.name}
+            isAdmin={db.session.rol === 'admin'}
+          />
+        )}
         {view === 'estadisticas' && (
           <EstadisticasView
             lotes={db.lotes} feeds={db.feeds} cosechas={db.cosechas}
@@ -3166,6 +3259,7 @@ function SociosInner() {
           />
         )}
         {view === 'admin' && db.session.rol === 'admin' && <AdminView adminCode={db.session.code} />}
+        </div>
       </main>
 
       {/* Mobile bottom nav */}
@@ -3189,10 +3283,12 @@ function SociosInner() {
       <style>{`
         .socios-mobile-header { display: none; }
         .socios-mobile-nav { display: none; }
+        .socios-content { padding: 2rem; }
         @media (max-width: 768px) {
           .socios-wrap { display: block !important; }
           .socios-sidebar { display: none !important; }
-          .socios-main { padding: 1rem 1rem 80px !important; }
+          .socios-main { padding: 0 !important; }
+          .socios-content { padding: 1rem 1rem 80px !important; }
           .socios-mobile-header {
             display: flex !important;
             justify-content: space-between;
@@ -3414,3 +3510,4 @@ export default function SociosPage() {
     </Suspense>
   );
 }
+

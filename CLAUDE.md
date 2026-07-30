@@ -11,13 +11,13 @@
 1. **Educativa** (módulos): aprendizaje gratuito sobre BSF para productores
 2. **Venta** (`/sistema-2015`): landing de la oferta "Kit ProLarva 25/15" (acompañamiento 45d+180d, 4 bonos, garantías)
 
-**URL producción:** https://prolarva-monitor.vercel.app
+**URL producción:** https://prolarva.co
 **Proyecto Vercel:** `juliprojects/prolarva`
 **GitHub:** https://github.com/coronelzuth/prolarva (user: coronelzuth, email: coronelzulieth@gmail.com)
 **Deploy:** `vercel --prod --yes` desde esta carpeta
 **Dueña:** Juliana Coronel — fundadora de ProLarva, Cúcuta Colombia
 **WhatsApp ProLarva:** +57 322 321 2293 (`573223212293` en formato WA)
-**Sync:** Local = GitHub = Vercel (todo sincronizado, 2026-07-23)
+**Sync:** Local = GitHub = Vercel (todo sincronizado, 2026-07-29)
 
 ---
 
@@ -51,8 +51,10 @@ Están en `.env.local` (local, ignorado por git) y en Vercel → Settings → En
 | `/metas` | Módulo 3 — rutas de producción + links a /cosecha y /calculadora |
 | `/cosecha` | Guía Práctica — 7 pasos + panel recomendación calculadora al final |
 | `/calculadora` | Calculadora BSF completa (wizard 4 pasos) |
-| `/sistema-2015` | Landing de venta — Kit ProLarva 25/15 ($450.000 COP / ~$107 USD), acompañamiento, bonos, garantías, Juliana |
-| `/socios` | Zona privada — tracker de lotes, alimentación y cosechas (sin Larvi ni WhatsApp) |
+| `/kit` | Landing de venta — Kit ProLarva 25/15, color ámbar (#f59e0b). Reemplaza /sistema-2015 en el navbar |
+| `/colonia` | Landing del Programa Colonia — grupal 4 semanas, $400K COP, color verde (#22c55e), sección "Red de Productores" |
+| `/sistema-2015` | Landing de venta legacy — aún accesible por URL directa |
+| `/socios` | Zona privada — tracker de lotes, alimentación, cosechas y panel Escuela (sin Larvi ni WhatsApp) |
 | `/gracias` | Página post-formulario — confirmación + redirect automático a /calculadora en 4 seg |
 | `/blog` | Hub del blog — cuadrícula filtrable por categoría (Problemas, Nutrición, Manejo). 3 artículos publicados |
 | `/blog/problemas` | 8 problemas comunes en cría BSF — acordeón expandible + botones compartir (copiar enlace / WhatsApp) |
@@ -80,7 +82,10 @@ src/
 │   ├── blog/raciones/page.tsx             # Raciones por animal/etapa con selector + compartir
 │   ├── blog/alimentacion-larvas/page.tsx  # Sustratos, porciones, qué evitar, proteína + compartir
 │   ├── calculadora/page.tsx  # Calculadora wizard completa (React nativo, 4 pasos)
-│   ├── socios/page.tsx       # Zona de Socios (login + tracker)
+│   ├── kit/page.tsx          # Landing Kit ProLarva 25/15 — color ámbar #f59e0b
+│   ├── colonia/page.tsx      # Landing Programa Colonia — color verde #22c55e
+│   ├── socios/page.tsx       # Zona de Socios (login + tracker + escuela)
+│   ├── socios/EscuelaView.tsx # Panel Escuela — clases, plantillas, foro, progreso admin
 │   └── gracias/page.tsx      # Página de confirmación post-formulario
 │
 ├── components/
@@ -97,7 +102,8 @@ src/
 │
 ├── hooks/
 │   ├── useProgress.ts        # Estado global del alumno — localStorage + sync Supabase (device_id)
-│   └── useSocios.ts          # Estado de la Zona de Socios — localStorage + sync Supabase (socio_code)
+│   ├── useSocios.ts          # Estado de la Zona de Socios — localStorage + sync Supabase (socio_code)
+│   └── useEscuela.ts         # Estado del panel Escuela — clases, progreso, plantillas, foro (Supabase directo)
 │
 └── lib/
     └── supabase.ts           # Cliente Supabase singleton (retorna null si no hay env vars)
@@ -108,7 +114,8 @@ public/
 └── juliana.jpg               # Foto real de Juliana — usada en /sistema-2015
 
 supabase/
-└── schema.sql                # SQL para crear las 4 tablas + políticas RLS en Supabase
+├── schema.sql                # SQL tablas base: user_progress, lotes, feed_logs, cosechas
+└── escuela.sql               # SQL tablas Escuela: clases, progreso_clases, plantillas, foro_posts, foro_likes
 ```
 
 ---
@@ -139,10 +146,9 @@ Rojo (pérdidas):   #ef4444
 ## Componentes clave
 
 ### `Navbar.tsx`
-Links: Inicio / Conocimiento / Preparación / Mi Meta / Cosecha / Calculadora.
-Botón separado `🔐 Socios` con gradiente verde cuando está activo.
-Muestra barra de progreso `overallPercent` del hook `useProgress`.
-**Móvil (<599px):** scroll horizontal, oculta textos de labels y barra de progreso, solo íconos.
+Links: Inicio / Kit / Conocimiento / Mi Meta / Cosecha / Calculadora / Blog + botón 🔐 Socios.
+**IMPORTANTE:** Dentro de `/socios` el navbar retorna `null` — no se renderiza. La zona de socios tiene su propia navegación (sidebar desktop + bottom bar móvil).
+**Móvil (<599px):** scroll horizontal, oculta labels, solo íconos.
 
 ### `Larvi.tsx`
 Bot flotante bottom-right. Árbol de decisión hardcodeado (`tree`).
@@ -164,10 +170,10 @@ Wizard completo de 4 pasos portado a React (NO es un iframe).
 Cálculo en `useEffect` que se dispara cuando `step === 4`.
 
 ### `socios/page.tsx`
-Login con credenciales demo: `SOCIO-2025 / larva123`, `coronelzulieth@gmail.com / prolarva2025`, `PROLARVA-ADMIN / admin2025`.
-**Nav:** 5 tabs — Resumen, Mis Lotes, Cosechas, Estadísticas, Mi Perfil. (Guía Rápida ya NO está en el nav, vive dentro de Perfil → Herramientas)
-Sidebar sticky a `top: 60px` (debajo del Navbar), `height: calc(100vh - 60px)`.
-**Móvil (<768px):** sidebar oculto → bottom tab bar fijo (5 tabs: Inicio/Lotes/Cosecha/Stats/Perfil) + mobile header.
+Login por email o código de socio. Cuentas admin: `admin.zuth/prolarva2025`, `admin/pl2025`.
+**Nav:** 6 tabs — 🏠 Resumen, 📦 Mis Lotes, 🎓 Escuela, 📊 Estadísticas, 👤 Mi Perfil, 🔑 Admin (solo admin).
+Sidebar sticky a `top: 0`, `height: 100vh` (navbar oculto en /socios desde 2026-07-29).
+**Móvil (<768px):** sidebar oculto → bottom tab bar fijo.
 Estado en `localStorage` via `useSocios`.
 **PerfilView — sección Herramientas:** botones 📋 Guía Rápida BSF / 🗺️ Ver guía de la app / 🗑️ Limpiar mis datos.
 **PerfilView — Cambiar contraseña:** colapsable con toggle. Por defecto cerrado, se expande al tocar "🔐 Cambiar contraseña ▾".
@@ -200,6 +206,23 @@ Tipos: `Lote`, `FeedLog`, `Cosecha`, `SocioSession`.
 `Lote` tiene campo opcional `objetivo?: 'cosechar' | 'continuar'` (default `'cosechar'`).
 Exports: `BSF_STAGES`, `daysSince(dateStr)`, `getStage(days)`, `uid()`, `useSocios()`.
 Retorna: `{ loaded, session, login, logout, lotes, feeds, cosechas, addLote, deleteLote, updateLote, addFeed, addCosecha, activeLotes, readyLotes, totalKg, avgConv }`.
+
+### `useEscuela.ts`
+Estado del panel Escuela. Consultas directas a Supabase (sin localStorage).
+Clave de sincronización: `socio_code`.
+Tipos: `Clase`, `ProgresoClase`, `Plantilla`, `ForoPost`.
+Retorna: `{ loaded, clases, progreso, plantillas, posts, marcarVisto, publicarPost, toggleLike, guardarClase, eliminarClase, guardarPlantilla, eliminarPlantilla, eliminarPost, clasesPorSemana, plantillasPorSemana, estaVisto, totalClases, totalVistos, reload }`.
+**Tablas Supabase:** `clases`, `progreso_clases`, `plantillas`, `foro_posts`, `foro_likes` (SQL en `supabase/escuela.sql`).
+
+### `EscuelaView.tsx` (`src/app/socios/`)
+Panel Escuela completo. Props: `{ socioCode, socioNombre, isAdmin }`.
+**Secciones:**
+- **Clases** — iframe YouTube embed por semana. Admin: agregar/editar/activar. Estudiante: marcar como vista.
+- **Plantillas** — PDFs descargables por semana. Admin sube URL (Google Drive u otro).
+- **Foro** — estilo Twitter. Textarea arriba + feed cronológico inverso. Likes ❤️. Eliminar (autor o admin).
+- **Progreso** (solo admin) — tabla de todos los socios activos con ✅/⬜ por clase activa y % completado.
+**Desktop:** sidebar propio de 176px (semanas + sub-items + foro + progreso admin).
+**Móvil:** tabs horizontales superiores (Sem 1/2/3/4 + Foro) + sub-tabs (Clase / Plantillas).
 
 ---
 
@@ -287,6 +310,29 @@ a5cc857  feat: port calculadora BSF a React con paleta de la app
 ## Estado actual
 > **Actualizar esta sección al final de cada sesión de trabajo.**
 
+**Última actualización:** 2026-07-29
+
+**Cambios recientes (2026-07-29 — sesión 13):**
+- ✅ **Navbar oculto en /socios** — `Navbar.tsx` retorna `null` cuando `pathname.startsWith('/socios')`. La zona de socios tiene su propia nav y no necesita el navbar global. Sidebar ajustado a `top: 0` / `height: 100vh`.
+- ✅ **Panel Escuela** — nuevo tab 🎓 en la zona de socios. Componente `EscuelaView.tsx` con hook `useEscuela.ts`. 5 tablas nuevas en Supabase (ejecutar `supabase/escuela.sql`).
+- ✅ **Clases por semana** — admin agrega clases con URL de YouTube, título, descripción y flag activa/inactiva. Estudiantes ven el iframe embed y marcan como vista.
+- ✅ **Plantillas PDF** — admin sube link (Google Drive u otro) con título y tamaño. Estudiantes descargan con un tap.
+- ✅ **Foro estilo Twitter** — textarea + publicar, feed cronológico inverso, likes ❤️, eliminar (autor o admin). Máx 500 chars por post.
+- ✅ **Progreso admin** — tabla de socios activos × clases activas con ✅/⬜ y % completado por estudiante.
+
+**Cambios recientes (2026-07-29 — sesión 12):**
+- ✅ **Dominio prolarva.co** — todos los URLs hardcodeados actualizados en layout.tsx, sitemap.ts, ShareButton.tsx, calculadora, blog, sistema-2015, socios, kit
+- ✅ **Página /kit** — nueva landing del Kit ProLarva 25/15 con color ámbar (#f59e0b). Navbar: enlace "💰 Kit" → /kit (reemplaza "Oferta" → /sistema-2015)
+- ✅ **Página /colonia** — landing del Programa Colonia con color verde (#22c55e). Sección "Red de Productores" con 4 cards, bono "Red de Contactos BSF", framing de red en comparativa, "Ideal si" y CTA final
+- ✅ **Diferenciación /kit vs /colonia** — /kit: ámbar. /colonia: verde + sección exclusiva de red. Ambas incluyen semilla BSF viva ✅
+
+**Cambios recientes (2026-07-29 — sesión 11):**
+- ✅ **Modo demo rediseñado** — login screen con hero compacto, login form visible por defecto como acción primaria, botón demo outline ámbar secundario, preview de 4 secciones al fondo (discreta)
+- ✅ **Bypass demo sin Supabase** — `useSocios.ts`: cuando code === 'DEMO' ya no llama a `/api/socios/login`; entra directo con sesión local + datos demo precargados
+- ✅ **Banner demo sticky** — barra ámbar fija bajo el navbar con texto "MODO DEMO · Nada se guarda en el servidor" y botón "Salir del demo"
+- ✅ **CSS padding refactor** — `.socios-content` maneja el padding del área de contenido (antes estaba en inline style del `<main>`); mobile override en CSS
+- ✅ **Login card siempre visible** — eliminado el toggle colapsable del formulario de login
+
 **Última actualización:** 2026-07-25
 
 **Cambios recientes (2026-07-25 — sesión 10):**
@@ -339,18 +385,24 @@ a5cc857  feat: port calculadora BSF a React con paleta de la app
 `C:\Users\HP\Desktop\Zu Office\01 - PROYECTOS\HUB PROLARVA\06 - Apps y Artifacts\prolarva-monitor`
 
 **Supabase — tablas activas:**
-| Tabla | Qué guarda |
-|---|---|
-| `user_progress` | Progreso de módulos por device_id |
-| `lotes` | Lotes de producción por socio_code |
-| `feed_logs` | Registros de alimentación |
-| `cosechas` | Cosechas registradas |
-| `leads` | Leads del formulario de /landing (nombre + email) |
-| `socios` | Usuarios registrados (codigo, email, nombre, password, estado, rol) |
-| `invitaciones` | Códigos de invitación de un solo uso |
-| `guiones_cms` | Guiones del CMS de contenido |
-| `recordatorios` | Recordatorios por lote (dia, titulo, completado) |
-| `fotos_lotes` | Fotos por lote en base64 JPEG comprimido |
+| Tabla | Qué guarda | SQL |
+|---|---|---|
+| `user_progress` | Progreso de módulos por device_id | schema.sql |
+| `lotes` | Lotes de producción por socio_code | schema.sql |
+| `feed_logs` | Registros de alimentación | schema.sql |
+| `cosechas` | Cosechas registradas | schema.sql |
+| `leads` | Leads del formulario de /landing (nombre + email) | leads.sql |
+| `socios` | Usuarios registrados (codigo, email, nombre, password, estado, rol) | — |
+| `invitaciones` | Códigos de invitación de un solo uso | — |
+| `guiones_cms` | Guiones del CMS de contenido | guiones_cms.sql |
+| `recordatorios` | Recordatorios por lote (dia, titulo, completado) | — |
+| `fotos_lotes` | Fotos por lote en base64 JPEG comprimido | — |
+| `push_subscriptions` | Suscripciones push por socio_code | — |
+| `clases` | Clases del curso Colonia por semana (1-4) | **escuela.sql** |
+| `progreso_clases` | Qué clases completó cada socio | **escuela.sql** |
+| `plantillas` | PDFs descargables por semana | **escuela.sql** |
+| `foro_posts` | Posts del foro del grupo | **escuela.sql** |
+| `foro_likes` | Likes de posts del foro | **escuela.sql** |
 
 **Cambios recientes (2026-07-25 — sesión 7):**
 - ✅ **AdminView expandido** — ahora 5 tabs: 👥 Socios, 📊 Leads, 💰 Ventas, 🎟️ Invitaciones, 📝 Blog

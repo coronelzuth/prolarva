@@ -75,6 +75,20 @@ export interface EntregaTarea {
   entregado_en: string;
 }
 
+export type TipoDia = 'clase' | 'tarea' | 'reporte' | 'recurso' | 'libre';
+
+export interface DiaCronograma {
+  id: string;
+  fecha: string;
+  semana: number;
+  tipo: TipoDia;
+  titulo: string;
+  descripcion?: string;
+  orden: number;
+  activo: boolean;
+  creado_en: string;
+}
+
 export function useEscuela(socioCode: string) {
   const [clases,     setClases]     = useState<Clase[]>([]);
   const [progreso,   setProgreso]   = useState<ProgresoClase[]>([]);
@@ -83,16 +97,17 @@ export function useEscuela(socioCode: string) {
   const [sociosColonia, setSociosColonia] = useState<SocioColonia[]>([]);
   const [anuncios,   setAnuncios]   = useState<AnuncioEscuela[]>([]);
   const [proxClase,  setProxClaseState] = useState<string | null>(null);
-  const [tareas,     setTareas]     = useState<Tarea[]>([]);
-  const [entregas,   setEntregas]   = useState<EntregaTarea[]>([]);
-  const [loaded,     setLoaded]     = useState(false);
+  const [tareas,      setTareas]      = useState<Tarea[]>([]);
+  const [entregas,    setEntregas]    = useState<EntregaTarea[]>([]);
+  const [cronograma,  setCronograma]  = useState<DiaCronograma[]>([]);
+  const [loaded,      setLoaded]      = useState(false);
 
   const load = useCallback(async () => {
     const sb = getSupabase();
     if (!sb || !socioCode) return;
     try {
       const [clasesRes, progresoRes, plantillasRes, postsRes, likesRes,
-             anunciosRes, configRes, tareasRes, entregasRes, sociosRes] = await Promise.all([
+             anunciosRes, configRes, tareasRes, entregasRes, sociosRes, cronogramaRes] = await Promise.all([
         sb.from('clases').select('*').order('semana').order('orden'),
         sb.from('progreso_clases').select('*').eq('socio_code', socioCode),
         sb.from('plantillas').select('*').order('semana').order('orden'),
@@ -103,6 +118,7 @@ export function useEscuela(socioCode: string) {
         sb.from('tareas').select('*').order('semana'),
         sb.from('entregas_tareas').select('*'),
         sb.from('socios').select('code,nombre,en_colonia,creado_en').eq('estado', 'activo').order('nombre'),
+        sb.from('cronograma_dias').select('*').order('fecha').order('orden'),
       ]);
       const likesData: { post_id: string; socio_code: string; tipo: string }[] = likesRes.data ?? [];
       const postsWithLikes: ForoPost[] = (postsRes.data ?? []).map((p: Record<string, unknown>) => ({
@@ -118,6 +134,7 @@ export function useEscuela(socioCode: string) {
       setProxClaseState(configRes.data?.valor ?? null);
       setTareas(tareasRes.data ?? []);
       setEntregas(entregasRes.data ?? []);
+      setCronograma(cronogramaRes.data ?? []);
     } finally {
       setLoaded(true);
     }
@@ -345,6 +362,34 @@ export function useEscuela(socioCode: string) {
     return true;
   };
 
+  // ── Cronograma ───────────────────────────────────────────────────────────────
+
+  const guardarDia = async (dia: Partial<DiaCronograma> & { fecha: string; semana: number; tipo: TipoDia; titulo: string }) => {
+    const sb = getSupabase();
+    if (!sb) return;
+    if (dia.id) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { id, creado_en, ...rest } = dia as DiaCronograma;
+      await sb.from('cronograma_dias').update(rest).eq('id', id);
+      setCronograma(prev => prev.map(d => d.id === id ? { ...d, ...rest } : d));
+    } else {
+      const payload = {
+        fecha: dia.fecha, semana: dia.semana, tipo: dia.tipo,
+        titulo: dia.titulo, descripcion: dia.descripcion ?? null,
+        orden: dia.orden ?? 0, activo: dia.activo ?? true,
+      };
+      const { data } = await sb.from('cronograma_dias').insert(payload).select().single();
+      if (data) setCronograma(prev => [...prev, data as DiaCronograma].sort((a, b) => a.fecha.localeCompare(b.fecha) || a.orden - b.orden));
+    }
+  };
+
+  const eliminarDia = async (id: string) => {
+    const sb = getSupabase();
+    if (!sb) return;
+    await sb.from('cronograma_dias').delete().eq('id', id);
+    setCronograma(prev => prev.filter(d => d.id !== id));
+  };
+
   // ── Computed ─────────────────────────────────────────────────────────────────
 
   const clasesPorSemana     = (s: number) => clases.filter(c => c.semana === s);
@@ -357,13 +402,14 @@ export function useEscuela(socioCode: string) {
   const totalVistos         = clases.filter(c => c.activa && estaVisto(c.id)).length;
 
   return {
-    loaded, clases, progreso, plantillas, posts, anuncios, proxClase, tareas, entregas, sociosColonia,
+    loaded, clases, progreso, plantillas, posts, anuncios, proxClase, tareas, entregas, sociosColonia, cronograma,
     marcarVisto, publicarPost, toggleLike, eliminarPost, fijarPost, toggleColonia,
     guardarClase, eliminarClase,
     guardarPlantilla, eliminarPlantilla,
     publicarAnuncio, eliminarAnuncio, toggleFijarAnuncio,
     setProximaClase, borrarProximaClase,
     guardarTarea, eliminarTarea, entregarTarea,
+    guardarDia, eliminarDia,
     clasesPorSemana, plantillasPorSemana, tareasPorSemana,
     estaVisto, miEntrega, entregasPorTarea,
     totalClases, totalVistos,

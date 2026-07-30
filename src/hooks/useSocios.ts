@@ -70,6 +70,7 @@ export interface VentaSocio {
 export interface SocioSession {
   code: string;
   name: string;
+  email: string;
   rol: 'admin' | 'socio';
 }
 
@@ -369,7 +370,7 @@ export function useSocios() {
     try {
       // Bypass de API para modo demo — no requiere cuenta en Supabase
       if (code.toUpperCase() === DEMO_CODE) {
-        const s: SocioSession = { code: DEMO_CODE, name: 'Visitante', rol: 'socio' };
+        const s: SocioSession = { code: DEMO_CODE, name: 'Visitante', email: '', rol: 'socio' };
         setSession(s);
         localSave(KEYS.session, s);
         const existingLotes = load<Lote[]>(KEYS.lotes, []);
@@ -392,7 +393,7 @@ export function useSocios() {
       const data = await res.json();
       if (!res.ok || !data.success) return false;
 
-      const s: SocioSession = { code: data.codigo, name: data.nombre, rol: data.rol ?? 'socio' };
+      const s: SocioSession = { code: data.codigo, name: data.nombre, email: data.email ?? '', rol: data.rol ?? 'socio' };
       setSession(s);
       localSave(KEYS.session, s);
 
@@ -620,6 +621,25 @@ export function useSocios() {
     }
   }, [session]);
 
+  const updateEmail = useCallback(async (email: string): Promise<{ ok: boolean; error?: string }> => {
+    if (!session) return { ok: false, error: 'Sin sesión' };
+    try {
+      const res = await fetch('/api/socios/update-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: session.code, email }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) return { ok: false, error: data.error ?? 'Error al guardar' };
+      const newSession = { ...session, email };
+      setSession(newSession);
+      localSave(KEYS.session, newSession);
+      return { ok: true };
+    } catch {
+      return { ok: false, error: 'Error de conexión' };
+    }
+  }, [session]);
+
   const resetAllData = useCallback(async () => {
     setLotes([]); setFeeds([]); setCosechas([]); setRecordatorios([]); setFotos([]);
     localSave(KEYS.lotes, []); localSave(KEYS.feeds, []); localSave(KEYS.cosechas, []);
@@ -653,7 +673,7 @@ export function useSocios() {
     addRecordatorio, toggleRecordatorio, deleteRecordatorio,
     addFoto, deleteFoto,
     addVentaSocio, deleteVentaSocio,
-    updateName, resetAllData,
+    updateName, updateEmail, resetAllData,
     activeLotes, readyLotes, totalKg, avgConv,
   };
 }

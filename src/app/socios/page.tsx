@@ -545,11 +545,12 @@ function LineChart({ data, metaLine }: { data: { label: string; value: number }[
 
 type View = 'dashboard' | 'lotes' | 'lote-detail' | 'cosecha' | 'guia' | 'admin' | 'perfil' | 'estadisticas' | 'escuela' | 'ventas';
 
-function Dashboard({ lotes, feeds, cosechas, activeLotes, readyLotes, recordatorios, totalKg, avgConv, userName, anuncio, onViewLote, onNav }: {
+function Dashboard({ lotes, feeds, cosechas, activeLotes, readyLotes, recordatorios, totalKg, avgConv, userName, anuncio, sinEmail, onViewLote, onNav }: {
   lotes: Lote[]; feeds: FeedLog[]; cosechas: Cosecha[];
   activeLotes: Lote[]; readyLotes: Lote[]; recordatorios: Recordatorio[];
   totalKg: number; avgConv: number | null; userName: string;
   anuncio?: string | null;
+  sinEmail?: boolean;
   onViewLote: (id: string) => void; onNav: (v: View) => void;
 }) {
   const statCard = (num: string, label: string, accent: string) => (
@@ -572,6 +573,17 @@ function Dashboard({ lotes, feeds, cosechas, activeLotes, readyLotes, recordator
         <h1 style={{ fontSize: 22, fontWeight: 900 }}>¡Hola, {userName.split(' ')[0]}! 🪲</h1>
         <p style={{ color: S.muted, fontSize: 13, marginTop: 4 }}>Resumen de tu producción BSF de hoy</p>
       </div>
+
+      {/* Banner sin email */}
+      {sinEmail && (
+        <div onClick={() => onNav('perfil')} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', borderRadius: 12, background: 'rgba(245,158,11,0.08)', border: '1.5px solid rgba(245,158,11,0.4)', marginBottom: 16, cursor: 'pointer' }}>
+          <span style={{ fontSize: 20, flexShrink: 0 }}>📧</span>
+          <div style={{ flex: 1, fontSize: 13, color: '#e2e8f0', lineHeight: 1.5 }}>
+            <strong style={{ color: S.amber }}>Agrega tu email</strong> para poder recuperar tu contraseña si la olvidas. Toca aquí para ir a tu Perfil.
+          </div>
+          <span style={{ color: S.amber, fontSize: 16, flexShrink: 0 }}>→</span>
+        </div>
+      )}
 
       {/* Banner de anuncio admin */}
       {anuncio && !anuncioDismissed && (
@@ -1907,7 +1919,7 @@ interface GlobalStats {
   conversionPct: number;
 }
 
-function AdminView({ adminCode }: { adminCode: string }) {
+function AdminView({ adminCode, onBack, onLogout }: { adminCode: string; onBack: () => void; onLogout: () => void }) {
   const [tab, setTab] = useState<'socios' | 'invitaciones' | 'blog' | 'leads' | 'ventas' | 'comunicacion'>('socios');
 
   // ── Invitaciones state ────────────────────────────────────────────────────
@@ -2102,8 +2114,12 @@ function AdminView({ adminCode }: { adminCode: string }) {
 
   return (
     <div style={{ maxWidth: 800 }}>
-      <div style={{ marginBottom: 20 }}>
-        <h2 style={{ fontSize: 20, fontWeight: 900, marginBottom: 4 }}>🔑 Centro de Mando</h2>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20, flexWrap: 'wrap', gap: 10 }}>
+        <h2 style={{ fontSize: 20, fontWeight: 900, margin: 0 }}>🔑 Centro de Mando</h2>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <button onClick={onBack} style={{ ...btnOutline, fontSize: 12, padding: '6px 14px' }}>← Volver</button>
+          <button onClick={onLogout} style={{ ...btnDanger, fontSize: 12 }}>Cerrar sesión</button>
+        </div>
       </div>
 
       {/* Stats globales — fila 1 */}
@@ -2749,7 +2765,7 @@ function EstadisticasView({ lotes, feeds, cosechas, totalKg, avgConv }: {
 
 function PerfilView({
   session, lotes, feeds, cosechas, totalKg,
-  onUpdateName, onChangePassword, onLaunchTour, onReset, onGuia, onGoAdmin,
+  onUpdateName, onUpdateEmail, onChangePassword, onLaunchTour, onReset, onGuia, onGoAdmin,
 }: {
   session: SocioSession;
   lotes: Lote[];
@@ -2757,6 +2773,7 @@ function PerfilView({
   cosechas: Cosecha[];
   totalKg: number;
   onUpdateName: (nombre: string) => Promise<boolean>;
+  onUpdateEmail: (email: string) => Promise<{ ok: boolean; error?: string }>;
   onChangePassword: (current: string, nueva: string) => Promise<{ ok: boolean; error?: string }>;
   onLaunchTour: () => void;
   onReset: () => void;
@@ -2769,6 +2786,18 @@ function PerfilView({
   const [nombre,       setNombre]       = useState(session.name);
   const [nombreSaving, setNombreSaving] = useState(false);
   const [nombreOk,     setNombreOk]     = useState(false);
+
+  const [emailVal,     setEmailVal]     = useState(session.email ?? '');
+  const [emailSaving,  setEmailSaving]  = useState(false);
+  const [emailMsg,     setEmailMsg]     = useState<{ ok: boolean; text: string } | null>(null);
+
+  async function handleSaveEmail() {
+    setEmailSaving(true); setEmailMsg(null);
+    const res = await onUpdateEmail(emailVal.trim());
+    setEmailSaving(false);
+    setEmailMsg(res.ok ? { ok: true, text: '✅ Email guardado' } : { ok: false, text: res.error ?? 'Error' });
+    if (res.ok) setTimeout(() => setEmailMsg(null), 3000);
+  }
 
   const [showCurPass,     setShowCurPass]     = useState(false);
   const [showNewPass,     setShowNewPass]     = useState(false);
@@ -3013,6 +3042,30 @@ function PerfilView({
           </button>
         </div>
       </div>
+
+      {/* Email — para recuperar contraseña */}
+      {!isDemo && (
+        <div style={{ ...cardStyle, marginBottom: 16 }}>
+          <div style={{ fontSize: 11, fontWeight: 700, color: S.muted, marginBottom: 14, letterSpacing: '0.06em', textTransform: 'uppercase' }}>📧 Email (recuperar contraseña)</div>
+          <div style={{ display: 'flex', gap: 10 }}>
+            <input
+              type="email"
+              style={{ ...inputStyle, flex: 1 }}
+              value={emailVal}
+              onChange={e => { setEmailVal(e.target.value); setEmailMsg(null); }}
+              placeholder="tu@email.com"
+            />
+            <button
+              style={{ ...btnPrimary, flexShrink: 0, opacity: !emailVal.trim() || emailVal.trim() === (session.email ?? '') || emailSaving ? 0.5 : 1 }}
+              disabled={!emailVal.trim() || emailVal.trim() === (session.email ?? '') || emailSaving}
+              onClick={handleSaveEmail}
+            >
+              {emailSaving ? '...' : 'Guardar'}
+            </button>
+          </div>
+          {emailMsg && <p style={{ fontSize: 12, marginTop: 8, color: emailMsg.ok ? S.green2 : S.red }}>{emailMsg.text}</p>}
+        </div>
+      )}
 
       {/* Cambiar contraseña — colapsable (oculto en modo demo) */}
       {!isDemo && <div style={{ ...cardStyle, marginBottom: 16 }}>
@@ -3517,6 +3570,7 @@ function SociosInner() {
             totalKg={db.totalKg} avgConv={db.avgConv}
             userName={db.session.name}
             anuncio={anuncio}
+            sinEmail={db.session.code !== 'DEMO' && !db.session.email}
             onViewLote={viewLote}
             onNav={navTo}
           />
@@ -3573,6 +3627,7 @@ function SociosInner() {
             cosechas={db.cosechas}
             totalKg={db.totalKg}
             onUpdateName={db.updateName}
+            onUpdateEmail={db.updateEmail}
             onChangePassword={changePassword}
             onLaunchTour={() => {
               localStorage.removeItem('prl-onboarding-done');
@@ -3586,7 +3641,7 @@ function SociosInner() {
             onGoAdmin={db.session.rol === 'admin' ? () => navTo('admin') : undefined}
           />
         )}
-        {view === 'admin' && db.session.rol === 'admin' && <AdminView adminCode={db.session.code} />}
+        {view === 'admin' && db.session.rol === 'admin' && <AdminView adminCode={db.session.code} onBack={() => navTo('perfil')} onLogout={db.logout} />}
         </div>
       </main>
 

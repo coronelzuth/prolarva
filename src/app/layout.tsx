@@ -49,6 +49,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body style={{ fontFamily: 'Montserrat, sans-serif', background: '#0d1b2a', color: '#e2e8f0', minHeight: '100vh' }}>
         <Navbar />
         <main>{children}</main>
+        <footer style={{ textAlign: 'center', padding: '24px 16px', borderTop: '1px solid #1e3050', marginTop: 40, fontSize: 13, color: '#64748b' }}>
+          <span>© 2026 ProLarva · </span>
+          <a href="/privacidad" style={{ color: '#94a3b8', textDecoration: 'underline' }}>Política de Privacidad</a>
+        </footer>
         <FloatingWidgets />
         <Analytics />
         <Script id="sw-register" strategy="afterInteractive">{`

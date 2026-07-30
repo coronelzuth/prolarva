@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
-import { useEscuela, type Clase, type Plantilla, type Tarea } from '@/hooks/useEscuela';
+import { useEscuela, type Clase, type Plantilla, type Tarea, type DiaCronograma, type TipoDia } from '@/hooks/useEscuela';
 import { getSupabase } from '@/lib/supabase';
 
 // ─── Paleta ───────────────────────────────────────────────────────────────────
@@ -252,6 +252,123 @@ function fmtCountdown(ms: number) {
   return `${m}m ${sec}s`;
 }
 
+// ─── Cronograma helpers ───────────────────────────────────────────────────────
+
+const TIPO_META: Record<TipoDia, { emoji: string; label: string; color: string }> = {
+  clase:   { emoji: '🎥', label: 'Clase en vivo', color: '#22c55e' },
+  tarea:   { emoji: '📝', label: 'Tarea',          color: '#f59e0b' },
+  reporte: { emoji: '📊', label: 'Reporte',        color: '#0ea5e9' },
+  recurso: { emoji: '📄', label: 'Recurso',        color: '#a78bfa' },
+  libre:   { emoji: '🗓️', label: 'Actividad libre', color: '#64748b' },
+};
+
+function fmtFecha(dateStr: string): { dia: string; mes: string; diaSem: string } {
+  const d = new Date(dateStr + 'T12:00:00');
+  const dias = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+  const meses = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+  return { diaSem: dias[d.getDay()], dia: String(d.getDate()), mes: meses[d.getMonth()] };
+}
+
+function esHoy(dateStr: string): boolean {
+  const hoy = new Date();
+  const d = new Date(dateStr + 'T12:00:00');
+  return d.getFullYear() === hoy.getFullYear() && d.getMonth() === hoy.getMonth() && d.getDate() === hoy.getDate();
+}
+
+function esPasado(dateStr: string): boolean {
+  const hoy = new Date(); hoy.setHours(0,0,0,0);
+  return new Date(dateStr + 'T00:00:00') < hoy;
+}
+
+// ─── Modal Día Cronograma (admin) ─────────────────────────────────────────────
+
+function DiaCronogramaModal({ open, onClose, dia, onSave, onDelete }: {
+  open: boolean; onClose: () => void;
+  dia?: Partial<DiaCronograma>;
+  onSave: (d: Partial<DiaCronograma> & { fecha: string; semana: number; tipo: TipoDia; titulo: string }) => Promise<void>;
+  onDelete?: (id: string) => Promise<void>;
+}) {
+  const [fecha,    setFecha]    = useState('');
+  const [semana,   setSemana]   = useState(1);
+  const [tipo,     setTipo]     = useState<TipoDia>('clase');
+  const [titulo,   setTitulo]   = useState('');
+  const [desc,     setDesc]     = useState('');
+  const [activo,   setActivo]   = useState(true);
+  const [saving,   setSaving]   = useState(false);
+
+  useEffect(() => {
+    setFecha(dia?.fecha ?? '');
+    setSemana(dia?.semana ?? 1);
+    setTipo(dia?.tipo ?? 'clase');
+    setTitulo(dia?.titulo ?? '');
+    setDesc(dia?.descripcion ?? '');
+    setActivo(dia?.activo ?? true);
+  }, [dia, open]);
+
+  async function handleSave() {
+    if (!fecha || !titulo.trim()) return;
+    setSaving(true);
+    await onSave({ id: dia?.id, fecha, semana, tipo, titulo: titulo.trim(), descripcion: desc.trim() || undefined, activo });
+    setSaving(false);
+    onClose();
+  }
+
+  return (
+    <Modal open={open} onClose={onClose} title={dia?.id ? 'Editar actividad' : 'Nueva actividad'}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+        <div style={{ display: 'flex', gap: 12 }}>
+          <div style={{ flex: 1 }}>
+            <label style={labelStyle}>Fecha</label>
+            <input type="date" style={inputStyle} value={fecha} onChange={e => setFecha(e.target.value)} />
+          </div>
+          <div style={{ flex: 1 }}>
+            <label style={labelStyle}>Semana</label>
+            <select style={inputStyle} value={semana} onChange={e => setSemana(Number(e.target.value))}>
+              {[1,2,3,4].map(s => <option key={s} value={s}>Semana {s}</option>)}
+            </select>
+          </div>
+        </div>
+        <div>
+          <label style={labelStyle}>Tipo de actividad</label>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+            {(Object.entries(TIPO_META) as [TipoDia, typeof TIPO_META[TipoDia]][]).map(([k, v]) => (
+              <button key={k} onClick={() => setTipo(k)}
+                style={{ padding: '6px 12px', borderRadius: 6, border: `1.5px solid ${tipo === k ? v.color : 'rgba(255,255,255,0.1)'}`,
+                  background: tipo === k ? `${v.color}22` : 'transparent', color: tipo === k ? v.color : '#64748b',
+                  fontFamily: 'Montserrat, sans-serif', fontWeight: 700, fontSize: 12, cursor: 'pointer' }}>
+                {v.emoji} {v.label}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div>
+          <label style={labelStyle}>Título</label>
+          <input style={inputStyle} value={titulo} onChange={e => setTitulo(e.target.value)} placeholder="ej: Clase en vivo — Semana 1" />
+        </div>
+        <div>
+          <label style={labelStyle}>Descripción (opcional)</label>
+          <textarea style={{ ...inputStyle, resize: 'vertical', minHeight: 64 }} value={desc} onChange={e => setDesc(e.target.value)} placeholder="Detalles de la actividad" />
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <input type="checkbox" id="dia-activo" checked={activo} onChange={e => setActivo(e.target.checked)} />
+          <label htmlFor="dia-activo" style={{ fontSize: 13, color: '#94a3b8', cursor: 'pointer' }}>Visible para socios</label>
+        </div>
+        <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', marginTop: 4 }}>
+          {dia?.id && onDelete && (
+            <button style={btnDanger} onClick={async () => { if (confirm('¿Eliminar esta actividad?')) { await onDelete(dia.id!); onClose(); } }}>
+              🗑️ Eliminar
+            </button>
+          )}
+          <button style={btnOutline} onClick={onClose}>Cancelar</button>
+          <button style={{ ...btnPrimary, opacity: saving ? 0.6 : 1 }} onClick={handleSave} disabled={saving || !fecha || !titulo.trim()}>
+            {saving ? 'Guardando…' : 'Guardar'}
+          </button>
+        </div>
+      </div>
+    </Modal>
+  );
+}
+
 // ─── Modal Tarea (admin) ──────────────────────────────────────────────────────
 
 function TareaModal({ open, onClose, semana, tarea, onSave }: {
@@ -298,7 +415,7 @@ function TareaModal({ open, onClose, semana, tarea, onSave }: {
 
 // ─── EscuelaView ─────────────────────────────────────────────────────────────
 
-type EscuelaSub = 'clase' | 'plantillas' | 'tarea' | 'foro' | 'progreso' | 'directorio';
+type EscuelaSub = 'clase' | 'plantillas' | 'tarea' | 'foro' | 'progreso' | 'directorio' | 'cronograma';
 
 const REACTIONS = ['❤️', '🔥', '💡', '🙌'] as const;
 
@@ -387,6 +504,10 @@ export default function EscuelaView({
   const [editPlantilla,   setEditPlantilla]   = useState<Partial<Plantilla> | undefined>();
   const [modalTarea,      setModalTarea]      = useState(false);
   const [editTarea,       setEditTarea]       = useState<Partial<Tarea> | undefined>();
+  const [modalDia,        setModalDia]        = useState(false);
+  const [editDia,         setEditDia]         = useState<Partial<DiaCronograma> | undefined>();
+  const [sendingReminder, setSendingReminder] = useState(false);
+  const [reminderMsg,     setReminderMsg]     = useState<string | null>(null);
 
   // Tablón
   const [tablonText,    setTablonText]    = useState('');
@@ -537,6 +658,20 @@ export default function EscuelaView({
   }
 
   const inSemana = sub === 'clase' || sub === 'plantillas' || sub === 'tarea';
+
+  async function handleSendReminder() {
+    setSendingReminder(true);
+    setReminderMsg(null);
+    try {
+      const res = await fetch('/api/push/cronograma-reminder', { method: 'POST' });
+      const json = await res.json();
+      setReminderMsg(res.ok ? `✅ Enviado a ${json.sent ?? 0} socios` : `❌ ${json.error ?? 'Error al enviar'}`);
+    } catch {
+      setReminderMsg('❌ Error de red');
+    }
+    setSendingReminder(false);
+    setTimeout(() => setReminderMsg(null), 4000);
+  }
 
   return (
     <div className="esc-outer">
@@ -716,6 +851,10 @@ export default function EscuelaView({
             Sem {s}{navSemanas[s-1].completa ? ' ✓' : ''}
           </button>
         ))}
+        <button className={`esc-mob-tab${sub === 'cronograma' ? ' esc-mob-tab-active' : ''}`}
+          onClick={() => setSub('cronograma')}>
+          📅 Cronograma
+        </button>
         <button className={`esc-mob-tab${sub === 'foro' ? ' esc-mob-tab-active' : ''}`}
           onClick={() => setSub('foro')}>
           💬 Foro
@@ -770,6 +909,15 @@ export default function EscuelaView({
               )}
             </div>
           ))}
+
+          <div style={{ borderTop: `1px solid ${S.border}`, margin: '8px 12px 8px' }} />
+
+          <NavItem
+            label="📅 Cronograma"
+            active={sub === 'cronograma'}
+            onClick={() => setSub('cronograma')}
+            badge={esc.cronograma.filter(d => d.activo && esHoy(d.fecha)).length > 0 ? 'HOY' : undefined}
+          />
 
           <div style={{ borderTop: `1px solid ${S.border}`, margin: '8px 12px 8px' }} />
 
@@ -1490,6 +1638,157 @@ export default function EscuelaView({
               )}
             </div>
           )}
+
+          {/* ━━━ CRONOGRAMA ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
+          {sub === 'cronograma' && (() => {
+            const dias = esc.cronograma.filter(d => d.activo || asAdmin);
+            const diasPorSemana = (s: number) => dias.filter(d => d.semana === s).sort((a, b) => a.fecha.localeCompare(b.fecha));
+
+            return (
+              <div>
+                {/* Header */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 20, gap: 12, flexWrap: 'wrap' }}>
+                  <div>
+                    <h2 style={{ fontSize: 17, fontWeight: 800, margin: 0 }}>📅 Cronograma del programa</h2>
+                    <p style={{ fontSize: 12, color: S.muted, margin: '4px 0 0' }}>Recorrido completo — 4 semanas, actividades día a día</p>
+                  </div>
+                  {asAdmin && (
+                    <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+                      {reminderMsg && (
+                        <span style={{ fontSize: 12, color: reminderMsg.startsWith('✅') ? S.green : '#ef4444' }}>{reminderMsg}</span>
+                      )}
+                      <button
+                        style={{ ...btnOutline, fontSize: 12, color: '#0ea5e9', borderColor: 'rgba(14,165,233,0.3)', opacity: sendingReminder ? 0.6 : 1 }}
+                        onClick={handleSendReminder}
+                        disabled={sendingReminder}
+                      >
+                        {sendingReminder ? 'Enviando…' : '📲 Enviar recordatorio'}
+                      </button>
+                      <button
+                        style={{ ...btnOutline, fontSize: 12, color: S.amber, borderColor: 'rgba(245,158,11,0.35)' }}
+                        onClick={() => { setEditDia(undefined); setModalDia(true); }}
+                      >
+                        + Agregar actividad
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                {dias.length === 0 ? (
+                  <div style={{ textAlign: 'center', padding: '4rem 1rem', color: S.muted }}>
+                    <div style={{ fontSize: '3rem', marginBottom: 14 }}>🗓️</div>
+                    <p style={{ fontSize: 14, fontWeight: 600 }}>
+                      {asAdmin ? 'Sin actividades en el cronograma. Agrega la primera.' : 'El cronograma estará disponible pronto.'}
+                    </p>
+                  </div>
+                ) : (
+                  <div className="crono-grid">
+                    {[1,2,3,4].map(s => {
+                      const info = SEMANAS_INFO[s - 1];
+                      const diasSemana = diasPorSemana(s);
+                      return (
+                        <div key={s} className="crono-col">
+                          {/* Header semana */}
+                          <div style={{
+                            background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.2)',
+                            borderRadius: '10px 10px 0 0', padding: '12px 14px', marginBottom: 2,
+                          }}>
+                            <div style={{ fontSize: 20, marginBottom: 4 }}>{info.emoji}</div>
+                            <div style={{ fontSize: 12, fontWeight: 800, color: S.green2, lineHeight: 1.3 }}>Semana {s}</div>
+                            <div style={{ fontSize: 11, color: S.muted, lineHeight: 1.3 }}>{info.title}</div>
+                            {asAdmin && (
+                              <button
+                                onClick={() => { setEditDia({ semana: s, tipo: 'clase', activo: true }); setModalDia(true); }}
+                                style={{ marginTop: 8, background: 'none', border: '1px dashed rgba(34,197,94,0.3)', borderRadius: 6, color: S.muted, fontSize: 10, padding: '3px 8px', cursor: 'pointer', fontFamily: 'Montserrat,sans-serif', fontWeight: 700, width: '100%' }}
+                              >
+                                + día
+                              </button>
+                            )}
+                          </div>
+
+                          {/* Días */}
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                            {diasSemana.length === 0 ? (
+                              <div style={{ padding: '16px 14px', fontSize: 11, color: '#475569', textAlign: 'center', fontStyle: 'italic' }}>
+                                Sin actividades
+                              </div>
+                            ) : diasSemana.map(dia => {
+                              const hoy = esHoy(dia.fecha);
+                              const pasado = !hoy && esPasado(dia.fecha);
+                              const meta = TIPO_META[dia.tipo];
+                              const f = fmtFecha(dia.fecha);
+
+                              const tipoNavega = dia.tipo === 'clase' ? 'clase' : dia.tipo === 'tarea' ? 'tarea' : dia.tipo === 'recurso' ? 'plantillas' : null;
+
+                              return (
+                                <div
+                                  key={dia.id}
+                                  onClick={() => { if (tipoNavega) { setSemana(dia.semana); setSub(tipoNavega as EscuelaSub); } }}
+                                  style={{
+                                    padding: '10px 14px',
+                                    background: hoy ? 'rgba(34,197,94,0.12)' : pasado ? 'rgba(255,255,255,0.02)' : S.navy2,
+                                    border: `1.5px solid ${hoy ? S.green : pasado ? 'rgba(255,255,255,0.05)' : 'rgba(34,197,94,0.12)'}`,
+                                    borderRadius: 8,
+                                    cursor: tipoNavega ? 'pointer' : 'default',
+                                    opacity: pasado && !hoy ? 0.55 : 1,
+                                    transition: 'background 0.15s',
+                                    position: 'relative',
+                                  }}
+                                >
+                                  {hoy && (
+                                    <div style={{ position: 'absolute', top: 6, right: 8, fontSize: 9, fontWeight: 800, color: S.green, background: 'rgba(34,197,94,0.15)', padding: '2px 6px', borderRadius: 4, letterSpacing: '0.06em' }}>
+                                      HOY
+                                    </div>
+                                  )}
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 3 }}>
+                                    <span style={{ fontSize: 14 }}>{meta.emoji}</span>
+                                    <span style={{ fontSize: 10, fontWeight: 700, color: meta.color, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{meta.label}</span>
+                                  </div>
+                                  <div style={{ fontSize: 12, fontWeight: 700, color: hoy ? S.green2 : S.text, lineHeight: 1.35, marginBottom: 4 }}>
+                                    {dia.titulo}
+                                  </div>
+                                  {dia.descripcion && (
+                                    <div style={{ fontSize: 11, color: S.muted, lineHeight: 1.4, marginBottom: 4 }}>{dia.descripcion}</div>
+                                  )}
+                                  <div style={{ fontSize: 10, color: '#475569', display: 'flex', alignItems: 'center', gap: 4 }}>
+                                    <span>{f.diaSem}</span>
+                                    <span style={{ fontWeight: 700 }}>{f.dia} {f.mes}</span>
+                                    {!dia.activo && <span style={{ color: S.amber, marginLeft: 4 }}>oculto</span>}
+                                  </div>
+                                  {asAdmin && (
+                                    <button
+                                      onClick={e => { e.stopPropagation(); setEditDia(dia); setModalDia(true); }}
+                                      style={{ position: 'absolute', bottom: 6, right: 8, background: 'none', border: 'none', color: '#475569', fontSize: 11, cursor: 'pointer', padding: '2px 4px' }}
+                                    >
+                                      ✏️
+                                    </button>
+                                  )}
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+
+                {/* Leyenda */}
+                <div style={{ marginTop: 20, padding: '12px 16px', background: S.navy2, borderRadius: 10, border: `1px solid ${S.border}`, display: 'flex', flexWrap: 'wrap', gap: 14 }}>
+                  {(Object.entries(TIPO_META) as [TipoDia, typeof TIPO_META[TipoDia]][]).map(([, v]) => (
+                    <div key={v.label} style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                      <span style={{ fontSize: 13 }}>{v.emoji}</span>
+                      <span style={{ fontSize: 11, color: S.muted }}>{v.label}</span>
+                    </div>
+                  ))}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                    <div style={{ width: 12, height: 12, borderRadius: 3, background: 'rgba(34,197,94,0.12)', border: `1.5px solid ${S.green}` }} />
+                    <span style={{ fontSize: 11, color: S.muted }}>Día de hoy</span>
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
         </div>
       </div>
 
@@ -1514,6 +1813,13 @@ export default function EscuelaView({
         semana={semana}
         tarea={editTarea}
         onSave={esc.guardarTarea}
+      />
+      <DiaCronogramaModal
+        open={modalDia}
+        onClose={() => { setModalDia(false); setEditDia(undefined); }}
+        dia={editDia}
+        onSave={esc.guardarDia}
+        onDelete={esc.eliminarDia}
       />
 
       {/* ── Estilos ─────────────────────────────────────────── */}
@@ -1599,6 +1905,24 @@ export default function EscuelaView({
             border-bottom-color: #22c55e !important;
             background: rgba(34,197,94,0.06) !important;
           }
+        }
+
+        /* ── Cronograma grid ── */
+        .crono-grid {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 12px;
+          align-items: start;
+        }
+        .crono-col {
+          min-width: 0;
+        }
+
+        @media (max-width: 900px) {
+          .crono-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 560px) {
+          .crono-grid { grid-template-columns: 1fr; }
         }
       `}</style>
     </div>

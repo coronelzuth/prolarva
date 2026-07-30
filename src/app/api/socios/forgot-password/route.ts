@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
     if (!db) return NextResponse.json({ error: 'Error de configuración' }, { status: 500 });
 
     // Buscar socio por email (sin revelar si existe)
-    const { data } = await db.from('socios').select('codigo, nombre').eq('email', email.toLowerCase().trim()).eq('activo', true).single();
+    const { data } = await db.from('socios').select('codigo, nombre').eq('email', email.toLowerCase().trim()).eq('estado', 'activo').single();
     if (!data) return NextResponse.json({ success: true }); // respuesta silenciosa
 
     // Generar token

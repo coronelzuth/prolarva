@@ -508,6 +508,7 @@ export default function EscuelaView({
   const [editDia,         setEditDia]         = useState<Partial<DiaCronograma> | undefined>();
   const [sendingReminder, setSendingReminder] = useState(false);
   const [reminderMsg,     setReminderMsg]     = useState<string | null>(null);
+  const [cronoCollapsed,  setCronoCollapsed]  = useState<Set<number>>(new Set());
 
   // Tablón
   const [tablonText,    setTablonText]    = useState('');
@@ -1686,28 +1687,54 @@ export default function EscuelaView({
                     {[1,2,3,4].map(s => {
                       const info = SEMANAS_INFO[s - 1];
                       const diasSemana = diasPorSemana(s);
+                      const collapsed = cronoCollapsed.has(s);
+                      const tieneHoy = diasSemana.some(d => esHoy(d.fecha));
                       return (
                         <div key={s} className="crono-col">
-                          {/* Header semana */}
-                          <div style={{
-                            background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.2)',
-                            borderRadius: '10px 10px 0 0', padding: '12px 14px', marginBottom: 2,
-                          }}>
-                            <div style={{ fontSize: 20, marginBottom: 4 }}>{info.emoji}</div>
-                            <div style={{ fontSize: 12, fontWeight: 800, color: S.green2, lineHeight: 1.3 }}>Semana {s}</div>
-                            <div style={{ fontSize: 11, color: S.muted, lineHeight: 1.3 }}>{info.title}</div>
-                            {asAdmin && (
-                              <button
-                                onClick={() => { setEditDia({ semana: s, tipo: 'clase', activo: true }); setModalDia(true); }}
-                                style={{ marginTop: 8, background: 'none', border: '1px dashed rgba(34,197,94,0.3)', borderRadius: 6, color: S.muted, fontSize: 10, padding: '3px 8px', cursor: 'pointer', fontFamily: 'Montserrat,sans-serif', fontWeight: 700, width: '100%' }}
-                              >
-                                + día
-                              </button>
-                            )}
+                          {/* Header semana — clickeable para colapsar */}
+                          <div
+                            onClick={() => setCronoCollapsed(prev => {
+                              const next = new Set(prev);
+                              next.has(s) ? next.delete(s) : next.add(s);
+                              return next;
+                            })}
+                            style={{
+                              background: tieneHoy ? 'rgba(34,197,94,0.13)' : 'rgba(34,197,94,0.06)',
+                              border: `1px solid ${tieneHoy ? 'rgba(34,197,94,0.4)' : 'rgba(34,197,94,0.18)'}`,
+                              borderRadius: collapsed ? 10 : '10px 10px 0 0',
+                              padding: '11px 14px',
+                              marginBottom: collapsed ? 0 : 2,
+                              cursor: 'pointer',
+                              userSelect: 'none',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'space-between',
+                              gap: 8,
+                            }}
+                          >
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                              <span style={{ fontSize: 20 }}>{info.emoji}</span>
+                              <div>
+                                <div style={{ fontSize: 12, fontWeight: 800, color: tieneHoy ? S.green2 : S.text, lineHeight: 1.3 }}>{info.title}</div>
+                                <div style={{ fontSize: 10, color: S.muted }}>{diasSemana.length} actividad{diasSemana.length !== 1 ? 'es' : ''}</div>
+                              </div>
+                            </div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                              {tieneHoy && <span style={{ fontSize: 9, fontWeight: 800, color: S.green, background: 'rgba(34,197,94,0.15)', padding: '2px 6px', borderRadius: 4, letterSpacing: '0.06em' }}>HOY</span>}
+                              {asAdmin && (
+                                <button
+                                  onClick={e => { e.stopPropagation(); setEditDia({ semana: s, tipo: 'clase', activo: true }); setModalDia(true); }}
+                                  style={{ background: 'none', border: '1px dashed rgba(34,197,94,0.3)', borderRadius: 5, color: S.muted, fontSize: 10, padding: '2px 7px', cursor: 'pointer', fontFamily: 'Montserrat,sans-serif', fontWeight: 700 }}
+                                >
+                                  +
+                                </button>
+                              )}
+                              <span style={{ fontSize: 10, color: S.muted }}>{collapsed ? '▶' : '▼'}</span>
+                            </div>
                           </div>
 
-                          {/* Días */}
-                          <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                          {/* Días — ocultos si colapsado */}
+                          <div style={{ display: collapsed ? 'none' : 'flex', flexDirection: 'column', gap: 3 }}>
                             {diasSemana.length === 0 ? (
                               <div style={{ padding: '16px 14px', fontSize: 11, color: '#475569', textAlign: 'center', fontStyle: 'italic' }}>
                                 Sin actividades

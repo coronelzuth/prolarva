@@ -47,6 +47,12 @@ export interface SocioColonia {
   nombre: string;
   en_colonia: boolean;
   creado_en: string;
+  ubicacion?: string;
+  tipo_produccion?: string;
+  whatsapp_pub?: string;
+  instagram?: string;
+  tiktok?: string;
+  mostrar_directorio?: boolean;
 }
 
 export interface AnuncioEscuela {
@@ -117,7 +123,7 @@ export function useEscuela(socioCode: string) {
         sb.from('config_escuela').select('*').eq('clave', 'proxima_clase').single(),
         sb.from('tareas').select('*').order('semana'),
         sb.from('entregas_tareas').select('*'),
-        sb.from('socios').select('code,nombre,en_colonia,creado_en').eq('estado', 'activo').order('nombre'),
+        sb.from('socios').select('code,nombre,en_colonia,creado_en,ubicacion,tipo_produccion,whatsapp_pub,instagram,tiktok,mostrar_directorio').eq('estado', 'activo').order('nombre'),
         sb.from('cronograma_dias').select('*').order('fecha').order('orden'),
       ]);
       const likesData: { post_id: string; socio_code: string; tipo: string }[] = likesRes.data ?? [];

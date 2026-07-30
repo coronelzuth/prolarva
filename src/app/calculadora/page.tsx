@@ -95,7 +95,7 @@ export default function CalculadoraPage() {
     const animLabel = nAnim === 1 ? d.nom : d.pl;
     let m = tipo === 'pedido'
       ? `Hola ProLarva 👋 Calculé que sin BSF estoy perdiendo ${p} por ciclo (${ac} este año) con mis ${nAnim} ${animLabel}. Quiero hacer mi primer pedido.`
-      : `Hola ProLarva 👋 Tengo ${nAnim} ${animLabel} y quiero producir mi propio BSF con el Kit para dejar de depender del concentrado. ¿Me cuentan?`;
+      : `Hola ProLarva 👋 Tengo ${nAnim} ${animLabel} y quiero producir mi propio BSF con el Programa Colonia para dejar de depender del concentrado. ¿Me cuentan?`;
     if (nombre) m = `Hola ProLarva, soy ${nombre}. ` + m.replace('Hola ProLarva 👋 ', '');
     return m;
   }
@@ -370,7 +370,7 @@ export default function CalculadoraPage() {
             {/* CTA */}
             <div style={{ background: 'rgba(245,158,11,0.08)', border: '2px solid rgba(245,158,11,0.25)', borderRadius: 16, padding: 18, marginBottom: 14 }}>
               <div style={{ color: C.amber, fontSize: 15, fontWeight: 800, marginBottom: 5 }}>¿Listo para dejar de perder? 🚀</div>
-              <div style={{ fontSize: 12, color: C.muted, marginBottom: 14, lineHeight: 1.5 }}>Deja tu nombre y WhatsApp y te contactamos para coordinar tu pedido o contarte del Kit.</div>
+              <div style={{ fontSize: 12, color: C.muted, marginBottom: 14, lineHeight: 1.5 }}>Deja tu nombre y WhatsApp y te contactamos para coordinar tu pedido o contarte del Programa Colonia.</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 12 }}>
                 <input type="text" placeholder="Tu nombre" value={nombre} onChange={e => setNombre(e.target.value)} style={{ ...inp, border: '2px solid rgba(245,158,11,0.3)' }} />
                 <input type="tel" placeholder="WhatsApp (ej: 311 234 5678)" value={waNum} onChange={e => setWaNum(e.target.value)} style={{ ...inp, border: '2px solid rgba(245,158,11,0.3)' }} />
@@ -380,7 +380,7 @@ export default function CalculadoraPage() {
                   🪲 Quiero mi primer pedido de BSF
                 </button>
                 <button onClick={() => openWA('kit')} style={{ width: '100%', padding: 13, background: `linear-gradient(135deg,${C.amber},#d97706)`, color: '#fff', border: 'none', borderRadius: 11, fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>
-                  🏗️ Quiero producir mi propio BSF con el Kit
+                  🌱 Quiero el Programa Colonia
                 </button>
               </div>
               {confVisible && <div style={{ marginTop: 10, padding: 11, background: 'rgba(34,197,94,0.1)', borderRadius: 10, fontSize: 13, color: C.green, fontWeight: 700, textAlign: 'center', border: '1px solid rgba(34,197,94,0.3)' }}>✅ ¡Listo! Te contactamos pronto por WhatsApp.</div>}

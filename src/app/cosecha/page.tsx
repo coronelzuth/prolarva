@@ -525,10 +525,10 @@ export default function CosechaPage() {
         <div style={{ fontSize: 28, marginBottom: 10 }}>🎓</div>
         <div style={{ fontSize: 16, fontWeight: 800, color: '#f1f5f9', marginBottom: 8 }}>¿Quieres hacerlo con acompañamiento real?</div>
         <p style={{ fontSize: 13, color: '#94a3b8', lineHeight: 1.65, maxWidth: 440, margin: '0 auto 20px' }}>
-          El Kit ProLarva 25/15 incluye semilla viva, materiales, manual y 45 días de acompañamiento directo con Juliana. Tu primer ciclo sin adivinar.
+          El Programa Colonia es 4 semanas en vivo con Juliana: semilla BSF incluida, clases grupales, materiales y acceso a la red de productores. Tu primera colonia sin adivinar.
         </p>
-        <Link href="/sistema-2015" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'linear-gradient(135deg,#10b981,#059669)', color: '#fff', borderRadius: 12, padding: '13px 28px', fontWeight: 800, fontSize: 14, textDecoration: 'none' }}>
-          Ver el Kit ProLarva 25/15 →
+        <Link href="/colonia" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'linear-gradient(135deg,#22c55e,#16a34a)', color: '#fff', borderRadius: 12, padding: '13px 28px', fontWeight: 800, fontSize: 14, textDecoration: 'none' }}>
+          Ver el Programa Colonia →
         </Link>
       </div>
 

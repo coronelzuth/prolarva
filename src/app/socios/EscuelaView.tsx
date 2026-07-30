@@ -494,8 +494,9 @@ export default function EscuelaView({
 }) {
   const esc = useEscuela(socioCode);
 
-  const [semana, setSemana]   = useState(1);
-  const [sub,    setSub]      = useState<EscuelaSub>('clase');
+  const [semana,      setSemana]      = useState(1);
+  const [sub,         setSub]         = useState<EscuelaSub>('cronograma');
+  const [expandedDia, setExpandedDia] = useState<string | null>(null);
 
   // Admin modals
   const [modalClase,      setModalClase]      = useState(false);
@@ -846,12 +847,6 @@ export default function EscuelaView({
 
       {/* ── Mobile tabs principales ───────────────────────── */}
       <div className="esc-mob-main-tabs">
-        {SEMANAS.map(s => (
-          <button key={s} className={`esc-mob-tab${semana === s && inSemana ? ' esc-mob-tab-active' : ''}`}
-            onClick={() => { setSemana(s); setSub('clase'); }}>
-            Sem {s}{navSemanas[s-1].completa ? ' ✓' : ''}
-          </button>
-        ))}
         <button className={`esc-mob-tab${sub === 'cronograma' ? ' esc-mob-tab-active' : ''}`}
           onClick={() => setSub('cronograma')}>
           📅 Cronograma
@@ -864,6 +859,12 @@ export default function EscuelaView({
           onClick={() => setSub('directorio')}>
           👥
         </button>
+        {asAdmin && SEMANAS.map(s => (
+          <button key={s} className={`esc-mob-tab${semana === s && inSemana ? ' esc-mob-tab-active' : ''}`}
+            onClick={() => { setSemana(s); setSub('clase'); }}>
+            ⚙️ S{s}
+          </button>
+        ))}
         {asAdmin && (
           <button className={`esc-mob-tab${sub === 'progreso' ? ' esc-mob-tab-active' : ''}`}
             onClick={() => setSub('progreso')}>
@@ -872,8 +873,8 @@ export default function EscuelaView({
         )}
       </div>
 
-      {/* ── Mobile sub-tabs (clase / plantillas) ─────────── */}
-      {inSemana && (
+      {/* ── Mobile sub-tabs admin (clase / plantillas / tarea) ── */}
+      {asAdmin && inSemana && (
         <div className="esc-mob-sub-tabs">
           <button className={`esc-mob-sub${sub === 'clase' ? ' esc-mob-sub-active' : ''}`}
             onClick={() => setSub('clase')}>🎥 Clase</button>
@@ -889,30 +890,6 @@ export default function EscuelaView({
 
         {/* ── Sidebar ──────────────────────────────────────── */}
         <aside className="esc-nav">
-          <div style={{ fontSize: 10, fontWeight: 700, color: S.muted, letterSpacing: '0.08em', textTransform: 'uppercase', padding: '0 12px 8px' }}>
-            Semanas
-          </div>
-
-          {navSemanas.map(({ s, total, vis, completa }) => (
-            <div key={s}>
-              <NavItem
-                label={`📅 Semana ${s}`}
-                active={semana === s && inSemana}
-                onClick={() => { setSemana(s); setSub('clase'); }}
-                badge={completa ? '✓' : total > 0 ? `${vis}/${total}` : undefined}
-              />
-              {semana === s && inSemana && (
-                <>
-                  <SubNavItem label="🎥  Clase"      active={sub === 'clase'}      onClick={() => setSub('clase')} />
-                  <SubNavItem label={`📄  Plantillas (${plantillasActuales.length})`} active={sub === 'plantillas'} onClick={() => setSub('plantillas')} />
-                  <SubNavItem label="📝  Tarea"      active={sub === 'tarea'}      onClick={() => setSub('tarea')} />
-                </>
-              )}
-            </div>
-          ))}
-
-          <div style={{ borderTop: `1px solid ${S.border}`, margin: '8px 12px 8px' }} />
-
           <NavItem
             label="📅 Cronograma"
             active={sub === 'cronograma'}
@@ -921,6 +898,32 @@ export default function EscuelaView({
           />
 
           <div style={{ borderTop: `1px solid ${S.border}`, margin: '8px 12px 8px' }} />
+
+          {asAdmin && (
+            <>
+              <div style={{ fontSize: 10, fontWeight: 700, color: S.muted, letterSpacing: '0.08em', textTransform: 'uppercase', padding: '0 12px 6px' }}>
+                Gestionar
+              </div>
+              {navSemanas.map(({ s, total, vis, completa }) => (
+                <div key={s}>
+                  <NavItem
+                    label={`⚙️ Semana ${s}`}
+                    active={semana === s && inSemana}
+                    onClick={() => { setSemana(s); setSub('clase'); }}
+                    badge={completa ? '✓' : total > 0 ? `${vis}/${total}` : undefined}
+                  />
+                  {semana === s && inSemana && (
+                    <>
+                      <SubNavItem label="🎥  Clase"      active={sub === 'clase'}      onClick={() => setSub('clase')} />
+                      <SubNavItem label={`📄  Plantillas (${plantillasActuales.length})`} active={sub === 'plantillas'} onClick={() => setSub('plantillas')} />
+                      <SubNavItem label="📝  Tarea"      active={sub === 'tarea'}      onClick={() => setSub('tarea')} />
+                    </>
+                  )}
+                </div>
+              ))}
+              <div style={{ borderTop: `1px solid ${S.border}`, margin: '8px 12px 8px' }} />
+            </>
+          )}
 
           <NavItem
             label="💬 Foro"
@@ -1745,19 +1748,22 @@ export default function EscuelaView({
                               const meta = TIPO_META[dia.tipo];
                               const f = fmtFecha(dia.fecha);
 
-                              const tipoNavega = dia.tipo === 'clase' ? 'clase' : dia.tipo === 'tarea' ? 'tarea' : dia.tipo === 'recurso' ? 'plantillas' : null;
+                              const expanded = expandedDia === dia.id;
+                              const tieneContenido = dia.tipo === 'clase' || dia.tipo === 'tarea' || dia.tipo === 'recurso';
 
                               return (
+                                <div key={dia.id}>
                                 <div
-                                  key={dia.id}
-                                  onClick={() => { if (tipoNavega) { setSemana(dia.semana); setSub(tipoNavega as EscuelaSub); } }}
+                                  onClick={() => {
+                                    if (tieneContenido) setExpandedDia(expanded ? null : dia.id);
+                                  }}
                                   style={{
                                     padding: '10px 14px',
-                                    background: hoy ? 'rgba(34,197,94,0.12)' : pasado ? 'rgba(255,255,255,0.02)' : S.navy2,
-                                    border: `1.5px solid ${hoy ? S.green : pasado ? 'rgba(255,255,255,0.05)' : 'rgba(34,197,94,0.12)'}`,
-                                    borderRadius: 8,
-                                    cursor: tipoNavega ? 'pointer' : 'default',
-                                    opacity: pasado && !hoy ? 0.55 : 1,
+                                    background: expanded ? 'rgba(34,197,94,0.15)' : hoy ? 'rgba(34,197,94,0.12)' : pasado ? 'rgba(255,255,255,0.02)' : S.navy2,
+                                    border: `1.5px solid ${expanded ? S.green : hoy ? S.green : pasado ? 'rgba(255,255,255,0.05)' : 'rgba(34,197,94,0.12)'}`,
+                                    borderRadius: expanded ? '8px 8px 0 0' : 8,
+                                    cursor: tieneContenido ? 'pointer' : 'default',
+                                    opacity: pasado && !hoy && !expanded ? 0.55 : 1,
                                     transition: 'background 0.15s',
                                     position: 'relative',
                                   }}
@@ -1790,6 +1796,99 @@ export default function EscuelaView({
                                       ✏️
                                     </button>
                                   )}
+                                </div>
+                                {/* Panel expandible inline */}
+                                {expanded && (() => {
+                                  const clasesSem = esc.clasesPorSemana(dia.semana).filter(c => c.activa || asAdmin);
+                                  const tareasSem = esc.tareasPorSemana(dia.semana).filter(t => t.activa || asAdmin);
+                                  const plantSem  = esc.plantillasPorSemana(dia.semana);
+                                  return (
+                                    <div style={{ background: S.navy, border: `1.5px solid ${S.green}`, borderTop: 'none', borderRadius: '0 0 8px 8px', padding: '14px 14px 16px' }}>
+                                      {dia.tipo === 'clase' && (
+                                        <div>
+                                          {clasesSem.length === 0 ? (
+                                            <p style={{ fontSize: 12, color: S.muted, margin: 0 }}>{asAdmin ? 'Sin clases cargadas para esta semana.' : 'La clase estará disponible pronto.'}</p>
+                                          ) : clasesSem.map(clase => {
+                                            const vid = clase.url_video ? getYouTubeId(clase.url_video) : null;
+                                            const visto = esc.estaVisto(clase.id);
+                                            return (
+                                              <div key={clase.id} style={{ marginBottom: 14 }}>
+                                                <div style={{ fontSize: 12, fontWeight: 700, color: S.text, marginBottom: 8 }}>{clase.titulo}</div>
+                                                {clase.descripcion && <p style={{ fontSize: 11, color: S.muted, marginBottom: 8, lineHeight: 1.5 }}>{clase.descripcion}</p>}
+                                                {vid && (
+                                                  <div style={{ position: 'relative', paddingBottom: '56.25%', borderRadius: 8, overflow: 'hidden', marginBottom: 10 }}>
+                                                    <iframe src={`https://www.youtube.com/embed/${vid}`} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', border: 'none' }} allowFullScreen title={clase.titulo} />
+                                                  </div>
+                                                )}
+                                                <button
+                                                  onClick={() => { if (!visto) esc.marcarVisto(clase.id); }}
+                                                  style={{ ...btnPrimary, fontSize: 11, padding: '6px 14px', opacity: visto ? 0.5 : 1, cursor: visto ? 'default' : 'pointer' }}
+                                                >
+                                                  {visto ? '✅ Ya vista' : '👁️ Marcar como vista'}
+                                                </button>
+                                              </div>
+                                            );
+                                          })}
+                                        </div>
+                                      )}
+                                      {dia.tipo === 'tarea' && (
+                                        <div>
+                                          {tareasSem.length === 0 ? (
+                                            <p style={{ fontSize: 12, color: S.muted, margin: 0 }}>{asAdmin ? 'Sin tarea creada para esta semana.' : 'La tarea estará disponible pronto.'}</p>
+                                          ) : tareasSem.map(tarea => {
+                                            const entrega = esc.miEntrega(tarea.id);
+                                            return (
+                                              <div key={tarea.id}>
+                                                <div style={{ fontSize: 12, fontWeight: 700, color: S.amber, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 6 }}>Tarea de la semana</div>
+                                                <p style={{ fontSize: 13, color: S.text, lineHeight: 1.6, marginBottom: 12 }}>{tarea.pregunta}</p>
+                                                <textarea
+                                                  value={tareaText || entrega?.respuesta || ''}
+                                                  onChange={e => setTareaText(e.target.value)}
+                                                  style={{ ...inputStyle, resize: 'vertical', minHeight: 80, marginBottom: 8 }}
+                                                  placeholder="Escribe tu respuesta aquí… (máx. 1000 caracteres)"
+                                                  maxLength={1000}
+                                                />
+                                                <button
+                                                  style={{ ...btnPrimary, fontSize: 11, padding: '7px 16px', opacity: tareaPosting ? 0.6 : 1 }}
+                                                  disabled={tareaPosting}
+                                                  onClick={async () => {
+                                                    if (!tareaText.trim()) return;
+                                                    setTareaPosting(true);
+                                                    await esc.entregarTarea(tarea.id, tareaText, socioNombre);
+                                                    setTareaText('');
+                                                    setTareaPosting(false);
+                                                  }}
+                                                >
+                                                  {tareaPosting ? 'Enviando…' : entrega ? '✏️ Actualizar entrega' : '📤 Entregar'}
+                                                </button>
+                                              </div>
+                                            );
+                                          })}
+                                        </div>
+                                      )}
+                                      {dia.tipo === 'recurso' && (
+                                        <div>
+                                          {plantSem.length === 0 ? (
+                                            <p style={{ fontSize: 12, color: S.muted, margin: 0 }}>{asAdmin ? 'Sin plantillas para esta semana.' : 'Las plantillas estarán disponibles pronto.'}</p>
+                                          ) : (
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                                              {plantSem.map(p => (
+                                                <a key={p.id} href={p.url_archivo} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', background: S.navy2, borderRadius: 8, border: `1px solid ${S.border}`, textDecoration: 'none' }}>
+                                                  <span style={{ fontSize: 18 }}>📄</span>
+                                                  <div style={{ flex: 1 }}>
+                                                    <div style={{ fontSize: 12, fontWeight: 700, color: S.text }}>{p.titulo}</div>
+                                                    {p.tamano_aprox && <div style={{ fontSize: 10, color: S.muted }}>{p.tamano_aprox}</div>}
+                                                  </div>
+                                                  <span style={{ fontSize: 11, color: S.green, fontWeight: 700 }}>⬇️ Descargar</span>
+                                                </a>
+                                              ))}
+                                            </div>
+                                          )}
+                                        </div>
+                                      )}
+                                    </div>
+                                  );
+                                })()}
                                 </div>
                               );
                             })}

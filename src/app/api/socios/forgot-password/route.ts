@@ -43,18 +43,30 @@ export async function POST(req: NextRequest) {
         to: email,
         subject: '🔐 Recupera tu contraseña — ProLarva',
         html: `
-          <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto; background: #0d1b2a; color: #e2e8f0; padding: 32px; border-radius: 12px;">
-            <h2 style="color: #4ade80; margin-top: 0;">Hola, ${data.nombre} 🪲</h2>
-            <p style="color: #94a3b8; font-size: 14px;">Recibimos una solicitud para cambiar tu contraseña en la Zona de Socios de ProLarva.</p>
-            <p style="color: #94a3b8; font-size: 14px;">Este enlace es válido por <strong style="color: #e2e8f0;">1 hora</strong>.</p>
-            <div style="text-align: center; margin: 28px 0;">
-              <a href="${resetUrl}" style="background: linear-gradient(135deg, #22c55e, #16a34a); color: #fff; padding: 14px 28px; border-radius: 8px; text-decoration: none; font-weight: 700; font-size: 15px;">
-                Cambiar contraseña →
-              </a>
+          <div style="font-family: Arial, sans-serif; max-width: 480px; margin: 0 auto; background: #ffffff; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden;">
+            <!-- Header -->
+            <div style="background: #16a34a; padding: 28px 32px; text-align: center;">
+              <span style="font-size: 28px; font-weight: 900; color: #ffffff; letter-spacing: -0.5px;">Pro<span style="color: #bbf7d0;">Larva</span></span>
+              <p style="color: #bbf7d0; font-size: 11px; font-weight: 700; letter-spacing: 0.12em; margin: 4px 0 0; text-transform: uppercase;">Zona de Socios</p>
             </div>
-            <p style="color: #475569; font-size: 12px;">Si no solicitaste este cambio, ignora este mensaje — tu contraseña seguirá siendo la misma.</p>
-            <hr style="border-color: rgba(34,197,94,0.2); margin: 20px 0;" />
-            <p style="color: #334155; font-size: 11px; margin: 0;">ProLarva · Zona de Socios · prolarva.co</p>
+            <!-- Body -->
+            <div style="padding: 32px;">
+              <h2 style="color: #111827; font-size: 20px; margin: 0 0 8px;">Hola, ${data.nombre} 👋</h2>
+              <p style="color: #6b7280; font-size: 14px; line-height: 1.6; margin: 0 0 16px;">Recibimos una solicitud para restablecer la contraseña de tu cuenta en la Zona de Socios de ProLarva.</p>
+              <p style="color: #6b7280; font-size: 14px; margin: 0 0 28px;">Toca el botón para crear una nueva contraseña. El enlace es válido por <strong style="color: #111827;">1 hora</strong>.</p>
+              <div style="text-align: center; margin-bottom: 28px;">
+                <a href="${resetUrl}" style="display: inline-block; background: #16a34a; color: #ffffff; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-weight: 700; font-size: 15px;">
+                  Cambiar contraseña →
+                </a>
+              </div>
+              <div style="background: #f9fafb; border-radius: 8px; padding: 14px 16px; margin-bottom: 24px;">
+                <p style="color: #6b7280; font-size: 12px; margin: 0; line-height: 1.5;">⚠️ Si no solicitaste este cambio, ignora este mensaje. Tu contraseña actual sigue siendo la misma y nadie más puede acceder a tu cuenta.</p>
+              </div>
+            </div>
+            <!-- Footer -->
+            <div style="border-top: 1px solid #e5e7eb; padding: 16px 32px; text-align: center;">
+              <p style="color: #9ca3af; font-size: 11px; margin: 0;">ProLarva · <a href="https://prolarva.co" style="color: #16a34a; text-decoration: none;">prolarva.co</a></p>
+            </div>
           </div>
         `,
       });

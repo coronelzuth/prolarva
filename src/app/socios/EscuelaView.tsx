@@ -513,6 +513,7 @@ function FaseModal({ open, onClose, fase, clases, plantillas, tareas, estaVisto,
   asAdmin, onEditClase, onNuevaClase, onEliminarClase,
   onEditPlantilla, onNuevaPlantilla, onEliminarPlantilla,
   onEditTarea, onNuevaTarea, onEliminarTarea,
+  fasesAprobadas = 0, faseEnRevision = 0, onMarcarFase,
 }: {
   open: boolean; onClose: () => void; fase: number;
   clases: Clase[]; plantillas: Plantilla[]; tareas: Tarea[];
@@ -521,6 +522,7 @@ function FaseModal({ open, onClose, fase, clases, plantillas, tareas, estaVisto,
   onEditClase?: (c: Clase) => void; onNuevaClase?: () => void; onEliminarClase?: (id: string) => void;
   onEditPlantilla?: (p: Plantilla) => void; onNuevaPlantilla?: () => void; onEliminarPlantilla?: (id: string) => void;
   onEditTarea?: (t: Tarea) => void; onNuevaTarea?: () => void; onEliminarTarea?: (id: string) => void;
+  fasesAprobadas?: number; faseEnRevision?: number; onMarcarFase?: (fase: number) => Promise<void>;
 }) {
   const [diaActivo, setDiaActivo] = useState<1|2>(1);
   const [icono, setIcono] = useState<'desc'|'clase'|'plantillas'|'preguntas'>('desc');
@@ -528,6 +530,7 @@ function FaseModal({ open, onClose, fase, clases, plantillas, tareas, estaVisto,
   const [faseItems, setFaseItems] = useState<string[]>([]);
   const [sendingRem, setSendingRem] = useState(false);
   const [remMsg, setRemMsg] = useState<string | null>(null);
+  const [marcando, setMarcando] = useState(false);
 
   async function sendReminder() {
     setSendingRem(true);
@@ -689,14 +692,32 @@ function FaseModal({ open, onClose, fase, clases, plantillas, tareas, estaVisto,
                   </div>
                 </div>
               ) : (
-                <ul style={{ margin: 0, padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 6 }}>
-                  {faseItems.map((item, i) => (
-                    <li key={i} style={{ display: 'flex', gap: 8, alignItems: 'flex-start', fontSize: 12, color: '#e2e8f0', lineHeight: 1.5 }}>
-                      <span style={{ color: '#22c55e', flexShrink: 0, marginTop: 1 }}>✓</span>
-                      {item}
-                    </li>
-                  ))}
-                </ul>
+                <>
+                  <ul style={{ margin: 0, padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 6 }}>
+                    {faseItems.map((item, i) => (
+                      <li key={i} style={{ display: 'flex', gap: 8, alignItems: 'flex-start', fontSize: 12, color: '#e2e8f0', lineHeight: 1.5 }}>
+                        <span style={{ color: '#22c55e', flexShrink: 0, marginTop: 1 }}>✓</span>
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                  {/* Estado y botón de fase */}
+                  <div style={{ marginTop: 16, paddingTop: 14, borderTop: '1px solid rgba(148,163,184,0.1)' }}>
+                    {fase <= fasesAprobadas ? (
+                      <div style={{ fontSize: 12, color: '#22c55e', fontWeight: 700 }}>✅ Fase aprobada</div>
+                    ) : fase === faseEnRevision ? (
+                      <div style={{ fontSize: 12, color: '#f59e0b', fontWeight: 700 }}>⏳ En revisión — tu tutor la está evaluando</div>
+                    ) : fase === fasesAprobadas + 1 && onMarcarFase ? (
+                      <button
+                        onClick={async () => { setMarcando(true); await onMarcarFase(fase); setMarcando(false); onClose(); }}
+                        disabled={marcando}
+                        style={{ width: '100%', background: 'linear-gradient(135deg,#22c55e,#16a34a)', color: '#fff', border: 'none', borderRadius: 8, padding: '10px', fontSize: 12, fontWeight: 700, cursor: marcando ? 'default' : 'pointer', opacity: marcando ? 0.6 : 1, fontFamily: 'Montserrat,sans-serif' }}
+                      >
+                        {marcando ? 'Enviando...' : '📩 Marcar fase como lista para revisar'}
+                      </button>
+                    ) : null}
+                  </div>
+                </>
               )}
             </div>
           )}
@@ -875,6 +896,7 @@ export default function EscuelaView({
   // Admin progreso
   const [adminSocios,   setAdminSocios]   = useState<{ code: string; nombre: string; fases_aprobadas: number; fase_en_revision: number }[]>([]);
   const [adminProgreso, setAdminProgreso] = useState<{ socio_code: string; clase_id: string }[]>([]);
+  const [aprobando,     setAprobando]     = useState<string | null>(null);
 
   // Códigos de admin (para badge ProLarva)
   const [adminCodes, setAdminCodes] = useState<Set<string>>(new Set());
@@ -1944,6 +1966,53 @@ export default function EscuelaView({
                   </table>
                 </div>
               )}
+
+              {/* Fases pendientes de aprobación */}
+              {adminSocios.filter(s => s.fase_en_revision > 0).length > 0 && (
+                <div style={{ marginTop: 24 }}>
+                  <h3 style={{ fontSize: 14, fontWeight: 800, marginBottom: 12, color: S.amber }}>
+                    ⏳ Fases pendientes de aprobación ({adminSocios.filter(s => s.fase_en_revision > 0).length})
+                  </h3>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                    {adminSocios.filter(s => s.fase_en_revision > 0).map(socio => (
+                      <div key={socio.code} style={{
+                        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                        padding: '10px 14px',
+                        background: 'rgba(245,158,11,0.08)',
+                        border: '1px solid rgba(245,158,11,0.2)',
+                        borderRadius: 10, gap: 12,
+                      }}>
+                        <div>
+                          <div style={{ fontWeight: 600, fontSize: 13, color: S.text }}>{socio.nombre}</div>
+                          <div style={{ fontSize: 11, color: S.amber }}>Fase {socio.fase_en_revision} lista para revisar</div>
+                        </div>
+                        <button
+                          disabled={aprobando === socio.code}
+                          onClick={async () => {
+                            setAprobando(socio.code);
+                            await onAprobFase?.(socio.code, socio.fase_en_revision);
+                            setAdminSocios(prev => prev.map(s => s.code === socio.code
+                              ? { ...s, fases_aprobadas: socio.fase_en_revision, fase_en_revision: 0 }
+                              : s
+                            ));
+                            setAprobando(null);
+                          }}
+                          style={{
+                            background: aprobando === socio.code ? 'rgba(34,197,94,0.15)' : '#22c55e',
+                            color: aprobando === socio.code ? S.muted : '#0d1b2a',
+                            border: 'none', borderRadius: 8, padding: '7px 14px',
+                            fontSize: 12, fontWeight: 700, cursor: aprobando === socio.code ? 'default' : 'pointer',
+                            whiteSpace: 'nowrap', opacity: aprobando === socio.code ? 0.6 : 1,
+                            transition: 'opacity 0.2s',
+                          }}
+                        >
+                          {aprobando === socio.code ? 'Aprobando...' : `✅ Aprobar Fase ${socio.fase_en_revision}`}
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
@@ -1955,12 +2024,44 @@ export default function EscuelaView({
             return (
               <div>
                 {/* Header */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 20, gap: 12, flexWrap: 'wrap' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16, gap: 12, flexWrap: 'wrap' }}>
                   <div>
                     <h2 style={{ fontSize: 17, fontWeight: 800, margin: 0 }}>📅 Cronograma del programa</h2>
                     <p style={{ fontSize: 12, color: S.muted, margin: '4px 0 0' }}>5 fases · 2 días por fase · haz clic en una fase para ver el detalle</p>
                   </div>
                 </div>
+
+                {/* Barra de progreso de fases */}
+                {!isAdmin && (
+                  <div style={{ marginBottom: 20 }}>
+                    <div style={{ display: 'flex', gap: 6, marginBottom: 6 }}>
+                      {[1,2,3,4,5].map(f => {
+                        const aprobada = f <= fasesAprobadas;
+                        const enRevision = f === faseEnRevision;
+                        return (
+                          <div key={f} style={{ flex: 1 }}>
+                            <div style={{
+                              height: 6, borderRadius: 3,
+                              background: aprobada ? '#22c55e' : enRevision ? '#f59e0b' : 'rgba(148,163,184,0.2)',
+                              transition: 'background 0.3s',
+                            }} />
+                          </div>
+                        );
+                      })}
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div style={{ fontSize: 10, color: S.muted }}>
+                        {fasesAprobadas > 0
+                          ? `${fasesAprobadas}/5 fases aprobadas`
+                          : 'Completa cada fase para avanzar'}
+                        {faseEnRevision > 0 && <span style={{ color: S.amber }}> · Fase {faseEnRevision} en revisión ⏳</span>}
+                      </div>
+                      {fasesAprobadas >= 3 && (
+                        <div style={{ fontSize: 10, color: '#22c55e', fontWeight: 700 }}>🔬 Monitor desbloqueado</div>
+                      )}
+                    </div>
+                  </div>
+                )}
 
                 {dias.length === 0 ? (
                   <div style={{ textAlign: 'center', padding: '4rem 1rem', color: S.muted }}>
@@ -2233,6 +2334,9 @@ export default function EscuelaView({
           onNuevaTarea={() => { setSemana(faseMod); setEditTarea(undefined); setModalTarea(true); }}
           onEditTarea={t => { setSemana(faseMod); setEditTarea(t); setModalTarea(true); }}
           onEliminarTarea={id => esc.eliminarTarea(id).then(() => esc.reload())}
+          fasesAprobadas={fasesAprobadas}
+          faseEnRevision={faseEnRevision}
+          onMarcarFase={onMarcarFase}
         />
       )}
 

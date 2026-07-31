@@ -543,7 +543,7 @@ function LineChart({ data, metaLine }: { data: { label: string; value: number }[
 
 // ─── Views ────────────────────────────────────────────────────────────────────
 
-type View = 'dashboard' | 'lotes' | 'lote-detail' | 'cosecha' | 'guia' | 'admin' | 'perfil' | 'estadisticas' | 'escuela' | 'ventas';
+type View = 'dashboard' | 'monitor' | 'lote-detail' | 'cosecha' | 'guia' | 'admin' | 'perfil' | 'escuela' | 'ventas';
 
 function Dashboard({ lotes, feeds, cosechas, activeLotes, readyLotes, recordatorios, totalKg, avgConv, userName, anuncio, sinEmail, onViewLote, onNav }: {
   lotes: Lote[]; feeds: FeedLog[]; cosechas: Cosecha[];
@@ -709,7 +709,7 @@ function Dashboard({ lotes, feeds, cosechas, activeLotes, readyLotes, recordator
         <div style={cardStyle}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
             <h3 style={{ fontSize: 13, fontWeight: 700 }}>Lotes en curso</h3>
-            <button style={{ ...btnOutline, ...btnSm }} onClick={() => onNav('lotes')}>Ver todos</button>
+            <button style={{ ...btnOutline, ...btnSm }} onClick={() => onNav('monitor')}>Ver todos</button>
           </div>
           {activeLotes.length === 0 ? (
             <EmptyState icon="📦" text="No hay lotes activos todavía" />
@@ -734,7 +734,7 @@ function Dashboard({ lotes, feeds, cosechas, activeLotes, readyLotes, recordator
         <div style={cardStyle}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
             <h3 style={{ fontSize: 13, fontWeight: 700 }}>Actividad reciente</h3>
-            <button style={{ ...btnOutline, ...btnSm }} onClick={() => onNav('lotes')}>Ver mis lotes</button>
+            <button style={{ ...btnOutline, ...btnSm }} onClick={() => onNav('monitor')}>Ver mis lotes</button>
           </div>
           {feeds.length === 0 && cosechas.length === 0 ? (
             <EmptyState icon="🌿" text="Sin actividad registrada todavía" />
@@ -2582,6 +2582,105 @@ function AdminView({ adminCode, onBack, onLogout }: { adminCode: string; onBack:
   );
 }
 
+// ─── Monitor ─────────────────────────────────────────────────────────────────
+
+const BENEFICIOS_MONITOR = [
+  { icon: '📈', titulo: 'Rastreo de lotes en tiempo real', desc: 'Ve el estado exacto de cada bandeja día a día' },
+  { icon: '📊', titulo: 'Estadísticas de conversión', desc: 'Mide tu tasa kg sustrato → kg larva cosechada' },
+  { icon: '⚖️', titulo: 'Registro de cosechas', desc: 'Historial completo de pesaje y calidad por cosecha' },
+  { icon: '📅', titulo: 'Calendario de actividades', desc: 'Alertas automáticas para alimentación y cosecha' },
+  { icon: '💡', titulo: 'Análisis de rendimiento', desc: 'Descubre qué sustratos dan más kg en menos tiempo' },
+];
+
+function MonitorLocked({ fasesAprobadas }: { fasesAprobadas: number }) {
+  const [idx, setIdx] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => setIdx(i => (i + 1) % BENEFICIOS_MONITOR.length), 3500);
+    return () => clearInterval(t);
+  }, []);
+  const b = BENEFICIOS_MONITOR[idx];
+  return (
+    <div style={{ padding: '2rem 1rem', maxWidth: 420, margin: '0 auto', textAlign: 'center' }}>
+      <div style={{ fontSize: '3.5rem', marginBottom: 12 }}>🔬</div>
+      <h2 style={{ fontSize: 20, fontWeight: 800, marginBottom: 8 }}>Monitor de Producción</h2>
+      <p style={{ fontSize: 13, color: S.muted, marginBottom: 28, lineHeight: 1.6 }}>
+        Tu herramienta de trazabilidad BSF. Se desbloquea al completar la Fase 3 del programa Colonia.
+      </p>
+      <div style={{ marginBottom: 28 }}>
+        <div style={{ display: 'flex', gap: 6, marginBottom: 8 }}>
+          {[1,2,3,4,5].map(f => (
+            <div key={f} style={{ flex: 1 }}>
+              <div style={{
+                height: 8, borderRadius: 4,
+                background: f <= fasesAprobadas ? '#22c55e' : 'rgba(148,163,184,0.12)',
+                transition: 'background 0.3s',
+              }} />
+            </div>
+          ))}
+        </div>
+        <div style={{ fontSize: 11, color: S.muted }}>
+          {fasesAprobadas}/5 fases completadas · se desbloquea en Fase 3
+        </div>
+      </div>
+      <div style={{
+        padding: '18px 20px', background: 'rgba(34,197,94,0.06)',
+        border: '1px solid rgba(34,197,94,0.15)', borderRadius: 14, marginBottom: 12,
+      }}>
+        <div style={{ fontSize: '2rem', marginBottom: 8 }}>{b.icon}</div>
+        <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 4 }}>{b.titulo}</div>
+        <div style={{ fontSize: 12, color: S.muted }}>{b.desc}</div>
+      </div>
+      <div style={{ display: 'flex', gap: 6, justifyContent: 'center', marginBottom: 20 }}>
+        {BENEFICIOS_MONITOR.map((_, i) => (
+          <div key={i} onClick={() => setIdx(i)} style={{
+            width: 6, height: 6, borderRadius: 3, cursor: 'pointer',
+            background: i === idx ? '#22c55e' : 'rgba(148,163,184,0.3)',
+            transition: 'background 0.3s',
+          }} />
+        ))}
+      </div>
+      <p style={{ fontSize: 11, color: S.muted }}>
+        Completa las fases en Escuela para desbloquear esta sección
+      </p>
+    </div>
+  );
+}
+
+function MonitorView({ fasesAprobadas, isAdmin, monitorSub, onSubChange, lotes, feeds, onViewLote, onNewLote, onDeleteLote, cosechas, totalKg, avgConv }: {
+  fasesAprobadas: number; isAdmin: boolean;
+  monitorSub: 'lotes' | 'stats'; onSubChange: (s: 'lotes' | 'stats') => void;
+  lotes: Lote[]; feeds: FeedLog[];
+  onViewLote: (id: string) => void; onNewLote: () => void; onDeleteLote: (id: string) => void;
+  cosechas: Cosecha[]; totalKg: number; avgConv: number | null;
+}) {
+  const unlocked = fasesAprobadas >= 3 || isAdmin;
+  if (!unlocked) return <MonitorLocked fasesAprobadas={fasesAprobadas} />;
+  return (
+    <div>
+      <div style={{ display: 'flex', gap: 8, marginBottom: 20, alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap' }}>
+        <h2 style={{ fontSize: 17, fontWeight: 800, margin: 0 }}>🔬 Monitor de Producción</h2>
+        <div style={{ display: 'flex', gap: 6 }}>
+          {(['lotes', 'stats'] as const).map(s => (
+            <button key={s} onClick={() => onSubChange(s)} style={{
+              padding: '6px 14px', borderRadius: 20, border: 'none', fontSize: 12, fontWeight: 700, cursor: 'pointer',
+              background: monitorSub === s ? '#22c55e' : 'rgba(148,163,184,0.1)',
+              color: monitorSub === s ? '#0d1b2a' : S.muted,
+            }}>
+              {s === 'lotes' ? '📦 Lotes' : '📊 Estadísticas'}
+            </button>
+          ))}
+        </div>
+      </div>
+      {monitorSub === 'lotes' && (
+        <LotesView lotes={lotes} feeds={feeds} onViewLote={onViewLote} onNewLote={onNewLote} onDeleteLote={onDeleteLote} />
+      )}
+      {monitorSub === 'stats' && (
+        <EstadisticasView lotes={lotes} feeds={feeds} cosechas={cosechas} totalKg={totalKg} avgConv={avgConv} />
+      )}
+    </div>
+  );
+}
+
 // ─── Estadísticas ────────────────────────────────────────────────────────────
 
 function EstadisticasView({ lotes, feeds, cosechas, totalKg, avgConv }: {
@@ -3318,10 +3417,10 @@ function PerfilView({
 // ─── Spotlight tour ───────────────────────────────────────────────────────────
 
 const TOUR_STEPS = [
-  { targetId: 'nav-dashboard',    title: '🏠 Resumen',      desc: 'Tu panel principal. Aquí aparecen alertas automáticas de cosecha, recordatorios activos y el estado general de tu producción en tiempo real.' },
-  { targetId: 'nav-lotes',        title: '📦 Mis Lotes',    desc: 'Cada vez que siembras, creas un lote. Dentro del lote puedes registrar alimentaciones y cosechas directamente.' },
-  { targetId: 'nav-estadisticas', title: '📊 Estadísticas',  desc: 'Gráficas de producción, ranking de tus mejores lotes, qué sustrato te funciona mejor, y exporta tus datos a Excel.' },
-  { targetId: 'nav-perfil',       title: '👤 Mi Perfil',     desc: 'Edita tu nombre, cambia tu foto, actualiza tu contraseña y accede a la Guía Rápida BSF desde un solo lugar.' },
+  { targetId: 'nav-dashboard', title: '🏠 Resumen',   desc: 'Tu panel principal. Aquí aparecen alertas automáticas de cosecha, recordatorios activos y el estado general de tu producción en tiempo real.' },
+  { targetId: 'nav-escuela',   title: '🎓 Escuela',   desc: 'Clases del programa, cronograma y foro del grupo. Completa las fases para desbloquear tu Monitor de Producción.' },
+  { targetId: 'nav-monitor',   title: '🔬 Monitor',   desc: 'Tu herramienta de trazabilidad BSF. Rastreo de lotes, estadísticas de conversión y cosechas. Se desbloquea al completar la Fase 3.' },
+  { targetId: 'nav-perfil',    title: '👤 Mi Perfil', desc: 'Edita tu nombre, cambia tu foto, actualiza tu contraseña y accede a la Guía Rápida BSF desde un solo lugar.' },
 ];
 
 function SpotlightTour({ step, onNext, onPrev, onDone }: {
@@ -3418,6 +3517,7 @@ function SociosInner() {
   const resetParam = searchParams.get('reset') ?? undefined;
   const [authMode, setAuthMode] = useState<'login' | 'register'>(invParam ? 'register' : 'login');
   const [view,        setView]        = useState<View>('dashboard');
+  const [monitorSub,  setMonitorSub]  = useState<'lotes' | 'stats'>('lotes');
   const [detailLoteId, setDetailLoteId] = useState<string | null>(null);
   const [showOnboarding,   setShowOnboarding]   = useState(false);
   const [onboardingStep,   setOnboardingStep]   = useState(0);
@@ -3602,16 +3702,54 @@ function SociosInner() {
     showToast('✅ Cosecha registrada');
   }
 
+  async function handleMarcarFase(fase: number) {
+    if (!db.session) return;
+    try {
+      const res = await fetch('/api/socios/marcar-fase', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: db.session.code, fase }),
+      });
+      if (res.ok) {
+        db.updateFases(fase);
+        showToast(`📩 Fase ${fase} enviada a revisión`);
+      } else {
+        const d = await res.json();
+        showToast(`❌ ${d.error ?? 'Error al enviar fase'}`);
+      }
+    } catch {
+      showToast('❌ Error de conexión');
+    }
+  }
+
+  async function handleAprobFase(code: string, fase: number) {
+    if (!db.session) return;
+    try {
+      const res = await fetch('/api/socios/aprobar-fase', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ adminCode: db.session.code, code, fase }),
+      });
+      if (res.ok) {
+        showToast(`✅ Fase ${fase} aprobada`);
+      } else {
+        const d = await res.json();
+        showToast(`❌ ${d.error ?? 'Error al aprobar'}`);
+      }
+    } catch {
+      showToast('❌ Error de conexión');
+    }
+  }
+
   const navItems: { key: View; icon: string; label: string }[] = [
-    { key: 'dashboard',    icon: '🏠', label: 'Resumen' },
-    { key: 'lotes',        icon: '📦', label: 'Mis Lotes' },
-    { key: 'ventas',       icon: '💰', label: 'Mis Ventas' },
-    { key: 'escuela',      icon: '🎓', label: 'Escuela' },
-    { key: 'estadisticas', icon: '📊', label: 'Estadísticas' },
-    { key: 'perfil',       icon: '👤', label: 'Mi Perfil' },
+    { key: 'dashboard', icon: '🏠', label: 'Resumen' },
+    { key: 'escuela',   icon: '🎓', label: 'Escuela' },
+    { key: 'monitor',   icon: '🔬', label: 'Monitor' },
+    { key: 'ventas',    icon: '💰', label: 'Mis Ventas' },
+    { key: 'perfil',    icon: '👤', label: 'Mi Perfil' },
   ];
 
-  const activeView = view === 'lote-detail' ? 'lotes' : view === 'cosecha' ? 'lotes' : view;
+  const activeView = view === 'lote-detail' ? 'monitor' : view === 'cosecha' ? 'monitor' : view;
 
   return (
     <div className="socios-wrap" style={{ display: 'flex', minHeight: '100vh' }}>
@@ -3688,12 +3826,17 @@ function SociosInner() {
             onNav={navTo}
           />
         )}
-        {view === 'lotes' && (
-          <LotesView
+        {view === 'monitor' && (
+          <MonitorView
+            fasesAprobadas={db.session?.fases_aprobadas ?? 0}
+            isAdmin={db.session?.rol === 'admin'}
+            monitorSub={monitorSub}
+            onSubChange={setMonitorSub}
             lotes={db.lotes} feeds={db.feeds}
             onViewLote={viewLote}
             onNewLote={() => { setModalLote(true); setTimeout(() => { if (lFecha.current) lFecha.current.value = todayLocal(); }, 10); }}
             onDeleteLote={db.deleteLote}
+            cosechas={db.cosechas} totalKg={db.totalKg} avgConv={db.avgConv}
           />
         )}
         {view === 'lote-detail' && detailLote && (
@@ -3701,7 +3844,7 @@ function SociosInner() {
             lote={detailLote} feeds={db.feeds} lotes={db.lotes}
             cosechas={db.cosechas}
             recordatorios={db.recordatorios} fotos={db.fotos}
-            onBack={() => setView('lotes')} onAddFeed={openFeed}
+            onBack={() => setView('monitor')} onAddFeed={openFeed}
             onEdit={() => { setEditNombre(detailLote.nombre); setEditFecha(detailLote.fecha); setEditLoteId(detailLote.id); }}
             onAddRecordatorio={db.addRecordatorio}
             onToggleRecordatorio={db.toggleRecordatorio}
@@ -3724,12 +3867,10 @@ function SociosInner() {
             socioCode={db.session.code}
             socioNombre={db.session.name}
             isAdmin={db.session.rol === 'admin'}
-          />
-        )}
-        {view === 'estadisticas' && (
-          <EstadisticasView
-            lotes={db.lotes} feeds={db.feeds} cosechas={db.cosechas}
-            totalKg={db.totalKg} avgConv={db.avgConv}
+            fasesAprobadas={db.session.fases_aprobadas ?? 0}
+            faseEnRevision={db.session.fase_en_revision ?? 0}
+            onMarcarFase={handleMarcarFase}
+            onAprobFase={handleAprobFase}
           />
         )}
         {view === 'perfil' && db.session && (
@@ -3763,9 +3904,9 @@ function SociosInner() {
         {navItems.map(item => {
           const active = activeView === item.key;
           const mobileLabel: Record<string, string> = {
-            dashboard: 'Inicio', lotes: 'Lotes',
-            ventas: 'Ventas', escuela: 'Escuela',
-            estadisticas: 'Stats', perfil: 'Perfil', admin: 'Admin',
+            dashboard: 'Inicio', escuela: 'Escuela',
+            monitor: 'Monitor', ventas: 'Ventas',
+            perfil: 'Perfil', admin: 'Admin',
           };
           return (
             <div id={`m-nav-${item.key}`} key={item.key} onClick={() => navTo(item.key)} className={`socios-tab${active ? ' socios-tab-active' : ''}`}>

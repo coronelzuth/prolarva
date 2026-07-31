@@ -534,7 +534,7 @@ function SociosInner() {
           .socios-wrap { display: block !important; }
           .socios-sidebar { display: none !important; }
           .socios-main { padding: 0 !important; }
-          .socios-content { padding: 1rem 1rem 80px !important; }
+          .socios-content { padding: 2rem 1rem 80px !important; }
           .socios-mobile-nav {
             display: flex !important;
             position: fixed;

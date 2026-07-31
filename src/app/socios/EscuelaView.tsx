@@ -1823,7 +1823,7 @@ export default function EscuelaView({
               ) : (
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(200px,1fr))', gap: 12 }}>
                   {esc.sociosColonia
-                    .filter(s => asAdmin || s.en_colonia)
+                    .filter(s => asAdmin || (s.en_colonia && s.mostrar_directorio !== false))
                     .map(s => (
                     <div key={s.code} style={{ background: s.en_colonia ? 'rgba(34,197,94,0.05)' : S.navy2, border: `1px solid ${s.en_colonia ? 'rgba(34,197,94,0.25)' : S.border}`, borderRadius: 12, padding: '1rem', display: 'flex', flexDirection: 'column', gap: 10 }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -1832,9 +1832,33 @@ export default function EscuelaView({
                         </div>
                         <div style={{ flex: 1, minWidth: 0 }}>
                           <div style={{ fontSize: 13, fontWeight: 700, color: S.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.nombre}</div>
-                          <div style={{ fontSize: 10, color: S.muted }}>@{s.code}</div>
+                          {(s.tipo_produccion || s.ubicacion) && (
+                            <div style={{ fontSize: 10, color: S.muted, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                              {[s.tipo_produccion, s.ubicacion].filter(Boolean).join(' · ')}
+                            </div>
+                          )}
+                          {!(s.tipo_produccion || s.ubicacion) && (
+                            <div style={{ fontSize: 10, color: S.muted }}>@{s.code}</div>
+                          )}
                         </div>
                       </div>
+                      {/* Links sociales */}
+                      {(s.whatsapp_pub || s.instagram || s.tiktok) && (
+                        <div style={{ display: 'flex', gap: 8 }}>
+                          {s.whatsapp_pub && (
+                            <a href={`https://wa.me/${s.whatsapp_pub.replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer"
+                              style={{ fontSize: 16, lineHeight: 1, textDecoration: 'none' }} title="WhatsApp">💬</a>
+                          )}
+                          {s.instagram && (
+                            <a href={`https://instagram.com/${s.instagram.replace('@', '')}`} target="_blank" rel="noopener noreferrer"
+                              style={{ fontSize: 16, lineHeight: 1, textDecoration: 'none' }} title="Instagram">📷</a>
+                          )}
+                          {s.tiktok && (
+                            <a href={`https://tiktok.com/@${s.tiktok.replace('@', '')}`} target="_blank" rel="noopener noreferrer"
+                              style={{ fontSize: 16, lineHeight: 1, textDecoration: 'none' }} title="TikTok">🎵</a>
+                          )}
+                        </div>
+                      )}
                       {s.en_colonia && (
                         <div style={{ display: 'inline-flex', alignItems: 'center', gap: 4, background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.25)', borderRadius: 20, padding: '2px 10px', fontSize: 10, color: S.green, fontWeight: 700 }}>
                           ✓ En el programa

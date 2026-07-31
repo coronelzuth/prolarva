@@ -818,10 +818,16 @@ function FaseModal({ open, onClose, fase, clases, plantillas, tareas, estaVisto,
 
 export default function EscuelaView({
   socioCode, socioNombre, isAdmin,
+  fasesAprobadas = 0, faseEnRevision = 0,
+  onMarcarFase, onAprobFase,
 }: {
   socioCode: string;
   socioNombre: string;
   isAdmin: boolean;
+  fasesAprobadas?: number;
+  faseEnRevision?: number;
+  onMarcarFase?: (fase: number) => Promise<void>;
+  onAprobFase?: (code: string, fase: number) => Promise<void>;
 }) {
   const esc = useEscuela(socioCode);
 
@@ -867,7 +873,7 @@ export default function EscuelaView({
   const [replyPosting, setReplyPosting] = useState(false);
 
   // Admin progreso
-  const [adminSocios,   setAdminSocios]   = useState<{ code: string; nombre: string }[]>([]);
+  const [adminSocios,   setAdminSocios]   = useState<{ code: string; nombre: string; fases_aprobadas: number; fase_en_revision: number }[]>([]);
   const [adminProgreso, setAdminProgreso] = useState<{ socio_code: string; clase_id: string }[]>([]);
 
   // Códigos de admin (para badge ProLarva)
@@ -907,10 +913,10 @@ export default function EscuelaView({
     const sb = getSupabase();
     if (!sb) return;
     Promise.all([
-      sb.from('socios').select('code,nombre').eq('estado', 'activo'),
+      sb.from('socios').select('code,nombre,fases_aprobadas,fase_en_revision').eq('estado', 'activo'),
       sb.from('progreso_clases').select('socio_code,clase_id'),
     ]).then(([sRes, pRes]) => {
-      setAdminSocios(sRes.data?.map(x => ({ code: x.code, nombre: x.nombre })) ?? []);
+      setAdminSocios(sRes.data?.map(x => ({ code: x.code, nombre: x.nombre, fases_aprobadas: x.fases_aprobadas ?? 0, fase_en_revision: x.fase_en_revision ?? 0 })) ?? []);
       setAdminProgreso(pRes.data ?? []);
     });
   }, [isAdmin, sub]);

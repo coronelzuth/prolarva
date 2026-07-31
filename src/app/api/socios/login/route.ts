@@ -54,7 +54,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Credenciales inválidas' }, { status: 401 });
     }
 
-    return NextResponse.json({ success: true, codigo: data.codigo, nombre: data.nombre, email: data.email ?? '', rol: data.rol ?? 'socio' });
+    return NextResponse.json({ success: true, codigo: data.codigo, nombre: data.nombre, email: data.email ?? '', rol: data.rol ?? 'socio', fases_aprobadas: data.fases_aprobadas ?? 0, fase_en_revision: data.fase_en_revision ?? 0 });
   } catch {
     return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 });
   }

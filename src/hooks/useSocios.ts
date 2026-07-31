@@ -72,6 +72,8 @@ export interface SocioSession {
   name: string;
   email: string;
   rol: 'admin' | 'socio';
+  fases_aprobadas: number;
+  fase_en_revision: number;
 }
 
 // ─── BSF Cycle ───────────────────────────────────────────────────────────────
@@ -370,7 +372,7 @@ export function useSocios() {
     try {
       // Bypass de API para modo demo — no requiere cuenta en Supabase
       if (code.toUpperCase() === DEMO_CODE) {
-        const s: SocioSession = { code: DEMO_CODE, name: 'Visitante', email: '', rol: 'socio' };
+        const s: SocioSession = { code: DEMO_CODE, name: 'Visitante', email: '', rol: 'socio', fases_aprobadas: 0, fase_en_revision: 0 };
         setSession(s);
         localSave(KEYS.session, s);
         const existingLotes = load<Lote[]>(KEYS.lotes, []);
@@ -393,7 +395,7 @@ export function useSocios() {
       const data = await res.json();
       if (!res.ok || !data.success) return false;
 
-      const s: SocioSession = { code: data.codigo, name: data.nombre, email: data.email ?? '', rol: data.rol ?? 'socio' };
+      const s: SocioSession = { code: data.codigo, name: data.nombre, email: data.email ?? '', rol: data.rol ?? 'socio', fases_aprobadas: data.fases_aprobadas ?? 0, fase_en_revision: data.fase_en_revision ?? 0 };
       setSession(s);
       localSave(KEYS.session, s);
 
@@ -640,6 +642,15 @@ export function useSocios() {
     }
   }, [session]);
 
+  const updateFases = useCallback((faseEnRevision: number, fasesAprobadas?: number) => {
+    setSession(prev => {
+      if (!prev) return prev;
+      const updated = { ...prev, fase_en_revision: faseEnRevision, fases_aprobadas: fasesAprobadas ?? prev.fases_aprobadas };
+      localSave(KEYS.session, updated);
+      return updated;
+    });
+  }, []);
+
   const resetAllData = useCallback(async () => {
     setLotes([]); setFeeds([]); setCosechas([]); setRecordatorios([]); setFotos([]);
     localSave(KEYS.lotes, []); localSave(KEYS.feeds, []); localSave(KEYS.cosechas, []);
@@ -673,7 +684,7 @@ export function useSocios() {
     addRecordatorio, toggleRecordatorio, deleteRecordatorio,
     addFoto, deleteFoto,
     addVentaSocio, deleteVentaSocio,
-    updateName, updateEmail, resetAllData,
+    updateName, updateEmail, updateFases, resetAllData,
     activeLotes, readyLotes, totalKg, avgConv,
   };
 }

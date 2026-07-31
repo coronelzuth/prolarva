@@ -81,7 +81,7 @@ export default function Home() {
   };
 
   return (
-    <div style={{ maxWidth: 1000, margin: '0 auto', padding: '40px 20px 80px' }}>
+    <div style={{ maxWidth: 1000, margin: '0 auto', padding: '72px 20px 80px' }}>
       <div style={{ textAlign: 'center', marginBottom: 56 }}>
         <div className="hero-row" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 16, marginBottom: 16 }}>
           <img src="/larvi-mascota.png" alt="Larvi" className="hero-mascot" style={{ width: 80, height: 80, objectFit: 'contain', flexShrink: 0 }} />

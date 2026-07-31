@@ -25,7 +25,7 @@ const TIPOS_PROD = [
 
 function PerfilView({
   session, lotes: _lotes, feeds: _feeds, cosechas: _cosechas, totalKg: _totalKg,
-  onUpdateName, onUpdateEmail, onChangePassword, onLaunchTour, onReset, onGuia, onGoAdmin,
+  onUpdateName, onUpdateEmail, onChangePassword, onLaunchTour, onReset, onGuia, onGoAdmin, onLogout,
 }: {
   session: SocioSession;
   lotes: Lote[];
@@ -39,6 +39,7 @@ function PerfilView({
   onReset: () => void;
   onGuia: () => void;
   onGoAdmin?: () => void;
+  onLogout: () => void;
 }) {
   const isDemo = session.code === 'DEMO';
 

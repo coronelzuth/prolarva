@@ -460,7 +460,8 @@ export function useSocios() {
 
   const logout = useCallback(() => {
     setSession(null);
-    localSave(KEYS.session, null);
+    setLotes([]); setFeeds([]); setCosechas([]); setRecordatorios([]); setFotos([]); setVentasSocios([]);
+    Object.values(KEYS).forEach(k => localSave(k, k === KEYS.session ? null : []));
   }, []);
 
   // ─── Lotes ─────────────────────────────────────────────────────────────────

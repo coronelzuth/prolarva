@@ -209,3 +209,5 @@ function EstadisticasView({ lotes, feeds, cosechas, totalKg, avgConv }: {
     </div>
   );
 }
+
+export default EstadisticasView;

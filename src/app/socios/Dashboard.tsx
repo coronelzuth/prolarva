@@ -212,3 +212,4 @@ function Dashboard({ lotes, feeds, cosechas, activeLotes, readyLotes, recordator
     </div>
   );
 }
+export default Dashboard;

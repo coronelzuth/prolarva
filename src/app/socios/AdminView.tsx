@@ -800,3 +800,5 @@ function AdminView({ adminCode, onBack, onLogout }: { adminCode: string; onBack:
     </div>
   );
 }
+
+export default AdminView;

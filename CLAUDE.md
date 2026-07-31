@@ -84,9 +84,20 @@ src/
 │   ├── calculadora/page.tsx  # Calculadora wizard completa (React nativo, 4 pasos)
 │   ├── kit/page.tsx          # Landing Kit ProLarva 25/15 — color ámbar #f59e0b
 │   ├── colonia/page.tsx      # Landing Programa Colonia — color verde #22c55e
-│   ├── socios/page.tsx       # Zona de Socios (login + tracker + escuela)
-│   ├── socios/EscuelaView.tsx # Panel Escuela — clases, plantillas, foro, progreso admin
-│   └── gracias/page.tsx      # Página de confirmación post-formulario
+│   ├── socios/page.tsx           # Zona de Socios — solo nav, modales, estado global (~150 líneas)
+│   ├── socios/_shared.ts         # Estilos compartidos: S, btnOutline, inputStyle, Modal, type View
+│   ├── socios/EscuelaView.tsx    # Panel Escuela completo
+│   ├── socios/Dashboard.tsx      # Vista de resumen
+│   ├── socios/MonitorView.tsx    # Monitor bloqueado/desbloqueado + sub-tabs Lotes/Stats
+│   ├── socios/LotesView.tsx      # Lista de lotes
+│   ├── socios/LoteDetail.tsx     # Detalle de lote con feeds, cosechas, fotos, recordatorios
+│   ├── socios/EstadisticasView.tsx # Gráficas de producción y exportación CSV
+│   ├── socios/PerfilView.tsx     # Perfil estilo Instagram con directorio
+│   ├── socios/VentasView.tsx     # Registro de ventas del socio
+│   ├── socios/AdminView.tsx      # Panel admin: socios, leads, ventas, invitaciones, blog
+│   ├── socios/AuthScreens.tsx    # Login, Register, ResetPassword
+│   ├── socios/CosechaView.tsx    # Vista cosecha + GuiaView
+│   └── gracias/page.tsx          # Página de confirmación post-formulario
 │
 ├── components/
 │   ├── Navbar.tsx            # Sticky top; 6 links + botón Socios; scroll horizontal en móvil
@@ -169,16 +180,24 @@ Wizard completo de 4 pasos portado a React (NO es un iframe).
 - Step 4: Resultados — hero pérdida, desglose, con BSF, beneficios, kit timeline, CTA WhatsApp
 Cálculo en `useEffect` que se dispara cuando `step === 4`.
 
-### `socios/page.tsx`
+### `socios/page.tsx` + componentes divididos
 Login por email o código de socio. Cuentas admin: `admin.zuth/prolarva2025`, `admin/pl2025`.
-**Nav:** 6 tabs — 🏠 Resumen, 📦 Mis Lotes, 🎓 Escuela, 📊 Estadísticas, 👤 Mi Perfil, 🔑 Admin (solo admin).
-Sidebar sticky a `top: 0`, `height: 100vh` (navbar oculto en /socios desde 2026-07-29).
+**Nav:** 5 tabs — 🏠 Resumen · 🎓 Escuela · 🔬 Monitor · 💰 Mis Ventas · 👤 Mi Perfil. Admin aparece como botón dentro de Perfil.
+Sidebar sticky a `top: 0`, `height: 100vh` (navbar oculto en /socios).
 **Móvil (<768px):** sidebar oculto → bottom tab bar fijo.
-Estado en `localStorage` via `useSocios`.
-**PerfilView — sección Herramientas:** botones 📋 Guía Rápida BSF / 🗺️ Ver guía de la app / 🗑️ Limpiar mis datos.
-**PerfilView — Cambiar contraseña:** colapsable con toggle. Por defecto cerrado, se expande al tocar "🔐 Cambiar contraseña ▾".
-**Funcionalidades en detalle de lote:**
-- `LoteDetail` tiene botón ✏️ Editar (modal para cambiar nombre/fecha)
+Estado en `localStorage` via `useSocios`. Arquitectura refactorizada: `page.tsx` (~150 líneas) + 12 archivos separados (ver estructura).
+
+### `MonitorView.tsx`
+Tab 🔬 Monitor — herramienta de trazabilidad BSF.
+- **Bloqueado** (fases_aprobadas < 3 y no admin): muestra teasers rotativos de 5 beneficios + barra de progreso de fases
+- **Desbloqueado** (fases_aprobadas ≥ 3 o admin): sub-tabs 📦 Lotes y 📊 Estadísticas
+- Los trackers de lotes y estadísticas ya NO están en el nav principal — viven dentro de Monitor
+
+### `PerfilView.tsx`
+Estilo Instagram con foto de perfil, campos de perfil público (tipo_produccion chips, ubicacion, redes sociales), toggle directorio, sección Cuenta y seguridad colapsable. Botón Admin solo para rol=admin.
+
+**Funcionalidades en detalle de lote (`LoteDetail.tsx`):**
+- Botón ✏️ Editar (modal para cambiar nombre/fecha)
 - `MiniCalendar`: strip de hitos + botón "📅 Ver calendario" que despliega grid real Lu–Do con emojis de hitos sobre sus fechas. Si el ciclo cruza dos meses se muestran ambos apilados.
 - Al crear lote: selector de objetivo (⚖️ Cosechar larvas / 🔄 Continuar camada) que ajusta los hitos del MiniCalendar (día 22: cosecha vs prepupa; día 28/40: fin vs mosca).
 - Larvi y WhatsApp NO se renderizan en /socios (ver `FloatingWidgets.tsx`).
@@ -205,7 +224,9 @@ Clave de sincronización: `socio_code` (del login actual).
 Tipos: `Lote`, `FeedLog`, `Cosecha`, `SocioSession`.
 `Lote` tiene campo opcional `objetivo?: 'cosechar' | 'continuar'` (default `'cosechar'`).
 Exports: `BSF_STAGES`, `daysSince(dateStr)`, `getStage(days)`, `uid()`, `useSocios()`.
-Retorna: `{ loaded, session, login, logout, lotes, feeds, cosechas, addLote, deleteLote, updateLote, addFeed, addCosecha, activeLotes, readyLotes, totalKg, avgConv }`.
+Retorna: `{ loaded, session, login, logout, lotes, feeds, cosechas, addLote, deleteLote, updateLote, addFeed, addCosecha, activeLotes, readyLotes, totalKg, avgConv, updateFases }`.
+`SocioSession` incluye: `code, name, email, rol, fases_aprobadas, fase_en_revision`.
+`updateFases(faseEnRevision, fasesAprobadas?)` actualiza la sesión en estado + localStorage.
 
 ### `useEscuela.ts`
 Estado del panel Escuela. Consultas directas a Supabase (sin localStorage).
@@ -215,14 +236,15 @@ Retorna: `{ loaded, clases, progreso, plantillas, posts, marcarVisto, publicarPo
 **Tablas Supabase:** `clases`, `progreso_clases`, `plantillas`, `foro_posts`, `foro_likes` (SQL en `supabase/escuela.sql`).
 
 ### `EscuelaView.tsx` (`src/app/socios/`)
-Panel Escuela completo. Props: `{ socioCode, socioNombre, isAdmin }`.
+Panel Escuela completo. Props: `{ socioCode, socioNombre, isAdmin, fasesAprobadas, faseEnRevision, onMarcarFase?, onAprobFase? }`.
 **Secciones:**
-- **Clases** — iframe YouTube embed por semana. Admin: agregar/editar/activar. Estudiante: marcar como vista.
-- **Plantillas** — PDFs descargables por semana. Admin sube URL (Google Drive u otro).
-- **Foro** — estilo Twitter. Textarea arriba + feed cronológico inverso. Likes ❤️. Eliminar (autor o admin).
-- **Progreso** (solo admin) — tabla de todos los socios activos con ✅/⬜ por clase activa y % completado.
-**Desktop:** sidebar propio de 176px (semanas + sub-items + foro + progreso admin).
-**Móvil:** tabs horizontales superiores (Sem 1/2/3/4 + Foro) + sub-tabs (Clase / Plantillas).
+- **Cronograma** — vista principal. Grid de fases con panel expandible inline por actividad.
+- **Clases / Plantillas / Tareas** — accesibles por admin desde sección Gestionar.
+- **Foro** — estilo Twitter con reacciones, respuestas anidadas y push.
+- **Progreso** (solo admin) — tabla ✅/⬜ por clase + sección "Fases pendientes de aprobación" con botón "✅ Aprobar Fase X" por socio.
+- **Barra de progreso de fases** — en el Cronograma para socios: 5 segmentos (verde=aprobada, ámbar=en revisión).
+- **Botón "Marcar fase como lista"** — en FaseModal para socios; activa el flujo socio→admin→aprobación.
+**Desktop:** sidebar 176px. **Móvil:** tabs horizontales.
 
 ---
 

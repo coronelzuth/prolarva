@@ -299,3 +299,4 @@ function LoteDetail({ lote, feeds, lotes, cosechas, recordatorios, fotos, onBack
     </div>
   );
 }
+export default LoteDetail;

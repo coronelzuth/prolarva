@@ -1,7 +1,7 @@
 ﻿'use client';
 import { useState, useRef, useEffect } from 'react';
-import { type SocioSession, type Lote } from '@/hooks/useSocios';
-import { S, cardStyle, btnPrimary, btnSm, btnOutline, btnDanger, Badge, Field, Modal, inputStyle, labelStyle, fmtDate } from './_shared';
+import { type SocioSession, type Lote, type FeedLog, type Cosecha } from '@/hooks/useSocios';
+import { S, cardStyle, btnPrimary, btnSm, btnOutline, btnDanger, Badge, Field, Modal, inputStyle, labelStyle, fmtDate, comprimirImagen } from './_shared';
 
 // ─── Perfil ───────────────────────────────────────────────────────────────────
 
@@ -528,3 +528,5 @@ function PerfilView({
     </div>
   );
 }
+
+export default PerfilView;

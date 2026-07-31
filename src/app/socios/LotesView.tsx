@@ -63,3 +63,4 @@ function LotesView({ lotes, feeds, onViewLote, onNewLote, onDeleteLote }: {
     </div>
   );
 }
+export default LotesView;

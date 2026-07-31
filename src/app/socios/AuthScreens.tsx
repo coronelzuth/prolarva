@@ -331,3 +331,5 @@ function RegisterScreen({ onRegister, onSwitchToLogin, invitacionPrevia }: { onR
     </div>
   );
 }
+
+export { LoginScreen, RegisterScreen, ResetPasswordScreen };

@@ -11,7 +11,7 @@ import {
   type Cosecha,
   type SocioSession,
 } from '@/hooks/useSocios';
-import { S, cardStyle, btnPrimary, btnSm, btnOutline, inputStyle, labelStyle, Modal, Field, nowLocal, todayLocal, type View } from './_shared';
+import { S, cardStyle, btnPrimary, btnSm, btnOutline, btnDanger, inputStyle, labelStyle, Modal, Field, nowLocal, todayLocal, type View } from './_shared';
 import Dashboard from './Dashboard';
 import LotesView from './LotesView';
 import LoteDetail from './LoteDetail';

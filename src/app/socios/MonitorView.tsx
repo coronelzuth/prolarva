@@ -103,3 +103,5 @@ function MonitorView({ fasesAprobadas, isAdmin, monitorSub, onSubChange, lotes, 
     </div>
   );
 }
+
+export default MonitorView;

@@ -16,7 +16,10 @@ Programa **Colonia**: 4 semanas de clases en vivo para socios inscritos.
 | `supabase/escuela-media-prioridad.sql` | SQL: foro_likes.tipo, socios.en_colonia |
 | `supabase/escuela-baja-prioridad.sql` | SQL: foro_posts.fijado |
 | `supabase/cronograma_escuela.sql` | SQL tabla cronograma_dias |
+| `supabase/fases-progreso.sql` | SQL columnas fases_aprobadas + fase_en_revision en tabla socios |
 | `src/app/api/push/cronograma-reminder/route.ts` | Endpoint push recordatorio del cronograma |
+| `src/app/api/socios/marcar-fase/route.ts` | POST {code, fase} — socio marca su fase como lista para revisar |
+| `src/app/api/socios/aprobar-fase/route.ts` | POST {adminCode, code, fase} — admin aprueba una fase de un socio |
 
 ---
 
@@ -33,7 +36,7 @@ Programa **Colonia**: 4 semanas de clases en vivo para socios inscritos.
 | `anuncios_escuela` | Tablón de anuncios con `fijado` boolean |
 | `tareas` | Tareas semanales: pregunta, semana, activa/inactiva |
 | `entregas_tareas` | Respuestas de socios a las tareas (UNIQUE tarea_id+socio_code) |
-| `socios` | Campo `en_colonia boolean` para gestión de cohorte |
+| `socios` | Campos `en_colonia boolean` + `fases_aprobadas INTEGER` + `fase_en_revision INTEGER` |
 | `cronograma_dias` | Días individuales del programa: fecha, semana, tipo, título, descripción |
 
 ---
@@ -110,7 +113,27 @@ Programa **Colonia**: 4 semanas de clases en vivo para socios inscritos.
 - Badge "✓ En el programa" para socios con `en_colonia = true`
 - Admin puede inscribir/retirar socios con botón "+ Inscribir / ✕ Retirar"
 
-### Progreso (solo admin)
+### Progreso de Fases (2026-07-30) ← NUEVO
+Sistema de aprobación de fases del Programa Colonia. Flujo: **socio marca → admin aprueba → barra avanza → Monitor se desbloquea**.
+
+**Para el socio:**
+- Botón "📩 Marcar fase como lista para revisar" en FaseModal (tab descripción)
+- Valida que sea la fase siguiente a la aprobada y que no haya otra en revisión
+- Badge de estado: "En revisión ⏳" o "✅ Aprobada"
+- Barra de progreso de 5 segmentos en el Cronograma (verde=aprobada, ámbar=en revisión)
+- Al llegar a 3 fases aprobadas: badge "🔬 Monitor desbloqueado"
+
+**Para el admin (tab Progreso):**
+- Sección "⏳ Fases pendientes de aprobación" — lista socios con fase_en_revision > 0
+- Botón "✅ Aprobar Fase X" por socio → llama `/api/socios/aprobar-fase` → actualiza UI local inmediatamente
+
+**Columnas en Supabase (`socios`):**
+- `fases_aprobadas INTEGER DEFAULT 0` — cuántas fases fueron aprobadas por el admin
+- `fase_en_revision INTEGER DEFAULT 0` — qué fase está esperando revisión (0 = ninguna)
+
+**El Monitor se desbloquea** cuando `fases_aprobadas >= 3` (o si es admin).
+
+### Progreso de clases (solo admin)
 - Tabla socios activos × clases activas con ✅/⬜ y % completado
 
 ### Vista de preview (solo admin)
@@ -157,6 +180,8 @@ El navbar global de la app está oculto dentro de `/socios`.
 | `/api/foro/notify-reply` | POST | Push al autor de un post cuando alguien le responde |
 | `/api/foro/notify-like` | POST | Push al autor cuando alguien reacciona a su post |
 | `/api/push/cronograma-reminder` | POST | Push a todos los suscritos con la próxima actividad del cronograma |
+| `/api/socios/marcar-fase` | POST | Socio envía su fase a revisión — valida orden y no duplicados |
+| `/api/socios/aprobar-fase` | POST | Admin aprueba la fase de un socio — requiere adminCode con rol=admin |
 
 ---
 
@@ -176,3 +201,4 @@ El navbar global de la app está oculto dentro de `/socios`.
 - ✅ **Cronograma con días individuales** — tabla `cronograma_dias`, grid colapsable por semana, panel expandible inline por actividad
 - ✅ **Sem 1-4 ocultas para socios** — solo accesibles vía cronograma o para admin en sección Gestionar
 - ✅ **Push de recordatorio del cronograma** — endpoint `/api/push/cronograma-reminder`
+- ✅ **Sistema de fases** (sesión 17, 2026-07-30) — columnas `fases_aprobadas`+`fase_en_revision` en socios (SQL ejecutado), flujo socio→admin→aprobación, barra de progreso en Cronograma, panel de aprobación en tab Progreso, Monitor se desbloquea en Fase 3

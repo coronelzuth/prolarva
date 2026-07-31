@@ -167,3 +167,5 @@ function VentasView({ ventas, onAdd, onDelete }: {
     </div>
   );
 }
+
+export default VentasView;

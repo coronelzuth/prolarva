@@ -124,3 +124,6 @@ function GuiaView() {
     </div>
   );
 }
+
+export { GuiaView };
+export default CosechaView;

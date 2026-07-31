@@ -573,7 +573,7 @@ a5cc857  feat: port calculadora BSF a React con paleta de la app
 
 ### Funcionalidades
 10. ✅ **Panel de ventas para socios** — Vista `💰 ventas` completa. Tabla Supabase `ventas_socios` creada. (2026-07-30)
-11. ✅ **Recuperar contraseña** — Flujo Resend con token 1h. Falta: configurar RESEND_API_KEY en Vercel + verificar dominio prolarva.co en Resend. (2026-07-30)
+11. ✅ **Recuperar contraseña** — Flujo Resend completo. RESEND_API_KEY configurada en Vercel, dominio prolarva.co verificado. (2026-07-30)
 12. ✅ **Google Analytics 4** — activo en producción con ID `G-HPSM3TXTLX`. Registra visitas desde web y PWA. (2026-07-31)
 13. **GA4 — tracking de navegación interna** — agregar listener de cambios de ruta de Next.js en `layout.tsx` para registrar navegaciones dentro de la app (cambios de pestaña en /socios, etc.). Actualmente solo registra la carga inicial.
 14. **Fotos reales educativas** — agregar fotos en `data/stages.ts` (Juliana debe proveer archivos)

@@ -502,6 +502,7 @@ function SociosInner() {
             onReset={() => setShowResetConfirm(true)}
             onGuia={() => navTo('guia')}
             onGoAdmin={db.session.rol === 'admin' ? () => navTo('admin') : undefined}
+            onLogout={db.logout}
           />
         )}
         {view === 'admin' && db.session.rol === 'admin' && <AdminView adminCode={db.session.code} onBack={() => navTo('perfil')} onLogout={db.logout} />}

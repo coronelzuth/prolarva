@@ -512,6 +512,12 @@ function PerfilView({
         >
           <span>🗑️</span><span>Limpiar mis datos</span>
         </button>
+        <button
+          style={{ ...btnOutline, width: '100%', marginTop: 10, display: 'flex', alignItems: 'center', gap: 10, justifyContent: 'flex-start', borderColor: 'rgba(239,68,68,0.4)', color: '#ef4444' }}
+          onClick={onLogout}
+        >
+          <span>🚪</span><span>Cerrar sesión</span>
+        </button>
       </div>
 
       {/* Panel Admin */}

@@ -3,7 +3,7 @@ import { useRef, useState, useEffect } from 'react';
 import { S, btnPrimary, btnOutline, inputStyle, Modal, Field, todayLocal } from './_shared';
 import type { Lote } from '@/hooks/useSocios';
 
-type LoteInput = Omit<Lote, 'id'>;
+type LoteInput = Omit<Lote, 'id' | 'creadoEn'>;
 
 interface Props {
   open: boolean;

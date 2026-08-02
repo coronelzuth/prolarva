@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
+import ProtocoloCrisisModal from '@/components/ProtocoloCrisisModal';
 
 const C = {
   bg:     '#0d1b2a',
@@ -122,6 +123,7 @@ export default function ColoniaPage() {
   const [faqOpen, setFaqOpen] = useState<number | null>(null);
   const [galleryIdx, setGalleryIdx] = useState(0);
   const [copied, setCopied] = useState(false);
+  const [showProtocolo, setShowProtocolo] = useState(false);
   const prevSlide = () => setGalleryIdx(i => (i - 1 + GALLERY.length) % GALLERY.length);
   const nextSlide = () => setGalleryIdx(i => (i + 1) % GALLERY.length);
   const handleCopy = () => {
@@ -520,17 +522,33 @@ export default function ColoniaPage() {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 16 }}>
             {[
               { num: '1', emoji: '🧮', title: 'Calculadora BSF ProLarva', value: '$97 USD', desc: 'Calcula exactamente cuánto estás perdiendo sin BSF y cuánto ahorras al implementarlo, por especie', d: 0 },
-              { num: '2', emoji: '🛡️', title: 'Protocolo Anti-Crisis BSF', value: '$67 USD', desc: 'Árbol de decisión para los 7 imprevistos más comunes: temperatura, plagas, humedad, oviposición y más', d: 0.1 },
+              { num: '2', emoji: '🛡️', title: 'Protocolo Anti-Crisis BSF', value: '$67 USD', desc: 'Guía de respuesta inmediata para los 7 imprevistos más comunes del ciclo: temperatura, humedad, oviposición, mortalidad, plagas y más.', d: 0.1, preview: true },
               { num: '3', emoji: '🌐', title: 'Red de Contactos BSF', value: '$97 USD', desc: 'Grupo privado de productores activos donde se comparten avances, se resuelven problemas juntos y aparecen oportunidades reales: semilla, excedentes, clientes, intercambios entre productores', d: 0.2 },
             ].map((bono, i) => (
-              <motion.div key={i} {...up(bono.d)} style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: '24px', position: 'relative' }}>
+              <motion.div key={i} {...up(bono.d)} style={{ background: C.card, border: `1px solid ${'preview' in bono && bono.preview ? 'rgba(245,158,11,0.3)' : C.border}`, borderRadius: 14, padding: '24px', position: 'relative' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
                   <div style={{ width: 38, height: 38, borderRadius: '50%', background: C.green, color: '#0a1628', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: '0.88rem', flexShrink: 0 }}>{bono.num}</div>
                   <div style={{ fontSize: '1.6rem' }}>{bono.emoji}</div>
                 </div>
                 <h4 style={{ fontSize: '0.9rem', fontWeight: 800, margin: '0 0 6px', color: C.greenL, lineHeight: 1.3 }}>{bono.title}</h4>
                 <p style={{ fontSize: '0.8rem', color: C.green, fontWeight: 700, margin: '0 0 10px' }}>Valor: {bono.value}</p>
-                <p style={{ fontSize: '0.83rem', color: C.muted, lineHeight: 1.6, margin: 0 }}>{bono.desc}</p>
+                <p style={{ fontSize: '0.83rem', color: C.muted, lineHeight: 1.6, margin: '0 0 14px' }}>{bono.desc}</p>
+                {'preview' in bono && bono.preview && (
+                  <button
+                    onClick={() => setShowProtocolo(true)}
+                    style={{
+                      background: 'rgba(245,158,11,0.12)',
+                      border: '1px solid rgba(245,158,11,0.35)',
+                      color: '#fbbf24',
+                      fontSize: '0.78rem', fontWeight: 800,
+                      padding: '8px 16px', borderRadius: 8,
+                      cursor: 'pointer',
+                      fontFamily: 'inherit',
+                    }}
+                  >
+                    👁 Ver un preview →
+                  </button>
+                )}
               </motion.div>
             ))}
           </div>
@@ -757,6 +775,8 @@ export default function ColoniaPage() {
           .juliana-wrap { flex-direction: column; align-items: center; }
         }
       `}</style>
+
+      <ProtocoloCrisisModal open={showProtocolo} onClose={() => setShowProtocolo(false)} />
     </div>
   );
 }

@@ -22,6 +22,7 @@ import EstadisticasView from './EstadisticasView';
 import PerfilView from './PerfilView';
 import AdminView from './AdminView';
 import { LoginScreen, RegisterScreen, ResetPasswordScreen } from './AuthScreens';
+import BienvenidaModal from './BienvenidaModal';
 
 // ─── Spotlight tour ───────────────────────────────────────────────────────────
 
@@ -128,6 +129,7 @@ function SociosInner() {
   const [view,        setView]        = useState<View>('dashboard');
   const [monitorSub,  setMonitorSub]  = useState<'lotes' | 'stats'>('lotes');
   const [detailLoteId, setDetailLoteId] = useState<string | null>(null);
+  const [showBienvenida,   setShowBienvenida]   = useState(false);
   const [showOnboarding,   setShowOnboarding]   = useState(false);
   const [onboardingStep,   setOnboardingStep]   = useState(0);
   const [tourMinimized,    setTourMinimized]    = useState(false);
@@ -198,6 +200,9 @@ function SociosInner() {
       setShowOnboarding(true);
     }
     if (db.session) {
+      if (!localStorage.getItem(`prl-bienvenida-vista-${db.session.code}`) && db.session.code !== 'DEMO') {
+        setShowBienvenida(true);
+      }
       fetch('/api/anuncios/obtener').then(r => r.json()).then(d => { if (d.anuncio) setAnuncio(d.anuncio); }).catch(() => {});
       const saved = localStorage.getItem(`prl-avatar-${db.session.code}`);
       setSidebarAvatar(saved);
@@ -704,6 +709,17 @@ function SociosInner() {
           </div>
         </div>
       </Modal>
+
+      {/* Modal: Bienvenida al programa (solo primer acceso) */}
+      {showBienvenida && db.session && (
+        <BienvenidaModal
+          nombre={db.session.name}
+          onClose={() => {
+            localStorage.setItem(`prl-bienvenida-vista-${db.session!.code}`, '1');
+            setShowBienvenida(false);
+          }}
+        />
+      )}
 
       {/* Modal: Cosecha */}
       <Modal open={modalCosecha} onClose={() => { setModalCosecha(false); setCosechaError(''); }} title="⚖️ Registrar Cosecha">

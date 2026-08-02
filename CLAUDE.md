@@ -332,7 +332,14 @@ a5cc857  feat: port calculadora BSF a React con paleta de la app
 ## Estado actual
 > **Actualizar esta sección al final de cada sesión de trabajo.**
 
-**Última actualización:** 2026-07-30
+**Última actualización:** 2026-08-01
+
+**Cambios recientes (2026-08-01 — sesión 17):**
+- ✅ **Protocolo Anti-Crisis — tarjeta permanente en Dashboard** — Card ámbar al final del Dashboard con 🛡️, título, badge "BONO · $67 USD" y flecha. Toca abre `ProtocoloCrisisModal` directo. Prop `onVerProtocolo` en Dashboard.
+- ✅ **BienvenidaModal — botón X solo en apertura manual** — Prop `showClose?: boolean`. Solo aparece cuando se abre desde Perfil (segunda vez), no en el primer acceso automático. Estado `bienvenidaManual` en page.tsx.
+- ✅ **Refactor page.tsx** — De 778 líneas a ~180. Extraídos: `SpotlightTour.tsx`, `SociosSidebar.tsx`, `ModalNuevoLote.tsx`, `ModalEditarLote.tsx`, `ModalAlimentacion.tsx`, `ModalCosecha.tsx`. Cada modal maneja su propio estado y refs internamente.
+- ✅ **Keywords #socios y #colonia** — Nuevos archivos de contexto `SOCIOS.md` y `COLONIA.md` + keywords registradas en CLAUDE.md global.
+- 🔄 **Wompi — cuenta en creación** — Se definió flujo de pago: Wompi (persona natural), link de pago $400.000 COP, flujo manual-asistido por ahora. Juliana creando cuenta en wompi.com.
 
 **Cambios recientes (2026-07-30 — sesión 16):**
 - ✅ **Cronograma de la Escuela** — nueva tab "📅 Cronograma" como vista principal de la Escuela. Grid de 4 columnas (una por semana), colapsable por semana, días individuales con tipo de actividad. Panel expandible inline al hacer clic en un día: clase (embed YouTube + marcar vista), tarea (entrega), recurso (PDFs).
@@ -577,6 +584,9 @@ a5cc857  feat: port calculadora BSF a React con paleta de la app
 12. ✅ **Google Analytics 4** — activo en producción con ID `G-HPSM3TXTLX`. Registra visitas desde web y PWA. (2026-07-31)
 13. ✅ **GA4 — tracking de navegación interna** — componente `GoogleAnalytics.tsx` con `usePathname` dispara `gtag('config')` en cada cambio de ruta. (2026-07-31)
 14. **Fotos reales educativas** — agregar fotos en `data/stages.ts` (Juliana debe proveer archivos)
+15. 🔄 **Wompi — link de pago** — Juliana creando cuenta (persona natural). Pendiente: crear link de pago $400.000 COP y conectar CTA de `/colonia`.
+16. **Webhook Wompi → código automático** — Para cuando el volumen lo justifique: webhook POST a `/api/wompi/webhook` → crea invitación → envía código por email (Resend ya instalado).
+17. **Auditoría 10 puntos app-pro** — Revisar y aplicar checklist completo: seguridad, commits, y más. Ver: https://www.tododeia.com/community/10-puntos-app-pro
 
 **Cómo arrancar una sesión nueva:**
 1. Abre Claude Code desde la carpeta canónica de arriba

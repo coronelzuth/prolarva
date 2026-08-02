@@ -506,6 +506,10 @@ function SociosInner() {
             }}
             onReset={() => setShowResetConfirm(true)}
             onGuia={() => navTo('guia')}
+            onVerBienvenida={() => {
+              if (db.session) localStorage.removeItem(`prl-bienvenida-vista-${db.session.code}`);
+              setShowBienvenida(true);
+            }}
             onGoAdmin={db.session.rol === 'admin' ? () => navTo('admin') : undefined}
             onLogout={db.logout}
           />

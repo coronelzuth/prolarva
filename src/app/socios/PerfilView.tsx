@@ -25,7 +25,7 @@ const TIPOS_PROD = [
 
 function PerfilView({
   session, lotes: _lotes, feeds: _feeds, cosechas: _cosechas, totalKg: _totalKg,
-  onUpdateName, onUpdateEmail, onChangePassword, onLaunchTour, onReset, onGuia, onGoAdmin, onLogout,
+  onUpdateName, onUpdateEmail, onChangePassword, onLaunchTour, onReset, onGuia, onVerBienvenida, onGoAdmin, onLogout,
 }: {
   session: SocioSession;
   lotes: Lote[];
@@ -38,6 +38,7 @@ function PerfilView({
   onLaunchTour: () => void;
   onReset: () => void;
   onGuia: () => void;
+  onVerBienvenida?: () => void;
   onGoAdmin?: () => void;
   onLogout: () => void;
 }) {
@@ -506,6 +507,14 @@ function PerfilView({
         >
           <span>🗺️</span><span>Ver guía de la app</span>
         </button>
+        {onVerBienvenida && (
+          <button
+            style={{ ...btnOutline, width: '100%', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 10, justifyContent: 'flex-start' }}
+            onClick={onVerBienvenida}
+          >
+            <span>🎁</span><span>Ver bienvenida y bonos</span>
+          </button>
+        )}
         <button
           style={{ ...btnDanger, width: '100%', display: 'flex', alignItems: 'center', gap: 10, justifyContent: 'flex-start' }}
           onClick={onReset}

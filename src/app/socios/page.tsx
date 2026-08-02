@@ -131,6 +131,7 @@ function SociosInner() {
   const [monitorSub,  setMonitorSub]  = useState<'lotes' | 'stats'>('lotes');
   const [detailLoteId, setDetailLoteId] = useState<string | null>(null);
   const [showBienvenida,   setShowBienvenida]   = useState(false);
+  const [bienvenidaManual, setBienvenidaManual] = useState(false);
   const [showProtocolo,    setShowProtocolo]    = useState(false);
   const [showOnboarding,   setShowOnboarding]   = useState(false);
   const [onboardingStep,   setOnboardingStep]   = useState(0);
@@ -511,6 +512,7 @@ function SociosInner() {
             onGuia={() => navTo('guia')}
             onVerBienvenida={() => {
               if (db.session) localStorage.removeItem(`prl-bienvenida-vista-${db.session.code}`);
+              setBienvenidaManual(true);
               setShowBienvenida(true);
             }}
             onGoAdmin={db.session.rol === 'admin' ? () => navTo('admin') : undefined}
@@ -721,9 +723,11 @@ function SociosInner() {
       {showBienvenida && db.session && (
         <BienvenidaModal
           nombre={db.session.name}
+          showClose={bienvenidaManual}
           onClose={() => {
             localStorage.setItem(`prl-bienvenida-vista-${db.session!.code}`, '1');
             setShowBienvenida(false);
+            setBienvenidaManual(false);
           }}
         />
       )}

@@ -44,9 +44,10 @@ const BONOS = [
 interface Props {
   nombre: string;
   onClose: () => void;
+  showClose?: boolean;
 }
 
-export default function BienvenidaModal({ nombre, onClose }: Props) {
+export default function BienvenidaModal({ nombre, onClose, showClose }: Props) {
   const [fase, setFase] = useState<'bienvenida' | 'bonos'>('bienvenida');
   const [bonosVisibles, setBonosVisibles] = useState(0);
   const [showProtocolo, setShowProtocolo] = useState(false);
@@ -80,7 +81,20 @@ export default function BienvenidaModal({ nombre, onClose }: Props) {
           overflow: 'hidden',
           animation: 'bwFadeIn 0.3s ease',
           margin: 'auto',
+          position: 'relative',
         }}>
+          {showClose && (
+            <button
+              onClick={onClose}
+              style={{
+                position: 'absolute', top: 14, right: 14, zIndex: 10,
+                background: 'rgba(255,255,255,0.07)', border: 'none',
+                color: S.muted, fontSize: 16, cursor: 'pointer',
+                width: 32, height: 32, borderRadius: 8,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}
+            >✕</button>
+          )}
 
           {/* ── FASE: BIENVENIDA ── */}
           {fase === 'bienvenida' && (

@@ -3,13 +3,14 @@ import { useState } from 'react';
 import { daysSince, getStage, type Lote, type FeedLog, type Cosecha, type Recordatorio } from '@/hooks/useSocios';
 import { S, cardStyle, btnOutline, btnSm, btnPrimary, btnDanger, EmptyState, ProgressBar, FeedEntry, CosechaEntry, type View } from './_shared';
 
-function Dashboard({ lotes, feeds, cosechas, activeLotes, readyLotes, recordatorios, totalKg, avgConv, userName, anuncio, sinEmail, onViewLote, onNav }: {
+function Dashboard({ lotes, feeds, cosechas, activeLotes, readyLotes, recordatorios, totalKg, avgConv, userName, anuncio, sinEmail, onViewLote, onNav, onVerProtocolo }: {
   lotes: Lote[]; feeds: FeedLog[]; cosechas: Cosecha[];
   activeLotes: Lote[]; readyLotes: Lote[]; recordatorios: Recordatorio[];
   totalKg: number; avgConv: number | null; userName: string;
   anuncio?: string | null;
   sinEmail?: boolean;
   onViewLote: (id: string) => void; onNav: (v: View) => void;
+  onVerProtocolo?: () => void;
 }) {
   const statCard = (num: string, label: string, accent: string) => (
     <div style={{ ...cardStyle }}>
@@ -209,6 +210,50 @@ function Dashboard({ lotes, feeds, cosechas, activeLotes, readyLotes, recordator
           })()}
         </div>
       </div>
+
+      {/* ── Protocolo Anti-Crisis — tarjeta permanente ── */}
+      {onVerProtocolo && (
+        <div
+          onClick={onVerProtocolo}
+          style={{
+            marginTop: 20,
+            padding: '18px 20px',
+            borderRadius: 16,
+            background: 'linear-gradient(135deg, rgba(245,158,11,0.08) 0%, rgba(245,158,11,0.04) 100%)',
+            border: '1.5px solid rgba(245,158,11,0.35)',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 16,
+            transition: 'border-color 0.2s',
+          }}
+        >
+          <div style={{
+            width: 48, height: 48, borderRadius: 12, flexShrink: 0,
+            background: 'rgba(245,158,11,0.15)',
+            border: '1px solid rgba(245,158,11,0.3)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: 24,
+          }}>🛡️</div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 3 }}>
+              <span style={{ fontSize: 14, fontWeight: 800, color: '#fde68a' }}>Protocolo Anti-Crisis BSF</span>
+              <span style={{
+                fontSize: 9, fontWeight: 700,
+                background: 'rgba(245,158,11,0.15)',
+                border: '1px solid rgba(245,158,11,0.3)',
+                color: '#fbbf24',
+                padding: '2px 7px', borderRadius: 20,
+                flexShrink: 0,
+              }}>BONO · $67 USD</span>
+            </div>
+            <div style={{ fontSize: 12, color: '#94a3b8', lineHeight: 1.5 }}>
+              Diagnóstico inmediato para los 7 problemas críticos: temperatura, humedad, oviposición, mortalidad y más.
+            </div>
+          </div>
+          <div style={{ fontSize: 18, color: '#f59e0b', flexShrink: 0 }}>→</div>
+        </div>
+      )}
     </div>
   );
 }

@@ -23,6 +23,7 @@ import PerfilView from './PerfilView';
 import AdminView from './AdminView';
 import { LoginScreen, RegisterScreen, ResetPasswordScreen } from './AuthScreens';
 import BienvenidaModal from './BienvenidaModal';
+import ProtocoloCrisisModal from '@/components/ProtocoloCrisisModal';
 
 // ─── Spotlight tour ───────────────────────────────────────────────────────────
 
@@ -130,6 +131,7 @@ function SociosInner() {
   const [monitorSub,  setMonitorSub]  = useState<'lotes' | 'stats'>('lotes');
   const [detailLoteId, setDetailLoteId] = useState<string | null>(null);
   const [showBienvenida,   setShowBienvenida]   = useState(false);
+  const [showProtocolo,    setShowProtocolo]    = useState(false);
   const [showOnboarding,   setShowOnboarding]   = useState(false);
   const [onboardingStep,   setOnboardingStep]   = useState(0);
   const [tourMinimized,    setTourMinimized]    = useState(false);
@@ -438,6 +440,7 @@ function SociosInner() {
             sinEmail={db.session.code !== 'DEMO' && !db.session.email}
             onViewLote={viewLote}
             onNav={navTo}
+            onVerProtocolo={() => setShowProtocolo(true)}
           />
         )}
         {view === 'monitor' && (
@@ -724,6 +727,9 @@ function SociosInner() {
           }}
         />
       )}
+
+      {/* Modal: Protocolo Anti-Crisis BSF */}
+      <ProtocoloCrisisModal open={showProtocolo} onClose={() => setShowProtocolo(false)} />
 
       {/* Modal: Cosecha */}
       <Modal open={modalCosecha} onClose={() => { setModalCosecha(false); setCosechaError(''); }} title="⚖️ Registrar Cosecha">

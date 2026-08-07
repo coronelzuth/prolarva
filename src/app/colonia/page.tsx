@@ -119,11 +119,22 @@ const SEMANAS = [
 
 const WA_TEXT = encodeURIComponent('Hola Juliana, quiero inscribirme al Programa ProLarva VIVO');
 
+type FormState = 'idle' | 'loading' | 'done' | 'error';
+
 export default function ColoniaPage() {
   const [faqOpen, setFaqOpen] = useState<number | null>(null);
   const [galleryIdx, setGalleryIdx] = useState(0);
   const [copied, setCopied] = useState(false);
   const [showProtocolo, setShowProtocolo] = useState(false);
+
+  // Modal de acceso previo
+  const [showForm, setShowForm] = useState(false);
+  const [formState, setFormState] = useState<FormState>('idle');
+  const [formError, setFormError] = useState('');
+  const [fNombre, setFNombre] = useState('');
+  const [fEmail, setFEmail] = useState('');
+  const [fWa, setFWa] = useState('');
+
   const prevSlide = () => setGalleryIdx(i => (i - 1 + GALLERY.length) % GALLERY.length);
   const nextSlide = () => setGalleryIdx(i => (i + 1) % GALLERY.length);
   const handleCopy = () => {
@@ -131,6 +142,37 @@ export default function ColoniaPage() {
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
+
+  const openForm = () => {
+    setFormState('idle');
+    setFormError('');
+    setShowForm(true);
+  };
+
+  const closeForm = () => {
+    if (formState === 'loading') return;
+    setShowForm(false);
+    setTimeout(() => { setFormState('idle'); setFNombre(''); setFEmail(''); setFWa(''); }, 300);
+  };
+
+  async function handleSubmit() {
+    if (!fNombre.trim() || !fEmail.trim()) { setFormError('Nombre y email son obligatorios'); return; }
+    setFormError('');
+    setFormState('loading');
+    try {
+      const res = await fetch('/api/colonia/registro', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nombre: fNombre.trim(), email: fEmail.trim(), whatsapp: fWa.trim() }),
+      });
+      const data = await res.json();
+      if (!res.ok) { setFormError(data.error ?? 'Ocurrió un error, intenta de nuevo'); setFormState('error'); return; }
+      setFormState('done');
+    } catch {
+      setFormError('Ocurrió un error, intenta de nuevo');
+      setFormState('error');
+    }
+  }
 
   return (
     <div style={{ background: C.bg, color: C.text, fontFamily: "'Montserrat', sans-serif", minHeight: '100vh', overflowX: 'hidden' }}>
@@ -195,10 +237,14 @@ export default function ColoniaPage() {
           ))}
         </motion.div>
 
-        <motion.div {...up(0.25)}>
-          <a href={`https://wa.me/573223212293?text=${WA_TEXT}`}
-            style={{ display: 'inline-flex', alignItems: 'center', gap: 10, padding: '18px 38px', background: `linear-gradient(135deg,${C.green},${C.greenD})`, color: '#fff', borderRadius: 10, fontFamily: 'inherit', fontWeight: 900, fontSize: '1.05rem', cursor: 'pointer', textDecoration: 'none', boxShadow: `0 8px 36px ${C.green}45`, letterSpacing: '0.02em' }}>
-            💬 Quiero Mi Cupo Ahora
+        <motion.div {...up(0.25)} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
+          <button
+            onClick={openForm}
+            style={{ display: 'inline-flex', alignItems: 'center', gap: 10, padding: '18px 38px', background: `linear-gradient(135deg,${C.green},${C.greenD})`, color: '#fff', borderRadius: 10, fontFamily: 'inherit', fontWeight: 900, fontSize: '1.05rem', cursor: 'pointer', border: 'none', boxShadow: `0 8px 36px ${C.green}45`, letterSpacing: '0.02em' }}>
+            🌱 Quiero Acceso al Programa
+          </button>
+          <a href={`https://wa.me/573223212293?text=${WA_TEXT}`} style={{ fontSize: '0.82rem', color: C.muted, textDecoration: 'none', fontWeight: 600 }}>
+            💬 Tengo preguntas — hablar con Juliana
           </a>
         </motion.div>
       </section>
@@ -746,10 +792,11 @@ export default function ColoniaPage() {
           4 semanas en vivo con Juliana y un grupo pequeño de productores colombianos — sales con conocimiento, con tu primer lote en marcha, y con una red de contactos que no consigues en ningún otro curso
         </motion.p>
         <motion.div {...up(0.15)} style={{ display: 'flex', gap: 14, justifyContent: 'center', flexWrap: 'wrap', position: 'relative' }}>
-          <a href={`https://wa.me/573223212293?text=${WA_TEXT}`}
-            style={{ display: 'inline-flex', alignItems: 'center', gap: 10, padding: '18px 38px', background: `linear-gradient(135deg,${C.green},${C.greenD})`, color: '#fff', borderRadius: 10, fontFamily: 'inherit', fontWeight: 900, fontSize: '1.05rem', cursor: 'pointer', textDecoration: 'none', boxShadow: `0 8px 40px ${C.green}45`, letterSpacing: '0.02em' }}>
-            💬 Apartar Mi Cupo Ahora
-          </a>
+          <button
+            onClick={openForm}
+            style={{ display: 'inline-flex', alignItems: 'center', gap: 10, padding: '18px 38px', background: `linear-gradient(135deg,${C.green},${C.greenD})`, color: '#fff', borderRadius: 10, fontFamily: 'inherit', fontWeight: 900, fontSize: '1.05rem', cursor: 'pointer', border: 'none', boxShadow: `0 8px 40px ${C.green}45`, letterSpacing: '0.02em' }}>
+            🌱 Quiero Acceso al Programa
+          </button>
           <Link href="/" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '18px 32px', border: `2px solid ${C.green}`, color: C.green, background: 'transparent', borderRadius: 10, fontFamily: 'inherit', fontWeight: 700, fontSize: '1rem', textDecoration: 'none' }}>
             Ver Monitor BSF
           </Link>
@@ -777,6 +824,106 @@ export default function ColoniaPage() {
       `}</style>
 
       <ProtocoloCrisisModal open={showProtocolo} onClose={() => setShowProtocolo(false)} />
+
+      {/* ── MODAL ACCESO AL PROGRAMA ── */}
+      {showForm && (
+        <div
+          onClick={e => { if (e.target === e.currentTarget) closeForm(); }}
+          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.72)', zIndex: 9000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', backdropFilter: 'blur(4px)' }}
+        >
+          <motion.div
+            initial={{ opacity: 0, scale: 0.94, y: 16 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{ duration: 0.22 }}
+            style={{ background: C.card, border: `1px solid ${C.green}40`, borderRadius: 20, padding: '36px 32px', width: '100%', maxWidth: 440, position: 'relative' }}
+          >
+            {/* Cerrar */}
+            <button onClick={closeForm} style={{ position: 'absolute', top: 16, right: 16, background: 'rgba(255,255,255,0.06)', border: 'none', borderRadius: '50%', width: 32, height: 32, cursor: 'pointer', color: C.muted, fontSize: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'inherit' }}>✕</button>
+
+            {formState === 'done' ? (
+              /* Estado éxito */
+              <div style={{ textAlign: 'center', padding: '16px 0' }}>
+                <div style={{ fontSize: '3rem', marginBottom: 16 }}>🎉</div>
+                <h3 style={{ fontSize: '1.2rem', fontWeight: 900, color: C.greenL, margin: '0 0 10px' }}>¡Listo! Revisa tu correo</h3>
+                <p style={{ color: C.muted, fontSize: '0.9rem', lineHeight: 1.7, margin: '0 0 20px' }}>
+                  Te enviamos tu código de acceso y las instrucciones para entrar al programa a <strong style={{ color: C.text }}>{fEmail}</strong>.
+                </p>
+                <p style={{ color: C.muted, fontSize: '0.82rem', lineHeight: 1.6, margin: 0 }}>
+                  ¿No llegó? Revisa la carpeta de spam o escríbele a Juliana por WhatsApp.
+                </p>
+                <a href="https://wa.me/573223212293" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, marginTop: 20, padding: '10px 22px', background: '#25D366', color: '#fff', borderRadius: 8, textDecoration: 'none', fontWeight: 700, fontSize: '0.88rem' }}>
+                  💬 WhatsApp Juliana
+                </a>
+              </div>
+            ) : (
+              /* Formulario */
+              <>
+                <div style={{ marginBottom: 24 }}>
+                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: `${C.green}15`, border: `1px solid ${C.green}35`, borderRadius: 20, padding: '5px 14px', marginBottom: 14, fontSize: '0.75rem', color: C.greenL, fontWeight: 700 }}>
+                    🌱 Acceso al Programa Colonia
+                  </div>
+                  <h2 style={{ fontSize: '1.25rem', fontWeight: 900, color: C.text, margin: '0 0 6px', lineHeight: 1.3 }}>Regístrate para recibir tu acceso</h2>
+                  <p style={{ fontSize: '0.85rem', color: C.muted, margin: 0, lineHeight: 1.6 }}>
+                    Te enviamos tu código de invitación y las instrucciones por correo.
+                  </p>
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+                  <div>
+                    <label style={{ fontSize: '0.75rem', fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.06em', display: 'block', marginBottom: 6 }}>Nombre completo *</label>
+                    <input
+                      type="text"
+                      value={fNombre}
+                      onChange={e => setFNombre(e.target.value)}
+                      placeholder="Tu nombre"
+                      disabled={formState === 'loading'}
+                      style={{ width: '100%', background: 'rgba(255,255,255,0.05)', border: `1px solid ${C.border}`, borderRadius: 8, padding: '11px 14px', color: C.text, fontSize: '0.9rem', fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box' }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: '0.75rem', fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.06em', display: 'block', marginBottom: 6 }}>Email *</label>
+                    <input
+                      type="email"
+                      value={fEmail}
+                      onChange={e => setFEmail(e.target.value)}
+                      placeholder="tu@email.com"
+                      disabled={formState === 'loading'}
+                      onKeyDown={e => e.key === 'Enter' && formState !== 'loading' && handleSubmit()}
+                      style={{ width: '100%', background: 'rgba(255,255,255,0.05)', border: `1px solid ${C.border}`, borderRadius: 8, padding: '11px 14px', color: C.text, fontSize: '0.9rem', fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box' }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: '0.75rem', fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.06em', display: 'block', marginBottom: 6 }}>WhatsApp <span style={{ fontWeight: 400, textTransform: 'none' }}>(opcional)</span></label>
+                    <input
+                      type="tel"
+                      value={fWa}
+                      onChange={e => setFWa(e.target.value)}
+                      placeholder="+57 300 000 0000"
+                      disabled={formState === 'loading'}
+                      style={{ width: '100%', background: 'rgba(255,255,255,0.05)', border: `1px solid ${C.border}`, borderRadius: 8, padding: '11px 14px', color: C.text, fontSize: '0.9rem', fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box' }}
+                    />
+                  </div>
+                </div>
+
+                {formError && (
+                  <p style={{ color: '#fca5a5', fontSize: '0.82rem', marginTop: 10, marginBottom: 0 }}>{formError}</p>
+                )}
+
+                <button
+                  onClick={handleSubmit}
+                  disabled={formState === 'loading'}
+                  style={{ marginTop: 20, width: '100%', padding: '14px', background: formState === 'loading' ? `${C.green}60` : `linear-gradient(135deg,${C.green},${C.greenD})`, color: '#fff', border: 'none', borderRadius: 10, fontFamily: 'inherit', fontWeight: 900, fontSize: '0.95rem', cursor: formState === 'loading' ? 'not-allowed' : 'pointer', letterSpacing: '0.02em' }}>
+                  {formState === 'loading' ? 'Enviando...' : 'Recibir mi acceso →'}
+                </button>
+
+                <p style={{ fontSize: '0.73rem', color: `${C.muted}80`, textAlign: 'center', marginTop: 10, marginBottom: 0 }}>
+                  Sin spam. Solo tu código de acceso y las instrucciones del programa.
+                </p>
+              </>
+            )}
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 }

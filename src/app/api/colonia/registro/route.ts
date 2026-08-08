@@ -77,9 +77,27 @@ async function enviarEmail(email: string, nombre: string, codigo: string) {
             <h1 style="margin:0 0 10px;font-size:22px;font-weight:900;color:#111827;line-height:1.3;">
               Te damos la bienvenida, ${primerNombre}
             </h1>
-            <p style="margin:0 0 28px;font-size:15px;color:#4b5563;line-height:1.7;">
+            <p style="margin:0 0 12px;font-size:15px;color:#4b5563;line-height:1.7;">
               Ya estás dentro del Programa Colonia. Aquí tienes todo lo que necesitas para arrancar.
             </p>
+            <p style="margin:0 0 28px;font-size:15px;color:#15803d;font-weight:700;line-height:1.7;">
+              En 4 semanas vas a tener tu primera cosecha de larva BSF funcionando desde el traspatio.
+            </p>
+          </td>
+        </tr>
+
+        <!-- FECHA DE INICIO -->
+        <tr>
+          <td style="padding:0 40px 28px;">
+            <table width="100%" cellpadding="0" cellspacing="0" style="background:linear-gradient(135deg,#14532d,#15803d);border-radius:14px;">
+              <tr>
+                <td style="padding:20px 24px;text-align:center;">
+                  <div style="font-size:11px;font-weight:700;color:#bbf7d0;letter-spacing:0.14em;text-transform:uppercase;margin-bottom:6px;">Fecha de inicio</div>
+                  <div style="font-size:26px;font-weight:900;color:#ffffff;">📅 9 de septiembre, 2026</div>
+                  <div style="font-size:12px;color:#86efac;margin-top:6px;">Marca la fecha en tu calendario — ahí empieza todo</div>
+                </td>
+              </tr>
+            </table>
           </td>
         </tr>
 

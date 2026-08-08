@@ -35,7 +35,7 @@ async function enviarEmail(email: string, nombre: string, codigo: string) {
   if (!resendKey) return;
 
   const resend = new Resend(resendKey);
-  const sociosUrl = `https://prolarva.co/socios`;
+  const registroUrl = `https://prolarva.co/socios?inv=${codigo}`;
   const primerNombre = nombre.split(' ')[0];
 
   await resend.emails.send({
@@ -111,7 +111,7 @@ async function enviarEmail(email: string, nombre: string, codigo: string) {
         <tr>
           <td style="padding:24px 40px 0;">
             <h2 style="margin:0 0 20px;font-size:16px;font-weight:800;color:#111827;">
-              Cómo acceder a la app en 3 pasos:
+              Cómo entrar en 3 pasos:
             </h2>
 
             <!-- Paso 1 -->
@@ -121,10 +121,9 @@ async function enviarEmail(email: string, nombre: string, codigo: string) {
                   <div style="width:32px;height:32px;background:#22c55e;border-radius:50%;text-align:center;line-height:32px;font-size:14px;font-weight:900;color:#ffffff;">1</div>
                 </td>
                 <td style="padding-left:14px;">
-                  <div style="font-size:14px;font-weight:700;color:#111827;margin-bottom:6px;">📱 Instala la app en tu celular</div>
+                  <div style="font-size:14px;font-weight:700;color:#111827;margin-bottom:6px;">📲 Toca el botón de acceso directo</div>
                   <div style="font-size:13px;color:#6b7280;line-height:1.65;">
-                    <strong style="color:#374151;">Android:</strong> Abre <a href="https://prolarva.co" style="color:#16a34a;text-decoration:none;font-weight:600;">prolarva.co</a> en Chrome → menú <strong>(⋮)</strong> → <em>"Añadir a pantalla de inicio"</em><br>
-                    <strong style="color:#374151;">iPhone:</strong> Abre <a href="https://prolarva.co" style="color:#16a34a;text-decoration:none;font-weight:600;">prolarva.co</a> en Safari → compartir <strong>(↑)</strong> → <em>"Agregar a pantalla de inicio"</em>
+                    El botón de abajo te lleva directo al registro con tu código ya cargado — no tienes que copiarlo ni pegarlo.
                   </div>
                 </td>
               </tr>
@@ -137,10 +136,9 @@ async function enviarEmail(email: string, nombre: string, codigo: string) {
                   <div style="width:32px;height:32px;background:#22c55e;border-radius:50%;text-align:center;line-height:32px;font-size:14px;font-weight:900;color:#ffffff;">2</div>
                 </td>
                 <td style="padding-left:14px;">
-                  <div style="font-size:14px;font-weight:700;color:#111827;margin-bottom:6px;">🔐 Ve a la Zona de Socios</div>
+                  <div style="font-size:14px;font-weight:700;color:#111827;margin-bottom:6px;">✍️ Llena tus datos y crea tu contraseña</div>
                   <div style="font-size:13px;color:#6b7280;line-height:1.65;">
-                    Toca <strong>"Socios"</strong> en el menú de la app o entra directamente a <a href="${sociosUrl}" style="color:#16a34a;text-decoration:none;font-weight:600;">prolarva.co/socios</a>.<br>
-                    Haz clic en <strong>"¿Eres nuevo? Crear cuenta"</strong>.
+                    Tu código de invitación <strong style="color:#15803d;font-family:'Courier New',monospace;">${codigo}</strong> ya aparece listo. Solo pon tu nombre, email y una contraseña.
                   </div>
                 </td>
               </tr>
@@ -153,10 +151,10 @@ async function enviarEmail(email: string, nombre: string, codigo: string) {
                   <div style="width:32px;height:32px;background:#22c55e;border-radius:50%;text-align:center;line-height:32px;font-size:14px;font-weight:900;color:#ffffff;">3</div>
                 </td>
                 <td style="padding-left:14px;">
-                  <div style="font-size:14px;font-weight:700;color:#111827;margin-bottom:6px;">✅ Ingresa tu código y crea tu contraseña</div>
+                  <div style="font-size:14px;font-weight:700;color:#111827;margin-bottom:6px;">📱 Instala la app en tu celular</div>
                   <div style="font-size:13px;color:#6b7280;line-height:1.65;">
-                    En el campo <strong>"Código de invitación"</strong> ingresa: <strong style="color:#15803d;font-family:'Courier New',monospace;">${codigo}</strong><br>
-                    Llena tus datos, crea una contraseña y ¡listo! Ya estás adentro.
+                    <strong style="color:#374151;">Android:</strong> Chrome → menú <strong>(⋮)</strong> → <em>"Añadir a pantalla de inicio"</em><br>
+                    <strong style="color:#374151;">iPhone:</strong> Safari → compartir <strong>(↑)</strong> → <em>"Agregar a pantalla de inicio"</em>
                   </div>
                 </td>
               </tr>
@@ -164,12 +162,15 @@ async function enviarEmail(email: string, nombre: string, codigo: string) {
           </td>
         </tr>
 
-        <!-- CTA SOCIOS -->
+        <!-- CTA ACCESO DIRECTO -->
         <tr>
-          <td style="padding:24px 40px 0;text-align:center;">
-            <a href="${sociosUrl}" style="display:inline-block;background:linear-gradient(135deg,#16a34a,#22c55e);color:#ffffff;padding:14px 36px;border-radius:10px;text-decoration:none;font-weight:700;font-size:15px;letter-spacing:0.02em;">
-              Entrar a mi zona de socios →
+          <td style="padding:28px 40px 0;text-align:center;">
+            <a href="${registroUrl}" style="display:inline-block;background:linear-gradient(135deg,#16a34a,#22c55e);color:#ffffff;padding:16px 40px;border-radius:10px;text-decoration:none;font-weight:900;font-size:16px;letter-spacing:0.02em;box-shadow:0 4px 16px rgba(34,197,94,0.35);">
+              🌱 Crear mi cuenta ahora →
             </a>
+            <div style="font-size:11px;color:#9ca3af;margin-top:10px;">
+              Tu código <strong style="color:#15803d;font-family:'Courier New',monospace;">${codigo}</strong> ya viene incluido en el enlace
+            </div>
           </td>
         </tr>
 

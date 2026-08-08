@@ -75,11 +75,26 @@ async function enviarEmail(email: string, nombre: string, codigo: string) {
         <tr>
           <td style="padding:36px 40px 0;">
             <h1 style="margin:0 0 10px;font-size:22px;font-weight:900;color:#111827;line-height:1.3;">
-              ¡Bienvenida, ${primerNombre}!
+              Te damos la bienvenida, ${primerNombre}
             </h1>
             <p style="margin:0 0 28px;font-size:15px;color:#4b5563;line-height:1.7;">
               Ya estás dentro del Programa Colonia. Aquí tienes todo lo que necesitas para arrancar.
             </p>
+          </td>
+        </tr>
+
+        <!-- VIDEO PLACEHOLDER -->
+        <tr>
+          <td style="padding:0 40px 28px;">
+            <table width="100%" cellpadding="0" cellspacing="0" style="background:#111827;border-radius:14px;overflow:hidden;">
+              <tr>
+                <td style="padding:48px 24px;text-align:center;">
+                  <div style="width:56px;height:56px;background:rgba(34,197,94,0.15);border:2px solid #22c55e;border-radius:50%;margin:0 auto 14px;line-height:52px;font-size:26px;">▶</div>
+                  <div style="font-size:14px;font-weight:700;color:#f1f5f9;margin-bottom:6px;">Video de bienvenida</div>
+                  <div style="font-size:12px;color:#6b7280;">Próximamente disponible aquí</div>
+                </td>
+              </tr>
+            </table>
           </td>
         </tr>
 

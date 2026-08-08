@@ -587,19 +587,32 @@ export default function ContenidoPage() {
           <h1 style={{ fontSize: 26, fontWeight: 800, color: '#f1f5f9', margin: 0 }}>
             📋 Gestión de Contenido
           </h1>
-          <p style={{ color: '#64748b', margin: '6px 0 0', fontSize: 14 }}>
-            ProLarva · @prolarva.co · TikTok & Instagram
-          </p>
-        </div>
-
-        {/* Stats rápidas */}
-        <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 28 }}>
-          <StatCard value={stats.total} label="guiones totales" color="#22c55e" />
-          <StatCard value={stats.porEstado.BORRADOR ?? 0} label="borradores" color="#64748b" />
-          <StatCard value={stats.porEstado.LISTO ?? 0} label="listos" color="#22c55e" />
-          <StatCard value={stats.porEstado.GRABADO ?? 0} label="grabados" color="#a855f7" />
-          <StatCard value={(stats.porEstado.DATOS ?? 0) + (stats.porEstado.FOOTAGE ?? 0)} label="pendientes ext." color="#f59e0b" />
-          <StatCard value={stats.porTipo.MSN ?? 0} label="serie MSN" color="#10b981" />
+          <div style={{ display: 'flex', gap: 8, marginTop: 12, flexWrap: 'wrap' }}>
+            <a href="https://wa.me/573223212293" target="_blank" rel="noopener noreferrer" style={{
+              display: 'inline-flex', alignItems: 'center', gap: 6,
+              background: 'rgba(37,211,102,0.12)', border: '1px solid rgba(37,211,102,0.3)',
+              color: '#25D366', borderRadius: 8, padding: '6px 14px',
+              fontSize: 13, fontWeight: 600, textDecoration: 'none',
+            }}>
+              💬 WhatsApp
+            </a>
+            <a href="https://www.tiktok.com/@prolarva.co" target="_blank" rel="noopener noreferrer" style={{
+              display: 'inline-flex', alignItems: 'center', gap: 6,
+              background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.15)',
+              color: '#f1f5f9', borderRadius: 8, padding: '6px 14px',
+              fontSize: 13, fontWeight: 600, textDecoration: 'none',
+            }}>
+              🎵 TikTok
+            </a>
+            <a href="https://www.instagram.com/prolarva.co" target="_blank" rel="noopener noreferrer" style={{
+              display: 'inline-flex', alignItems: 'center', gap: 6,
+              background: 'rgba(225,48,108,0.12)', border: '1px solid rgba(225,48,108,0.3)',
+              color: '#e1306c', borderRadius: 8, padding: '6px 14px',
+              fontSize: 13, fontWeight: 600, textDecoration: 'none',
+            }}>
+              📸 Instagram
+            </a>
+          </div>
         </div>
 
         {/* Tabs de vista */}

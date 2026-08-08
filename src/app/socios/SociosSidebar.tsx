@@ -1,4 +1,5 @@
 'use client';
+import Link from 'next/link';
 import { S, btnOutline, type View } from './_shared';
 import type { SocioSession } from '@/hooks/useSocios';
 
@@ -64,6 +65,9 @@ export default function SociosSidebar({ session, sidebarAvatar, activeView, onNa
           <button onClick={onLogout} style={{ ...btnOutline, width: '100%', fontSize: 12, padding: '7px' }}>
             Cerrar sesión
           </button>
+          <Link href="/" style={{ display: 'block', textAlign: 'center', marginTop: 10, fontSize: 11, color: S.muted, textDecoration: 'none', fontWeight: 600, opacity: 0.7 }}>
+            ← Ir al sitio principal
+          </Link>
         </div>
       </aside>
 
@@ -78,6 +82,10 @@ export default function SociosSidebar({ session, sidebarAvatar, activeView, onNa
             </div>
           );
         })}
+        <Link href="/" className="socios-tab" style={{ textDecoration: 'none' }}>
+          <span style={{ fontSize: 20 }}>🌐</span>
+          <span>Sitio</span>
+        </Link>
       </nav>
 
       <style>{`

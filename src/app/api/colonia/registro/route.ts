@@ -3,7 +3,7 @@ import { createClient } from '@supabase/supabase-js';
 import { Resend } from 'resend';
 
 // ⚠️ Actualiza este link cuando crees el grupo de WhatsApp de Colonia
-const WA_COLONIA_GROUP = 'https://chat.whatsapp.com/PENDIENTE';
+const WA_COLONIA_GROUP = 'https://chat.whatsapp.com/IsIytjcbHgg5LXvPjTYgLM?s=cl&p=a&mlu=4';
 
 function getDb() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;

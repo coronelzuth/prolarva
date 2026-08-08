@@ -332,7 +332,10 @@ a5cc857  feat: port calculadora BSF a React con paleta de la app
 ## Estado actual
 > **Actualizar esta sección al final de cada sesión de trabajo.**
 
-**Última actualización:** 2026-08-01
+**Última actualización:** 2026-08-08
+
+**Cambios recientes (2026-08-08 — sesión 18):**
+- ✅ **Email registro Colonia mejorado** — saludo neutro "Te damos la bienvenida, [nombre]" (antes "¡Bienvenida," femenino fijo); placeholder de video con bloque oscuro ▶; línea de promesa en verde ("En 4 semanas vas a tener tu primera cosecha..."); bloque destacado con fecha de inicio 9 de septiembre 2026. Archivo: `src/app/api/colonia/registro/route.ts`
 
 **Cambios recientes (2026-08-01 — sesión 17):**
 - ✅ **Protocolo Anti-Crisis — tarjeta permanente en Dashboard** — Card ámbar al final del Dashboard con 🛡️, título, badge "BONO · $67 USD" y flecha. Toca abre `ProtocoloCrisisModal` directo. Prop `onVerProtocolo` en Dashboard.

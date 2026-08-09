@@ -10,7 +10,7 @@ const navLinks = [
   { href: '/colonia',       label: 'Colonia',       icon: '🌱' },
   { href: '/conocimiento',label: 'Conocimiento',  icon: '🧠' },
   { href: '/preparacion', label: 'Preparación',   icon: '🛠️', hidden: true },
-  { href: '/metas',       label: 'Mi Meta',       icon: '🎯' },
+  { href: '/metas',       label: 'Mi Meta',       icon: '🎯', hidden: true },
   { href: '/cosecha',     label: 'Cosecha',       icon: '🌾' },
   { href: '/calculadora', label: 'Calculadora',   icon: '🧮' },
   { href: '/blog',        label: 'Blog',           icon: '📖' },

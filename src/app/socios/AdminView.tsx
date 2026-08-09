@@ -1,6 +1,7 @@
 ﻿'use client';
 import { useState, useEffect } from 'react';
 import { S, cardStyle, btnPrimary, btnSm, btnOutline, btnDanger, EmptyState, Badge, Field, Modal, inputStyle, labelStyle, fmtDate, downloadCSV } from './_shared';
+import { ContenidoGestor } from '@/app/contenido/page';
 
 // ─── Admin view ───────────────────────────────────────────────────────────────
 
@@ -167,7 +168,7 @@ interface GlobalStats {
 }
 
 function AdminView({ adminCode, onBack, onLogout }: { adminCode: string; onBack: () => void; onLogout: () => void }) {
-  const [tab, setTab] = useState<'socios' | 'invitaciones' | 'blog' | 'leads' | 'ventas' | 'comunicacion'>('socios');
+  const [tab, setTab] = useState<'socios' | 'invitaciones' | 'blog' | 'leads' | 'ventas' | 'comunicacion' | 'contenido'>('socios');
 
   // ── Invitaciones state ────────────────────────────────────────────────────
   const [invitaciones, setInvitaciones] = useState<Invitacion[]>([]);
@@ -408,6 +409,7 @@ function AdminView({ adminCode, onBack, onLogout }: { adminCode: string; onBack:
           ['comunicacion',  '📢 Comunicación'],
           ['invitaciones',  '🎟️ Invitaciones'],
           ['blog',          '📝 Blog'],
+          ['contenido',     '📋 Contenido'],
         ] as const).map(([key, label]) => (
           <button
             key={key}
@@ -738,6 +740,13 @@ function AdminView({ adminCode, onBack, onLogout }: { adminCode: string; onBack:
             </div>
             {anuncioOk && <div style={{ marginTop: 10, fontSize: 13, color: anuncioOk.startsWith('✅') ? S.green : S.red, fontWeight: 700 }}>{anuncioOk}</div>}
           </div>
+        </div>
+      )}
+
+      {/* Tab: Contenido */}
+      {tab === 'contenido' && (
+        <div style={{ marginLeft: -0, marginRight: -0 }}>
+          <ContenidoGestor embedded />
         </div>
       )}
 

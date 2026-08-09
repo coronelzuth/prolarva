@@ -738,7 +738,11 @@ function HoyView({
 }
 
 // ─── Página principal ──────────────────────────────────────────────
-export default function ContenidoPage() {
+export function ContenidoGestor({ embedded = false }: { embedded?: boolean }) {
+  return <ContenidoPage embedded={embedded} />
+}
+
+function ContenidoPage({ embedded = false }: { embedded?: boolean }) {
   const { guiones, loaded, saving, updateGuion, createGuion } = useGuionesCms()
   const [filtroTipo, setFiltroTipo] = useState<GuionTipo | 'ALL'>('ALL')
   const [filtroEstado, setFiltroEstado] = useState<GuionEstado | 'ALL'>('ALL')
@@ -803,9 +807,9 @@ export default function ContenidoPage() {
 
   return (
     <div style={{
-      minHeight: '100vh', background: '#0a1628',
+      minHeight: embedded ? undefined : '100vh', background: embedded ? 'transparent' : '#0a1628',
       fontFamily: 'Montserrat, sans-serif', color: '#e2e8f0',
-      paddingTop: 56,
+      paddingTop: embedded ? 0 : 56,
     }}>
       <div style={{ maxWidth: 1200, margin: '0 auto', padding: '12px 16px' }}>
 
@@ -1068,4 +1072,8 @@ function GuionCard({
       </div>
     </button>
   )
+}
+
+export default function ContenidoPageRoute() {
+  return <ContenidoPage />
 }

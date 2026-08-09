@@ -47,11 +47,6 @@ export default function SociosSidebar({ session, sidebarAvatar, activeView, onNa
               </div>
             );
           })}
-          <div style={{ borderTop: `1px solid ${S.border}`, margin: '8px 18px' }} />
-          <Link href="/metas" style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '9px 18px', fontSize: 13, fontWeight: 600, color: S.amber, textDecoration: 'none', transition: 'all 0.15s' }}>
-            <span>🎯</span>
-            <span>Mi Meta</span>
-          </Link>
         </nav>
 
         <div style={{ padding: '14px 18px', borderTop: `1px solid ${S.border}` }}>
@@ -87,9 +82,9 @@ export default function SociosSidebar({ session, sidebarAvatar, activeView, onNa
             </div>
           );
         })}
-        <Link href="/metas" className="socios-tab" style={{ textDecoration: 'none', color: '#f59e0b' }}>
-          <span style={{ fontSize: 20 }}>🎯</span>
-          <span>Mi Meta</span>
+        <Link href="/" className="socios-tab" style={{ textDecoration: 'none', color: '#64748b' }}>
+          <span style={{ fontSize: 20 }}>🌐</span>
+          <span>Sitio</span>
         </Link>
       </nav>
 

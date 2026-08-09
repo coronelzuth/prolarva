@@ -3,7 +3,6 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useProgress } from '@/hooks/useProgress';
-import { useState, useEffect } from 'react';
 
 const navLinks = [
   { href: '/',            label: 'Inicio',       icon: '🏠' },
@@ -20,14 +19,6 @@ const navLinks = [
 export default function Navbar() {
   const pathname = usePathname();
   const { progress } = useProgress();
-  const [isAdmin, setIsAdmin] = useState(false);
-
-  useEffect(() => {
-    try {
-      const sess = JSON.parse(localStorage.getItem('prl-session') ?? 'null');
-      setIsAdmin(sess?.rol === 'admin');
-    } catch { setIsAdmin(false); }
-  }, [pathname]);
 
   const isSocios = pathname.startsWith('/socios');
 
@@ -62,27 +53,6 @@ export default function Navbar() {
               </Link>
             );
           })}
-
-          {/* Contenido — solo admin */}
-          {isAdmin && (
-            <Link
-              href="/contenido"
-              className="nav-link-item"
-              style={{
-                display: 'flex', alignItems: 'center', gap: 6,
-                padding: '6px 12px', borderRadius: 8,
-                textDecoration: 'none', fontSize: 13, fontWeight: 600,
-                transition: 'all 0.15s',
-                background: pathname === '/contenido' ? 'rgba(14,165,233,0.15)' : 'transparent',
-                color: pathname === '/contenido' ? '#4ade80' : '#94a3b8',
-                border: pathname === '/contenido' ? '1px solid rgba(14,165,233,0.4)' : '1px solid transparent',
-                whiteSpace: 'nowrap',
-              }}
-            >
-              <span>📋</span>
-              <span className="nav-label">Contenido</span>
-            </Link>
-          )}
 
           {/* Zona de Socios */}
           <Link

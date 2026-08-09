@@ -60,7 +60,7 @@ Están en `.env.local` (local, ignorado por git) y en Vercel → Settings → En
 | `/blog/problemas` | 8 problemas comunes en cría BSF — acordeón expandible + botones compartir (copiar enlace / WhatsApp) |
 | `/blog/raciones` | Raciones por animal y etapa — selector de especie (pollos/gallinas/cerdos/peces), tablas, tips + compartir |
 | `/blog/alimentacion-larvas` | Qué comen las larvas BSF — sustratos, porciones por etapa del ciclo, qué evitar, variación proteica + compartir |
-| `/contenido` | CMS de guiones — lista de 83 guiones, editor, calendario, cambio de estados |
+| `/contenido` | Gestor de contenido (#gestorcontenido) — 90 guiones, filtros, tab Hoy (aleatorio), calendario, editor con descarga .txt, edición de título inline, modal "+Nuevo guión" |
 
 ---
 
@@ -333,6 +333,10 @@ a5cc857  feat: port calculadora BSF a React con paleta de la app
 > **Actualizar esta sección al final de cada sesión de trabajo.**
 
 **Última actualización:** 2026-08-08
+
+**Cambios recientes (2026-08-08 — sesión 19):**
+- ✅ **`/contenido` reestructurado como #gestorcontenido** — ahora 90 guiones (83 base + 7 Reto). Cambios: 6 StatCards eliminadas; botones de perfil social (WhatsApp, TikTok, Instagram) en el header; padding móvil reducido; búsqueda colapsable (ícono 🔍 → input con autoFocus); filtros de tipo sin contadores (Todos/V/E/C/MSN); dropdown de estado eliminado; tab "🎯 Hoy" con guion aleatorio + "Sortear otro"; `DownloadTxtButton` en tab Guión; edición inline de título en tab Metadatos; `GuionCard` comprimida a 2 filas; modal `NuevoGuionModal` con botón "+Nuevo guión". Archivos: `src/app/contenido/page.tsx`, `src/hooks/useGuionesCms.ts` (nuevo método `createGuion`).
+- ✅ **`_INDICE.txt` sincronizado** — añadidos los 7 guiones RETO (#84-90) al índice del Hub. Fecha actualizada a 2026-08-08.
 
 **Cambios recientes (2026-08-08 — sesión 18):**
 - ✅ **Email registro Colonia mejorado** — saludo neutro "Te damos la bienvenida, [nombre]" (antes "¡Bienvenida," femenino fijo); placeholder de video con bloque oscuro ▶; línea de promesa en verde ("En 4 semanas vas a tener tu primera cosecha..."); bloque destacado con fecha de inicio 9 de septiembre 2026. Archivo: `src/app/api/colonia/registro/route.ts`

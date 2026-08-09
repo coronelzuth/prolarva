@@ -579,6 +579,115 @@ function CalendarioView({ guiones }: { guiones: Guion[] }) {
   )
 }
 
+// ─── Modal nuevo guión ────────────────────────────────────────────
+function NuevoGuionModal({
+  onClose,
+  onCreate,
+}: {
+  onClose: () => void
+  onCreate: (fields: { codigo: string; titulo: string; tipo: GuionTipo; duracion: string; plataforma: string[] }) => Promise<void>
+}) {
+  const [codigo, setCodigo] = useState('')
+  const [titulo, setTitulo] = useState('')
+  const [tipo, setTipo] = useState<GuionTipo>('V')
+  const [duracion, setDuracion] = useState('60s')
+  const [plataforma, setPlataforma] = useState<string[]>(['TikTok', 'Instagram'])
+  const [saving, setSaving] = useState(false)
+
+  async function handleCreate() {
+    if (!codigo.trim() || !titulo.trim()) return
+    setSaving(true)
+    await onCreate({ codigo: codigo.trim(), titulo: titulo.trim(), tipo, duracion, plataforma })
+    setSaving(false)
+  }
+
+  return (
+    <>
+      <div onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 99 }} />
+      <div style={{
+        position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%,-50%)',
+        background: '#0d1b2a', border: '1px solid rgba(14,165,233,0.2)',
+        borderRadius: 16, padding: 28, width: 'min(440px, 94vw)', zIndex: 100,
+        boxShadow: '0 24px 64px rgba(0,0,0,0.6)',
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
+          <div style={{ fontSize: 18, fontWeight: 800, color: '#f1f5f9' }}>+ Nuevo guión</div>
+          <button onClick={onClose} style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', fontSize: 20 }}>✕</button>
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <div>
+            <label style={{ fontSize: 11, color: '#64748b', fontWeight: 700, display: 'block', marginBottom: 6 }}>CÓDIGO</label>
+            <input value={codigo} onChange={e => setCodigo(e.target.value)}
+              placeholder="ej: V16, RETO18, MSN51..." autoFocus
+              style={{ width: '100%', boxSizing: 'border-box', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, padding: '9px 12px', color: '#f1f5f9', fontSize: 14 }}
+            />
+          </div>
+
+          <div>
+            <label style={{ fontSize: 11, color: '#64748b', fontWeight: 700, display: 'block', marginBottom: 6 }}>TÍTULO</label>
+            <input value={titulo} onChange={e => setTitulo(e.target.value)}
+              placeholder="Título del video..."
+              style={{ width: '100%', boxSizing: 'border-box', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, padding: '9px 12px', color: '#f1f5f9', fontSize: 14 }}
+            />
+          </div>
+
+          <div style={{ display: 'flex', gap: 12 }}>
+            <div style={{ flex: 1 }}>
+              <label style={{ fontSize: 11, color: '#64748b', fontWeight: 700, display: 'block', marginBottom: 6 }}>TIPO</label>
+              <div style={{ display: 'flex', gap: 6 }}>
+                {TIPOS.map(t => (
+                  <button key={t} onClick={() => setTipo(t)} style={{
+                    flex: 1, padding: '7px 0', borderRadius: 8, border: 'none', cursor: 'pointer', fontWeight: 700, fontSize: 12,
+                    background: tipo === t ? TIPO_COLORS[t] + '33' : 'rgba(255,255,255,0.05)',
+                    color: tipo === t ? TIPO_COLORS[t] : '#64748b',
+                    outline: tipo === t ? `1px solid ${TIPO_COLORS[t]}66` : 'none',
+                  }}>{t}</button>
+                ))}
+              </div>
+            </div>
+            <div>
+              <label style={{ fontSize: 11, color: '#64748b', fontWeight: 700, display: 'block', marginBottom: 6 }}>DURACIÓN</label>
+              <input value={duracion} onChange={e => setDuracion(e.target.value)}
+                style={{ width: 72, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, padding: '9px 10px', color: '#f1f5f9', fontSize: 14 }}
+              />
+            </div>
+          </div>
+
+          <div>
+            <label style={{ fontSize: 11, color: '#64748b', fontWeight: 700, display: 'block', marginBottom: 6 }}>PLATAFORMA</label>
+            <div style={{ display: 'flex', gap: 8 }}>
+              {['TikTok', 'Instagram'].map(p => (
+                <button key={p} onClick={() => setPlataforma(prev => prev.includes(p) ? prev.filter(x => x !== p) : [...prev, p])} style={{
+                  padding: '6px 16px', borderRadius: 20, cursor: 'pointer', fontSize: 13, fontWeight: 600,
+                  border: plataforma.includes(p) ? '2px solid #22c55e' : '2px solid rgba(255,255,255,0.1)',
+                  background: plataforma.includes(p) ? '#22c55e33' : 'rgba(255,255,255,0.04)',
+                  color: plataforma.includes(p) ? '#22c55e' : '#64748b',
+                }}>{p === 'TikTok' ? '🎵' : '📸'} {p}</button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', gap: 10, marginTop: 24 }}>
+          <button onClick={handleCreate} disabled={saving || !codigo.trim() || !titulo.trim()} style={{
+            flex: 1, background: '#22c55e', border: 'none', color: '#0d1b2a',
+            borderRadius: 10, padding: '11px 0', fontWeight: 800, fontSize: 14,
+            cursor: saving || !codigo.trim() || !titulo.trim() ? 'default' : 'pointer',
+            opacity: saving || !codigo.trim() || !titulo.trim() ? 0.5 : 1,
+          }}>
+            {saving ? 'Creando...' : 'Crear guión'}
+          </button>
+          <button onClick={onClose} style={{
+            background: 'rgba(255,255,255,0.06)', border: 'none', borderRadius: 10,
+            padding: '11px 20px', color: '#94a3b8', fontSize: 14, cursor: 'pointer',
+          }}>Cancelar</button>
+        </div>
+      </div>
+    </>
+  )
+}
+
 // ─── Vista HOY ────────────────────────────────────────────────────
 function HoyView({
   guiones,
@@ -630,12 +739,14 @@ function HoyView({
 
 // ─── Página principal ──────────────────────────────────────────────
 export default function ContenidoPage() {
-  const { guiones, loaded, saving, updateGuion } = useGuionesCms()
+  const { guiones, loaded, saving, updateGuion, createGuion } = useGuionesCms()
   const [filtroTipo, setFiltroTipo] = useState<GuionTipo | 'ALL'>('ALL')
   const [filtroEstado, setFiltroEstado] = useState<GuionEstado | 'ALL'>('ALL')
   const [busqueda, setBusqueda] = useState('')
   const [selected, setSelected] = useState<Guion | null>(null)
   const [view, setView] = useState<'lista' | 'calendario' | 'hoy'>('lista')
+  const [showNuevo, setShowNuevo] = useState(false)
+  const [busquedaAbierta, setBusquedaAbierta] = useState(false)
 
   // Estadísticas globales
   const stats = useMemo(() => {
@@ -756,56 +867,55 @@ export default function ContenidoPage() {
               background: '#152035', borderRadius: 12, padding: '16px 20px',
               marginBottom: 20, display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'center',
             }}>
-              {/* Búsqueda */}
-              <input
-                type="text"
-                placeholder="🔍 Buscar por título o código..."
-                value={busqueda}
-                onChange={e => setBusqueda(e.target.value)}
-                style={{
-                  background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)',
-                  borderRadius: 8, padding: '8px 14px', color: '#f1f5f9', fontSize: 14,
-                  minWidth: 220, flex: 1,
-                }}
-              />
+              {/* Búsqueda colapsable */}
+              {busquedaAbierta ? (
+                <div style={{ display: 'flex', gap: 6, flex: 1, minWidth: 180 }}>
+                  <input
+                    type="text"
+                    placeholder="Título o código..."
+                    value={busqueda}
+                    onChange={e => setBusqueda(e.target.value)}
+                    autoFocus
+                    style={{
+                      flex: 1, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(34,197,94,0.4)',
+                      borderRadius: 8, padding: '7px 12px', color: '#f1f5f9', fontSize: 14,
+                    }}
+                  />
+                  <button onClick={() => { setBusquedaAbierta(false); setBusqueda('') }} style={{
+                    background: 'rgba(255,255,255,0.06)', border: 'none', color: '#64748b',
+                    borderRadius: 8, padding: '7px 10px', cursor: 'pointer', fontSize: 14,
+                  }}>✕</button>
+                </div>
+              ) : (
+                <button onClick={() => setBusquedaAbierta(true)} style={{
+                  background: busqueda ? 'rgba(34,197,94,0.15)' : 'rgba(255,255,255,0.06)',
+                  border: busqueda ? '1px solid rgba(34,197,94,0.4)' : '1px solid rgba(255,255,255,0.1)',
+                  color: busqueda ? '#22c55e' : '#94a3b8',
+                  borderRadius: 8, padding: '7px 14px', cursor: 'pointer',
+                  fontSize: 13, fontWeight: 600, whiteSpace: 'nowrap',
+                }}>
+                  🔍{busqueda ? ` "${busqueda}"` : ''}
+                </button>
+              )}
 
               {/* Filtro tipo */}
               <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
-                <FiltroBtn
-                  active={filtroTipo === 'ALL'} onClick={() => setFiltroTipo('ALL')}
-                  label={`Todos (${stats.total})`}
-                />
+                <FiltroBtn active={filtroTipo === 'ALL'} onClick={() => setFiltroTipo('ALL')} label="Todos" />
                 {TIPOS.map(t => (
                   <FiltroBtn key={t} active={filtroTipo === t} onClick={() => setFiltroTipo(t)}
-                    label={`${t} (${stats.porTipo[t] ?? 0})`}
-                    color={TIPO_COLORS[t]}
+                    label={t} color={TIPO_COLORS[t]}
                   />
                 ))}
               </div>
-
-              {/* Filtro estado */}
-              <select
-                value={filtroEstado}
-                onChange={e => setFiltroEstado(e.target.value as GuionEstado | 'ALL')}
-                style={{
-                  background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)',
-                  borderRadius: 8, padding: '8px 12px', color: '#f1f5f9', fontSize: 13,
-                }}
-              >
-                <option value="ALL">Todos los estados</option>
-                {ESTADOS.map(e => (
-                  <option key={e} value={e}>{ESTADO_LABELS[e]}</option>
-                ))}
-              </select>
             </div>
 
-            {/* Resultado */}
-            <div style={{ fontSize: 13, color: '#475569', marginBottom: 12 }}>
-              {guionesFiltrados.length} de {stats.total} guiones
-              {(filtroTipo !== 'ALL' || filtroEstado !== 'ALL' || busqueda) && (
+            {/* Resultado + botón nuevo */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+              <div style={{ fontSize: 13, color: '#475569' }}>
+                {guionesFiltrados.length} de {stats.total} guiones
+              {(filtroTipo !== 'ALL' || busqueda) && (
                 <button onClick={() => {
                   setFiltroTipo('ALL')
-                  setFiltroEstado('ALL')
                   setBusqueda('')
                 }} style={{
                   marginLeft: 10, background: 'none', border: 'none', color: '#22c55e',
@@ -814,6 +924,14 @@ export default function ContenidoPage() {
                   Limpiar filtros
                 </button>
               )}
+              </div>
+              <button onClick={() => setShowNuevo(true)} style={{
+                background: '#22c55e', border: 'none', color: '#0d1b2a',
+                borderRadius: 8, padding: '7px 16px', fontSize: 13,
+                fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap',
+              }}>
+                + Nuevo guión
+              </button>
             </div>
 
             {/* Lista de guiones */}
@@ -839,6 +957,17 @@ export default function ContenidoPage() {
           </>
         )}
       </div>
+
+      {/* Modal nuevo guión */}
+      {showNuevo && (
+        <NuevoGuionModal
+          onClose={() => setShowNuevo(false)}
+          onCreate={async (fields) => {
+            await createGuion(fields)
+            setShowNuevo(false)
+          }}
+        />
+      )}
 
       {/* Panel lateral */}
       {selected && (
@@ -907,50 +1036,36 @@ function GuionCard({
         border: isSelected
           ? '1px solid rgba(34,197,94,0.5)'
           : '1px solid rgba(255,255,255,0.06)',
-        borderRadius: 12, padding: '14px 16px', cursor: 'pointer',
+        borderRadius: 10, padding: '10px 14px', cursor: 'pointer',
         textAlign: 'left', transition: 'all 0.15s', display: 'flex',
-        flexDirection: 'column', gap: 8,
+        flexDirection: 'column', gap: 6, width: '100%',
       }}
     >
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-        <TipoBadge tipo={guion.tipo} />
-        <span style={{ fontSize: 12, color: '#475569', fontWeight: 600 }}>{guion.codigo}</span>
+      {/* Fila única de metadatos */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+        <span style={{ fontSize: 11, color: '#94a3b8', fontWeight: 700 }}>{guion.codigo}</span>
+        <EstadoBadge estado={guion.estado} />
+        {guion.nc && (
+          <span style={{ fontSize: 10, color: '#475569', fontWeight: 600, background: 'rgba(255,255,255,0.06)', borderRadius: 4, padding: '1px 5px' }}>
+            NC{guion.nc}
+          </span>
+        )}
+        {guion.contenido && (
+          <span style={{ fontSize: 10, color: '#22c55e', background: 'rgba(34,197,94,0.08)', borderRadius: 4, padding: '1px 6px', fontWeight: 600 }}>
+            📝 guardado
+          </span>
+        )}
         {guion.fecha_programada && (
-          <span style={{ fontSize: 11, color: '#3b82f6', marginLeft: 'auto' }}>
+          <span style={{ fontSize: 10, color: '#3b82f6', marginLeft: 'auto' }}>
             📅 {new Date(guion.fecha_programada + 'T12:00:00').toLocaleDateString('es-CO', { day: '2-digit', month: 'short' })}
           </span>
         )}
       </div>
 
-      <div style={{ color: '#f1f5f9', fontSize: 14, fontWeight: 600, lineHeight: 1.4 }}>
+      {/* Título */}
+      <div style={{ color: '#f1f5f9', fontSize: 13, fontWeight: 600, lineHeight: 1.35 }}>
         {guion.titulo}
       </div>
-
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-        <EstadoBadge estado={guion.estado} />
-        {guion.nc && (
-          <span style={{ fontSize: 11, color: '#475569' }}>NC{guion.nc}</span>
-        )}
-        {guion.angulo && (
-          <span style={{ fontSize: 11, color: '#475569' }}>
-            {guion.angulo === 'problema' ? '🔴' : guion.angulo === 'solucion' ? '🟢' : '⭐'}
-          </span>
-        )}
-        <span style={{ fontSize: 11, color: '#475569', marginLeft: 'auto' }}>⏱ {guion.duracion}</span>
-      </div>
-
-      {guion.bloque && (
-        <div style={{ fontSize: 11, color: '#475569' }}>📂 {guion.bloque}</div>
-      )}
-
-      {guion.contenido && (
-        <div style={{
-          fontSize: 11, color: '#22c55e', background: 'rgba(34,197,94,0.08)',
-          borderRadius: 4, padding: '2px 8px', alignSelf: 'flex-start',
-        }}>
-          📝 Guión guardado
-        </div>
-      )}
     </button>
   )
 }

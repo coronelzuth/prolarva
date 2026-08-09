@@ -100,5 +100,46 @@ export function useGuionesCms() {
     setState(s => ({ ...s, saving: false }))
   }, [])
 
-  return { ...state, updateGuion }
+  const createGuion = useCallback(async (fields: {
+    codigo: string
+    titulo: string
+    tipo: Guion['tipo']
+    duracion: string
+    plataforma: string[]
+    pilar?: string
+    bloque?: string
+  }) => {
+    const id = crypto.randomUUID()
+    setState(s => {
+      const numero = Math.max(...s.guiones.map(g => g.numero), 0) + 1
+      const nuevo: Guion = {
+        id, numero,
+        codigo: fields.codigo,
+        titulo: fields.titulo,
+        tipo: fields.tipo,
+        duracion: fields.duracion,
+        plataforma: fields.plataforma,
+        pilar: fields.pilar ?? '',
+        bloque: fields.bloque,
+        estado: 'BORRADOR',
+        contenido: '',
+        notas: '',
+      }
+      const sb = createClient()
+      if (sb) {
+        sb.from('guiones_cms').insert({
+          id: nuevo.id, numero: nuevo.numero, codigo: nuevo.codigo,
+          titulo: nuevo.titulo, tipo: nuevo.tipo, pilar: nuevo.pilar,
+          bloque: nuevo.bloque ?? null, estado: nuevo.estado,
+          duracion: nuevo.duracion, plataforma: nuevo.plataforma,
+          nc: null, angulo: null, fecha_programada: null,
+          contenido: '', notas: null,
+        })
+      }
+      return { ...s, guiones: [...s.guiones, nuevo] }
+    })
+    return id
+  }, [])
+
+  return { ...state, updateGuion, createGuion }
 }

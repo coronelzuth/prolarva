@@ -1,5 +1,5 @@
 'use client'
-import { useState, useMemo } from 'react'
+import React, { useState, useMemo } from 'react'
 import { useGuionesCms } from '@/hooks/useGuionesCms'
 import {
   Guion,
@@ -67,6 +67,31 @@ function TipoBadge({ tipo }: { tipo: GuionTipo }) {
   )
 }
 
+// ─── Botón descargar .txt ─────────────────────────────────────────
+function DownloadTxtButton({ contenido, codigo, titulo }: { contenido: string; codigo: string; titulo: string }) {
+  function handle() {
+    const text = `${titulo}\n${'='.repeat(titulo.length)}\n${codigo}\n\n${contenido}`
+    const blob = new Blob([text], { type: 'text/plain;charset=utf-8' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `${codigo}.txt`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+  }
+  return (
+    <button onClick={handle} style={{
+      background: 'rgba(59,130,246,0.15)', border: '1px solid rgba(59,130,246,0.4)',
+      color: '#3b82f6', borderRadius: 8, padding: '5px 14px',
+      fontSize: 12, fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap',
+    }}>
+      ⬇ .txt
+    </button>
+  )
+}
+
 // ─── Botón copiar ─────────────────────────────────────────────────
 function CopyButton({ text }: { text: string }) {
   const [copied, setCopied] = useState(false)
@@ -99,11 +124,13 @@ function GuionPanel({
   onClose,
   onSave,
   saving,
+  embedded = false,
 }: {
   guion: Guion
   onClose: () => void
   onSave: (id: string, changes: Partial<Guion>) => void
   saving: boolean
+  embedded?: boolean
 }) {
   const [estado, setEstado] = useState<GuionEstado>(guion.estado)
   const [fecha, setFecha] = useState(guion.fecha_programada ?? '')
@@ -113,6 +140,8 @@ function GuionPanel({
   const [angulo, setAngulo] = useState<Guion['angulo']>(guion.angulo)
   const [plataforma, setPlataforma] = useState<string[]>(guion.plataforma)
   const [tab, setTab] = useState<'info' | 'guion'>('info')
+  const [editandoTitulo, setEditandoTitulo] = useState(false)
+  const [tituloEdit, setTituloEdit] = useState(guion.titulo)
 
   function togglePlat(p: string) {
     setPlataforma(prev =>
@@ -121,24 +150,59 @@ function GuionPanel({
   }
 
   function handleSave() {
-    onSave(guion.id, { estado, fecha_programada: fecha || undefined, contenido, notas, nc, angulo, plataforma })
+    onSave(guion.id, { estado, fecha_programada: fecha || undefined, contenido, notas, nc, angulo, plataforma, titulo: tituloEdit })
   }
 
+  const containerStyle: React.CSSProperties = embedded
+    ? {
+        background: '#0d1b2a', border: '1px solid rgba(14,165,233,0.2)',
+        borderRadius: 16, display: 'flex', flexDirection: 'column',
+      }
+    : {
+        position: 'fixed', right: 0, top: 0, bottom: 0, width: 'min(580px, 100vw)',
+        background: '#0d1b2a', borderLeft: '1px solid rgba(14,165,233,0.2)',
+        display: 'flex', flexDirection: 'column', zIndex: 100, boxShadow: '-8px 0 32px rgba(0,0,0,0.5)',
+      }
+
   return (
-    <div style={{
-      position: 'fixed', right: 0, top: 0, bottom: 0, width: 'min(580px, 100vw)',
-      background: '#0d1b2a', borderLeft: '1px solid rgba(14,165,233,0.2)',
-      display: 'flex', flexDirection: 'column', zIndex: 100, boxShadow: '-8px 0 32px rgba(0,0,0,0.5)',
-    }}>
+    <div style={containerStyle}>
       {/* Header del panel */}
       <div style={{ padding: '20px 24px 16px', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
         <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
           <TipoBadge tipo={guion.tipo} />
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ fontSize: 11, color: '#64748b', marginBottom: 4 }}>{guion.codigo}</div>
-            <div style={{ color: '#f1f5f9', fontWeight: 700, fontSize: 16, lineHeight: 1.3 }}>
-              {guion.titulo}
-            </div>
+            {editandoTitulo ? (
+              <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                <input
+                  value={tituloEdit}
+                  onChange={e => setTituloEdit(e.target.value)}
+                  autoFocus
+                  style={{
+                    flex: 1, background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(34,197,94,0.5)',
+                    borderRadius: 6, padding: '4px 8px', color: '#f1f5f9', fontSize: 14, fontWeight: 700,
+                  }}
+                />
+                <button onClick={() => setEditandoTitulo(false)} style={{
+                  background: '#22c55e', border: 'none', color: '#0d1b2a',
+                  borderRadius: 6, padding: '4px 10px', fontSize: 12, fontWeight: 700, cursor: 'pointer',
+                }}>✓</button>
+                <button onClick={() => { setTituloEdit(guion.titulo); setEditandoTitulo(false) }} style={{
+                  background: 'rgba(255,255,255,0.08)', border: 'none', color: '#94a3b8',
+                  borderRadius: 6, padding: '4px 8px', fontSize: 12, cursor: 'pointer',
+                }}>✕</button>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: 6 }}>
+                <div style={{ color: '#f1f5f9', fontWeight: 700, fontSize: 16, lineHeight: 1.3, flex: 1 }}>
+                  {tituloEdit}
+                </div>
+                <button onClick={() => setEditandoTitulo(true)} style={{
+                  background: 'none', border: 'none', color: '#475569',
+                  cursor: 'pointer', fontSize: 13, padding: '2px 4px', flexShrink: 0,
+                }} title="Editar nombre">✏️</button>
+              </div>
+            )}
             {guion.bloque && (
               <div style={{ fontSize: 11, color: '#64748b', marginTop: 4 }}>📂 {guion.bloque}</div>
             )}
@@ -319,13 +383,16 @@ function GuionPanel({
 
         {tab === 'guion' && (
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8, gap: 8 }}>
               <div style={{ fontSize: 12, color: '#64748b', fontWeight: 600 }}>
                 TEXTO DEL GUIÓN{' '}
                 <span style={{ fontWeight: 400 }}>— pega el contenido o escribe aquí</span>
               </div>
               {contenido && (
-                <CopyButton text={contenido} />
+                <div style={{ display: 'flex', gap: 6 }}>
+                  <CopyButton text={contenido} />
+                  <DownloadTxtButton contenido={contenido} codigo={guion.codigo} titulo={tituloEdit} />
+                </div>
               )}
             </div>
             <textarea
@@ -512,6 +579,55 @@ function CalendarioView({ guiones }: { guiones: Guion[] }) {
   )
 }
 
+// ─── Vista HOY ────────────────────────────────────────────────────
+function HoyView({
+  guiones,
+  onSave,
+  saving,
+}: {
+  guiones: Guion[]
+  onSave: (id: string, changes: Partial<Guion>) => void
+  saving: boolean
+}) {
+  const [idx, setIdx] = useState(() => Math.floor(Math.random() * guiones.length))
+  const guion = guiones[idx] ?? guiones[0]
+
+  function sortear() {
+    let next = Math.floor(Math.random() * guiones.length)
+    if (next === idx && guiones.length > 1) next = (next + 1) % guiones.length
+    setIdx(next)
+  }
+
+  if (!guion) return null
+
+  return (
+    <div>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+        <div style={{ fontSize: 13, color: '#64748b', fontWeight: 600 }}>
+          Guión asignado para hoy — #{guion.numero} de {guiones.length}
+        </div>
+        <button onClick={sortear} style={{
+          background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)',
+          color: '#f1f5f9', borderRadius: 8, padding: '8px 18px',
+          fontSize: 13, fontWeight: 700, cursor: 'pointer',
+        }}>
+          🎲 Sortear otro
+        </button>
+      </div>
+      <GuionPanel
+        key={guion.id}
+        guion={guion}
+        onClose={() => {}}
+        onSave={(id, changes) => {
+          onSave(id, changes)
+        }}
+        saving={saving}
+        embedded
+      />
+    </div>
+  )
+}
+
 // ─── Página principal ──────────────────────────────────────────────
 export default function ContenidoPage() {
   const { guiones, loaded, saving, updateGuion } = useGuionesCms()
@@ -519,7 +635,7 @@ export default function ContenidoPage() {
   const [filtroEstado, setFiltroEstado] = useState<GuionEstado | 'ALL'>('ALL')
   const [busqueda, setBusqueda] = useState('')
   const [selected, setSelected] = useState<Guion | null>(null)
-  const [view, setView] = useState<'lista' | 'calendario'>('lista')
+  const [view, setView] = useState<'lista' | 'calendario' | 'hoy'>('lista')
 
   // Estadísticas globales
   const stats = useMemo(() => {
@@ -578,9 +694,9 @@ export default function ContenidoPage() {
     <div style={{
       minHeight: '100vh', background: '#0a1628',
       fontFamily: 'Montserrat, sans-serif', color: '#e2e8f0',
-      paddingTop: 60,
+      paddingTop: 56,
     }}>
-      <div style={{ maxWidth: 1200, margin: '0 auto', padding: '24px 16px' }}>
+      <div style={{ maxWidth: 1200, margin: '0 auto', padding: '12px 16px' }}>
 
         {/* Header */}
         <div style={{ marginBottom: 28 }}>
@@ -617,19 +733,21 @@ export default function ContenidoPage() {
 
         {/* Tabs de vista */}
         <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
-          {(['lista', 'calendario'] as const).map(v => (
+          {(['lista', 'calendario', 'hoy'] as const).map(v => (
             <button key={v} onClick={() => setView(v)} style={{
               padding: '8px 20px', borderRadius: 10, border: 'none', cursor: 'pointer',
               fontWeight: 700, fontSize: 13,
               background: view === v ? '#22c55e' : 'rgba(255,255,255,0.06)',
               color: view === v ? '#0d1b2a' : '#94a3b8',
             }}>
-              {v === 'lista' ? '📋 Lista' : '📅 Calendario'}
+              {v === 'lista' ? '📋 Lista' : v === 'calendario' ? '📅 Calendario' : '🎯 Hoy'}
             </button>
           ))}
         </div>
 
-        {view === 'calendario' ? (
+        {view === 'hoy' ? (
+          <HoyView guiones={guiones} onSave={handleSave} saving={saving} />
+        ) : view === 'calendario' ? (
           <CalendarioView guiones={guiones} />
         ) : (
           <>

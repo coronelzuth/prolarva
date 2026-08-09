@@ -74,7 +74,7 @@ const FAQS = [
   { q: '¿Necesito experiencia previa con insectos o con larvas?', a: 'Para nada. El programa está diseñado para empezar desde cero. Cada sesión en vivo arranca desde lo más básico y avanza paso a paso. Si puedes alimentar tus animales, puedes manejar BSF.' },
   { q: '¿Qué pasa si no puedo asistir en vivo a una sesión?', a: 'Todas las sesiones se graban y quedan disponibles para que las veas cuando puedas. Lo ideal es asistir en vivo para hacer preguntas, pero si no puedes, no pierdes el contenido.' },
   { q: '¿El programa incluye semilla BSF?', a: 'Sí. El programa incluye semilla BSF viva para que puedas arrancar tu primer lote desde el día uno. Además te enseñamos todo el sistema para que entiendas cómo manejarla, reproducirla y eventualmente generar tu propia semilla sin depender de compras externas.' },
-  { q: '¿Por qué solo 20 cupos?', a: 'Para que Juliana pueda responder tus preguntas en vivo de verdad. En grupos grandes nadie puede preguntar. Con 20 personas garantizamos que cada sesión sea un espacio donde todos participan y salen con sus dudas resueltas.' },
+  { q: '¿Por qué solo 30 cupos?', a: 'Para que Juliana pueda responder tus preguntas en vivo de verdad. En grupos grandes nadie puede preguntar. Con 30 personas garantizamos que cada sesión sea un espacio donde todos participan y salen con sus dudas resueltas.' },
   { q: '¿Funciona para pollos, cerdos y peces?', a: 'Sí. El sistema BSF produce larva fresca que puedes darles a los tres. En el programa vemos las raciones y ajustes según la especie que tengas. Productores de pollos de engorde, gallinas ponedoras, peces y cerdos de cría han usado el sistema con resultados documentados.' },
   { q: '¿Qué necesito para empezar el programa?', a: 'Un espacio con sombra desde 1 m², residuos orgánicos de cocina o de tus propios animales, y un celular o computador para asistir a las sesiones. No necesitas equipos especiales ni inversión adicional para seguir el programa.' },
   { q: '¿Funciona en el clima de mi región?', a: 'La BSF es nativa de los trópicos y se adapta perfectamente a los climas cálidos colombianos (26–32°C ideal). Juliana trabaja desde Cúcuta y el sistema funciona en toda la franja tropical y templada del país.' },
@@ -117,6 +117,29 @@ const SEMANAS = [
   },
 ];
 
+const TESTIMONIOS = [
+  {
+    text: 'Probamos un lote de pollos de engorde desde el primer día. Al día 42 tuvimos pollos con más de 3.5 kg y dos ejemplares de 4 kg. Responden muy bien a estos estímulos naturales — su piel es amarilla y vistosa, y presentan menos grasa mala en general. El sistema enseña a manejar harina de larva, larvas secas y vivas, y uno puede escoger lo que más le favorezca.',
+    chips: ['⚖️ +3.5 kg día 42', '🏆 2 ejemplares 4 kg', '🌟 Piel amarilla', '💪 Menos grasa'],
+    name: 'Nicolás López',
+    subtitle: 'Pollos de engorde · Colombia',
+    avatar: '🧑‍🌾',
+    color: C.green,
+    chipColor: C.greenL,
+    gradient: `linear-gradient(135deg, ${C.green}, ${C.greenD})`,
+  },
+  {
+    text: 'Juliana es muy paciente, nos guió desde cero y fue muy amable — siempre nos respondía todo. Desarrollamos este proyecto para acuaponía, siguiendo la línea de economía circular. Ya vamos por nuestra tercera cosecha y esperamos producir harina para nuestros peces y gestionar residuos orgánicos mediante la cría de larvas. Ha sido un proceso muy divertido y enriquecedor.',
+    chips: ['🐟 Acuaponía', '♻️ Economía circular', '🌱 3ra cosecha', '🧠 Desde cero'],
+    name: 'William Fuentes',
+    subtitle: 'Acuaponía y economía circular · Colombia',
+    avatar: '🧑‍💻',
+    color: '#0ea5e9',
+    chipColor: '#7dd3fc',
+    gradient: 'linear-gradient(135deg, #0ea5e9, #0284c7)',
+  },
+];
+
 const WA_TEXT = encodeURIComponent('Hola Juliana, quiero inscribirme al Programa ProLarva VIVO');
 
 type FormState = 'idle' | 'loading' | 'done' | 'error';
@@ -125,6 +148,7 @@ export default function ColoniaPage() {
   const [faqOpen, setFaqOpen] = useState<number | null>(null);
   const [galleryIdx, setGalleryIdx] = useState(0);
   const [copied, setCopied] = useState(false);
+  const [testimonioIdx, setTestimonioIdx] = useState(0);
   const [showProtocolo, setShowProtocolo] = useState(false);
 
   // Modal de acceso previo
@@ -205,11 +229,11 @@ export default function ColoniaPage() {
 
         {/* Escasez badge */}
         <motion.div {...up(0.03)} style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.35)', borderRadius: 20, padding: '6px 16px', marginBottom: 14, fontSize: '0.78rem', color: '#fca5a5', fontWeight: 700 }}>
-          🔴 Solo 20 cupos por cohorte — grupo cerrado
+          🔴 Solo 30 cupos por cohorte — grupo cerrado
         </motion.div>
 
         <motion.div {...up(0.05)} style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.35)', borderRadius: 20, padding: '6px 16px', marginBottom: 22, fontSize: '0.8rem', color: C.greenL, fontWeight: 700 }}>
-          🎥 Programa en Vivo · 4 Semanas · Cría BSF
+          🎥 Programa en Vivo · 4 Semanas · 2 Sesiones por Semana
         </motion.div>
 
         <motion.h1 {...up(0.1)} style={{ fontSize: 'clamp(1.85rem, 4.5vw + 0.5rem, 3.2rem)', fontWeight: 900, margin: '0 auto 22px', maxWidth: 840, lineHeight: 1.1 }}>
@@ -219,13 +243,13 @@ export default function ColoniaPage() {
         </motion.h1>
 
         <motion.p {...up(0.15)} style={{ fontSize: '1.15rem', color: C.muted, margin: '0 auto 32px', maxWidth: 560, lineHeight: 1.65 }}>
-          Un programa corto, grupal y práctico — con Juliana en vivo, máximo 20 productores por grupo, desde tu traspatio
+          Un programa corto, grupal y práctico — con Juliana en vivo, 2 sesiones por semana, máximo 30 productores por grupo, desde tu traspatio
         </motion.p>
 
         <motion.div {...up(0.2)} style={{ display: 'flex', justifyContent: 'center', gap: 36, marginBottom: 40, flexWrap: 'wrap' }}>
           {[
             { to: 4, suf: ' semanas', label: 'de clases en vivo' },
-            { to: 20, suf: ' cupos', label: 'máximo por grupo' },
+            { to: 30, suf: ' cupos', label: 'máximo por grupo' },
             { to: 25, suf: '%', label: 'menos concentrado' },
           ].map((s, i) => (
             <div key={i} style={{ textAlign: 'center' }}>
@@ -247,6 +271,22 @@ export default function ColoniaPage() {
             💬 Tengo preguntas — hablar con Juliana
           </a>
         </motion.div>
+      </section>
+
+      {/* ── VIDEO PLACEHOLDER ── */}
+      <section style={{ padding: '0 20px 68px', background: C.bg }}>
+        <div style={{ maxWidth: 720, margin: '0 auto' }}>
+          <motion.div {...up(0.3)} style={{ position: 'relative', borderRadius: 16, overflow: 'hidden', background: '#0a111c', border: `1px solid ${C.border}`, aspectRatio: '16/9', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 24px 60px rgba(0,0,0,0.45)' }}>
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ width: 80, height: 80, borderRadius: '50%', background: 'rgba(34,197,94,0.12)', border: `2px solid rgba(34,197,94,0.35)`, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 18px' }}>
+                <span style={{ fontSize: '2.2rem', marginLeft: 6, color: C.greenL }}>▶</span>
+              </div>
+              <p style={{ color: C.muted, fontSize: '0.88rem', margin: '0 0 6px', fontWeight: 700 }}>ProLarva VIVO — El Programa</p>
+              <p style={{ color: `${C.muted}70`, fontSize: '0.75rem', margin: 0 }}>Video explicativo · Próximamente</p>
+            </div>
+            <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at 50% 50%, rgba(34,197,94,0.05) 0%, transparent 70%)', pointerEvents: 'none' }} />
+          </motion.div>
+        </div>
       </section>
 
       {/* ── PROBLEMA ── */}
@@ -285,8 +325,8 @@ export default function ColoniaPage() {
           </motion.p>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16 }}>
             {[
-              { emoji: '🎥', title: '4 sesiones en vivo', desc: 'Una por semana, con Juliana. Preguntas en tiempo real.' },
-              { emoji: '👥', title: 'Máximo 20 personas', desc: 'Grupo pequeño para que todos participen de verdad.' },
+              { emoji: '🎥', title: '8 sesiones en vivo', desc: 'Dos por semana, con Juliana. Preguntas en tiempo real.' },
+              { emoji: '👥', title: 'Máximo 30 personas', desc: 'Grupo pequeño para que todos participen de verdad.' },
               { emoji: '📅', title: '1 mes de duración', desc: 'Intensivo y enfocado. Sin arrastrar el proceso meses.' },
               { emoji: '📲', title: 'Soporte entre sesiones', desc: 'Grupo privado de productores activos vía WhatsApp.' },
             ].map((item, i) => (
@@ -310,7 +350,7 @@ export default function ColoniaPage() {
             Te Unes a Una Red de Productores BSF
           </motion.h2>
           <motion.p {...up(0.1)} style={{ color: C.muted, maxWidth: 620, margin: '0 auto 44px', fontSize: '0.97rem', lineHeight: 1.7 }}>
-            Al entrar al programa Colonia no solo aprendes a criar larva — te conectas con otros productores colombianos que están haciendo exactamente lo mismo que tú. Comparten avances, resuelven problemas juntos y se abren puertas que solos no tendrían.
+            Al entrar al programa Colonia no solo aprendes a criar larva — te conectas con 30 productores colombianos que están haciendo exactamente lo mismo que tú. Comparten avances, resuelven problemas juntos y se abren puertas que solos no tendrían.
           </motion.p>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16 }}>
             {[
@@ -336,7 +376,7 @@ export default function ColoniaPage() {
             Lo Que Aprendes Semana a Semana
           </motion.h2>
           <motion.p {...up(0.05)} style={{ textAlign: 'center', color: C.muted, maxWidth: 520, margin: '0 auto 48px', fontSize: '0.97rem', lineHeight: 1.6 }}>
-            4 sesiones en vivo, cada una con un objetivo concreto y aplicable desde el día siguiente
+            8 sesiones en vivo — 2 por semana, cada una con un objetivo concreto y aplicable desde el día siguiente
           </motion.p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             {SEMANAS.map((s, i) => (
@@ -388,7 +428,7 @@ export default function ColoniaPage() {
           </motion.div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: 12, marginBottom: 44 }}>
             {[
-              { emoji: '📡', title: '4 Sesiones en Vivo', desc: '1 por semana con Juliana, preguntas en tiempo real' },
+              { emoji: '📡', title: '8 Sesiones en Vivo', desc: '2 por semana con Juliana, preguntas en tiempo real' },
               { emoji: '🎬', title: 'Grabaciones', desc: 'Disponibles después de cada sesión' },
               { emoji: '💬', title: 'Grupo WhatsApp', desc: 'Soporte entre sesiones, 30 días activo' },
               { emoji: '👥', title: 'Grupo de 20', desc: 'Pequeño para que todos participen de verdad' },
@@ -460,7 +500,7 @@ export default function ColoniaPage() {
               { to: 25, suf: '%', label: 'Menos Concentrado', desc: 'Reducción real del gasto mensual en alimento', d: 0 },
               { to: 4, suf: ' semanas', label: 'Para Tu Primera Cosecha', desc: 'Del primer día de clases a tu larva produciendo', d: 0.1 },
               { to: 40, suf: '%', label: 'Proteína Bruta', desc: 'Contenido proteico de la larva madura L5', d: 0.2 },
-              { to: 20, suf: ' cupos', label: 'Máximo por Grupo', desc: 'Para que Juliana te pueda atender de verdad', d: 0.3 },
+              { to: 30, suf: ' cupos', label: 'Máximo por Grupo', desc: 'Para que Juliana te pueda atender de verdad', d: 0.3 },
             ].map((stat, i) => (
               <motion.div key={i} {...up(stat.d)} style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: '32px 20px', textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
                 <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, background: `linear-gradient(90deg, ${C.green}, ${C.greenD})`, borderRadius: '14px 14px 0 0' }} />
@@ -476,60 +516,51 @@ export default function ColoniaPage() {
         </div>
       </section>
 
-      {/* ── TESTIMONIOS ── */}
+      {/* ── TESTIMONIOS (carrusel) ── */}
       <section style={{ padding: '72px 20px', background: C.bg }}>
-        <div style={{ maxWidth: 900, margin: '0 auto' }}>
+        <div style={{ maxWidth: 660, margin: '0 auto' }}>
           <motion.h2 {...up()} style={{ fontSize: 'clamp(1.4rem, 3vw, 2.1rem)', fontWeight: 900, textAlign: 'center', margin: '0 auto 12px', color: C.greenL }}>
             Productores que Ya Lo Lograron
           </motion.h2>
           <motion.p {...up(0.05)} style={{ textAlign: 'center', color: C.muted, maxWidth: 500, margin: '0 auto 48px', fontSize: '0.97rem', lineHeight: 1.6 }}>
             Resultados reales de productores colombianos que aprendieron el sistema con Juliana
           </motion.p>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: 20 }}>
 
-            <motion.div {...up(0.1)} style={{ background: C.card, border: `1px solid ${C.green}35`, borderRadius: 18, padding: '32px 28px', position: 'relative', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-              <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 4, background: `linear-gradient(90deg, ${C.green}, ${C.greenD})`, borderRadius: '18px 18px 0 0' }} />
-              <div style={{ fontSize: '4rem', color: `${C.green}20`, lineHeight: 0.8, marginBottom: 14, fontFamily: 'Georgia, serif', userSelect: 'none' }}>"</div>
+          <motion.div {...up(0.1)}>
+            {/* Card activa */}
+            <div style={{ background: C.card, border: `1px solid ${TESTIMONIOS[testimonioIdx].color}35`, borderRadius: 18, padding: '32px 28px', position: 'relative', overflow: 'hidden', display: 'flex', flexDirection: 'column', minHeight: 320, transition: 'border-color 0.3s' }}>
+              <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 4, background: TESTIMONIOS[testimonioIdx].gradient, borderRadius: '18px 18px 0 0' }} />
+              <div style={{ fontSize: '4rem', color: `${TESTIMONIOS[testimonioIdx].color}20`, lineHeight: 0.8, marginBottom: 14, fontFamily: 'Georgia, serif', userSelect: 'none' }}>"</div>
               <p style={{ fontSize: '0.93rem', color: '#d4e8da', lineHeight: 1.85, margin: '0 0 20px', fontStyle: 'italic', flex: 1 }}>
-                Probamos un lote de pollos de engorde desde el primer día. Al día 42 tuvimos pollos con más de 3.5 kg y dos ejemplares de 4 kg. Responden muy bien a estos estímulos naturales — su piel es amarilla y vistosa, y presentan menos grasa mala en general. El sistema enseña a manejar harina de larva, larvas secas y vivas, y uno puede escoger lo que más le favorezca.
+                {TESTIMONIOS[testimonioIdx].text}
               </p>
               <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 20 }}>
-                {['⚖️ +3.5 kg día 42', '🏆 2 ejemplares 4 kg', '🌟 Piel amarilla', '💪 Menos grasa'].map((chip, i) => (
-                  <span key={i} style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '5px 10px', background: `${C.green}15`, border: `1px solid ${C.green}30`, borderRadius: 20, fontSize: '0.72rem', color: C.greenL, fontWeight: 700 }}>{chip}</span>
+                {TESTIMONIOS[testimonioIdx].chips.map((chip, i) => (
+                  <span key={i} style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '5px 10px', background: `${TESTIMONIOS[testimonioIdx].color}15`, border: `1px solid ${TESTIMONIOS[testimonioIdx].color}30`, borderRadius: 20, fontSize: '0.72rem', color: TESTIMONIOS[testimonioIdx].chipColor, fontWeight: 700 }}>{chip}</span>
                 ))}
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                <div style={{ width: 42, height: 42, borderRadius: '50%', background: `linear-gradient(135deg, ${C.green}, ${C.greenD})`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.1rem', flexShrink: 0 }}>🧑‍🌾</div>
+                <div style={{ width: 42, height: 42, borderRadius: '50%', background: TESTIMONIOS[testimonioIdx].gradient, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.1rem', flexShrink: 0 }}>{TESTIMONIOS[testimonioIdx].avatar}</div>
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontWeight: 800, color: C.text, fontSize: '0.9rem' }}>Nicolás López</div>
-                  <div style={{ fontSize: '0.73rem', color: C.muted }}>Pollos de engorde · Colombia</div>
+                  <div style={{ fontWeight: 800, color: C.text, fontSize: '0.9rem' }}>{TESTIMONIOS[testimonioIdx].name}</div>
+                  <div style={{ fontSize: '0.73rem', color: C.muted }}>{TESTIMONIOS[testimonioIdx].subtitle}</div>
                 </div>
                 <div style={{ display: 'flex', gap: 1 }}>{'★★★★★'.split('').map((s, i) => <span key={i} style={{ color: '#f59e0b', fontSize: '0.9rem' }}>{s}</span>)}</div>
               </div>
-            </motion.div>
+            </div>
 
-            <motion.div {...up(0.18)} style={{ background: C.card, border: `1px solid rgba(14,165,233,0.35)`, borderRadius: 18, padding: '32px 28px', position: 'relative', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-              <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 4, background: 'linear-gradient(90deg, #0ea5e9, #0284c7)', borderRadius: '18px 18px 0 0' }} />
-              <div style={{ fontSize: '4rem', color: 'rgba(14,165,233,0.18)', lineHeight: 0.8, marginBottom: 14, fontFamily: 'Georgia, serif', userSelect: 'none' }}>"</div>
-              <p style={{ fontSize: '0.93rem', color: '#d4e8da', lineHeight: 1.85, margin: '0 0 20px', fontStyle: 'italic', flex: 1 }}>
-                Juliana es muy paciente, nos guió desde cero y fue muy amable — siempre nos respondía todo. Desarrollamos este proyecto para acuaponía, siguiendo la línea de economía circular. Ya vamos por nuestra tercera cosecha y esperamos producir harina para nuestros peces y gestionar residuos orgánicos mediante la cría de larvas. Ha sido un proceso muy divertido y enriquecedor.
-              </p>
-              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 20 }}>
-                {['🐟 Acuaponía', '♻️ Economía circular', '🌱 3ra cosecha', '🧠 Desde cero'].map((chip, i) => (
-                  <span key={i} style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '5px 10px', background: 'rgba(14,165,233,0.1)', border: '1px solid rgba(14,165,233,0.3)', borderRadius: 20, fontSize: '0.72rem', color: '#7dd3fc', fontWeight: 700 }}>{chip}</span>
+            {/* Controles */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 16, marginTop: 20 }}>
+              <button onClick={() => setTestimonioIdx(i => (i - 1 + TESTIMONIOS.length) % TESTIMONIOS.length)} style={{ width: 38, height: 38, borderRadius: '50%', background: C.card, border: `1px solid ${C.border}`, color: C.text, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem', fontFamily: 'inherit' }}>‹</button>
+              <div style={{ display: 'flex', gap: 8 }}>
+                {TESTIMONIOS.map((_, i) => (
+                  <button key={i} onClick={() => setTestimonioIdx(i)} style={{ width: i === testimonioIdx ? 20 : 8, height: 8, borderRadius: 4, background: i === testimonioIdx ? C.green : `${C.muted}50`, border: 'none', cursor: 'pointer', padding: 0, transition: 'all 0.25s' }} />
                 ))}
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                <div style={{ width: 42, height: 42, borderRadius: '50%', background: 'linear-gradient(135deg, #0ea5e9, #0284c7)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.1rem', flexShrink: 0 }}>🧑‍💻</div>
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontWeight: 800, color: C.text, fontSize: '0.9rem' }}>William Fuentes</div>
-                  <div style={{ fontSize: '0.73rem', color: C.muted }}>Acuaponía y economía circular · Colombia</div>
-                </div>
-                <div style={{ display: 'flex', gap: 1 }}>{'★★★★★'.split('').map((s, i) => <span key={i} style={{ color: '#f59e0b', fontSize: '0.9rem' }}>{s}</span>)}</div>
-              </div>
-            </motion.div>
+              <button onClick={() => setTestimonioIdx(i => (i + 1) % TESTIMONIOS.length)} style={{ width: 38, height: 38, borderRadius: '50%', background: C.card, border: `1px solid ${C.border}`, color: C.text, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem', fontFamily: 'inherit' }}>›</button>
+            </div>
+          </motion.div>
 
-          </div>
           <motion.p {...up(0.25)} style={{ textAlign: 'center', fontSize: '0.82rem', color: `${C.muted}80`, marginTop: 20, fontStyle: 'italic' }}>
             ¿Ya trabajaste con Juliana? Cuéntanos tu resultado por WhatsApp →
           </motion.p>
@@ -544,14 +575,14 @@ export default function ColoniaPage() {
           </motion.h2>
           <motion.div {...up(0.1)} style={{ background: `linear-gradient(135deg, ${C.green}, ${C.greenD})`, padding: '44px 32px', borderRadius: 18, marginTop: 36, color: '#fff', boxShadow: `0 20px 60px ${C.green}30`, position: 'relative', overflow: 'hidden' }}>
             <div style={{ display: 'inline-block', background: 'rgba(0,0,0,0.25)', border: '1px solid rgba(255,255,255,0.3)', borderRadius: 20, padding: '5px 14px', fontSize: '0.78rem', fontWeight: 700, letterSpacing: '0.04em', textTransform: 'uppercase', marginBottom: 14 }}>
-              🔴 Solo 20 cupos — cierre al completar
+              🔴 Solo 30 cupos — cierre al completar
             </div>
             <div style={{ fontSize: '0.88rem', opacity: 0.9, marginBottom: 10, fontWeight: 600 }}>4 semanas · Clases en vivo · Todo incluido</div>
             <div style={{ fontSize: 'clamp(2.4rem, 5vw, 4rem)', fontWeight: 900, marginBottom: 6, lineHeight: 1 }}>$400.000 COP</div>
             <div style={{ fontSize: '1rem', opacity: 0.85 }}>≈ $95 USD · Pago único · Sin mensualidades</div>
           </motion.div>
           <motion.p {...up(0.15)} style={{ color: C.muted, fontSize: '0.95rem', margin: '22px 0 0', lineHeight: 1.6 }}>
-            4 sesiones en vivo + grabaciones + grupo WhatsApp + app + material descargable
+            8 sesiones en vivo + grabaciones + grupo WhatsApp + app + material descargable
           </motion.p>
         </div>
       </section>
@@ -620,16 +651,16 @@ export default function ColoniaPage() {
             ¿Cuál Es Para Ti?
           </motion.h2>
           <motion.p {...up(0.05)} style={{ textAlign: 'center', color: C.muted, maxWidth: 520, margin: '0 auto 44px', fontSize: '0.97rem', lineHeight: 1.6 }}>
-            Dos formas de aprender el mismo sistema — elige la que va con tu estilo
+            La semilla sola o el programa completo — elige según tu momento
           </motion.p>
           <motion.div {...up(0.1)} style={{ border: `1px solid ${C.border}`, borderRadius: 16, overflow: 'hidden' }}>
             {/* Headers */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr' }}>
               <div style={{ background: C.card, padding: '24px', borderBottom: `1px solid ${C.border}`, borderRight: `1px solid ${C.border}` }}>
-                <div style={{ fontSize: '0.72rem', fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>Kit ProLarva 25/15</div>
-                <div style={{ fontWeight: 900, color: C.text, fontSize: '1rem', marginBottom: 4 }}>Hazlo a tu ritmo</div>
-                <div style={{ fontSize: '0.82rem', color: C.muted, marginBottom: 12 }}>$450.000 COP · ~$107 USD</div>
-                <Link href="/kit" style={{ fontSize: '0.78rem', color: C.green, fontWeight: 700, textDecoration: 'none', borderBottom: `1px solid ${C.green}40`, paddingBottom: 1 }}>Ver Kit →</Link>
+                <div style={{ fontSize: '0.72rem', fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>Huevos BSF · 1 gr</div>
+                <div style={{ fontWeight: 900, color: C.text, fontSize: '1rem', marginBottom: 4 }}>Solo la semilla — arranca ya</div>
+                <div style={{ fontSize: '0.82rem', color: C.muted, marginBottom: 12 }}>$120.000 COP · Envío incluido</div>
+                <a href={`https://wa.me/573223212293?text=${encodeURIComponent('Hola Juliana, quiero comprar 1 gr de huevos BSF')}`} style={{ fontSize: '0.78rem', color: C.green, fontWeight: 700, textDecoration: 'none', borderBottom: `1px solid ${C.green}40`, paddingBottom: 1 }}>Pedir por WhatsApp →</a>
               </div>
               <div style={{ background: `linear-gradient(135deg, ${C.green}15, ${C.greenD}05)`, padding: '24px', borderBottom: `1px solid ${C.green}30`, position: 'relative' }}>
                 <div style={{ position: 'absolute', top: 0, right: 20, background: C.green, color: '#0a1628', fontSize: '0.62rem', fontWeight: 900, padding: '4px 12px', borderRadius: '0 0 8px 8px', letterSpacing: '0.06em' }}>ESTÁS AQUÍ</div>
@@ -640,13 +671,13 @@ export default function ColoniaPage() {
             </div>
             {/* Filas */}
             {[
-              { label: 'Formato', kit: 'Autoguiado con manual paso a paso', col: '4 clases en vivo semanales con Juliana', colWin: true },
-              { label: 'Interacción con Juliana', kit: 'Soporte por WhatsApp', col: 'En vivo cada semana — preguntas en tiempo real', colWin: true },
-              { label: 'Red de contactos', kit: 'Sin comunidad grupal', col: '20 productores que se conocen y colaboran', colWin: true },
-              { label: 'Semilla BSF viva', kit: '✅ Incluida', col: '✅ Incluida', colWin: null },
+              { label: 'Qué recibes', kit: '1 gr de huevos BSF · llega a tu puerta', col: '8 clases en vivo + material + semilla + comunidad', colWin: true },
+              { label: 'Acompañamiento', kit: '—', col: 'Con Juliana en vivo, 2 sesiones por semana', colWin: true },
+              { label: 'Red de productores', kit: '—', col: '30 productores activos + grupo WhatsApp', colWin: true },
+              { label: 'Semilla BSF', kit: '✅ 1 gr de huevos incluido', col: '✅ Incluida en el programa', colWin: null },
               { label: 'Grabaciones de clase', kit: '—', col: '✅ Disponibles después de cada sesión', colWin: true },
-              { label: 'Material descargable', kit: '✅ Manual + guías', col: '✅ Fichas y plantillas semanales', colWin: null },
-              { label: 'Precio', kit: '$450.000 COP', col: '$400.000 COP ✨', colWin: true },
+              { label: 'Material descargable', kit: '—', col: '✅ Fichas y plantillas semanales', colWin: true },
+              { label: 'Precio', kit: '$120.000 COP', col: '$400.000 COP', colWin: false },
             ].map((row, i) => (
               <div key={i} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', borderTop: `1px solid ${C.border}` }}>
                 <div style={{ background: i % 2 === 0 ? C.card : C.bg, padding: '16px 24px', borderRight: `1px solid ${C.border}` }}>
@@ -663,7 +694,7 @@ export default function ColoniaPage() {
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', borderTop: `1px solid ${C.border}` }}>
               <div style={{ background: C.card, padding: '20px 24px', borderRight: `1px solid ${C.border}` }}>
                 <div style={{ fontSize: '0.68rem', color: C.muted, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 8 }}>Ideal si</div>
-                <p style={{ fontSize: '0.85rem', color: C.muted, lineHeight: 1.6, margin: 0 }}>Quieres empezar solo, a tu ritmo, con todo el material en mano desde el día uno</p>
+                <p style={{ fontSize: '0.85rem', color: C.muted, lineHeight: 1.6, margin: 0 }}>Ya tienes algo de conocimiento y solo necesitas la semilla para arrancar — sin curso ni acompañamiento</p>
               </div>
               <div style={{ background: `${C.green}08`, padding: '20px 24px' }}>
                 <div style={{ fontSize: '0.68rem', color: C.greenL, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 8 }}>Ideal si</div>
@@ -783,13 +814,13 @@ export default function ColoniaPage() {
       <section style={{ padding: '90px 20px', textAlign: 'center', background: `linear-gradient(135deg, ${C.bg2}, ${C.bg})`, borderTop: `1px solid ${C.border}`, position: 'relative', overflow: 'hidden' }}>
         <div style={{ position: 'absolute', bottom: -60, left: '50%', transform: 'translateX(-50%)', width: 700, height: 400, background: `radial-gradient(ellipse, ${C.green}14, transparent 70%)`, pointerEvents: 'none' }} />
         <motion.div {...up(0.02)} style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.35)', borderRadius: 20, padding: '6px 16px', marginBottom: 20, fontSize: '0.8rem', color: '#fca5a5', fontWeight: 700, position: 'relative' }}>
-          🔴 Solo 20 cupos disponibles — cierre al completar
+          🔴 Solo 30 cupos disponibles — cierre al completar
         </motion.div>
         <motion.h2 {...up(0.05)} style={{ fontSize: 'clamp(1.5rem, 3.5vw, 2.4rem)', fontWeight: 900, color: C.greenL, marginBottom: 14, position: 'relative' }}>
           ¿Listo para Aprender a Criar Tu Propia Proteína?
         </motion.h2>
         <motion.p {...up(0.1)} style={{ fontSize: '1.05rem', color: C.muted, margin: '0 auto 36px', maxWidth: 540, lineHeight: 1.65, position: 'relative' }}>
-          4 semanas en vivo con Juliana y un grupo pequeño de productores colombianos — sales con conocimiento, con tu primer lote en marcha, y con una red de contactos que no consigues en ningún otro curso
+          8 sesiones en vivo con Juliana y un grupo de productores colombianos — sales con conocimiento, con tu primer lote en marcha, y con una red de contactos que no consigues en ningún otro curso
         </motion.p>
         <motion.div {...up(0.15)} style={{ display: 'flex', gap: 14, justifyContent: 'center', flexWrap: 'wrap', position: 'relative' }}>
           <button

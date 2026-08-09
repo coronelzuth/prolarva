@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { RequireSocio } from '@/components/RequireSocio';
 
 const C = {
   bg:    '#0d1b2a',
@@ -191,7 +192,7 @@ const cicloSteps = [
   },
 ];
 
-export default function CosechaPage() {
+function CosechaPage() {
   const [open, setOpen] = useState<number | null>(null);
   const [openCiclo, setOpenCiclo] = useState<number | null>(null);
 
@@ -551,4 +552,8 @@ export default function CosechaPage() {
       `}</style>
     </div>
   );
+}
+
+export default function CosechaPageRoute() {
+  return <RequireSocio><CosechaPage /></RequireSocio>;
 }

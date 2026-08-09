@@ -3,9 +3,10 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
 import { stages } from '@/data/stages';
+import { RequireSocio } from '@/components/RequireSocio';
 import { useProgress } from '@/hooks/useProgress';
 
-export default function ConocimientoPage() {
+function ConocimientoPage() {
   const [activeIdx, setActiveIdx] = useState<number | null>(null);
   const [lightbox, setLightbox] = useState<string | null>(null);
   const { markVisited, markCompleted, markStageViewed, progress } = useProgress();
@@ -295,4 +296,8 @@ function VideoPlayer({ src, title, color }: { src: string; title: string; color:
       </div>
     </div>
   );
+}
+
+export default function ConocimientoPageRoute() {
+  return <RequireSocio><ConocimientoPage /></RequireSocio>;
 }

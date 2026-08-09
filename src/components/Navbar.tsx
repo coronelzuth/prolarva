@@ -8,10 +8,10 @@ const navLinks = [
   { href: '/',            label: 'Inicio',       icon: '🏠' },
   { href: '/huevos',       label: 'Huevos BSF',    icon: '🥚' },
   { href: '/colonia',       label: 'Colonia',       icon: '🌱' },
-  { href: '/conocimiento',label: 'Conocimiento',  icon: '🧠' },
+  { href: '/conocimiento',label: 'Conocimiento',  icon: '🧠', hidden: true },
   { href: '/preparacion', label: 'Preparación',   icon: '🛠️', hidden: true },
   { href: '/metas',       label: 'Mi Meta',       icon: '🎯', hidden: true },
-  { href: '/cosecha',     label: 'Cosecha',       icon: '🌾' },
+  { href: '/cosecha',     label: 'Cosecha',       icon: '🌾', hidden: true },
   { href: '/calculadora', label: 'Calculadora',   icon: '🧮' },
   { href: '/blog',        label: 'Blog',           icon: '📖' },
 ];

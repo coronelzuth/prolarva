@@ -659,8 +659,8 @@ export default function ColoniaPage() {
               <div style={{ background: C.card, padding: '24px', borderBottom: `1px solid ${C.border}`, borderRight: `1px solid ${C.border}` }}>
                 <div style={{ fontSize: '0.72rem', fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>Huevos BSF · 1 gr</div>
                 <div style={{ fontWeight: 900, color: C.text, fontSize: '1rem', marginBottom: 4 }}>Solo la semilla — arranca ya</div>
-                <div style={{ fontSize: '0.82rem', color: C.muted, marginBottom: 12 }}>$120.000 COP · Envío incluido</div>
-                <a href={`https://wa.me/573223212293?text=${encodeURIComponent('Hola Juliana, quiero comprar 1 gr de huevos BSF')}`} style={{ fontSize: '0.78rem', color: C.green, fontWeight: 700, textDecoration: 'none', borderBottom: `1px solid ${C.green}40`, paddingBottom: 1 }}>Pedir por WhatsApp →</a>
+                <div style={{ fontSize: '0.82rem', color: C.muted, marginBottom: 12 }}>$120.000 COP · + envío</div>
+                <a href="/huevos" style={{ fontSize: '0.78rem', color: C.green, fontWeight: 700, textDecoration: 'none', borderBottom: `1px solid ${C.green}40`, paddingBottom: 1 }}>Ver página de huevos →</a>
               </div>
               <div style={{ background: `linear-gradient(135deg, ${C.green}15, ${C.greenD}05)`, padding: '24px', borderBottom: `1px solid ${C.green}30`, position: 'relative' }}>
                 <div style={{ position: 'absolute', top: 0, right: 20, background: C.green, color: '#0a1628', fontSize: '0.62rem', fontWeight: 900, padding: '4px 12px', borderRadius: '0 0 8px 8px', letterSpacing: '0.06em' }}>ESTÁS AQUÍ</div>

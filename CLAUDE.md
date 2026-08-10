@@ -46,10 +46,11 @@ Están en `.env.local` (local, ignorado por git) y en Vercel → Settings → En
 |---|---|
 | `/` | Home — bienvenida + 5 módulos + botón compartir |
 | `/beneficios` | Intro — beneficios BSF por especie, composición nutricional, ventajas ambientales |
-| `/conocimiento` | Módulo 1 — ciclo BSF, grid 3×3 de etapas |
-| `/preparacion` | Módulo 2 — quiz diagnóstico + tarjeta recomendación prominente al final |
-| `/metas` | Módulo 3 — rutas de producción + links a /cosecha y /calculadora |
-| `/cosecha` | Guía Práctica — 7 pasos + panel recomendación calculadora al final |
+| `/huevos` | Huevos BSF — página educativa, color azul cielo #0ea5e9, framer-motion |
+| `/conocimiento` | Módulo 1 — ciclo BSF, grid 3×3 de etapas *(oculto del navbar, requiere sesión)* |
+| `/preparacion` | Módulo 2 — quiz diagnóstico + tarjeta recomendación prominente al final *(oculto del navbar)* |
+| `/metas` | Módulo 3 — rutas de producción + links a /cosecha y /calculadora *(oculto del navbar)* |
+| `/cosecha` | Guía Práctica — 7 pasos + panel recomendación calculadora al final *(oculto del navbar, requiere sesión)* |
 | `/calculadora` | Calculadora BSF completa (wizard 4 pasos) |
 | `/kit` | Landing de venta — Kit ProLarva 25/15, color ámbar (#f59e0b). Reemplaza /sistema-2015 en el navbar |
 | `/colonia` | Landing del Programa Colonia — grupal 4 semanas, $400K COP, color verde (#22c55e), sección "Red de Productores" |
@@ -73,10 +74,11 @@ src/
 │   ├── globals.css           # Paleta navy, Montserrat, reset
 │   ├── page.tsx              # Home — 5 módulos (Beneficios Intro + 4 módulos)
 │   ├── beneficios/page.tsx   # Intro — beneficios BSF por especie + nutrición + env
-│   ├── conocimiento/page.tsx # Módulo 1 — ciclo BSF con modal prev/next
+│   ├── huevos/page.tsx       # Huevos BSF — educativa azul cielo, framer-motion
+│   ├── conocimiento/page.tsx # Módulo 1 — ciclo BSF con modal prev/next (requiere sesión)
 │   ├── preparacion/page.tsx  # Módulo 2 — quiz diagnóstico + recommendation card
 │   ├── metas/page.tsx        # Módulo 3 — rutas + links a /cosecha y /calculadora
-│   ├── cosecha/page.tsx      # Guía práctica — 7 pasos + panel recomendación calculadora
+│   ├── cosecha/page.tsx      # Guía práctica — 7 pasos + panel recomendación calculadora (requiere sesión)
 │   ├── blog/page.tsx                      # Hub blog — cuadrícula con filtro por categoría
 │   ├── blog/problemas/page.tsx            # 8 problemas BSF con acordeón + compartir
 │   ├── blog/raciones/page.tsx             # Raciones por animal/etapa con selector + compartir
@@ -86,7 +88,16 @@ src/
 │   ├── colonia/page.tsx      # Landing Programa Colonia — color verde #22c55e
 │   ├── socios/page.tsx           # Zona de Socios — solo nav, modales, estado global (~150 líneas)
 │   ├── socios/_shared.ts         # Estilos compartidos: S, btnOutline, inputStyle, Modal, type View
-│   ├── socios/EscuelaView.tsx    # Panel Escuela completo
+│   ├── socios/EscuelaView.tsx       # Panel Escuela — orquestador principal (refactorizado)
+│   ├── socios/EscuelaCronograma.tsx # Cronograma de fases
+│   ├── socios/EscuelaDirectorio.tsx # Directorio de socios
+│   ├── socios/EscuelaFaseModal.tsx  # Modal de fase (base)
+│   ├── socios/EscuelaForo.tsx       # Foro estilo Twitter
+│   ├── socios/EscuelaProgreso.tsx   # Tabla de progreso admin
+│   ├── socios/FaseModalAdmin.tsx    # Modal de fase — vista admin
+│   ├── socios/FaseModalSocio.tsx    # Modal de fase — vista socio
+│   ├── socios/EscuelaModals.tsx     # Modales compartidos de la Escuela
+│   ├── socios/_escuela_shared.tsx   # Estilos y tipos compartidos de la Escuela
 │   ├── socios/Dashboard.tsx      # Vista de resumen
 │   ├── socios/MonitorView.tsx    # Monitor bloqueado/desbloqueado + sub-tabs Lotes/Stats
 │   ├── socios/LotesView.tsx      # Lista de lotes
@@ -104,7 +115,8 @@ src/
 │   ├── FloatingWidgets.tsx   # Wrapper cliente: renderiza Larvi + WhatsApp en todas las páginas EXCEPTO /socios
 │   ├── Larvi.tsx             # Bot flotante bottom-right, árbol de decisión hardcodeado
 │   ├── WhatsApp.tsx          # Botón flotante bottom-left → wa.me/573223212293
-│   └── ShareButton.tsx       # Botón compartir en Home (WhatsApp share)
+│   ├── ShareButton.tsx       # Botón compartir en Home (WhatsApp share)
+│   └── RequireSocio.tsx      # Guard de ruta — redirige a /socios si no hay sesión activa
 │
 ├── data/
 │   ├── stages.ts             # 8 etapas del ciclo BSF con fotos[] y videos[]
@@ -157,7 +169,8 @@ Rojo (pérdidas):   #ef4444
 ## Componentes clave
 
 ### `Navbar.tsx`
-Links: Inicio / Kit / Conocimiento / Mi Meta / Cosecha / Calculadora / Blog + botón 🔐 Socios.
+Links visibles: Inicio / 🥚 Huevos BSF / 🌱 Colonia / Calculadora / Blog + botón 🔐 Socios.
+Links ocultos (`hidden: true`, accesibles por URL directa): Conocimiento / Preparación / Mi Meta / Cosecha.
 **IMPORTANTE:** Dentro de `/socios` el navbar retorna `null` — no se renderiza. La zona de socios tiene su propia navegación (sidebar desktop + bottom bar móvil).
 **Móvil (<599px):** scroll horizontal, oculta labels, solo íconos.
 
@@ -332,7 +345,15 @@ a5cc857  feat: port calculadora BSF a React con paleta de la app
 ## Estado actual
 > **Actualizar esta sección al final de cada sesión de trabajo.**
 
-**Última actualización:** 2026-08-08
+**Última actualización:** 2026-08-09
+
+**Cambios recientes (2026-08-09 — sesión 20):**
+- ✅ **Navbar — menús ocultos al público** — `hidden: true` en: Conocimiento, Preparación, Mi Meta, Cosecha. Solo visible: Inicio / Huevos BSF / Colonia / Calculadora / Blog + botón Socios. El link 📋 Contenido fue eliminado completamente del navbar (antes solo admin lo veía).
+- ✅ **Nueva ruta `/huevos`** — `src/app/huevos/page.tsx` (430 líneas). Color azul cielo `#0ea5e9`, animaciones con `framer-motion`. Aparece en navbar como "🥚 Huevos BSF".
+- ✅ **`RequireSocio.tsx`** — nuevo componente guard en `src/components/`. Redirige a `/socios` si no hay `prl-session` en localStorage. Aplicado en `/conocimiento` y `/cosecha`.
+- ✅ **`EscuelaView.tsx` — gran refactor** — dividido en 10 archivos separados: `EscuelaCronograma`, `EscuelaDirectorio`, `EscuelaFaseModal`, `EscuelaForo`, `EscuelaProgreso`, `FaseModalAdmin`, `FaseModalSocio`, `EscuelaModals`, `_escuela_shared`. `EscuelaView` queda como orquestador principal.
+- ✅ **`/colonia` — ajustes menores** — ediciones en `src/app/colonia/page.tsx`.
+- **Vercel:** 13 deployments hoy, todos ✅ Ready. Último hace ~4h.
 
 **Cambios recientes (2026-08-08 — sesión 19):**
 - ✅ **`/contenido` reestructurado como #gestorcontenido** — ahora 90 guiones (83 base + 7 Reto). Cambios: 6 StatCards eliminadas; botones de perfil social (WhatsApp, TikTok, Instagram) en el header; padding móvil reducido; búsqueda colapsable (ícono 🔍 → input con autoFocus); filtros de tipo sin contadores (Todos/V/E/C/MSN); dropdown de estado eliminado; tab "🎯 Hoy" con guion aleatorio + "Sortear otro"; `DownloadTxtButton` en tab Guión; edición inline de título en tab Metadatos; `GuionCard` comprimida a 2 filas; modal `NuevoGuionModal` con botón "+Nuevo guión". Archivos: `src/app/contenido/page.tsx`, `src/hooks/useGuionesCms.ts` (nuevo método `createGuion`).

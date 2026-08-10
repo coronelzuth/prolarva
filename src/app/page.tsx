@@ -1,119 +1,89 @@
 'use client';
 
 import Link from 'next/link';
-import { useProgress } from '@/hooks/useProgress';
 import { useSocios } from '@/hooks/useSocios';
 import ShareButton from '@/components/ShareButton';
 
-const modules = [
+const C = {
+  card:   'rgba(21,32,53,0.7)',
+  card2:  '#1e3050',
+  green:  '#22c55e',
+  greenL: '#4ade80',
+  emerald:'#10b981',
+  muted:  '#94a3b8',
+  border: 'rgba(34,197,94,0.2)',
+  purple: '#8b5cf6',
+};
+
+const animalBenefits = [
   {
-    id: 'beneficios',
-    href: '/beneficios',
-    icon: '⭐',
-    title: '¿Por qué BSF?',
-    subtitle: 'Beneficios, nutrición y ventajas',
-    description: 'Descubre por qué la mosca soldado negra es la proteína del futuro: beneficios por animal, composición nutricional y ventajas ambientales.',
-    color: '#8b5cf6',
-    time: '5 min',
-    tag: 'Intro',
+    animal: '🐔 Gallinas y aves',
+    items: [
+      '35–45% de proteína en base seca',
+      'Mejora postura hasta un 15% en ponedoras',
+      'Reduce consumo de concentrado comercial',
+      'Mejora plumaje, tamaño del huevo y yema',
+    ],
   },
   {
-    id: 'conocimiento',
-    href: '/conocimiento',
-    icon: '🧠',
-    title: 'Conocimiento General',
-    subtitle: 'El ciclo completo de la BSF',
-    description: 'Aprende las 8 etapas del ciclo de vida: desde el huevo hasta el adulto. Temperatura ideal, duración, cuidados y alertas por etapa.',
-    color: '#22c55e',
-    time: '15 min',
-    tag: 'Módulo 1',
+    animal: '🐷 Cerdos',
+    items: [
+      'Fuente completa de aminoácidos esenciales',
+      'Digestibilidad superior al 90%',
+      'Reduce costos de alimentación un 20–35%',
+      'Acelera ganancia de peso en lechones',
+    ],
   },
   {
-    id: 'preparacion',
-    href: '/preparacion',
-    icon: '🛠️',
-    title: 'Preparaciones Previas',
-    subtitle: 'Diagnóstico de lo que tienes y te falta',
-    description: 'Quiz interactivo que evalúa tu clima, espacio, utensilios e insumos. Te dice exactamente qué ya tienes listo y qué necesitas conseguir.',
-    color: '#f59e0b',
-    time: '5 min',
-    tag: 'Módulo 2',
-    hidden: true,
-  },
-  {
-    id: 'metas',
-    href: '/metas',
-    icon: '🎯',
-    title: 'Elige tu Meta',
-    subtitle: '3 rutas de producción',
-    description: 'Alimentar animales, producir harina o ciclo cerrado continuo. Cada meta tiene su guía paso a paso según tu objetivo.',
-    color: '#10b981',
-    time: '10 min',
-    tag: 'Módulo 3',
-  },
-  {
-    id: 'cosecha',
-    href: '/cosecha',
-    icon: '🌾',
-    title: 'Cría y Cosecha BSF',
-    subtitle: 'Del huevo a la cosecha en 18 días',
-    description: 'Guía práctica paso a paso: consigue la semilla, incuba los huevos, alimenta las larvas, trasládalas al día 9 y cosecha entre el día 15 y 18.',
-    color: '#f97316',
-    time: '18 días',
-    tag: 'Guía Práctica',
+    animal: '🐟 Peces y acuicultura',
+    items: [
+      'Perfil lipídico ideal: sustituye harina de pescado',
+      'Compatible con tilapia, trucha y cachama',
+      'Mejora conversión alimenticia (FCR)',
+      'Sin impacto negativo en sabor del producto final',
+    ],
   },
 ];
 
-const metaNames: Record<string, string> = {
-  animales: '🐔 Alimentar Animales',
-  harina: '🌾 Producir Harina',
-  cosecha: '♻️ Ciclo Cerrado',
-};
+const nutritionStats = [
+  { value: '35–45%', label: 'Proteína cruda (base fresca)', color: C.green },
+  { value: '~40%',   label: 'Proteína (base seca)',          color: C.emerald },
+  { value: '25–35%', label: 'Grasa bruta',                   color: '#38bdf8' },
+  { value: '6–7%',   label: 'Calcio',                        color: '#f59e0b' },
+];
+
+const envAdvantages = [
+  'Reduce hasta un 80% el volumen de residuos orgánicos en solo 2–3 semanas.',
+  'Produce frass (biol sólido) de alto valor como abono para suelos y cultivos.',
+  'Ciclo cerrado: los residuos de la finca se convierten en proteína para los animales.',
+  'No compite con cultivos destinados a consumo humano.',
+];
 
 export default function Home() {
-  const { progress, overallPercent, loaded } = useProgress();
   const db = useSocios();
 
-  const getModuleStatus = (id: string) => {
-    if (progress.modulesCompleted.includes(id)) return 'completed';
-    if (progress.modulesVisited.includes(id)) return 'visited';
-    return 'pending';
-  };
-
   return (
-    <div style={{ maxWidth: 1000, margin: '0 auto', padding: '40px 20px 80px' }}>
-      <div style={{ textAlign: 'center', marginBottom: 56 }}>
+    <div style={{ maxWidth: 900, margin: '0 auto', padding: '40px 20px 80px' }}>
+
+      {/* Hero */}
+      <div style={{ textAlign: 'center', marginBottom: 48 }}>
         <div className="hero-row" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 16, marginBottom: 16 }}>
           <img src="/larvi-mascota.png" alt="Larvi" className="hero-mascot" style={{ width: 80, height: 80, objectFit: 'contain', flexShrink: 0 }} />
           <h1 className="hero-title" style={{ fontSize: 'clamp(26px,5vw,42px)', fontWeight: 900, lineHeight: 1.15, margin: 0, textAlign: 'left' }}>
-            Tu ruta de aprendizaje{' '}
+            ¿Por qué{' '}
             <span style={{ background: 'linear-gradient(135deg,#4ade80,#16a34a)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-              BSF completa
+              BSF?
             </span>
           </h1>
         </div>
-        <p style={{ fontSize: 16, color: '#94a3b8', maxWidth: 520, margin: '0 auto 16px', lineHeight: 1.6 }}>
-          Desde cero hasta tu primera cosecha. Aprende el ciclo, diagnostica tu preparación y elige tu ruta de producción.
+        <p style={{ fontSize: 16, color: C.muted, maxWidth: 560, margin: '0 auto', lineHeight: 1.6 }}>
+          La mosca soldado negra (<em>Hermetia illucens</em>) transforma residuos orgánicos en proteína de alto valor biológico. Aquí los datos más relevantes por especie y las ventajas ambientales comprobadas.
         </p>
-        {loaded && overallPercent > 0 && (
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 12, background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.3)', borderRadius: 12, padding: '10px 20px' }}>
-            <div style={{ width: 120, height: 6, background: '#1e3050', borderRadius: 3, overflow: 'hidden' }}>
-              <div style={{ width: '100%', height: '100%', background: 'linear-gradient(90deg,#10b981,#16a34a)', borderRadius: 3, transform: `scaleX(${overallPercent / 100})`, transformOrigin: 'left', transition: 'transform 0.5s' }} />
-            </div>
-            <span style={{ fontSize: 13, fontWeight: 700, color: '#10b981' }}>{overallPercent}% completado</span>
-          </div>
-        )}
-        {loaded && progress.selectedMeta && (
-          <div style={{ marginTop: 12, fontSize: 13, color: '#64748b' }}>
-            Meta actual: <strong style={{ color: '#4ade80' }}>{metaNames[progress.selectedMeta]}</strong>
-            {' · '}
-            <Link href="/metas" style={{ color: '#22c55e', textDecoration: 'none' }}>ver guía →</Link>
-          </div>
-        )}
       </div>
 
+      {/* Alerta lotes listos (socios) */}
       {db.loaded && db.session && db.readyLotes.length > 0 && (
-        <div style={{ marginBottom: 24, display: 'flex', flexDirection: 'column', gap: 10 }}>
+        <div style={{ marginBottom: 32, display: 'flex', flexDirection: 'column', gap: 10 }}>
           {db.readyLotes.map(l => (
             <Link key={l.id} href="/socios" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 12, padding: '14px 18px', background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.35)', borderRadius: 12 }}>
               <span style={{ fontSize: 22, flexShrink: 0 }}>🌾</span>
@@ -127,54 +97,67 @@ export default function Home() {
         </div>
       )}
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20, marginBottom: 48 }}>
-        {modules.filter(m => !m.hidden).map((mod, idx) => {
-          const status = getModuleStatus(mod.id);
-          return (
-            <div
-              key={mod.id}
-              style={{
-                background: 'rgba(21,32,53,0.7)', border: `1px solid ${status === 'completed' ? mod.color + '60' : 'rgba(34,197,94,0.15)'}`,
-                borderRadius: 16, padding: 24, position: 'relative', overflow: 'hidden', cursor: 'pointer',
-              }}
-            >
-              {status === 'completed' && (
-                <div style={{ position: 'absolute', top: 12, right: 12, fontSize: 11, fontWeight: 700, padding: '3px 8px', borderRadius: 6, background: 'rgba(16,185,129,0.15)', color: '#10b981' }}>
-                  ✓ Completado
-                </div>
-              )}
-              {status !== 'completed' && (
-                <div style={{ position: 'absolute', top: 12, right: 12, fontSize: 11, fontWeight: 700, padding: '3px 8px', borderRadius: 6, background: `${mod.color}20`, color: mod.color }}>
-                  {mod.tag}
-                </div>
-              )}
-              <div style={{ marginTop: 8, marginBottom: 12 }}>
-                <div style={{ fontSize: 36, marginBottom: 8 }}>{mod.icon}</div>
-                <div style={{ fontSize: 11, color: '#64748b', fontWeight: 600, marginBottom: 4 }}>Paso {idx + 1} · {mod.time}</div>
-                <h2 style={{ fontSize: 18, fontWeight: 800, marginBottom: 4, color: '#f1f5f9' }}>{mod.title}</h2>
-                <div style={{ fontSize: 13, color: mod.color, fontWeight: 600, marginBottom: 10 }}>{mod.subtitle}</div>
-                <p style={{ fontSize: 13, color: '#94a3b8', lineHeight: 1.6 }}>{mod.description}</p>
+      {/* Beneficios por animal */}
+      <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(139,92,246,0.1)', border: '1px solid rgba(139,92,246,0.3)', borderRadius: 20, padding: '5px 14px', marginBottom: 16 }}>
+        <span style={{ fontSize: 12, color: C.purple, fontWeight: 600 }}>⭐ Beneficios por especie</span>
+      </div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(250px,1fr))', gap: 16, marginBottom: 32 }}>
+        {animalBenefits.map(b => (
+          <div key={b.animal} style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: 20 }}>
+            <div style={{ fontSize: 16, fontWeight: 800, color: '#f1f5f9', marginBottom: 14 }}>{b.animal}</div>
+            {b.items.map((item, i) => (
+              <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 8, marginBottom: 8, fontSize: 13, color: C.muted, lineHeight: 1.5 }}>
+                <span style={{ color: C.green, flexShrink: 0, marginTop: 1 }}>✓</span>
+                <span>{item}</span>
               </div>
-              <div style={{ marginTop: 20, height: 1, background: 'rgba(34,197,94,0.1)', marginBottom: 16 }} />
-              <Link
-                href={mod.href}
-                style={{
-                  display: 'inline-flex', alignItems: 'center', gap: 8,
-                  background: status === 'completed' ? 'rgba(16,185,129,0.15)' : `linear-gradient(135deg,${mod.color},${mod.color}cc)`,
-                  color: status === 'completed' ? '#10b981' : 'white',
-                  padding: '10px 20px', borderRadius: 8, textDecoration: 'none',
-                  fontWeight: 700, fontSize: 13,
-                  border: status === 'completed' ? '1px solid rgba(16,185,129,0.3)' : 'none',
-                }}
-              >
-                {status === 'completed' ? 'Revisar' : status === 'visited' ? 'Continuar' : 'Empezar'} →
-              </Link>
-            </div>
-          );
-        })}
+            ))}
+          </div>
+        ))}
       </div>
 
-      <div style={{ textAlign: 'center', marginTop: 36, paddingTop: 28, borderTop: '1px solid rgba(34,197,94,0.1)' }}>
+      {/* Composición nutricional */}
+      <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: 24, marginBottom: 20 }}>
+        <h2 style={{ fontSize: 15, fontWeight: 800, color: '#f1f5f9', marginBottom: 16 }}>🔬 Composición nutricional (larva BSFL)</h2>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(140px,1fr))', gap: 12 }}>
+          {nutritionStats.map(s => (
+            <div key={s.label} style={{ background: C.card2, borderRadius: 10, padding: '14px 16px', textAlign: 'center' }}>
+              <div style={{ fontSize: 22, fontWeight: 800, color: s.color, marginBottom: 4 }}>{s.value}</div>
+              <div style={{ fontSize: 11, color: C.muted, lineHeight: 1.4 }}>{s.label}</div>
+            </div>
+          ))}
+        </div>
+        <p style={{ fontSize: 12, color: '#475569', marginTop: 14, lineHeight: 1.5 }}>
+          Valores orientativos. La composición varía según sustrato, edad de cosecha y método de procesado.
+        </p>
+      </div>
+
+      {/* Ventajas ambientales */}
+      <div style={{ background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.2)', borderRadius: 14, padding: 24, marginBottom: 20 }}>
+        <h2 style={{ fontSize: 15, fontWeight: 800, color: '#f1f5f9', marginBottom: 14 }}>♻️ Ventajas ambientales</h2>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          {envAdvantages.map((text, i) => (
+            <div key={i} style={{ display: 'flex', gap: 10, alignItems: 'flex-start', fontSize: 13, color: C.muted, lineHeight: 1.5 }}>
+              <span style={{ color: C.emerald, flexShrink: 0, marginTop: 2, fontSize: 10 }}>●</span>
+              <span>{text}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Evidencia científica */}
+      <div style={{ background: 'rgba(139,92,246,0.06)', border: '1px solid rgba(139,92,246,0.25)', borderRadius: 14, padding: 24, marginBottom: 40 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8, flexWrap: 'wrap' }}>
+          <span style={{ fontSize: 18 }}>📄</span>
+          <span style={{ fontSize: 14, fontWeight: 800, color: '#f1f5f9' }}>Evidencia científica</span>
+          <span style={{ background: 'rgba(139,92,246,0.15)', color: C.purple, fontSize: 11, fontWeight: 700, padding: '2px 10px', borderRadius: 20 }}>Próximamente</span>
+        </div>
+        <p style={{ fontSize: 13, color: C.muted, lineHeight: 1.6, margin: 0 }}>
+          Estamos recopilando artículos revisados por pares sobre composición de BSFL, tasas de conversión en campo y efectos sobre producción animal en contextos latinoamericanos.
+        </p>
+      </div>
+
+      {/* Compartir */}
+      <div style={{ textAlign: 'center', paddingTop: 28, borderTop: '1px solid rgba(34,197,94,0.1)' }}>
         <p style={{ fontSize: 13, color: '#64748b', marginBottom: 12 }}>¿Te parece útil? Compártelo con otros productores</p>
         <ShareButton />
       </div>

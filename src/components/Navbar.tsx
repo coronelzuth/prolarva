@@ -26,8 +26,8 @@ export default function Navbar() {
 
   return (
     <nav style={{ background: 'rgba(13,27,42,0.95)', borderBottom: '1px solid rgba(14,165,233,0.2)', backdropFilter: 'blur(12px)', position: 'sticky', top: 0, zIndex: 50 }}>
-      <div style={{ maxWidth: 1100, margin: '0 auto', padding: '0 12px', display: 'flex', alignItems: 'center', justifyContent: 'center', height: 60, gap: 8 }}>
-        <div className="nav-links-wrap" style={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+      <div style={{ maxWidth: 1100, margin: '0 auto', padding: '0 8px', display: 'flex', alignItems: 'center', justifyContent: 'center', height: 60, gap: 0, width: '100%' }}>
+        <div className="nav-links-wrap" style={{ display: 'flex', gap: 2, alignItems: 'center', width: '100%' }}>
           {navLinks.filter(l => !l.hidden).map(link => {
             const active = pathname === link.href;
             const isCompleted = link.href !== '/' && link.href !== '/calculadora' && progress.modulesCompleted.includes(link.href.replace('/', ''));
@@ -81,10 +81,9 @@ export default function Navbar() {
         .nav-label { display: none; }
         @media (min-width: 900px) { .nav-label { display: inline; } }
         @media (max-width: 599px) {
-          .nav-links-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; flex: 1; }
-          .nav-links-wrap::-webkit-scrollbar { display: none; }
-          .nav-link-item { padding: 6px 8px !important; flex-shrink: 0; }
-          .nav-socios-btn { padding: 6px 10px !important; margin-left: 2px !important; }
+          .nav-links-wrap { flex: 1; justify-content: space-around; }
+          .nav-link-item { flex: 1; justify-content: center; padding: 6px 4px !important; }
+          .nav-socios-btn { flex: 1; justify-content: center; padding: 6px 4px !important; margin-left: 0 !important; }
           .nav-socios-txt { display: none; }
           .nav-progress { display: none !important; }
           .nav-monitor-txt { display: none; }

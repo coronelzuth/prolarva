@@ -12,6 +12,7 @@ export function ClaseModal({ open, onClose, semana, clase, onSave }: {
 }) {
   const [titulo,   setTitulo]   = useState('');
   const [desc,     setDesc]     = useState('');
+  const [resumen,  setResumen]  = useState('');
   const [urlVideo, setUrlVideo] = useState('');
   const [activa,   setActiva]   = useState(false);
   const [saving,   setSaving]   = useState(false);
@@ -19,6 +20,7 @@ export function ClaseModal({ open, onClose, semana, clase, onSave }: {
   useEffect(() => {
     setTitulo(clase?.titulo ?? '');
     setDesc(clase?.descripcion ?? '');
+    setResumen(clase?.resumen ?? '');
     setUrlVideo(clase?.url_video ?? '');
     setActiva(clase?.activa ?? false);
   }, [clase, open]);
@@ -30,6 +32,7 @@ export function ClaseModal({ open, onClose, semana, clase, onSave }: {
       id: clase?.id, semana, orden: clase?.orden ?? 1,
       titulo: titulo.trim(),
       descripcion: desc.trim() || undefined,
+      resumen: resumen.trim() || undefined,
       url_video: urlVideo.trim() || undefined,
       activa,
     });
@@ -38,7 +41,7 @@ export function ClaseModal({ open, onClose, semana, clase, onSave }: {
   }
 
   return (
-    <Modal open={open} onClose={onClose} title={clase?.id ? 'Editar clase' : `Nueva clase — Fase ${semana}`}>
+    <Modal open={open} onClose={onClose} title={clase?.id ? 'Editar clase' : `Nueva clase — Semana ${semana}`}>
       <div style={{ marginBottom: 14 }}>
         <label style={labelStyle}>Título de la clase</label>
         <input style={inputStyle} value={titulo} onChange={e => setTitulo(e.target.value)} placeholder="ej: Montaje del criadero BSF" />
@@ -46,6 +49,10 @@ export function ClaseModal({ open, onClose, semana, clase, onSave }: {
       <div style={{ marginBottom: 14 }}>
         <label style={labelStyle}>Descripción (opcional)</label>
         <textarea style={{ ...inputStyle, resize: 'vertical', minHeight: 72 }} value={desc} onChange={e => setDesc(e.target.value)} placeholder="Qué verán en esta clase..." />
+      </div>
+      <div style={{ marginBottom: 14 }}>
+        <label style={labelStyle}>Resumen de la clase (se publica después de la sesión)</label>
+        <textarea style={{ ...inputStyle, resize: 'vertical', minHeight: 90 }} value={resumen} onChange={e => setResumen(e.target.value)} placeholder="Puntos clave de lo que se cubrió en vivo. El alumno lo lee para repasar sin volver a ver el video." />
       </div>
       <div style={{ marginBottom: 14 }}>
         <label style={labelStyle}>URL del video (YouTube)</label>
@@ -103,7 +110,7 @@ export function PlantillaModal({ open, onClose, semana, plantilla, onSave }: {
   }
 
   return (
-    <Modal open={open} onClose={onClose} title={plantilla?.id ? 'Editar plantilla' : `Nueva plantilla — Fase ${semana}`}>
+    <Modal open={open} onClose={onClose} title={plantilla?.id ? 'Editar plantilla' : `Nueva plantilla — Semana ${semana}`}>
       <div style={{ marginBottom: 14 }}>
         <label style={labelStyle}>Nombre</label>
         <input style={inputStyle} value={titulo} onChange={e => setTitulo(e.target.value)} placeholder="ej: Registro de alimentación semanal" />
@@ -158,7 +165,7 @@ export function TareaModal({ open, onClose, semana, tarea, onSave }: {
   }
 
   return (
-    <Modal open={open} onClose={onClose} title={tarea?.id ? 'Editar tarea' : `Nueva tarea — Fase ${semana}`}>
+    <Modal open={open} onClose={onClose} title={tarea?.id ? 'Editar tarea' : `Nueva tarea — Semana ${semana}`}>
       <div style={{ marginBottom: 14 }}>
         <label style={labelStyle}>Pregunta / enunciado</label>
         <textarea style={{ ...inputStyle, resize: 'vertical', minHeight: 88 }} value={pregunta} onChange={e => setPregunta(e.target.value)} placeholder="ej: ¿Qué observaste en tu lote esta semana? Comparte temperatura, humedad y cualquier novedad." />

@@ -38,6 +38,8 @@ Programa **Colonia**: 4 semanas de clases en vivo para socios inscritos.
 | `entregas_tareas` | Respuestas de socios a las tareas (UNIQUE tarea_id+socio_code) |
 | `socios` | Campos `en_colonia boolean` + `fases_aprobadas INTEGER` + `fase_en_revision INTEGER` |
 | `cronograma_dias` | Días individuales del programa: fecha, semana, tipo, título, descripción |
+| `preguntas_escuela` | Cajita de Preguntas: socio_code, socio_nombre, semana, texto, respondida, respuesta, creado_en |
+| `clases` | + columna `resumen text` (resumen post-sesión que lee el alumno para repasar sin ver el video) |
 
 ---
 
@@ -75,6 +77,19 @@ Programa **Colonia**: 4 semanas de clases en vivo para socios inscritos.
 ### Plantillas
 - Admin sube link (Google Drive) con título y tamaño, asignadas a semana
 - Accesibles desde el panel expandible del cronograma (tipo `recurso`)
+
+### Cajita de Preguntas (2026-08-29) ← NUEVO
+- Tab **❓ Preguntas** en sidebar y móvil
+- Alumno: selector de semana + textarea (máx 500) + botón "Enviar pregunta"
+- Todos ven la lista; las propias resaltadas; badge ⏳ Pendiente / ✅ Respondida
+- Admin: responde inline (textarea + "Responder"), edita respuesta, elimina; badge en nav = nº sin responder
+- Se responden en vivo en la 2ª sesión de cada semana ("Preguntas y Respuestas")
+- Hook: `publicarPregunta` / `responderPregunta` / `eliminarPregunta`
+- SQL: `supabase/preguntas_escuela.sql`
+
+### Resumen de clase (2026-08-29) ← NUEVO
+- Campo `resumen` en el modal de clase (admin) — texto que se publica tras la sesión en vivo
+- Se muestra en la vista de clase y en el panel del cronograma, en card verde "📝 Resumen"
 
 ### Foro
 - Publicar posts (máx 500 chars)
@@ -153,14 +168,18 @@ Sistema de aprobación de fases del Programa Colonia. Flujo: **socio marca → a
 
 ---
 
-## Contenido por semana (hardcodeado en SEMANAS_INFO)
+## Contenido por semana (hardcodeado en SEMANAS_INFO — sincronizado con los guiones 2026-08-29)
 
 | Semana | Título | Temas |
 |---|---|---|
-| 1 🌱 | Bases del Sistema | Ciclo BSF sin tecnicismos · Espacio desde 1m² · Materiales · Activar semilla |
-| 2 🐛 | Manejo del Lote | Alimentación diaria · Temperatura y humedad · Leer estado de larvas · Imprevistos |
-| 3 ⚖️ | Cosecha y Uso | Cuándo cosechar · Larva viva/seca/harina · Raciones por especie · Calcular ahorro |
-| 4 🔄 | Ciclo Cerrado | Generar semilla propia · Trampas de oviposición · Sostenibilidad · Revisión final |
+| 1 🌱 | Conoce tu Mosca Soldado Negra | Ciclo en 5 etapas · Reconocer tu larva vs mosca común · Colonia sana · Punto de cosecha |
+| 2 🐛 | Manejo y Cría | Residuos triturados + purina 8 días · Prueba del puñado · Humedad/temp/oscuridad · Plagas y olores |
+| 3 ⚖️ | Cosecha y Uso | Señal: ~5% oscuras · Tamiz o luz · 3 formatos (viva/seca/harina) · Reemplazo 10-25% |
+| 4 🔄 | Cerrar el Ciclo | Apartar 15-20% · Jaula low/high cost · Trampa de puesta · 1 g de huevo = 1 bandeja |
+| 5 💰 | Monitoreo, Venta y tu Marca | Diagnóstico de colonia · 4 números · Vender excedente · Celular + red de productores |
+
+Cada semana tiene 2 sesiones (`dias`): la 1ª de contenido, la 2ª "Preguntas y Respuestas".
+Guiones fuente: `HUB PROLARVA\11- Curso Grupal\Clase_0N.md` + `Clase_Sorpresa.md`.
 
 ---
 
@@ -184,6 +203,19 @@ El navbar global de la app está oculto dentro de `/socios`.
 | `/api/socios/aprobar-fase` | POST | Admin aprueba la fase de un socio — requiere adminCode con rol=admin |
 
 ---
+
+## Cambios 2026-08-30 (sesión 22)
+
+- **Vocabulario:** toda la UI dice "Semana" (antes mezclaba Fase/Semana/Día). El código sigue con `fase`/`fasesAprobadas`.
+- **Bug corregido:** las consultas a `socios` usaban `code` (columna inexistente) → Directorio, badges admin y panel Progreso salían vacíos. Ahora `codigo`.
+- **`config_escuela.clave = 'url_reunion'`** — enlace de la videollamada. Se edita desde el banner del countdown (admin). Botón "🎥 Entrar a la clase" para socios. Hook: `esc.urlReunion` / `esc.setUrlReunion()`.
+- **Sesión refrescada al cargar** — el socio ya no tiene que re-loguearse para ver una semana aprobada o el Monitor desbloqueado.
+- **Seguridad:** las escrituras de admin ahora pasan por **`/api/escuela`** (`{ requesterCode, action, payload }`, verifica `rol` en servidor). Helper: `src/lib/supabaseServer.ts`. Pendiente de Juliana: agregar `SUPABASE_SERVICE_ROLE_KEY` en Vercel + correr `supabase/escuela-seguridad.sql` para bloquear la anon key a SELECT.
+
+### API relacionada — escrituras de admin (`/api/escuela`)
+
+`POST { requesterCode, action, payload }` — acciones: `clase.save`/`clase.delete`, `plantilla.save`/`plantilla.delete`, `tarea.save`/`tarea.delete`, `dia.save`/`dia.delete`, `anuncio.create`/`anuncio.delete`/`anuncio.fijar`, `config.set`/`config.delete` (proxima_clase, url_reunion), `pregunta.responder`, `pregunta.delete` (admin o autor si no está respondida), `post.fijar`, `post.delete` (admin o autor), `socio.colonia`.
+Las lecturas y las publicaciones del socio (foro, cajita de preguntas, marcar vista, entregar tarea, reaccionar) siguen client-side con la anon key.
 
 ## Estado actual (2026-07-30)
 

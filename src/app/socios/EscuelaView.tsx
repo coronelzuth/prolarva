@@ -66,6 +66,8 @@ export default function EscuelaView({
   const countdown = useCountdown(esc.proxClase);
   const [proxInput,     setProxInput]     = useState('');
   const [editingProx,   setEditingProx]   = useState(false);
+  const [reunionInput,  setReunionInput]  = useState('');
+  const [editingReunion, setEditingReunion] = useState(false);
 
   // Tareas
   const [tareaText,    setTareaText]    = useState('');
@@ -76,6 +78,13 @@ export default function EscuelaView({
   const [posting,     setPosting]     = useState(false);
   const [foroSuccess, setForoSuccess] = useState(false);
   const [foroSearch,  setForoSearch]  = useState('');
+
+  // Cajita de Preguntas
+  const [pregText,    setPregText]    = useState('');
+  const [pregSemana,  setPregSemana]  = useState<number>(1);
+  const [pregPosting, setPregPosting] = useState(false);
+  const [pregSuccess, setPregSuccess] = useState(false);
+  const [respDrafts,  setRespDrafts]  = useState<Record<string, string>>({});
 
   // Respuestas
   const [replyingTo,  setReplyingTo]  = useState<string | null>(null);
@@ -113,8 +122,8 @@ export default function EscuelaView({
   useEffect(() => {
     const sb = getSupabase();
     if (!sb) return;
-    sb.from('socios').select('code').eq('rol', 'admin').then(({ data }) => {
-      if (data) setAdminCodes(new Set(data.map((s: { code: string }) => s.code)));
+    sb.from('socios').select('codigo').eq('rol', 'admin').then(({ data }) => {
+      if (data) setAdminCodes(new Set(data.map((s: { codigo: string }) => s.codigo)));
     });
   }, []);
 
@@ -124,10 +133,10 @@ export default function EscuelaView({
     const sb = getSupabase();
     if (!sb) return;
     Promise.all([
-      sb.from('socios').select('code,nombre,fases_aprobadas,fase_en_revision').eq('estado', 'activo'),
+      sb.from('socios').select('codigo,nombre,fases_aprobadas,fase_en_revision').eq('estado', 'activo'),
       sb.from('progreso_clases').select('socio_code,clase_id'),
     ]).then(([sRes, pRes]) => {
-      setAdminSocios(sRes.data?.map(x => ({ code: x.code, nombre: x.nombre, fases_aprobadas: x.fases_aprobadas ?? 0, fase_en_revision: x.fase_en_revision ?? 0 })) ?? []);
+      setAdminSocios(sRes.data?.map(x => ({ code: x.codigo, nombre: x.nombre, fases_aprobadas: x.fases_aprobadas ?? 0, fase_en_revision: x.fase_en_revision ?? 0 })) ?? []);
       setAdminProgreso(pRes.data ?? []);
     });
   }, [isAdmin, sub]);
@@ -214,7 +223,7 @@ export default function EscuelaView({
         <div>
           <h1 style={{ fontSize: 22, fontWeight: 900 }}>🎓 Mi Escuela</h1>
           <p style={{ color: S.muted, fontSize: 13, marginTop: 4 }}>
-            Programa Colonia · 5 fases
+            Programa Colonia · 5 semanas
             {esc.totalClases > 0 && (
               <span style={{ marginLeft: 10, color: S.green2, fontWeight: 700 }}>
                 · {esc.totalVistos}/{esc.totalClases} clases completadas
@@ -299,6 +308,38 @@ export default function EscuelaView({
                 )}
               </div>
             )}
+
+            {/* ── Enlace de la videollamada ── */}
+            <div style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginTop: esc.urlReunion || asAdmin ? 4 : 0 }}>
+              {esc.urlReunion && (
+                <a
+                  href={esc.urlReunion} target="_blank" rel="noopener noreferrer"
+                  style={{ ...btnPrimary, fontSize: 12, padding: '9px 18px', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 7,
+                    background: past ? 'linear-gradient(135deg,#22c55e,#16a34a)' : 'rgba(34,197,94,0.12)',
+                    color: past ? '#fff' : S.green2,
+                    border: past ? 'none' : '1px solid rgba(34,197,94,0.35)' }}
+                >
+                  🎥 {past ? 'Entrar a la clase ahora' : 'Enlace de la clase en vivo'}
+                </a>
+              )}
+              {asAdmin && (
+                editingReunion ? (
+                  <>
+                    <input
+                      type="url" value={reunionInput} onChange={e => setReunionInput(e.target.value)}
+                      placeholder="https://meet.google.com/..."
+                      style={{ ...inputStyle, flex: 1, minWidth: 180, fontSize: 12, padding: '6px 10px' }}
+                    />
+                    <button style={{ ...btnPrimary, fontSize: 11, padding: '6px 12px' }} onClick={async () => { await esc.setUrlReunion(reunionInput); setEditingReunion(false); }}>Guardar</button>
+                    <button style={{ ...btnOutline, fontSize: 11, padding: '6px 10px' }} onClick={() => setEditingReunion(false)}>✕</button>
+                  </>
+                ) : (
+                  <button style={{ ...btnOutline, fontSize: 11, padding: '5px 10px' }} onClick={() => { setReunionInput(esc.urlReunion ?? ''); setEditingReunion(true); }}>
+                    {esc.urlReunion ? '✏️ Editar enlace de reunión' : '+ Agregar enlace de reunión'}
+                  </button>
+                )
+              )}
+            </div>
           </div>
         );
       })()}
@@ -386,6 +427,10 @@ export default function EscuelaView({
           onClick={() => setSub('foro')}>
           💬 Foro
         </button>
+        <button className={`esc-mob-tab${sub === 'preguntas' ? ' esc-mob-tab-active' : ''}`}
+          onClick={() => setSub('preguntas')}>
+          ❓
+        </button>
         <button className={`esc-mob-tab${sub === 'directorio' ? ' esc-mob-tab-active' : ''}`}
           onClick={() => setSub('directorio')}>
           👥
@@ -422,6 +467,16 @@ export default function EscuelaView({
             active={sub === 'foro'}
             onClick={() => setSub('foro')}
             badge={esc.posts.length > 0 ? String(esc.posts.filter(p => !p.parent_id).length) : undefined}
+          />
+          <NavItem
+            label="❓ Preguntas"
+            active={sub === 'preguntas'}
+            onClick={() => setSub('preguntas')}
+            badge={
+              asAdmin
+                ? (esc.preguntas.filter(p => !p.respondida).length > 0 ? String(esc.preguntas.filter(p => !p.respondida).length) : undefined)
+                : (esc.preguntas.length > 0 ? String(esc.preguntas.length) : undefined)
+            }
           />
           <NavItem
             label="👥 Directorio"
@@ -466,7 +521,7 @@ export default function EscuelaView({
           {sub === 'clase' && (
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-                <h2 style={{ fontSize: 17, fontWeight: 800 }}>📅 Fase {semana} — Clase</h2>
+                <h2 style={{ fontSize: 17, fontWeight: 800 }}>📅 Semana {semana} — Clase</h2>
                 {asAdmin && (
                   <button
                     style={{ ...btnOutline, fontSize: 12, color: S.amber, borderColor: 'rgba(245,158,11,0.35)' }}
@@ -558,6 +613,14 @@ export default function EscuelaView({
                         )}
                       </div>
 
+                      {/* Resumen de la clase (post-sesión) */}
+                      {clase.resumen && (
+                        <div style={{ marginTop: 16, background: 'rgba(34,197,94,0.06)', border: '1px solid rgba(34,197,94,0.2)', borderRadius: 12, padding: '14px 16px' }}>
+                          <div style={{ fontSize: 11, fontWeight: 700, color: S.green, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 8 }}>📝 Resumen de la clase</div>
+                          <p style={{ fontSize: 13, color: S.text, lineHeight: 1.7, margin: 0, whiteSpace: 'pre-wrap' }}>{clase.resumen}</p>
+                        </div>
+                      )}
+
                       {/* Marcar como vista */}
                       {!asAdmin && (
                         <div style={{ marginTop: 16 }}>
@@ -585,7 +648,7 @@ export default function EscuelaView({
           {sub === 'plantillas' && (
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-                <h2 style={{ fontSize: 17, fontWeight: 800 }}>📄 Plantillas — Fase {semana}</h2>
+                <h2 style={{ fontSize: 17, fontWeight: 800 }}>📄 Plantillas — Semana {semana}</h2>
                 {asAdmin && (
                   <button
                     style={{ ...btnOutline, fontSize: 12, color: S.amber, borderColor: 'rgba(245,158,11,0.35)' }}
@@ -647,7 +710,7 @@ export default function EscuelaView({
           {sub === 'tarea' && (
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-                <h2 style={{ fontSize: 17, fontWeight: 800 }}>📝 Tarea — Fase {semana}</h2>
+                <h2 style={{ fontSize: 17, fontWeight: 800 }}>📝 Tarea — Semana {semana}</h2>
                 {asAdmin && (
                   <button style={{ ...btnOutline, fontSize: 12, color: S.amber, borderColor: 'rgba(245,158,11,0.35)' }}
                     onClick={() => { setEditTarea(undefined); setModalTarea(true); }}>
@@ -794,6 +857,147 @@ export default function EscuelaView({
               handlePublicar={handlePublicar}
             />
           )}
+
+          {/* ━━━ CAJITA DE PREGUNTAS ━━━━━━━━━━━━━━━━━━━━━━━━ */}
+          {sub === 'preguntas' && (() => {
+            const ordenadas = [...esc.preguntas].sort((a, b) => {
+              if (asAdmin && a.respondida !== b.respondida) return a.respondida ? 1 : -1;
+              return new Date(b.creado_en).getTime() - new Date(a.creado_en).getTime();
+            });
+            const semLabel = (s: number | null) => s ? `Semana ${s}: ${SEMANAS_INFO[s - 1]?.title ?? ''}` : 'General';
+
+            return (
+              <div>
+                <h2 style={{ fontSize: 17, fontWeight: 800, marginBottom: 6 }}>❓ Cajita de Preguntas</h2>
+                <p style={{ fontSize: 13, color: S.muted, lineHeight: 1.6, marginBottom: 20 }}>
+                  Deja tus dudas durante la semana. Las respondemos en vivo en la segunda sesión (Preguntas y Respuestas).
+                </p>
+
+                {/* Formulario del alumno */}
+                {!asAdmin && (
+                  <div style={{ background: S.navy2, border: `1px solid ${S.border}`, borderRadius: 12, padding: '16px 18px', marginBottom: 24 }}>
+                    <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: S.muted, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6 }}>¿Sobre qué semana?</label>
+                    <select
+                      value={pregSemana}
+                      onChange={e => setPregSemana(Number(e.target.value))}
+                      style={{ ...inputStyle, marginBottom: 12, cursor: 'pointer' }}
+                    >
+                      {SEMANAS.map(s => (
+                        <option key={s} value={s}>{semLabel(s)}</option>
+                      ))}
+                    </select>
+                    <textarea
+                      value={pregText}
+                      onChange={e => setPregText(e.target.value.slice(0, 500))}
+                      placeholder="Escribe tu pregunta para la clase..."
+                      style={{ ...inputStyle, resize: 'vertical', minHeight: 90, marginBottom: 8 }}
+                    />
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ fontSize: 11, color: S.muted }}>
+                        {pregSuccess ? <span style={{ color: S.green2, fontWeight: 700 }}>✅ Pregunta enviada</span> : `${pregText.length}/500`}
+                      </span>
+                      <button
+                        style={{ ...btnPrimary, opacity: !pregText.trim() || pregPosting ? 0.5 : 1 }}
+                        disabled={!pregText.trim() || pregPosting}
+                        onClick={async () => {
+                          setPregPosting(true);
+                          const ok = await esc.publicarPregunta(pregText, pregSemana, socioNombre);
+                          if (ok) { setPregText(''); setPregSuccess(true); setTimeout(() => setPregSuccess(false), 2500); }
+                          setPregPosting(false);
+                        }}
+                      >
+                        {pregPosting ? 'Enviando...' : 'Enviar pregunta'}
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {asAdmin && (
+                  <div style={{ fontSize: 13, fontWeight: 700, color: S.muted, marginBottom: 12 }}>
+                    {esc.preguntas.filter(p => !p.respondida).length} sin responder · {esc.preguntas.length} en total
+                  </div>
+                )}
+
+                {/* Lista */}
+                {ordenadas.length === 0 ? (
+                  <div style={{ textAlign: 'center', padding: '3.5rem 1rem', color: S.muted }}>
+                    <div style={{ fontSize: '2.6rem', marginBottom: 12 }}>❓</div>
+                    <p style={{ fontSize: 14, fontWeight: 600 }}>Todavía no hay preguntas. Sé el primero.</p>
+                  </div>
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                    {ordenadas.map(q => {
+                      const mia = q.socio_code === socioCode;
+                      return (
+                        <div key={q.id} style={{
+                          background: mia ? 'rgba(34,197,94,0.06)' : S.navy2,
+                          border: `1px solid ${mia ? 'rgba(34,197,94,0.3)' : S.border}`,
+                          borderRadius: 12, padding: '14px 16px',
+                        }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8, flexWrap: 'wrap' }}>
+                            <span style={{ fontSize: 13, fontWeight: 700, color: S.green2 }}>{q.socio_nombre}</span>
+                            {mia && <span style={{ fontSize: 10, color: S.muted }}>(tú)</span>}
+                            <span style={{ fontSize: 10, color: '#475569' }}>{timeAgo(q.creado_en)}</span>
+                            <span style={{ fontSize: 10, color: S.muted, background: 'rgba(148,163,184,0.1)', padding: '2px 8px', borderRadius: 99 }}>
+                              {q.semana ? `Semana ${q.semana}` : 'General'}
+                            </span>
+                            {q.respondida
+                              ? <span style={{ fontSize: 10, fontWeight: 700, color: S.emerald, marginLeft: 'auto' }}>✅ Respondida</span>
+                              : <span style={{ fontSize: 10, fontWeight: 700, color: S.amber, marginLeft: 'auto' }}>⏳ Pendiente</span>}
+                          </div>
+                          <p style={{ fontSize: 13, color: S.text, lineHeight: 1.65, margin: 0, whiteSpace: 'pre-wrap' }}>{q.texto}</p>
+
+                          {q.respuesta && (
+                            <div style={{ marginTop: 10, borderLeft: `3px solid ${S.green}`, paddingLeft: 12 }}>
+                              <div style={{ fontSize: 10, fontWeight: 700, color: S.green, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>Respuesta ProLarva</div>
+                              <p style={{ fontSize: 13, color: S.text, lineHeight: 1.65, margin: 0, whiteSpace: 'pre-wrap' }}>{q.respuesta}</p>
+                            </div>
+                          )}
+
+                          {asAdmin && (
+                            <div style={{ marginTop: 12 }}>
+                              <textarea
+                                value={respDrafts[q.id] ?? q.respuesta ?? ''}
+                                onChange={e => setRespDrafts(d => ({ ...d, [q.id]: e.target.value }))}
+                                placeholder="Escribe la respuesta..."
+                                style={{ ...inputStyle, resize: 'vertical', minHeight: 64, marginBottom: 8, fontSize: 12 }}
+                              />
+                              <div style={{ display: 'flex', gap: 8 }}>
+                                <button
+                                  style={{ ...btnPrimary, fontSize: 12, padding: '7px 16px' }}
+                                  onClick={async () => {
+                                    const txt = respDrafts[q.id] ?? q.respuesta ?? '';
+                                    await esc.responderPregunta(q.id, txt);
+                                  }}
+                                >
+                                  {q.respondida ? 'Actualizar respuesta' : 'Responder'}
+                                </button>
+                                <button
+                                  style={btnDanger}
+                                  onClick={() => { if (confirm('¿Eliminar esta pregunta?')) esc.eliminarPregunta(q.id); }}
+                                >
+                                  🗑️
+                                </button>
+                              </div>
+                            </div>
+                          )}
+
+                          {!asAdmin && mia && !q.respondida && (
+                            <button
+                              style={{ ...btnOutline, fontSize: 11, padding: '4px 10px', marginTop: 10 }}
+                              onClick={() => { if (confirm('¿Eliminar tu pregunta?')) esc.eliminarPregunta(q.id); }}
+                            >
+                              Eliminar mi pregunta
+                            </button>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            );
+          })()}
 
           {/* ━━━ DIRECTORIO ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
           {sub === 'directorio' && (

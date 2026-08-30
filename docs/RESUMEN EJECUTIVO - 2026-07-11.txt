@@ -131,7 +131,7 @@ CÓMO ARRANCAR LA PRÓXIMA SESIÓN
 ================================================================================
 
 1. Abrí Claude Code desde:
-   C:\Users\HP\Desktop\ZuParadise\BR Prolarva\06 - Apps y Artifacts\prolarva-monitor
+   C:\Users\Usuario\Desktop\ZuParadise\BR Prolarva\06 - Apps y Artifacts\prolarva-monitor
 
 2. Decí: "Leé el CLAUDE.md y continuamos"
 

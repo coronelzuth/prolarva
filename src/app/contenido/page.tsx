@@ -1,5 +1,6 @@
 'use client'
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { useGuionesCms } from '@/hooks/useGuionesCms'
 import {
   Guion,
@@ -1075,5 +1076,20 @@ function GuionCard({
 }
 
 export default function ContenidoPageRoute() {
+  const router = useRouter()
+  const [ok, setOk] = useState(false)
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem('prl-session')
+      const rol = raw ? JSON.parse(raw)?.rol : null
+      if (rol === 'admin') setOk(true)
+      else router.replace('/socios')
+    } catch {
+      router.replace('/socios')
+    }
+  }, [router])
+
+  if (!ok) return null
   return <ContenidoPage />
 }

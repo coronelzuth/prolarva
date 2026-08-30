@@ -53,6 +53,23 @@ function Dashboard({ lotes, feeds, cosechas, activeLotes, readyLotes, recordator
         </div>
       )}
 
+      {/* Sin lotes todavía — el socio está en la etapa de clases */}
+      {lotes.length === 0 && (
+        <div
+          onClick={() => onNav('escuela')}
+          style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '16px 18px', borderRadius: 16, background: 'linear-gradient(135deg, rgba(34,197,94,0.1) 0%, rgba(34,197,94,0.04) 100%)', border: '1.5px solid rgba(34,197,94,0.35)', marginBottom: 20, cursor: 'pointer' }}
+        >
+          <div style={{ width: 48, height: 48, borderRadius: 12, flexShrink: 0, background: 'rgba(34,197,94,0.15)', border: '1px solid rgba(34,197,94,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24 }}>🎓</div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontSize: 14, fontWeight: 800, color: S.green2, marginBottom: 3 }}>Tu programa arranca en la Escuela</div>
+            <div style={{ fontSize: 12, color: S.muted, lineHeight: 1.5 }}>
+              Mira el cronograma de las 5 semanas y la próxima clase en vivo. Cuando empieces a criar tus larvas, aquí verás las alertas de cada lote.
+            </div>
+          </div>
+          <div style={{ fontSize: 18, color: S.green, flexShrink: 0 }}>→</div>
+        </div>
+      )}
+
       {/* Notificaciones — vencidos primero */}
       {lotesVencidos.map(l => {
         const d = daysSince(l.fecha);

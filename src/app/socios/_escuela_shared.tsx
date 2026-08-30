@@ -4,7 +4,7 @@ import type { TipoDia } from '@/hooks/useEscuela';
 
 // ─── Re-exportar tipos del hook ──────────────────────────────────────────────
 export type { TipoDia };
-export type EscuelaSub = 'clase' | 'plantillas' | 'tarea' | 'foro' | 'progreso' | 'directorio' | 'cronograma' | 'metas';
+export type EscuelaSub = 'clase' | 'plantillas' | 'tarea' | 'foro' | 'progreso' | 'directorio' | 'cronograma' | 'metas' | 'preguntas';
 
 // ─── Paleta ──────────────────────────────────────────────────────────────────
 export const S = {
@@ -50,36 +50,36 @@ export const btnDanger: React.CSSProperties = {
 
 // ─── Contenido por semana ────────────────────────────────────────────────────
 export const SEMANAS_INFO = [
-  { num: 1, emoji: '🌱', title: 'Mentalidad y Uso de la App',
+  { num: 1, emoji: '🌱', title: 'Conoce tu Mosca Soldado Negra',
     dias: [
-      { titulo: 'Mentalidad y Uso de la App', desc: 'Cómo aprovechar la app, tu espacio en la comunidad y la mentalidad para arrancar tu primera colonia BSF sin errores.' },
-      { titulo: 'Bases del Sistema', desc: 'El ciclo completo de la BSF explicado sin tecnicismos. Qué espacio necesitas, materiales que ya tienes y cómo activar tu primera semilla.' },
+      { titulo: 'Conoce tu Mosca Soldado Negra', desc: 'El ciclo completo en 5 etapas, cómo reconocer tu larva y distinguirla de la mosca común, y las señales de una colonia sana.' },
+      { titulo: 'Preguntas y Respuestas', desc: 'Sesión en vivo para resolver las dudas de la Cajita de Preguntas y revisar tus primeras observaciones.' },
     ],
-    items: ['El ciclo completo de la BSF explicado sin tecnicismos', 'Qué espacio necesitas (desde 1 m²)', 'Materiales que ya tienes vs. los que consigues local', 'Cómo activar tu primera semilla correctamente'] },
-  { num: 2, emoji: '🐛', title: 'Manejo del Lote',
+    items: ['El ciclo completo de la BSF en 5 etapas, sin tecnicismos', 'Cómo reconocer tu larva y no confundirla con la mosca común', 'Señales de una colonia sana y la luz como herramienta', 'El punto de cosecha: gorda y clara, antes de que se oscurezca'] },
+  { num: 2, emoji: '🐛', title: 'Manejo y Cría',
     dias: [
-      { titulo: 'Manejo del Lote', desc: 'Alimentación diaria: qué darles, cuánto y cuándo. Control de temperatura y humedad sin equipos especiales.' },
-      { titulo: 'Preguntas y Respuestas + Avances', desc: 'Sesión en vivo para resolver dudas del grupo, compartir avances y ajustar lo que sea necesario.' },
+      { titulo: 'Manejo y Cría', desc: 'Qué darle de comer y cuánto sin ahogar el sustrato, cómo mantener humedad y temperatura, y cómo prevenir plagas y malos olores.' },
+      { titulo: 'Preguntas y Respuestas', desc: 'Resolvemos las dudas de la semana y ajustamos la alimentación según cómo va tu lote.' },
     ],
-    items: ['Alimentación diaria: qué darles, cuánto y cuándo', 'Control de temperatura y humedad sin equipos especiales', 'Cómo leer el estado de las larvas en cada etapa', 'Qué hacer si algo sale diferente a lo esperado'] },
+    items: ['Qué comen: residuos triturados como papilla + purina los primeros 8 días', 'Cuánto darles: la prueba del puñado y la regla del peso', 'Humedad, temperatura y oscuridad sin equipos especiales', 'Plagas y malos olores: cómo prevenirlos desde la comida'] },
   { num: 3, emoji: '⚖️', title: 'Cosecha y Uso',
     dias: [
-      { titulo: 'Cosecha y Uso', desc: 'Cuándo y cómo cosechar (señales exactas). Larva viva, seca y harina — cuál usar y cuándo.' },
-      { titulo: 'Preguntas y Respuestas', desc: 'Sesión en vivo para resolver dudas de la cosecha y ajustar el proceso según tus resultados.' },
+      { titulo: 'Cosecha y Uso', desc: 'Cuándo cosechar (la señal exacta), cómo separar la larva del sustrato, los 3 formatos de entrega y cuánta larva darle a cada animal.' },
+      { titulo: 'Preguntas y Respuestas', desc: 'Dudas de la cosecha y ajuste del proceso según tus resultados y tus animales.' },
     ],
-    items: ['Cuándo y cómo cosechar (señales exactas)', 'Larva viva, larva seca y harina — cuál usar y cuándo', 'Raciones por especie: pollos, peces y cerdos', 'Cómo documentar tus resultados y calcular el ahorro real'] },
-  { num: 4, emoji: '🔄', title: 'Ciclo Cerrado',
+    items: ['La señal de cosecha: cuando ~5% de las larvas se ven oscuras', 'Separar con tamiz o con luz, lavar, pesar y registrar', 'Los 3 formatos: larva viva, seca y harina — cuál para cada animal', 'Reemplazar del 10% al 25% del concentrado y calcular el ahorro'] },
+  { num: 4, emoji: '🔄', title: 'Cerrar el Ciclo',
     dias: [
-      { titulo: 'Ciclo Cerrado', desc: 'Cómo generar tu propia semilla. Montaje de trampas de oviposición y plan de sostenibilidad.' },
-      { titulo: 'Manejo de Huevos y Neonatos', desc: 'Cómo identificar, cuidar y trasladar huevos y larvas neonatas para mantener el ciclo activo.' },
+      { titulo: 'Cerrar el Ciclo', desc: 'Guardar prepupas para reproducción, montar la jaula de adultos y la trampa de puesta, y recoger tus propios huevos para no volver a comprar pie de cría.' },
+      { titulo: 'Preguntas y Respuestas', desc: 'Dudas del reinicio del ciclo y revisión final del sistema que montaste.' },
     ],
-    items: ['Cómo generar tu propia semilla sin comprar más', 'Montaje de trampas de oviposición', 'Plan de sostenibilidad: cómo mantener el sistema activo solo', 'Preguntas finales + revisión de avances del grupo'] },
-  { num: 5, emoji: '💰', title: 'Comercialización y Subproductos',
+    items: ['Apartar el 15–20% de la camada y ponerla a pupar en cama seca', 'La jaula de adultos: sol directo y volumen de moscas', 'La trampa de puesta: cebo frutal + tablas apiladas', 'El ciclo cerrado: 1 gramo de huevo alcanza para una bandeja'] },
+  { num: 5, emoji: '💰', title: 'Monitoreo, Venta y tu Marca',
     dias: [
-      { titulo: 'Comercialización', desc: 'Cómo vender tu larva y a quién: canales locales y digitales. Compost y abono de BSFL: cómo procesarlo, presentarlo y ponerle precio.' },
-      { titulo: 'Manejo de Redes Sociales', desc: 'Cómo usar redes para posicionarte como productor BSF y atraer compradores locales.' },
+      { titulo: 'Monitoreo, Venta y tu Marca', desc: 'Diagnosticar tu colonia en 5 minutos, leer tus números, ponerle precio a tu excedente y publicar tu primer contenido. Más la sorpresa.' },
+      { titulo: 'Preguntas y Respuestas + Cierre', desc: 'Últimas dudas, revisión de avances del grupo y el paso siguiente de la red de productores.' },
     ],
-    items: ['Cómo vender tu larva y a quién: canales locales y digitales', 'Manejo de redes sociales para productores BSF', 'Compost y abono de BSFL: cómo procesarlo y usarlo', 'De subproducto a ingreso extra: precio y presentación del abono'] },
+    items: ['Diagnóstico rápido de colonia y los 6 problemas típicos', 'Tus 4 números: conversión, kg/semana, mortalidad y ahorro', 'Vender tu excedente: a quién, a cuánto y cómo presentarlo', 'Documentar con el celular y entrar a la red de productores'] },
 ];
 
 // ─── TIPO_META ────────────────────────────────────────────────────────────────
@@ -180,7 +180,7 @@ export function descargarCertificado(nombre: string) {
 
   ctx.fillStyle = '#94a3b8';
   ctx.font = '19px Arial, sans-serif';
-  ctx.fillText('Programa Colonia · 4 Semanas de Clases en Vivo BSF', 600, 232);
+  ctx.fillText('Programa Colonia · 5 Semanas de Clases en Vivo BSF', 600, 232);
 
   ctx.strokeStyle = 'rgba(34,197,94,0.35)';
   ctx.lineWidth = 1;

@@ -27,7 +27,7 @@ function MonitorLocked({ fasesAprobadas }: { fasesAprobadas: number }) {
       <div style={{ fontSize: '3.5rem', marginBottom: 12 }}>🔬</div>
       <h2 style={{ fontSize: 20, fontWeight: 800, marginBottom: 8 }}>Monitor de Producción</h2>
       <p style={{ fontSize: 13, color: S.muted, marginBottom: 28, lineHeight: 1.6 }}>
-        Tu herramienta de trazabilidad BSF. Se desbloquea al completar la Fase 3 del programa Colonia.
+        Tu herramienta de trazabilidad BSF. Se desbloquea al completar la Semana 3 del programa Colonia.
       </p>
       <div style={{ marginBottom: 28 }}>
         <div style={{ display: 'flex', gap: 6, marginBottom: 8 }}>
@@ -42,7 +42,7 @@ function MonitorLocked({ fasesAprobadas }: { fasesAprobadas: number }) {
           ))}
         </div>
         <div style={{ fontSize: 11, color: S.muted }}>
-          {fasesAprobadas}/5 fases completadas · se desbloquea en Fase 3
+          {fasesAprobadas}/5 semanas completadas · se desbloquea en la Semana 3
         </div>
       </div>
       <div style={{
@@ -63,7 +63,7 @@ function MonitorLocked({ fasesAprobadas }: { fasesAprobadas: number }) {
         ))}
       </div>
       <p style={{ fontSize: 11, color: S.muted }}>
-        Completa las fases en Escuela para desbloquear esta sección
+        Completa las semanas en Escuela para desbloquear esta sección
       </p>
     </div>
   );

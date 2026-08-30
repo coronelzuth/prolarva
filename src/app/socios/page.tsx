@@ -104,14 +104,14 @@ function SociosInner() {
   async function handleMarcarFase(fase: number) {
     if (!db.session) return;
     const res = await fetch('/api/socios/marcar-fase', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ code: db.session.code, fase }) });
-    if (res.ok) { db.updateFases(fase); showToast(`📩 Fase ${fase} enviada a revisión`); }
-    else { const d = await res.json(); showToast(`❌ ${d.error ?? 'Error al enviar fase'}`); }
+    if (res.ok) { db.updateFases(fase); showToast(`📩 Semana ${fase} enviada a revisión`); }
+    else { const d = await res.json(); showToast(`❌ ${d.error ?? 'Error al enviar la semana'}`); }
   }
 
   async function handleAprobFase(code: string, fase: number) {
     if (!db.session) return;
     const res = await fetch('/api/socios/aprobar-fase', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ adminCode: db.session.code, code, fase }) });
-    if (res.ok) showToast(`✅ Fase ${fase} aprobada`);
+    if (res.ok) showToast(`✅ Semana ${fase} aprobada`);
     else { const d = await res.json(); showToast(`❌ ${d.error ?? 'Error al aprobar'}`); }
   }
 

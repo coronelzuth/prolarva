@@ -70,7 +70,7 @@ export function FaseModalSocio({
         {/* Header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
           <div>
-            <div style={{ fontSize: 10, fontWeight: 900, color: '#22c55e', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 3 }}>Fase {fase}</div>
+            <div style={{ fontSize: 10, fontWeight: 900, color: '#22c55e', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 3 }}>Semana {fase}</div>
             <div style={{ fontSize: 15, fontWeight: 800, color: '#f1f5f9', lineHeight: 1.3 }}>{info.emoji} {info.title}</div>
           </div>
           <button onClick={onClose} style={{ background: 'none', border: 'none', color: '#64748b', fontSize: 20, cursor: 'pointer', padding: '0 4px', lineHeight: 1 }}>✕</button>
@@ -108,7 +108,7 @@ export function FaseModalSocio({
           {icono === 'desc' && (
             <div>
               <p style={{ fontSize: 13, color: '#94a3b8', lineHeight: 1.7, marginBottom: 16 }}>{editData[diaActivo]?.desc ?? diaInfo.desc}</p>
-              <div style={{ fontSize: 11, fontWeight: 700, color: '#22c55e', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 8 }}>Temas de esta fase</div>
+              <div style={{ fontSize: 11, fontWeight: 700, color: '#22c55e', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 8 }}>Temas de esta semana</div>
               <ul style={{ margin: 0, padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 6 }}>
                 {faseItems.map((item, i) => (
                   <li key={i} style={{ display: 'flex', gap: 8, alignItems: 'flex-start', fontSize: 12, color: '#e2e8f0', lineHeight: 1.5 }}>
@@ -119,7 +119,7 @@ export function FaseModalSocio({
               </ul>
               <div style={{ marginTop: 16, paddingTop: 14, borderTop: '1px solid rgba(148,163,184,0.1)' }}>
                 {fase <= fasesAprobadas ? (
-                  <div style={{ fontSize: 12, color: '#22c55e', fontWeight: 700 }}>✅ Fase aprobada</div>
+                  <div style={{ fontSize: 12, color: '#22c55e', fontWeight: 700 }}>✅ Semana aprobada</div>
                 ) : fase === faseEnRevision ? (
                   <div style={{ fontSize: 12, color: '#f59e0b', fontWeight: 700 }}>⏳ En revisión — tu tutor la está evaluando</div>
                 ) : fase === fasesAprobadas + 1 && onMarcarFase ? (
@@ -128,7 +128,7 @@ export function FaseModalSocio({
                     disabled={marcando}
                     style={{ width: '100%', background: 'linear-gradient(135deg,#22c55e,#16a34a)', color: '#fff', border: 'none', borderRadius: 8, padding: '10px', fontSize: 12, fontWeight: 700, cursor: marcando ? 'default' : 'pointer', opacity: marcando ? 0.6 : 1, fontFamily: 'Montserrat,sans-serif' }}
                   >
-                    {marcando ? 'Enviando...' : '📩 Marcar fase como lista para revisar'}
+                    {marcando ? 'Enviando...' : '📩 Marcar semana como lista para revisar'}
                   </button>
                 ) : null}
               </div>
@@ -166,7 +166,7 @@ export function FaseModalSocio({
           {icono === 'plantillas' && (
             <div>
               {plantillas.length === 0 ? (
-                <p style={{ fontSize: 12, color: '#64748b', textAlign: 'center', padding: '16px 0' }}>Las plantillas de esta fase estarán disponibles pronto.</p>
+                <p style={{ fontSize: 12, color: '#64748b', textAlign: 'center', padding: '16px 0' }}>Las plantillas de esta semana estarán disponibles pronto.</p>
               ) : plantillas.map(p => (
                 <div key={p.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px', background: '#152035', borderRadius: 10, marginBottom: 8, border: '1px solid rgba(34,197,94,0.15)' }}>
                   <a href={p.url_archivo} target="_blank" rel="noreferrer" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none', flex: 1 }}>
@@ -185,7 +185,7 @@ export function FaseModalSocio({
           {icono === 'preguntas' && (
             <div>
               <p style={{ fontSize: 13, color: '#94a3b8', lineHeight: 1.6, marginBottom: 16 }}>
-                ¿Tienes dudas sobre el tema de esta fase? Prepara tus preguntas para la siguiente clase en vivo con Juliana.
+                ¿Tienes dudas sobre el tema de esta semana? Prepara tus preguntas para la siguiente clase en vivo con Juliana.
               </p>
               {tareas.length === 0 ? (
                 <p style={{ fontSize: 12, color: '#64748b', textAlign: 'center', padding: '16px 0' }}>Las preguntas estarán disponibles pronto.</p>

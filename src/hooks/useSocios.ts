@@ -350,6 +350,34 @@ export function useSocios() {
 
       const db = getSupabase();
       if (db && sess && sess.code !== DEMO_CODE) {
+        // Refrescar la cuenta (fases aprobadas, rol, email) — antes había que cerrar
+        // sesión para que el socio viera una fase aprobada por el admin o el Monitor desbloqueado.
+        try {
+          const { data: fresh } = await db
+            .from('socios')
+            .select('codigo,nombre,email,rol,fases_aprobadas,fase_en_revision,estado')
+            .eq('codigo', sess.code)
+            .single();
+          if (fresh) {
+            if (fresh.estado && fresh.estado !== 'activo') {
+              setSession(null);
+              Object.values(KEYS).forEach(k => localSave(k, k === KEYS.session ? null : []));
+              setLoaded(true);
+              return;
+            }
+            const refreshed: SocioSession = {
+              code: fresh.codigo,
+              name: fresh.nombre ?? sess.name,
+              email: fresh.email ?? sess.email ?? '',
+              rol: (fresh.rol ?? sess.rol) as 'admin' | 'socio',
+              fases_aprobadas: fresh.fases_aprobadas ?? 0,
+              fase_en_revision: fresh.fase_en_revision ?? 0,
+            };
+            setSession(refreshed);
+            localSave(KEYS.session, refreshed);
+          }
+        } catch { /* sin conexión — se usa la sesión de localStorage */ }
+
         const result = await syncFromSupabase(db, sess.code, local);
         if (result) {
           if (result.lotes)         { setLotes(result.lotes);                       localSave(KEYS.lotes, result.lotes); }

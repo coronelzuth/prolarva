@@ -90,7 +90,7 @@ export function FaseModalAdmin({
         {/* Header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: remMsg ? 8 : 16 }}>
           <div>
-            <div style={{ fontSize: 10, fontWeight: 900, color: '#22c55e', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 3 }}>Fase {fase} — Admin</div>
+            <div style={{ fontSize: 10, fontWeight: 900, color: '#22c55e', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 3 }}>Semana {fase} — Admin</div>
             <div style={{ fontSize: 15, fontWeight: 800, color: '#f1f5f9', lineHeight: 1.3 }}>{info.emoji} {info.title}</div>
           </div>
           <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
@@ -163,7 +163,7 @@ export function FaseModalAdmin({
                   Guardar
                 </button>
               </div>
-              <div style={{ fontSize: 11, fontWeight: 700, color: '#22c55e', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 8 }}>Temas de esta fase</div>
+              <div style={{ fontSize: 11, fontWeight: 700, color: '#22c55e', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 8 }}>Temas de esta semana</div>
               <div>
                 {faseItems.map((item, i) => (
                   <div key={i} style={{ display: 'flex', gap: 6, alignItems: 'center', marginBottom: 6 }}>

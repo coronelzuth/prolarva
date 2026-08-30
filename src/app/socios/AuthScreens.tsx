@@ -71,7 +71,7 @@ function ResetPasswordScreen({ token, onDone }: { token: string; onDone: () => v
 const DEMO_FEATURES = [
   { icon: '🪲', title: 'Mis lotes BSF', desc: 'Registra y sigue cada bandeja desde el primer día' },
   { icon: '📊', title: 'Estadísticas', desc: 'Curva de peso, cosechas y rendimiento por lote' },
-  { icon: '📅', title: 'Cronograma', desc: 'Fases de progreso y alertas de cosecha' },
+  { icon: '📅', title: 'Cronograma', desc: 'Semanas del programa y alertas de cosecha' },
   { icon: '💰', title: 'Mis ventas', desc: 'Ingresos, compradores y control de pedidos' },
 ];
 

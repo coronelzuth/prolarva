@@ -3,10 +3,10 @@ import { useState, useEffect } from 'react';
 import { S, btnOutline, btnPrimary, btnSm } from './_shared';
 
 export const TOUR_STEPS = [
-  { targetId: 'nav-dashboard', title: '🏠 Resumen',   desc: 'Tu panel principal. Aquí aparecen alertas automáticas de cosecha, recordatorios activos y el estado general de tu producción en tiempo real.' },
-  { targetId: 'nav-escuela',   title: '🎓 Escuela',   desc: 'Clases del programa, cronograma y foro del grupo. Completa las fases para desbloquear tu Monitor de Producción.' },
-  { targetId: 'nav-monitor',   title: '🔬 Monitor',   desc: 'Tu herramienta de trazabilidad BSF. Rastreo de lotes, estadísticas de conversión y cosechas. Se desbloquea al completar la Fase 3.' },
-  { targetId: 'nav-perfil',    title: '👤 Mi Perfil', desc: 'Edita tu nombre, cambia tu foto, actualiza tu contraseña y accede a la Guía Rápida BSF desde un solo lugar.' },
+  { targetId: 'nav-escuela',   title: '🎓 Empieza aquí', desc: 'Tu Escuela: las clases en vivo, el cronograma de las 5 semanas, el foro del grupo y la Cajita de Preguntas. Cada semana la marcas como lista para avanzar.' },
+  { targetId: 'nav-dashboard', title: '🏠 Resumen',      desc: 'La cuenta regresiva a la próxima clase, los anuncios del grupo y —cuando empieces a criar— las alertas de cosecha de tus lotes.' },
+  { targetId: 'nav-monitor',   title: '🔬 Monitor',      desc: 'Tu registro de lotes y las estadísticas de conversión. Se abre solo cuando apruebes la Semana 3 — no te preocupes por él todavía.' },
+  { targetId: 'nav-perfil',    title: '👤 Mi Perfil',    desc: 'Tu nombre, tu foto, la contraseña y tu ficha para la Red de Productores.' },
 ];
 
 export function SpotlightTour({ step, onNext, onPrev, onDone }: {

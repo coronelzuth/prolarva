@@ -50,7 +50,7 @@ export function EscuelaCronograma({
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16, gap: 12, flexWrap: 'wrap' }}>
         <div>
           <h2 style={{ fontSize: 17, fontWeight: 800, margin: 0 }}>📅 Cronograma del programa</h2>
-          <p style={{ fontSize: 12, color: S.muted, margin: '4px 0 0' }}>5 fases · 2 días por fase · haz clic en una fase para ver el detalle</p>
+          <p style={{ fontSize: 12, color: S.muted, margin: '4px 0 0' }}>5 semanas · haz clic en una semana para ver el detalle</p>
         </div>
       </div>
 
@@ -75,9 +75,9 @@ export function EscuelaCronograma({
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div style={{ fontSize: 10, color: S.muted }}>
               {fasesAprobadas > 0
-                ? `${fasesAprobadas}/5 fases aprobadas`
-                : 'Completa cada fase para avanzar'}
-              {faseEnRevision > 0 && <span style={{ color: S.amber }}> · Fase {faseEnRevision} en revisión ⏳</span>}
+                ? `${fasesAprobadas}/5 semanas aprobadas`
+                : 'Completa cada semana para avanzar'}
+              {faseEnRevision > 0 && <span style={{ color: S.amber }}> · Semana {faseEnRevision} en revisión ⏳</span>}
             </div>
             {fasesAprobadas >= 3 && (
               <div style={{ fontSize: 10, color: '#22c55e', fontWeight: 700 }}>🔬 Monitor desbloqueado</div>
@@ -120,7 +120,7 @@ export function EscuelaCronograma({
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10, flex: 1 }}>
                     <span style={{ fontSize: 20 }}>{info.emoji}</span>
                     <div>
-                      <div style={{ fontSize: 9, fontWeight: 900, color: S.green, textTransform: 'uppercase', letterSpacing: '0.1em', lineHeight: 1.2 }}>Fase {s}</div>
+                      <div style={{ fontSize: 9, fontWeight: 900, color: S.green, textTransform: 'uppercase', letterSpacing: '0.1em', lineHeight: 1.2 }}>Semana {s}</div>
                       <div style={{ fontSize: 12, fontWeight: 800, color: tieneHoy ? S.green2 : S.text, lineHeight: 1.3 }}>{info.title}</div>
                       <div style={{ fontSize: 10, color: S.muted }}>{diasSemana.length} actividad{diasSemana.length !== 1 ? 'es' : ''} · <span style={{ color: S.green }}>Ver detalles →</span></div>
                     </div>
@@ -220,6 +220,12 @@ export function EscuelaCronograma({
                                       {vid && (
                                         <div style={{ position: 'relative', paddingBottom: '56.25%', borderRadius: 8, overflow: 'hidden', marginBottom: 10 }}>
                                           <iframe src={`https://www.youtube.com/embed/${vid}`} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', border: 'none' }} allowFullScreen title={clase.titulo} />
+                                        </div>
+                                      )}
+                                      {clase.resumen && (
+                                        <div style={{ background: 'rgba(34,197,94,0.06)', border: '1px solid rgba(34,197,94,0.2)', borderRadius: 8, padding: '10px 12px', marginBottom: 10 }}>
+                                          <div style={{ fontSize: 10, fontWeight: 700, color: S.green, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 5 }}>📝 Resumen</div>
+                                          <p style={{ fontSize: 11, color: S.text, lineHeight: 1.6, margin: 0, whiteSpace: 'pre-wrap' }}>{clase.resumen}</p>
                                         </div>
                                       )}
                                       <button

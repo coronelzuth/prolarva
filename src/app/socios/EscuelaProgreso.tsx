@@ -86,7 +86,7 @@ export function EscuelaProgreso({
       {adminSocios.filter(s => s.fase_en_revision > 0).length > 0 && (
         <div style={{ marginTop: 24 }}>
           <h3 style={{ fontSize: 14, fontWeight: 800, marginBottom: 12, color: S.amber }}>
-            ⏳ Fases pendientes de aprobación ({adminSocios.filter(s => s.fase_en_revision > 0).length})
+            ⏳ Semanas pendientes de aprobación ({adminSocios.filter(s => s.fase_en_revision > 0).length})
           </h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             {adminSocios.filter(s => s.fase_en_revision > 0).map(socio => (
@@ -99,7 +99,7 @@ export function EscuelaProgreso({
               }}>
                 <div>
                   <div style={{ fontWeight: 600, fontSize: 13, color: S.text }}>{socio.nombre}</div>
-                  <div style={{ fontSize: 11, color: S.amber }}>Fase {socio.fase_en_revision} lista para revisar</div>
+                  <div style={{ fontSize: 11, color: S.amber }}>Semana {socio.fase_en_revision} lista para revisar</div>
                 </div>
                 <button
                   disabled={aprobando === socio.code}
@@ -121,7 +121,7 @@ export function EscuelaProgreso({
                     transition: 'opacity 0.2s',
                   }}
                 >
-                  {aprobando === socio.code ? 'Aprobando...' : `✅ Aprobar Fase ${socio.fase_en_revision}`}
+                  {aprobando === socio.code ? 'Aprobando...' : `✅ Aprobar Semana ${socio.fase_en_revision}`}
                 </button>
               </div>
             ))}

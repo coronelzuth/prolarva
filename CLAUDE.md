@@ -1,4 +1,4 @@
-﻿# ProLarva — Contexto para Agentes
+# ProLarva — Contexto para Agentes
 
 > Siempre responder en **español**. Tutear — usar "tú", "tienes", "puedes" — NUNCA voseo. Tono cercano y directo.
 > **Leer este archivo completo antes de tocar cualquier cosa.**
@@ -35,8 +35,11 @@
 ```
 NEXT_PUBLIC_SUPABASE_URL=https://gztaznhtysmkekbbazbd.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJ...  (ver Supabase → Settings → API)
+SUPABASE_SERVICE_ROLE_KEY=eyJ...      (secreta — ver Supabase → Settings → API → service_role)
 ```
 Están en `.env.local` (local, ignorado por git) y en Vercel → Settings → Environment Variables.
+`SUPABASE_SERVICE_ROLE_KEY` la usan las API routes del servidor (`src/lib/supabaseServer.ts`) para
+escribir saltándose RLS. Si no está, caen a la anon key. **Nunca exponerla al cliente.**
 
 ---
 
@@ -48,20 +51,20 @@ Están en `.env.local` (local, ignorado por git) y en Vercel → Settings → En
 | `/beneficios` | Intro — beneficios BSF por especie, composición nutricional, ventajas ambientales |
 | `/huevos` | Huevos BSF — página educativa, color azul cielo #0ea5e9, framer-motion |
 | `/conocimiento` | Módulo 1 — ciclo BSF, grid 3×3 de etapas *(oculto del navbar, requiere sesión)* |
-| `/preparacion` | Módulo 2 — quiz diagnóstico + tarjeta recomendación prominente al final *(oculto del navbar)* |
 | `/metas` | Módulo 3 — rutas de producción + links a /cosecha y /calculadora *(oculto del navbar)* |
 | `/cosecha` | Guía Práctica — 7 pasos + panel recomendación calculadora al final *(oculto del navbar, requiere sesión)* |
 | `/calculadora` | Calculadora BSF completa (wizard 4 pasos) |
-| `/kit` | Landing de venta — Kit ProLarva 25/15, color ámbar (#f59e0b). Reemplaza /sistema-2015 en el navbar |
+| `/kit` | Landing de venta — Kit ProLarva 25/15, color ámbar (#f59e0b) |
 | `/colonia` | Landing del Programa Colonia — grupal 4 semanas, $400K COP, color verde (#22c55e), sección "Red de Productores" |
-| `/sistema-2015` | Landing de venta legacy — aún accesible por URL directa |
+| ~~`/preparacion`~~ | **ELIMINADA 2026-08-29** — Módulo 2 quiz. Larvi `ya_sabe` ahora apunta a /cosecha |
+| ~~`/sistema-2015`~~ | **ELIMINADA 2026-08-29** — landing legacy. Redirect 308 → `/kit` en `next.config.ts`. Larvi `faq_compra` apunta a /kit |
 | `/socios` | Zona privada — tracker de lotes, alimentación, cosechas y panel Escuela (sin Larvi ni WhatsApp) |
 | `/gracias` | Página post-formulario — confirmación + redirect automático a /calculadora en 4 seg |
 | `/blog` | Hub del blog — cuadrícula filtrable por categoría (Problemas, Nutrición, Manejo). 3 artículos publicados |
 | `/blog/problemas` | 8 problemas comunes en cría BSF — acordeón expandible + botones compartir (copiar enlace / WhatsApp) |
 | `/blog/raciones` | Raciones por animal y etapa — selector de especie (pollos/gallinas/cerdos/peces), tablas, tips + compartir |
 | `/blog/alimentacion-larvas` | Qué comen las larvas BSF — sustratos, porciones por etapa del ciclo, qué evitar, variación proteica + compartir |
-| `/contenido` | Gestor de contenido (#gestorcontenido) — 90 guiones, filtros, tab Hoy (aleatorio), calendario, editor con descarga .txt, edición de título inline, modal "+Nuevo guión" |
+| `/contenido` | Gestor de contenido (#gestorcontenido) — 90 guiones, filtros, tab Hoy, calendario, editor. **Guard admin desde 2026-08-29** (redirige a `/socios` si `prl-session.rol !== 'admin'`). ⚠️ `GUIONES_BASE` sigue en el bundle client (`data/guiones.ts`) — protegido de visitantes casuales, no de quien inspeccione el JS. También embebido en Admin → tab Contenido. |
 
 ---
 
@@ -345,15 +348,53 @@ a5cc857  feat: port calculadora BSF a React con paleta de la app
 ## Estado actual
 > **Actualizar esta sección al final de cada sesión de trabajo.**
 
-**Última actualización:** 2026-08-09
+**Última actualización:** 2026-08-30
+
+**Cambios recientes (2026-08-30 — sesión 22 — audit Escuela + arreglos):**
+- ✅ **Bug `codigo` vs `code` en Escuela** — `useEscuela.ts` y `EscuelaView.tsx` consultaban `socios.code` (columna inexistente; la real es `codigo`). Rompía en silencio: Directorio vacío, badges "ProLarva ✓" nunca aparecían, panel Progreso admin sin socios, `toggleColonia` no guardaba. Corregido: `select('codigo,...')` + alias a `.code` en JS. `toggleColonia` ahora `.eq('codigo', code)`.
+- ✅ **Sesión se refresca al cargar `/socios`** — `useSocios.init()` re-consulta la fila de `socios` y actualiza `fases_aprobadas` / `fase_en_revision` / `rol` / `email` / `nombre`. Antes el socio tenía que cerrar sesión y volver a entrar para ver una semana aprobada por el admin o el Monitor desbloqueado. También cierra sesión si la cuenta pasó a `inactivo`.
+- ✅ **Enlace de la videollamada en la Escuela** — nueva clave `url_reunion` en `config_escuela` (misma tabla key/value, sin migración). Botón "🎥 Entrar a la clase / Enlace de la clase en vivo" en el banner del countdown para todos; input para el admin al lado de "editar próxima clase". Hook: `esc.urlReunion` + `esc.setUrlReunion()`.
+- ✅ **Vocabulario unificado a "Semana"** — se eliminó "Fase" de toda la UII (Cronograma, FaseModal socio/admin, Monitor bloqueado, EscuelaProgreso, EscuelaModals, toasts, tour, login preview). El código interno sigue usando `fase`/`fasesAprobadas`; solo cambió el texto visible.
+- ✅ **Certificado 4→5 semanas** — `descargarCertificado` decía "Programa Colonia · 4 Semanas". Corregido a 5.
+- ✅ **Tour de bienvenida re-enfocado a la Escuela** — el paso 1 ahora es Escuela ("Empieza aquí"), y el Monitor se presenta como "se abre en la Semana 3, no te preocupes por él todavía" (antes enseñaba features bloqueadas el día 1).
+- ✅ **Dashboard sin lotes** — card verde "Tu programa arranca en la Escuela" → lleva a la Escuela, en vez de solo stats en 0.
+- ✅ **`/gracias`** — redirige a `/colonia` (5 s) en vez de `/calculadora` (era un loop: ya venía de la calculadora). CTA doble: Programa Colonia (primario) + Calculadora (secundario).
+- ✅ **Seguridad Escuela — escrituras de admin movidas al servidor** — antes `useEscuela` hacía INSERT/UPDATE/DELETE directo con la anon key (clases, tareas, anuncios, responder preguntas, borrar posts, `toggleColonia`). Ahora pasan por **`/api/escuela`** (endpoint único, verifica `rol === 'admin'` contra `socios`; permite autoría para borrar post/pregunta propios). Nuevo helper `src/lib/supabaseServer.ts` (`getServerSupabase` + `esAdmin`). Las 30 API routes ahora usan `SUPABASE_SERVICE_ROLE_KEY || NEXT_PUBLIC_SUPABASE_ANON_KEY` (sin cambio de comportamiento hasta que exista la env var).
+- ✅ **`SUPABASE_SERVICE_ROLE_KEY`** — agregada a `.env.local` + Vercel Production + Preview (2026-08-30).
+- ✅ **Deploy a producción** — `dpl_3uTh5t1XZyaPT2nhNkid5i6qn5mt`, aliased a prolarva.co. Verificado: `/api/escuela` devuelve 403 "No autorizado" a un código no-admin (la verificación de rol con service_role funciona en prod).
+- 📌 **ÚLTIMO PASO PENDIENTE (Juliana):** correr **`supabase/escuela-seguridad.sql`** en Supabase → SQL Editor. Hasta que no se haga, la anon key todavía puede escribir directo (la puerta de atrás sigue abierta aunque el código ya no la use). **Antes del 9 sep.** El código en prod ya usa la service_role, así que correr el SQL NO rompe nada.
+  - **Wompi:** link de pago en `/colonia` (sigue todo manual por WhatsApp).
+  - **Cohortes:** no hay separación de ediciones. La 2ª cohorte verá foro/clases/fechas de la 1ª.
+  - `EscuelaCronograma.tsx:~142` tiene un bloque de "días individuales" con `display:'none'` — código muerto de una versión anterior del cronograma. Decidir: ¿cronograma por días o modal por semana? y borrar el otro.
+  - Certificado se descarga con `<a download>` de un dataURL — falla seguido en PWA Android. Cambiar a Web Share / abrir en pestaña.
+
+**Cambios recientes (2026-08-29 — sesión 21):**
+- ✅ **Escuela — `SEMANAS_INFO` sincronizado** con los 5 guiones del Curso Grupal (`HUB PROLARVA\11- Curso Grupal\Clase_0N.md`). Títulos/temas nuevos, vocabulario "pie de cría" (no "semilla"). Cada semana tiene 2 sesiones: contenido + "Preguntas y Respuestas". En `src/app/socios/_escuela_shared.tsx`.
+- ✅ **Escuela — Cajita de Preguntas** — nueva tab `❓ Preguntas` (sidebar + móvil). Tabla `preguntas_escuela` (`supabase/preguntas_escuela.sql`). Alumno elige semana + escribe + "Enviar pregunta"; admin responde inline, edita, elimina; badge en nav = nº sin responder. Hook: `publicarPregunta` / `responderPregunta` / `eliminarPregunta` en `useEscuela.ts`. Se responden en la 2ª sesión de cada semana.
+- ✅ **Escuela — Resumen de clase** — columna `clases.resumen` (en el mismo SQL). Campo en `ClaseModal` (admin). Se muestra en card verde "📝 Resumen" en la vista de clase (`EscuelaView`) y en el panel del cronograma (`EscuelaCronograma`).
+- ✅ **Rutas eliminadas** — `/preparacion` (Módulo 2 quiz) y `/sistema-2015` (landing legacy). Carpetas borradas. `/sistema-2015` → **redirect 308 a `/kit`** en `next.config.ts`. Navbar y `sitemap.ts` limpiados.
+- ✅ **`/contenido` — guard admin** — el `default export` redirige a `/socios` si `prl-session.rol !== 'admin'`. El named export `ContenidoGestor` (embebido en AdminView) no cambia. Nota: `GUIONES_BASE` sigue en el bundle client.
+- ✅ **Larvi (bot)** — `nuevo` → `/` (era `/conocimiento`, con muro); `ya_sabe` → `/calculadora` (era `/preparacion`); `faq_compra` → `/kit` (era `/sistema-2015`); quitado el saludo contextual de `/preparacion`.
+- ✅ **`sitemap.ts`** — quitado `/landing` (404), agregados `/colonia` y `/kit`.
+- ✅ **Vinculación Vercel restaurada** — `.vercel/` local re-creado (`vercel link` → `juliprojects/prolarva`). Deploy: `vercel --prod --yes` desde esta carpeta.
 
 **Cambios recientes (2026-08-09 — sesión 20):**
 - ✅ **Navbar — menús ocultos al público** — `hidden: true` en: Conocimiento, Preparación, Mi Meta, Cosecha. Solo visible: Inicio / Huevos BSF / Colonia / Calculadora / Blog + botón Socios. El link 📋 Contenido fue eliminado completamente del navbar (antes solo admin lo veía).
+- ✅ **Navbar móvil — distribución uniforme** — quitado `overflow-x: auto`. Cada ítem tiene `flex: 1` y `justify-content: center` para distribuirse a lo largo del ancho completo en móvil.
 - ✅ **Nueva ruta `/huevos`** — `src/app/huevos/page.tsx` (430 líneas). Color azul cielo `#0ea5e9`, animaciones con `framer-motion`. Aparece en navbar como "🥚 Huevos BSF".
 - ✅ **`RequireSocio.tsx`** — nuevo componente guard en `src/components/`. Redirige a `/socios` si no hay `prl-session` en localStorage. Aplicado en `/conocimiento` y `/cosecha`.
 - ✅ **`EscuelaView.tsx` — gran refactor** — dividido en 10 archivos separados: `EscuelaCronograma`, `EscuelaDirectorio`, `EscuelaFaseModal`, `EscuelaForo`, `EscuelaProgreso`, `FaseModalAdmin`, `FaseModalSocio`, `EscuelaModals`, `_escuela_shared`. `EscuelaView` queda como orquestador principal.
 - ✅ **`/colonia` — ajustes menores** — ediciones en `src/app/colonia/page.tsx`.
-- **Vercel:** 13 deployments hoy, todos ✅ Ready. Último hace ~4h.
+- ✅ **Home (`/`) rediseñado completamente** — contenido de `/beneficios` desplegado directamente en el home sin navegación intermedia:
+  - Tabs inline (Gallinas / Cerdos / Peces) con `useState` para mostrar beneficios por especie
+  - Composición nutricional — 4 stats en grid
+  - Ventajas ambientales
+  - Sección "🚀 Cualquier productor puede empezar" — 3 pasos
+  - FAQ acordeón — 5 preguntas frecuentes (`FaqSection` componente inline)
+  - Sección "¿Quién está detrás de ProLarva?" — foto de Juliana + bio
+  - Botones CTA: 🌱 Colonia + 🎵 TikTok (@prolarva.co)
+  - Botón compartir al final
+- **Vercel:** múltiples deployments hoy, todos ✅ Ready.
 
 **Cambios recientes (2026-08-08 — sesión 19):**
 - ✅ **`/contenido` reestructurado como #gestorcontenido** — ahora 90 guiones (83 base + 7 Reto). Cambios: 6 StatCards eliminadas; botones de perfil social (WhatsApp, TikTok, Instagram) en el header; padding móvil reducido; búsqueda colapsable (ícono 🔍 → input con autoFocus); filtros de tipo sin contadores (Todos/V/E/C/MSN); dropdown de estado eliminado; tab "🎯 Hoy" con guion aleatorio + "Sortear otro"; `DownloadTxtButton` en tab Guión; edición inline de título en tab Metadatos; `GuionCard` comprimida a 2 filas; modal `NuevoGuionModal` con botón "+Nuevo guión". Archivos: `src/app/contenido/page.tsx`, `src/hooks/useGuionesCms.ts` (nuevo método `createGuion`).
@@ -456,7 +497,7 @@ a5cc857  feat: port calculadora BSF a React con paleta de la app
 - Home: mascota se apila sobre el título (<480px)
 
 **Carpeta de trabajo canónica:**
-`C:\Users\HP\Desktop\Zu Office\01 - PROYECTOS\HUB PROLARVA\06 - Apps y Artifacts\prolarva-monitor`
+`C:\Users\Usuario\Desktop\Zu Office\01 - PROYECTOS\HUB PROLARVA\06 - Apps y Artifacts\prolarva-monitor`
 
 **Supabase — tablas activas:**
 | Tabla | Qué guarda | SQL |

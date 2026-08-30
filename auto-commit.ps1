@@ -1,7 +1,7 @@
 # Auto-commit + push cada 30 minutos
 # Solo actua si hay cambios pendientes
 
-$repo = "C:\Users\HP\Desktop\Zu Office\01 - PROYECTOS\HUB PROLARVA\06 - Apps y Artifacts\prolarva-monitor"
+$repo = "C:\Users\Usuario\Desktop\Zu Office\01 - PROYECTOS\HUB PROLARVA\06 - Apps y Artifacts\prolarva-monitor"
 
 Set-Location $repo
 

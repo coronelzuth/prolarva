@@ -128,8 +128,8 @@ const tree: Record<string, ConversationNode> = {
 
   // ============ FAQs - Compra ============
   faq_compra: {
-    message: 'Solo 3 pasos:\n1️⃣ Escríbele a Juliana por WhatsApp o abre /sistema-2015\n2️⃣ Juliana te contacta en 24h para confirmar envío y pago\n3️⃣ Recibes el kit en 5-7 días hábiles listo para usar\n\n🌍 Envío: Colombia, Perú, Ecuador, Centroamérica\n💬 WhatsApp de Juliana: +57 322 321 2293',
-    link: '/sistema-2015',
+    message: 'Solo 3 pasos:\n1️⃣ Escríbele a Juliana por WhatsApp o abre /kit\n2️⃣ Juliana te contacta en 24h para confirmar envío y pago\n3️⃣ Recibes el kit en 5-7 días hábiles listo para usar\n\n🌍 Envío: Colombia, Perú, Ecuador, Centroamérica\n💬 WhatsApp de Juliana: +57 322 321 2293',
+    link: '/kit',
     options: [
       { label: 'Ir al formulario →', action: 'end' },
       { label: '¿Cómo es el acompañamiento?', action: 'faq_acompanamiento' },
@@ -230,14 +230,14 @@ const tree: Record<string, ConversationNode> = {
     ],
   },
   nuevo: {
-    message: '¡Bienvenido! Empieza por el Módulo 1: Conocimiento General. Ahí aprendes todo el ciclo de vida de la Mosca Soldado Negra. ¡Es más fácil de lo que crees! 🌟',
-    link: '/conocimiento',
-    options: [{ label: 'Ir al Módulo 1 →', action: 'end' }],
+    message: '¡Bienvenido! Empieza por la página de inicio: ahí te explicamos en corto qué es la Mosca Soldado Negra y cómo te baja el costo del concentrado. Los módulos completos están en la Zona de Socios. 🌟',
+    link: '/',
+    options: [{ label: 'Ir al inicio →', action: 'end' }],
   },
   ya_sabe: {
-    message: 'Excelente base. Ahora ve al diagnóstico de preparación — te dice exactamente qué tienes listo y qué falta antes de empezar. Solo toma 5 minutos.',
-    link: '/preparacion',
-    options: [{ label: 'Ir al diagnóstico →', action: 'end' }],
+    message: 'Excelente base. Usa la Calculadora para saber cuánta larva necesitan tus animales y cuánto concentrado te vas a ahorrar. Con ese número decides qué tan grande montar tu sistema.',
+    link: '/calculadora',
+    options: [{ label: 'Ir a la Calculadora →', action: 'end' }],
   },
   ya_diagnostico: {
     message: '¡Avanzado! Ve a Metas y elige tu objetivo: alimentar animales, producir harina, o ciclo cerrado. Cada una tiene su guía paso a paso.',
@@ -462,7 +462,6 @@ export default function Larvi() {
 
 function getContextGreeting(pathname: string, progress: UserProgress): string | null {
   if (pathname === '/conocimiento') return '¡Estás aprendiendo sobre BSF! 🧠 ¿Tienes alguna duda sobre las etapas del ciclo?';
-  if (pathname === '/preparacion') return '¡Haciendo tu diagnóstico! 🛠️ ¿Tienes dudas sobre qué necesitas para empezar?';
   if (pathname === '/metas') return '¡Eligiendo tu meta! 🎯 ¿No sabes cuál es la mejor para ti? Cuéntame qué buscas.';
   if (progress.quizCompleted && progress.selectedMeta) return `¡Hola de nuevo! Recuerdo que tu meta es ${progress.selectedMeta}. ¿En qué te ayudo hoy?`;
   return null;

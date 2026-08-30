@@ -36,8 +36,15 @@ Ruta: `src/app/socios/`
 
 ## Hook principal
 
-`useSocios` en `src/hooks/useSocios.ts` — localStorage + Supabase.
+`useSocios` en `src/hooks/useSocios.ts` — localStorage (cache) + `/api/socios/data`.
 Retorna: `session, login, logout, register, lotes, feeds, cosechas, recordatorios, fotos, ventasSocios, addLote, updateLote, deleteLote, addFeed, addCosecha, addRecordatorio, toggleRecordatorio, deleteRecordatorio, addFoto, deleteFoto, addVentaSocio, deleteVentaSocio, updateName, updateEmail, updateFases, resetAllData, activeLotes, readyLotes, totalKg, avgConv`.
+
+**Datos por API (no directo a Supabase):** desde 2026-08-30 todas las lecturas/escrituras
+de datos del socio van por `/api/socios/data` con el `token` de sesión (`SocioSession.token`).
+El servidor resuelve el `socio_code` desde el token. Las 6 tablas (`lotes`, `feed_logs`,
+`cosechas`, `recordatorios`, `fotos_lotes`, `ventas_socios`) + `sesiones` están cerradas a
+la anon key. `login` devuelve el token; sesiones viejas sin token fuerzan re-login.
+`getSupabase()` en el hook solo se usa para refrescar la fila de `socios` (SELECT).
 
 ## Vistas disponibles (type View en _shared.ts)
 

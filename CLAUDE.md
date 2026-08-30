@@ -366,10 +366,18 @@ a5cc857  feat: port calculadora BSF a React con paleta de la app
 - ✅ **`EscuelaCronograma.tsx` — código muerto eliminado** — el bloque de "días individuales" con `display:'none'` se borró. Ahora la vista es solo las 5 tarjetas de semana → clic abre `FaseModal` con todo el detalle. Ya no se oculta el cronograma cuando `cronograma_dias` está vacío (antes salía "disponible pronto" tapando las tarjetas). El admin conserva "+ fecha" para marcar días en el calendario. Props recortados en `EscuelaView` (quitado `expandedDia` state).
 - ✅ **Certificado — descarga arreglada para PWA/móvil** — `descargarCertificado` usa `canvas.toBlob` + Web Share API (móvil/Android) con fallback a blob URL en desktop (antes `<a download>` de un dataURL, que falla en PWA Android).
 - ✅ **`supabase/seguridad-tablas.sql` ejecutado** (2026-08-30) — anon key sin acceso a `leads`, `invitaciones`, `ventas`, `password_resets`, `push_subscriptions`. Antes la anon key (está en el bundle) leía los tokens de recuperación de contraseña, los códigos de invitación sin usar y los leads con WhatsApp. Verificado: anon → `permission denied` en las 5; service_role sigue leyendo todo (admin panel, register, forgot-password OK).
+- ✅ **Aislamiento de datos por socio — refactor completo** (2026-08-30). Antes `lotes`/`feed_logs`/`cosechas`/`recordatorios`/`fotos_lotes`/`ventas_socios` se leían/escribían client-side con la anon key filtrando por `socio_code` (string spoofeable). Ahora:
+  - Tabla **`sesiones`** (`token`, `socio_code`, `creado_en`, `ultimo_uso`) — token opaco (`crypto.randomBytes`, base64url) por login. SQL: `supabase/sesiones-1-tabla.sql`.
+  - **`src/lib/sesion.ts`** — `crearSesion` / `socioDeToken` (valida + expira a 90 días) / `borrarSesion`. Solo servidor.
+  - **`/api/socios/login`** devuelve `token`; `useSocios` lo guarda en `SocioSession.token` + localStorage.
+  - **`/api/socios/data`** — endpoint único. Acciones: `sync` (trae las 6 tablas + recuperación desde localStorage si la DB está vacía), `lote.add/update/delete` (delete en cascada), `feed.add`, `cosecha.add`, `recordatorio.add/toggle/delete`, `foto.add/delete`, `venta.add/delete`, `reset`, `logout`. **El `socio_code` sale del token, nunca del body.** Update/delete por id se acotan además con `.eq('socio_code', code)`.
+  - **`useSocios` reescrito** — cada mutación → `postData(action, payload)`. Cache localStorage + update optimista intactos. Sesiones viejas sin token → re-login forzado una vez.
+  - **`update-profile` / `update-email` / `marcar-fase`** pasan a `token` en vez de `code` (callers: `PerfilView`, `page.tsx`).
+  - SQL lockdown: `supabase/sesiones-2-lockdown.sql` — anon key sin acceso a las 6 tablas + `sesiones`. **Ejecutado y verificado**: anon → `permission denied` en las 7; el camino token (login→sync) sigue vivo.
+  - **Fuera de alcance:** `user_progress` (device_id, sin datos personales) y `push_subscriptions` siguen con la anon key.
 - 📌 **Para después (pedido explícito):**
   - **Wompi:** link de pago en `/colonia` (sigue todo manual por WhatsApp).
   - **Cohortes:** no hay separación de ediciones. La 2ª cohorte verá foro/clases/fechas de la 1ª.
-  - **Aislamiento de datos por socio:** `lotes`/`feed_logs`/`cosechas`/`recordatorios`/`fotos_lotes`/`ventas_socios` se leen/escriben client-side por `socio_code` (string, sin auth real). Un socio podría leer/escribir los de otro si adivina el código. Requiere auth JWT de Supabase o rutear todo `useSocios` por API con token — refactor grande, sesión aparte.
 
 **Cambios recientes (2026-08-29 — sesión 21):**
 - ✅ **Escuela — `SEMANAS_INFO` sincronizado** con los 5 guiones del Curso Grupal (`HUB PROLARVA\11- Curso Grupal\Clase_0N.md`). Títulos/temas nuevos, vocabulario "pie de cría" (no "semilla"). Cada semana tiene 2 sesiones: contenido + "Preguntas y Respuestas". En `src/app/socios/_escuela_shared.tsx`.
@@ -516,6 +524,7 @@ a5cc857  feat: port calculadora BSF a React con paleta de la app
 | `recordatorios` | Recordatorios por lote (dia, titulo, completado) | — |
 | `fotos_lotes` | Fotos por lote en base64 JPEG comprimido | — |
 | `push_subscriptions` | Suscripciones push por socio_code | — |
+| `sesiones` | Tokens de sesión de socio (token, socio_code, creado_en) — RLS: solo service_role | **sesiones-1-tabla.sql** |
 | `clases` | Clases del curso Colonia por semana (1-4) | **escuela.sql** |
 | `progreso_clases` | Qué clases completó cada socio | **escuela.sql** |
 | `plantillas` | PDFs descargables por semana | **escuela.sql** |

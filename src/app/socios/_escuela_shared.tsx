@@ -211,10 +211,34 @@ export function descargarCertificado(nombre: string) {
   ctx.font = 'bold 13px Arial, sans-serif';
   ctx.fillText('prolarva.co', 600, 690);
 
-  const link = document.createElement('a');
-  link.download = `certificado-prolarva-${nombre.toLowerCase().replace(/\s+/g, '-')}.png`;
-  link.href = canvas.toDataURL('image/png');
-  link.click();
+  const filename = `certificado-prolarva-${nombre.toLowerCase().replace(/\s+/g, '-')}.png`;
+
+  canvas.toBlob(blob => {
+    if (!blob) {
+      // fallback extremo: abrir el dataURL en pestaña nueva
+      window.open(canvas.toDataURL('image/png'), '_blank');
+      return;
+    }
+
+    // 1. Web Share con archivo — la vía que funciona en móvil / PWA (Android)
+    const file = new File([blob], filename, { type: 'image/png' });
+    const nav = navigator as Navigator & { canShare?: (d: unknown) => boolean };
+    if (nav.canShare?.({ files: [file] })) {
+      nav.share?.({ files: [file], title: 'Mi certificado ProLarva' }).catch(() => {});
+      return;
+    }
+
+    // 2. Descarga normal (desktop) vía blob URL
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.download = filename;
+    link.href = url;
+    link.rel = 'noopener';
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 15000);
+  }, 'image/png');
 }
 
 // ─── Modal base ───────────────────────────────────────────────────────────────

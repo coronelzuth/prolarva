@@ -43,7 +43,6 @@ export default function EscuelaView({
 
   const [semana,      setSemana]      = useState(1);
   const [sub,         setSub]         = useState<EscuelaSub>('cronograma');
-  const [expandedDia, setExpandedDia] = useState<string | null>(null);
   const [faseMod,     setFaseMod]     = useState<number | null>(null);
 
   // Admin modals
@@ -1071,23 +1070,9 @@ export default function EscuelaView({
               isAdmin={isAdmin}
               fasesAprobadas={fasesAprobadas}
               faseEnRevision={faseEnRevision}
-              expandedDia={expandedDia}
-              setExpandedDia={setExpandedDia}
               setFaseMod={setFaseMod}
               setEditDia={setEditDia}
               setModalDia={setModalDia}
-              clasesPorSemana={esc.clasesPorSemana}
-              tareasPorSemana={esc.tareasPorSemana}
-              plantillasPorSemana={esc.plantillasPorSemana}
-              estaVisto={esc.estaVisto}
-              marcarVisto={esc.marcarVisto}
-              miEntrega={esc.miEntrega}
-              entregarTarea={esc.entregarTarea}
-              tareaText={tareaText}
-              setTareaText={setTareaText}
-              tareaPosting={tareaPosting}
-              setTareaPosting={setTareaPosting}
-              socioNombre={socioNombre}
             />
           )}
         </div>

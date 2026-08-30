@@ -74,6 +74,7 @@ export interface SocioSession {
   rol: 'admin' | 'socio';
   fases_aprobadas: number;
   fase_en_revision: number;
+  token: string;
 }
 
 // ─── BSF Cycle ───────────────────────────────────────────────────────────────
@@ -126,111 +127,6 @@ function localSave<T>(key: string, val: T) {
   try { localStorage.setItem(key, JSON.stringify(val)); } catch {}
 }
 
-// ─── Supabase row converters ──────────────────────────────────────────────────
-
-function loteToRow(socioCode: string, l: Lote) {
-  return {
-    id: l.id, socio_code: socioCode,
-    nombre: l.nombre, fecha: l.fecha,
-    sustrato: l.sustrato, tipo_sustrato: l.tipoSustrato,
-    huevos: l.huevos, temp: l.temp,
-    notas: l.notas, creado_en: l.creadoEn,
-    objetivo: l.objetivo ?? 'cosechar',
-  };
-}
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function loteFromRow(r: any): Lote {
-  return {
-    id: r.id, nombre: r.nombre, fecha: r.fecha,
-    sustrato: r.sustrato ?? 0, tipoSustrato: r.tipo_sustrato ?? '',
-    huevos: r.huevos ?? '', temp: r.temp ?? null,
-    notas: r.notas ?? '', creadoEn: r.creado_en,
-    objetivo: r.objetivo ?? 'cosechar',
-  };
-}
-
-function feedToRow(socioCode: string, f: FeedLog) {
-  return {
-    id: f.id, lote_id: f.loteId, socio_code: socioCode,
-    fecha: f.fecha, cantidad: f.cantidad, tipo: f.tipo,
-    rechazo: f.rechazo, notas: f.notas,
-  };
-}
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function feedFromRow(r: any): FeedLog {
-  return {
-    id: r.id, loteId: r.lote_id, fecha: r.fecha,
-    cantidad: r.cantidad, tipo: r.tipo,
-    rechazo: r.rechazo ?? 'ninguno', notas: r.notas ?? '',
-  };
-}
-
-function cosechaToRow(socioCode: string, c: Cosecha) {
-  return {
-    id: c.id, lote_id: c.loteId, socio_code: socioCode,
-    fecha: c.fecha, peso: c.peso,
-    sustrato_total: c.sustratoTotal, calidad: c.calidad, notas: c.notas,
-  };
-}
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function cosechaFromRow(r: any): Cosecha {
-  return {
-    id: r.id, loteId: r.lote_id, fecha: r.fecha,
-    peso: r.peso, sustratoTotal: r.sustrato_total ?? 0,
-    calidad: r.calidad ?? 'buena', notas: r.notas ?? '',
-  };
-}
-
-function recToRow(socioCode: string, r: Recordatorio) {
-  return {
-    id: r.id, lote_id: r.loteId, socio_code: socioCode,
-    dia: r.dia, titulo: r.titulo,
-    completado: r.completado, creado_en: r.creadoEn,
-  };
-}
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function recFromRow(r: any): Recordatorio {
-  return {
-    id: r.id, loteId: r.lote_id, dia: r.dia,
-    titulo: r.titulo, completado: r.completado ?? false,
-    creadoEn: r.creado_en,
-  };
-}
-
-function fotoToRow(socioCode: string, f: Foto) {
-  return {
-    id: f.id, lote_id: f.loteId, socio_code: socioCode,
-    data: f.data, descripcion: f.descripcion, creado_en: f.creadoEn,
-  };
-}
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function fotoFromRow(r: any): Foto {
-  return {
-    id: r.id, loteId: r.lote_id,
-    data: r.data, descripcion: r.descripcion ?? '',
-    creadoEn: r.creado_en,
-  };
-}
-
-function ventaToRow(socioCode: string, v: VentaSocio) {
-  return {
-    id: v.id, socio_code: socioCode,
-    fecha: v.fecha, producto: v.producto,
-    kg: v.kg, precio_cop_kg: v.precioCopKg,
-    total_cop: v.totalCop, comprador: v.comprador,
-    notas: v.notas, creado_en: v.creadoEn,
-  };
-}
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function ventaFromRow(r: any): VentaSocio {
-  return {
-    id: r.id, fecha: r.fecha, producto: r.producto,
-    kg: r.kg, precioCopKg: r.precio_cop_kg,
-    totalCop: r.total_cop, comprador: r.comprador ?? '',
-    notas: r.notas ?? '', creadoEn: r.creado_en,
-  };
-}
-
 // ─── Demo ─────────────────────────────────────────────────────────────────────
 
 const DEMO_CODE = 'DEMO';
@@ -257,63 +153,59 @@ function demoData(): { lotes: Lote[]; feeds: FeedLog[]; cosechas: Cosecha[]; rec
   return { lotes, feeds, cosechas, recordatorios: [], fotos: [] };
 }
 
-// ─── Supabase sync ────────────────────────────────────────────────────────────
-
-async function syncFromSupabase(
-  db: ReturnType<typeof getSupabase>,
-  code: string,
-  local: {
-    lotes: Lote[]; feeds: FeedLog[]; cosechas: Cosecha[];
-    recordatorios: Recordatorio[]; fotos: Foto[]; ventasSocios: VentaSocio[];
-  }
+function cargarDemo(
+  setLotes: (v: Lote[]) => void, setFeeds: (v: FeedLog[]) => void, setCosechas: (v: Cosecha[]) => void,
+  setRecordatorios: (v: Recordatorio[]) => void, setFotos: (v: Foto[]) => void,
 ) {
-  if (!db) return null;
+  if (load<Lote[]>(KEYS.lotes, []).length > 0) return;
+  const demo = demoData();
+  setLotes(demo.lotes); setFeeds(demo.feeds); setCosechas(demo.cosechas);
+  setRecordatorios([]); setFotos([]);
+  localSave(KEYS.lotes, demo.lotes); localSave(KEYS.feeds, demo.feeds); localSave(KEYS.cosechas, demo.cosechas);
+  localSave(KEYS.recordatorios, []); localSave(KEYS.fotos, []);
+}
 
-  const [
-    { data: dbLotes },
-    { data: dbFeeds },
-    { data: dbCosechas },
-    { data: dbRecs },
-    { data: dbFotos },
-    { data: dbVentas },
-  ] = await Promise.all([
-    db.from('lotes').select('*').eq('socio_code', code),
-    db.from('feed_logs').select('*').eq('socio_code', code),
-    db.from('cosechas').select('*').eq('socio_code', code),
-    db.from('recordatorios').select('*').eq('socio_code', code),
-    db.from('fotos_lotes').select('*').eq('socio_code', code),
-    db.from('ventas_socios').select('*').eq('socio_code', code),
-  ]);
+// ─── API de datos del socio (/api/socios/data) ────────────────────────────────
 
-  // db is guaranteed non-null here (checked above)
-  const safeDb = db!;
-
-  async function resolveTable<T>(
-    dbRows: unknown[] | null,
-    localRows: T[],
-    toRow: (item: T) => object,
-    fromRow: (r: unknown) => T,
-    table: string,
-  ): Promise<T[] | null> {
-    if (dbRows === null) return null;
-    if (dbRows.length > 0) return (dbRows as unknown[]).map(fromRow);
-    if (localRows.length > 0) {
-      await Promise.all(localRows.map(item => safeDb.from(table).upsert(toRow(item))));
-      return localRows;
-    }
-    return [];
+/** Escritura fire-and-forget. El socio_code lo resuelve el servidor desde el token. */
+async function postData(action: string, payload: unknown = {}): Promise<unknown> {
+  const sess = load<SocioSession | null>(KEYS.session, null);
+  if (!sess?.token || sess.code === DEMO_CODE) return null;
+  try {
+    const res = await fetch('/api/socios/data', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token: sess.token, action, payload }),
+    });
+    if (!res.ok) { console.error('[ProLarva] data', action, res.status); return null; }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return (await res.json() as any).data ?? true;
+  } catch (e) {
+    console.error('[ProLarva] data', action, e);
+    return null;
   }
+}
 
-  const [lotes, feeds, cosechas, recordatorios, fotos, ventasSocios] = await Promise.all([
-    resolveTable(dbLotes, local.lotes, l => loteToRow(code, l as Lote), loteFromRow, 'lotes'),
-    resolveTable(dbFeeds, local.feeds, f => feedToRow(code, f as FeedLog), feedFromRow, 'feed_logs'),
-    resolveTable(dbCosechas, local.cosechas, c => cosechaToRow(code, c as Cosecha), cosechaFromRow, 'cosechas'),
-    resolveTable(dbRecs, local.recordatorios, r => recToRow(code, r as Recordatorio), recFromRow, 'recordatorios'),
-    resolveTable(dbFotos, local.fotos, f => fotoToRow(code, f as Foto), fotoFromRow, 'fotos_lotes'),
-    resolveTable(dbVentas, local.ventasSocios, v => ventaToRow(code, v as VentaSocio), ventaFromRow, 'ventas_socios'),
-  ]);
+interface SocioData {
+  lotes: Lote[]; feeds: FeedLog[]; cosechas: Cosecha[];
+  recordatorios: Recordatorio[]; fotos: Foto[]; ventasSocios: VentaSocio[];
+}
 
-  return { lotes, feeds, cosechas, recordatorios, fotos, ventasSocios };
+async function fetchSocioData(local: SocioData): Promise<SocioData | null> {
+  const sess = load<SocioSession | null>(KEYS.session, null);
+  if (!sess?.token || sess.code === DEMO_CODE) return null;
+  try {
+    const res = await fetch('/api/socios/data', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token: sess.token, action: 'sync', payload: { local } }),
+    });
+    if (!res.ok) return null;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return (await res.json() as any).data as SocioData;
+  } catch {
+    return null;
+  }
 }
 
 // ─── Hook ────────────────────────────────────────────────────────────────────
@@ -328,12 +220,21 @@ export function useSocios() {
   const [ventasSocios,   setVentasSocios]   = useState<VentaSocio[]>([]);
   const [loaded,         setLoaded]         = useState(false);
 
+  function aplicarData(result: SocioData) {
+    setLotes(result.lotes);                 localSave(KEYS.lotes, result.lotes);
+    setFeeds(result.feeds);                 localSave(KEYS.feeds, result.feeds);
+    setCosechas(result.cosechas);           localSave(KEYS.cosechas, result.cosechas);
+    setRecordatorios(result.recordatorios); localSave(KEYS.recordatorios, result.recordatorios);
+    setFotos(result.fotos);                 localSave(KEYS.fotos, result.fotos);
+    setVentasSocios(result.ventasSocios);   localSave(KEYS.ventasSocios, result.ventasSocios);
+  }
+
   useEffect(() => {
     async function init() {
       const sess = load<SocioSession | null>(KEYS.session, null);
       setSession(sess);
 
-      const local = {
+      const local: SocioData = {
         lotes:         load<Lote[]>(KEYS.lotes, []),
         feeds:         load<FeedLog[]>(KEYS.feeds, []),
         cosechas:      load<Cosecha[]>(KEYS.cosechas, []),
@@ -348,44 +249,47 @@ export function useSocios() {
       setFotos(local.fotos);
       setVentasSocios(local.ventasSocios);
 
-      const db = getSupabase();
-      if (db && sess && sess.code !== DEMO_CODE) {
+      if (sess && sess.code !== DEMO_CODE) {
         // Refrescar la cuenta (fases aprobadas, rol, email) — antes había que cerrar
-        // sesión para que el socio viera una fase aprobada por el admin o el Monitor desbloqueado.
-        try {
-          const { data: fresh } = await db
-            .from('socios')
-            .select('codigo,nombre,email,rol,fases_aprobadas,fase_en_revision,estado')
-            .eq('codigo', sess.code)
-            .single();
-          if (fresh) {
-            if (fresh.estado && fresh.estado !== 'activo') {
-              setSession(null);
-              Object.values(KEYS).forEach(k => localSave(k, k === KEYS.session ? null : []));
-              setLoaded(true);
-              return;
+        // sesión para ver una fase aprobada por el admin o el Monitor desbloqueado.
+        const db = getSupabase();
+        if (db) {
+          try {
+            const { data: fresh } = await db
+              .from('socios')
+              .select('codigo,nombre,email,rol,fases_aprobadas,fase_en_revision,estado')
+              .eq('codigo', sess.code)
+              .single();
+            if (fresh) {
+              if (fresh.estado && fresh.estado !== 'activo') {
+                setSession(null);
+                Object.values(KEYS).forEach(k => localSave(k, k === KEYS.session ? null : []));
+                setLoaded(true);
+                return;
+              }
+              const refreshed: SocioSession = {
+                code: fresh.codigo,
+                name: fresh.nombre ?? sess.name,
+                email: fresh.email ?? sess.email ?? '',
+                rol: (fresh.rol ?? sess.rol) as 'admin' | 'socio',
+                fases_aprobadas: fresh.fases_aprobadas ?? 0,
+                fase_en_revision: fresh.fase_en_revision ?? 0,
+                token: sess.token,
+              };
+              setSession(refreshed);
+              localSave(KEYS.session, refreshed);
             }
-            const refreshed: SocioSession = {
-              code: fresh.codigo,
-              name: fresh.nombre ?? sess.name,
-              email: fresh.email ?? sess.email ?? '',
-              rol: (fresh.rol ?? sess.rol) as 'admin' | 'socio',
-              fases_aprobadas: fresh.fases_aprobadas ?? 0,
-              fase_en_revision: fresh.fase_en_revision ?? 0,
-            };
-            setSession(refreshed);
-            localSave(KEYS.session, refreshed);
-          }
-        } catch { /* sin conexión — se usa la sesión de localStorage */ }
+          } catch { /* sin conexión — se usa la sesión de localStorage */ }
+        }
 
-        const result = await syncFromSupabase(db, sess.code, local);
-        if (result) {
-          if (result.lotes)         { setLotes(result.lotes);                       localSave(KEYS.lotes, result.lotes); }
-          if (result.feeds)         { setFeeds(result.feeds);                       localSave(KEYS.feeds, result.feeds); }
-          if (result.cosechas)      { setCosechas(result.cosechas);                 localSave(KEYS.cosechas, result.cosechas); }
-          if (result.recordatorios) { setRecordatorios(result.recordatorios);       localSave(KEYS.recordatorios, result.recordatorios); }
-          if (result.fotos)         { setFotos(result.fotos);                       localSave(KEYS.fotos, result.fotos); }
-          if (result.ventasSocios)  { setVentasSocios(result.ventasSocios);         localSave(KEYS.ventasSocios, result.ventasSocios); }
+        const result = await fetchSocioData(local);
+        if (result) aplicarData(result);
+        else if (!sess.token) {
+          // sesión vieja sin token (antes del refactor) — forzar re-login
+          setSession(null);
+          Object.values(KEYS).forEach(k => localSave(k, k === KEYS.session ? null : []));
+          setLoaded(true);
+          return;
         }
       }
 
@@ -398,20 +302,11 @@ export function useSocios() {
 
   const login = useCallback(async (code: string, pass: string): Promise<boolean> => {
     try {
-      // Bypass de API para modo demo — no requiere cuenta en Supabase
       if (code.toUpperCase() === DEMO_CODE) {
-        const s: SocioSession = { code: DEMO_CODE, name: 'Visitante', email: '', rol: 'socio', fases_aprobadas: 0, fase_en_revision: 0 };
+        const s: SocioSession = { code: DEMO_CODE, name: 'Visitante', email: '', rol: 'socio', fases_aprobadas: 0, fase_en_revision: 0, token: '' };
         setSession(s);
         localSave(KEYS.session, s);
-        const existingLotes = load<Lote[]>(KEYS.lotes, []);
-        if (existingLotes.length === 0) {
-          const demo = demoData();
-          setLotes(demo.lotes); setFeeds(demo.feeds); setCosechas(demo.cosechas);
-          setRecordatorios([]); setFotos([]);
-          localSave(KEYS.lotes, demo.lotes); localSave(KEYS.feeds, demo.feeds);
-          localSave(KEYS.cosechas, demo.cosechas);
-          localSave(KEYS.recordatorios, []); localSave(KEYS.fotos, []);
-        }
+        cargarDemo(setLotes, setFeeds, setCosechas, setRecordatorios, setFotos);
         return true;
       }
 
@@ -421,45 +316,26 @@ export function useSocios() {
         body: JSON.stringify({ code, password: pass }),
       });
       const data = await res.json();
-      if (!res.ok || !data.success) return false;
+      if (!res.ok || !data.success || !data.token) return false;
 
-      const s: SocioSession = { code: data.codigo, name: data.nombre, email: data.email ?? '', rol: data.rol ?? 'socio', fases_aprobadas: data.fases_aprobadas ?? 0, fase_en_revision: data.fase_en_revision ?? 0 };
+      const s: SocioSession = {
+        code: data.codigo, name: data.nombre, email: data.email ?? '',
+        rol: data.rol ?? 'socio', fases_aprobadas: data.fases_aprobadas ?? 0,
+        fase_en_revision: data.fase_en_revision ?? 0, token: data.token,
+      };
       setSession(s);
       localSave(KEYS.session, s);
 
-      if (s.code === DEMO_CODE) {
-        const existingLotes = load<Lote[]>(KEYS.lotes, []);
-        if (existingLotes.length === 0) {
-          const demo = demoData();
-          setLotes(demo.lotes); setFeeds(demo.feeds); setCosechas(demo.cosechas);
-          setRecordatorios([]); setFotos([]);
-          localSave(KEYS.lotes, demo.lotes); localSave(KEYS.feeds, demo.feeds);
-          localSave(KEYS.cosechas, demo.cosechas);
-          localSave(KEYS.recordatorios, []); localSave(KEYS.fotos, []);
-        }
-        return true;
-      }
-
-      const db = getSupabase();
-      if (db) {
-        const local = {
-          lotes:         load<Lote[]>(KEYS.lotes, []),
-          feeds:         load<FeedLog[]>(KEYS.feeds, []),
-          cosechas:      load<Cosecha[]>(KEYS.cosechas, []),
-          recordatorios: load<Recordatorio[]>(KEYS.recordatorios, []),
-          fotos:         load<Foto[]>(KEYS.fotos, []),
-          ventasSocios:  load<VentaSocio[]>(KEYS.ventasSocios, []),
-        };
-        const result = await syncFromSupabase(db, s.code, local);
-        if (result) {
-          if (result.lotes)         { setLotes(result.lotes);                 localSave(KEYS.lotes, result.lotes); }
-          if (result.feeds)         { setFeeds(result.feeds);                 localSave(KEYS.feeds, result.feeds); }
-          if (result.cosechas)      { setCosechas(result.cosechas);           localSave(KEYS.cosechas, result.cosechas); }
-          if (result.recordatorios) { setRecordatorios(result.recordatorios); localSave(KEYS.recordatorios, result.recordatorios); }
-          if (result.fotos)         { setFotos(result.fotos);                 localSave(KEYS.fotos, result.fotos); }
-          if (result.ventasSocios)  { setVentasSocios(result.ventasSocios);   localSave(KEYS.ventasSocios, result.ventasSocios); }
-        }
-      }
+      const local: SocioData = {
+        lotes:         load<Lote[]>(KEYS.lotes, []),
+        feeds:         load<FeedLog[]>(KEYS.feeds, []),
+        cosechas:      load<Cosecha[]>(KEYS.cosechas, []),
+        recordatorios: load<Recordatorio[]>(KEYS.recordatorios, []),
+        fotos:         load<Foto[]>(KEYS.fotos, []),
+        ventasSocios:  load<VentaSocio[]>(KEYS.ventasSocios, []),
+      };
+      const result = await fetchSocioData(local);
+      if (result) aplicarData(result);
 
       return true;
     } catch {
@@ -487,6 +363,7 @@ export function useSocios() {
   );
 
   const logout = useCallback(() => {
+    void postData('logout');
     setSession(null);
     setLotes([]); setFeeds([]); setCosechas([]); setRecordatorios([]); setFotos([]); setVentasSocios([]);
     Object.values(KEYS).forEach(k => localSave(k, k === KEYS.session ? null : []));
@@ -497,12 +374,8 @@ export function useSocios() {
   const addLote = useCallback(async (lote: Omit<Lote, 'id' | 'creadoEn'>) => {
     const next: Lote = { ...lote, id: uid(), creadoEn: new Date().toISOString() };
     setLotes(prev => { const arr = [...prev, next]; localSave(KEYS.lotes, arr); return arr; });
-    const db = getSupabase();
-    if (db && session && session.code !== DEMO_CODE) {
-      const { error } = await db.from('lotes').upsert(loteToRow(session.code, next));
-      if (error) console.error('[ProLarva] addLote:', error.message);
-    }
-  }, [session]);
+    await postData('lote.add', next);
+  }, []);
 
   const deleteLote = useCallback(async (id: string) => {
     setLotes(prev => { const arr = prev.filter(l => l.id !== id); localSave(KEYS.lotes, arr); return arr; });
@@ -510,58 +383,37 @@ export function useSocios() {
     setCosechas(prev => { const arr = prev.filter(c => c.loteId !== id); localSave(KEYS.cosechas, arr); return arr; });
     setRecordatorios(prev => { const arr = prev.filter(r => r.loteId !== id); localSave(KEYS.recordatorios, arr); return arr; });
     setFotos(prev => { const arr = prev.filter(f => f.loteId !== id); localSave(KEYS.fotos, arr); return arr; });
-    const db = getSupabase();
-    const sess = load<SocioSession | null>(KEYS.session, null);
-    if (db && sess?.code !== DEMO_CODE) {
-      const { error } = await db.from('lotes').delete().eq('id', id);
-      if (error) console.error('[ProLarva] deleteLote:', error.message);
-    }
+    await postData('lote.delete', { id });
   }, []);
 
   const updateLote = useCallback(async (id: string, updates: Partial<Pick<Lote, 'nombre' | 'fecha'>>) => {
     setLotes(prev => { const arr = prev.map(l => l.id === id ? { ...l, ...updates } : l); localSave(KEYS.lotes, arr); return arr; });
-    const db = getSupabase();
-    if (db && session && session.code !== DEMO_CODE) {
-      const { error } = await db.from('lotes').update(updates).eq('id', id);
-      if (error) console.error('[ProLarva] updateLote:', error.message);
-    }
-  }, [session]);
+    await postData('lote.update', { id, updates });
+  }, []);
 
   // ─── Feeds ─────────────────────────────────────────────────────────────────
 
   const addFeed = useCallback(async (feed: Omit<FeedLog, 'id'>) => {
     const next: FeedLog = { ...feed, id: uid() };
     setFeeds(prev => { const arr = [...prev, next]; localSave(KEYS.feeds, arr); return arr; });
-    const db = getSupabase();
-    if (db && session && session.code !== DEMO_CODE) {
-      const { error } = await db.from('feed_logs').upsert(feedToRow(session.code, next));
-      if (error) console.error('[ProLarva] addFeed:', error.message);
-    }
-  }, [session]);
+    await postData('feed.add', next);
+  }, []);
 
   // ─── Cosechas ──────────────────────────────────────────────────────────────
 
   const addCosecha = useCallback(async (cosecha: Omit<Cosecha, 'id'>) => {
     const next: Cosecha = { ...cosecha, id: uid() };
     setCosechas(prev => { const arr = [...prev, next]; localSave(KEYS.cosechas, arr); return arr; });
-    const db = getSupabase();
-    if (db && session && session.code !== DEMO_CODE) {
-      const { error } = await db.from('cosechas').upsert(cosechaToRow(session.code, next));
-      if (error) console.error('[ProLarva] addCosecha:', error.message);
-    }
-  }, [session]);
+    await postData('cosecha.add', next);
+  }, []);
 
   // ─── Recordatorios ─────────────────────────────────────────────────────────
 
   const addRecordatorio = useCallback(async (rec: Omit<Recordatorio, 'id' | 'completado' | 'creadoEn'>) => {
     const next: Recordatorio = { ...rec, id: uid(), completado: false, creadoEn: new Date().toISOString() };
     setRecordatorios(prev => { const arr = [...prev, next]; localSave(KEYS.recordatorios, arr); return arr; });
-    const db = getSupabase();
-    if (db && session && session.code !== DEMO_CODE) {
-      const { error } = await db.from('recordatorios').upsert(recToRow(session.code, next));
-      if (error) console.error('[ProLarva] addRecordatorio:', error.message);
-    }
-  }, [session]);
+    await postData('recordatorio.add', next);
+  }, []);
 
   const toggleRecordatorio = useCallback(async (id: string) => {
     let completado = false;
@@ -571,22 +423,12 @@ export function useSocios() {
       localSave(KEYS.recordatorios, arr);
       return arr;
     });
-    const db = getSupabase();
-    const sess = load<SocioSession | null>(KEYS.session, null);
-    if (db && sess?.code !== DEMO_CODE) {
-      const { error } = await db.from('recordatorios').update({ completado }).eq('id', id);
-      if (error) console.error('[ProLarva] toggleRecordatorio:', error.message);
-    }
+    await postData('recordatorio.toggle', { id, completado });
   }, []);
 
   const deleteRecordatorio = useCallback(async (id: string) => {
     setRecordatorios(prev => { const arr = prev.filter(r => r.id !== id); localSave(KEYS.recordatorios, arr); return arr; });
-    const db = getSupabase();
-    const sess = load<SocioSession | null>(KEYS.session, null);
-    if (db && sess?.code !== DEMO_CODE) {
-      const { error } = await db.from('recordatorios').delete().eq('id', id);
-      if (error) console.error('[ProLarva] deleteRecordatorio:', error.message);
-    }
+    await postData('recordatorio.delete', { id });
   }, []);
 
   // ─── Fotos ─────────────────────────────────────────────────────────────────
@@ -594,21 +436,12 @@ export function useSocios() {
   const addFoto = useCallback(async (foto: Omit<Foto, 'id' | 'creadoEn'>) => {
     const next: Foto = { ...foto, id: uid(), creadoEn: new Date().toISOString() };
     setFotos(prev => { const arr = [...prev, next]; localSave(KEYS.fotos, arr); return arr; });
-    const db = getSupabase();
-    if (db && session && session.code !== DEMO_CODE) {
-      const { error } = await db.from('fotos_lotes').upsert(fotoToRow(session.code, next));
-      if (error) console.error('[ProLarva] addFoto:', error.message);
-    }
-  }, [session]);
+    await postData('foto.add', next);
+  }, []);
 
   const deleteFoto = useCallback(async (id: string) => {
     setFotos(prev => { const arr = prev.filter(f => f.id !== id); localSave(KEYS.fotos, arr); return arr; });
-    const db = getSupabase();
-    const sess = load<SocioSession | null>(KEYS.session, null);
-    if (db && sess?.code !== DEMO_CODE) {
-      const { error } = await db.from('fotos_lotes').delete().eq('id', id);
-      if (error) console.error('[ProLarva] deleteFoto:', error.message);
-    }
+    await postData('foto.delete', { id });
   }, []);
 
   // ─── Ventas socios ─────────────────────────────────────────────────────────
@@ -616,60 +449,60 @@ export function useSocios() {
   const addVentaSocio = useCallback(async (venta: Omit<VentaSocio, 'id' | 'creadoEn'>) => {
     const next: VentaSocio = { ...venta, id: uid(), creadoEn: new Date().toISOString() };
     setVentasSocios(prev => { const arr = [...prev, next]; localSave(KEYS.ventasSocios, arr); return arr; });
-    const db = getSupabase();
-    if (db && session && session.code !== DEMO_CODE) {
-      const { error } = await db.from('ventas_socios').upsert(ventaToRow(session.code, next));
-      if (error) console.error('[ProLarva] addVentaSocio:', error.message);
-    }
-  }, [session]);
+    await postData('venta.add', next);
+  }, []);
 
   const deleteVentaSocio = useCallback(async (id: string) => {
     setVentasSocios(prev => { const arr = prev.filter(v => v.id !== id); localSave(KEYS.ventasSocios, arr); return arr; });
-    const db = getSupabase();
-    const sess = load<SocioSession | null>(KEYS.session, null);
-    if (db && sess?.code !== DEMO_CODE) {
-      const { error } = await db.from('ventas_socios').delete().eq('id', id);
-      if (error) console.error('[ProLarva] deleteVentaSocio:', error.message);
-    }
+    await postData('venta.delete', { id });
   }, []);
 
   const updateName = useCallback(async (nombre: string): Promise<boolean> => {
-    if (!session) return false;
+    const sess = load<SocioSession | null>(KEYS.session, null);
+    if (!sess?.token) return false;
+    const trimmed = nombre.trim();
     try {
       const res = await fetch('/api/socios/update-profile', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code: session.code, nombre }),
+        body: JSON.stringify({ token: sess.token, nombre: trimmed }),
       });
       const data = await res.json();
       if (!res.ok || !data.success) return false;
-      const newSession = { ...session, name: data.nombre };
-      setSession(newSession);
-      localSave(KEYS.session, newSession);
+      setSession(prev => {
+        if (!prev) return prev;
+        const updated = { ...prev, name: trimmed };
+        localSave(KEYS.session, updated);
+        return updated;
+      });
       return true;
     } catch {
       return false;
     }
-  }, [session]);
+  }, []);
 
   const updateEmail = useCallback(async (email: string): Promise<{ ok: boolean; error?: string }> => {
-    if (!session) return { ok: false, error: 'Sin sesión' };
+    const sess = load<SocioSession | null>(KEYS.session, null);
+    if (!sess?.token) return { ok: false, error: 'Sin sesión' };
     try {
       const res = await fetch('/api/socios/update-email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code: session.code, email }),
+        body: JSON.stringify({ token: sess.token, email }),
       });
       const data = await res.json();
       if (!res.ok || !data.success) return { ok: false, error: data.error ?? 'Error al guardar' };
-      const newSession = { ...session, email };
-      setSession(newSession);
-      localSave(KEYS.session, newSession);
+      setSession(prev => {
+        if (!prev) return prev;
+        const updated = { ...prev, email };
+        localSave(KEYS.session, updated);
+        return updated;
+      });
       return { ok: true };
     } catch {
       return { ok: false, error: 'Error de conexión' };
     }
-  }, [session]);
+  }, []);
 
   const updateFases = useCallback((faseEnRevision: number, fasesAprobadas?: number) => {
     setSession(prev => {
@@ -684,17 +517,8 @@ export function useSocios() {
     setLotes([]); setFeeds([]); setCosechas([]); setRecordatorios([]); setFotos([]);
     localSave(KEYS.lotes, []); localSave(KEYS.feeds, []); localSave(KEYS.cosechas, []);
     localSave(KEYS.recordatorios, []); localSave(KEYS.fotos, []);
-    const db = getSupabase();
-    if (db && session && session.code !== DEMO_CODE) {
-      await Promise.all([
-        db.from('lotes').delete().eq('socio_code', session.code),
-        db.from('feed_logs').delete().eq('socio_code', session.code),
-        db.from('cosechas').delete().eq('socio_code', session.code),
-        db.from('recordatorios').delete().eq('socio_code', session.code),
-        db.from('fotos_lotes').delete().eq('socio_code', session.code),
-      ]);
-    }
-  }, [session]);
+    await postData('reset');
+  }, []);
 
   // ─── Computed ──────────────────────────────────────────────────────────────
 

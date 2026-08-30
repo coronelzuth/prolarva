@@ -103,7 +103,7 @@ function SociosInner() {
 
   async function handleMarcarFase(fase: number) {
     if (!db.session) return;
-    const res = await fetch('/api/socios/marcar-fase', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ code: db.session.code, fase }) });
+    const res = await fetch('/api/socios/marcar-fase', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ token: db.session.token, fase }) });
     if (res.ok) { db.updateFases(fase); showToast(`📩 Semana ${fase} enviada a revisión`); }
     else { const d = await res.json(); showToast(`❌ ${d.error ?? 'Error al enviar la semana'}`); }
   }

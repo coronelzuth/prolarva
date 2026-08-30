@@ -119,7 +119,7 @@ function PerfilView({
       const res = await fetch('/api/socios/update-profile', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code: session.code, ...perfil }),
+        body: JSON.stringify({ token: session.token, ...perfil }),
       });
       if (res.ok) {
         localStorage.setItem(`prl-perfil-pub-${session.code}`, JSON.stringify(perfil));

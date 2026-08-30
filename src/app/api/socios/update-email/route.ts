@@ -1,17 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
-
-function getSupabaseAdmin() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  if (!url || !key) return null;
-  return createClient(url, key);
-}
+import { getServerSupabase } from '@/lib/supabaseServer';
+import { socioDeToken } from '@/lib/sesion';
 
 export async function POST(req: NextRequest) {
   try {
-    const { code, email } = await req.json();
-    if (!code || !email) {
+    const { token, email } = await req.json();
+    if (!token || !email) {
       return NextResponse.json({ error: 'Datos requeridos' }, { status: 400 });
     }
 
@@ -21,8 +15,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Email no válido' }, { status: 400 });
     }
 
-    const db = getSupabaseAdmin();
+    const db = getServerSupabase();
     if (!db) return NextResponse.json({ error: 'Error de configuración' }, { status: 500 });
+
+    const code = await socioDeToken(db, token);
+    if (!code) return NextResponse.json({ error: 'Sesión inválida' }, { status: 401 });
 
     // Verificar que el email no esté en uso por otro socio
     const { data: existing } = await db

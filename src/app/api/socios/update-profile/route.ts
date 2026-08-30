@@ -1,20 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
-
-function getSupabaseAdmin() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  if (!url || !key) return null;
-  return createClient(url, key);
-}
+import { getServerSupabase } from '@/lib/supabaseServer';
+import { socioDeToken } from '@/lib/sesion';
 
 export async function POST(req: NextRequest) {
   try {
-    const { code, nombre, ubicacion, tipo_produccion, whatsapp_pub, instagram, tiktok, mostrar_directorio } = await req.json();
-    if (!code) return NextResponse.json({ error: 'Código requerido' }, { status: 400 });
+    const { token, nombre, ubicacion, tipo_produccion, whatsapp_pub, instagram, tiktok, mostrar_directorio } = await req.json();
 
-    const db = getSupabaseAdmin();
+    const db = getServerSupabase();
     if (!db) return NextResponse.json({ error: 'Error de configuración' }, { status: 500 });
+
+    const code = await socioDeToken(db, token);
+    if (!code) return NextResponse.json({ error: 'Sesión inválida' }, { status: 401 });
 
     const update: Record<string, unknown> = {};
     if (nombre?.trim())                   update.nombre              = nombre.trim();

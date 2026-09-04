@@ -369,8 +369,13 @@ a5cc857  feat: port calculadora BSF a React con paleta de la app
 - ✅ **Enciclopedia (Wiki) — pase de UX (parte 1):**
   - **Sin scroll horizontal:** las 3 tablas comparativas (Procesamiento `TwoWayCompare`, Low cost comparativa + materiales) pasaron de `<table overflow-x>` a **tarjetas apiladas**. Se eliminaron `thStyle`/`tdStyle`.
   - **Secciones largas con índice:** nuevo `SectionTOC` (chips de salto con `scrollIntoView`) + anclas `id`+`scrollMarginTop` en Alimentación (4), Low cost (3), Cría (2), Procesamiento (2).
-  - **Nav móvil:** el strip horizontal de 9 tabs (`enc-mob-tabs`) → **`<select>` nativo** + botón "‹ Índice". Sidebar desktop sin cambios. `SECCIONES[].corto` quedó sin uso.
-  - ⏭️ **Pendiente Wiki (parte 2):** deep-link `?sec=` al cambiar sección, pulido del modal de "El ciclo" (scroll-lock + `✕`), regex de acentos del buscador, búsqueda global.
+  - **Nav móvil:** el strip horizontal de 9 tabs (`enc-mob-tabs`) → **`<select>` nativo** + botón "‹ Índice". Sidebar desktop sin cambios.
+- ✅ **Enciclopedia (Wiki) — pase de UX (parte 2):**
+  - **Búsqueda global** — nuevo `src/app/socios/enciclopediaSearch.ts` (`searchEnciclopedia(q)`) indexa TODO el contenido (ciclo, cría, rutas, alimentación, procesamiento, low cost, ~60 términos). Input arriba de la Wiki; los resultados reemplazan el contenido, con badge de sección + snippet. Clic → navega a la sección, hace scroll al ancla y, si es vocabulario, precarga el buscador de esa sección (`VocabularioSection` acepta `initialQuery`).
+  - **Deep-link:** al cambiar de sección se hace `history.replaceState` con `?v=enciclopedia&sec=<sec>` — recargar/compartir cae en la sección correcta.
+  - **Modal de "El ciclo":** bloqueo de scroll del fondo (`body.overflow` mientras está abierto) + `×` → `✕`.
+  - **Fix:** el `norm()` de acentos (buscadores) usaba un regex con marcas combinantes literales → `new RegExp('[\\u0300-\\u036f]', 'g')`.
+  - `SECCIONES[].corto` quedó sin uso.
 - ✅ **Escuela — pestaña "🎯 Mi Meta" eliminada.** Las rutas de producción ya viven en la Enciclopedia (Wiki → `sec=rutas`). Se quitó el sub-tab `metas` de `EscuelaView` (sidebar + mobile tabs + bloque de contenido) y el valor `'metas'` de `EscuelaSub` en `_escuela_shared.tsx`.
 - ✅ **`LotesView.tsx` — tabla → tarjetas verticales.** La lista de lotes del Monitor era una `<table>` con **scroll horizontal en móvil**; ahora es un grid de tarjetas (`minmax(300px,1fr)`). Cada tarjeta: nombre + estado, "Sembrado … · Día N", mini-stepper de 5 etapas (barras + emojis, actual resaltada), "etapa N de 5", sustrato y botones Ver/Eliminar. Toda la tarjeta es tappable → detalle.
 - ✅ **Nuevo `src/app/socios/CicloVertical.tsx`** — reemplaza la línea de tiempo **horizontal con scroll** del detalle de lote por un **stepper vertical** (5 etapas de arriba hacia abajo). Riel con nodos ✓/●/○, línea que se rellena según el avance, la etapa actual resaltada en tarjeta verde con "● Ahora · día X de Y". Cada etapa muestra su rango de fechas real calculado. Sin scroll horizontal en ningún lado.

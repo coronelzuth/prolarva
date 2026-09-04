@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { stages } from '@/data/stages';
 import { metas } from '@/data/metas';
 import {
@@ -95,6 +95,13 @@ export function CicloSection() {
   const [lightbox, setLightbox] = useState<string | null>(null);
   const stage = idx !== null ? stages[idx] : null;
 
+  // Bloquear el scroll del fondo mientras el modal está abierto
+  useEffect(() => {
+    if (idx === null && lightbox === null) return;
+    document.body.style.overflow = 'hidden';
+    return () => { document.body.style.overflow = ''; };
+  }, [idx, lightbox]);
+
   return (
     <div>
       <h2 style={sectionTitle}>🔄 El ciclo de la BSF</h2>
@@ -154,7 +161,7 @@ export function CicloSection() {
                   <span style={{ fontSize: 10.5, color: '#64748b' }}>💧 {stage.humidity}</span>
                 </div>
               </div>
-              <button onClick={() => setIdx(null)} style={{ background: 'rgba(255,255,255,0.08)', border: 'none', color: '#94a3b8', cursor: 'pointer', fontSize: 17, padding: '5px 9px', borderRadius: 8 }}>×</button>
+              <button onClick={() => setIdx(null)} style={{ background: 'rgba(255,255,255,0.08)', border: 'none', color: '#94a3b8', cursor: 'pointer', fontSize: 15, padding: '5px 9px', borderRadius: 8 }}>✕</button>
             </div>
 
             <div style={{ overflowY: 'auto', flex: 1, padding: '16px 18px' }}>
@@ -715,12 +722,12 @@ function MiniStat({ k, v }: { k: string; v: string }) {
 
 const CATS: (GlosarioCat | 'Todos')[] = ['Todos', 'Biología', 'Etapas', 'Manejo', 'Sustrato', 'Cosecha', 'Indicadores', 'Negocio'];
 
-export function VocabularioSection() {
-  const [q, setQ] = useState('');
+export function VocabularioSection({ initialQuery = '' }: { initialQuery?: string }) {
+  const [q, setQ] = useState(initialQuery);
   const [cat, setCat] = useState<GlosarioCat | 'Todos'>('Todos');
 
   const list = useMemo(() => {
-    const norm = (s: string) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+    const norm = (s: string) => s.normalize('NFD').replace(new RegExp('[\\u0300-\\u036f]', 'g'), '').toLowerCase();
     const nq = norm(q.trim());
     return GLOSARIO
       .filter(t => cat === 'Todos' || t.cat === cat)

@@ -1,6 +1,5 @@
 'use client';
 import { useState, useEffect } from 'react';
-import Link from 'next/link';
 import { useEscuela, type Clase, type Plantilla, type Tarea, type DiaCronograma } from '@/hooks/useEscuela';
 import { getSupabase } from '@/lib/supabase';
 
@@ -356,11 +355,6 @@ export default function EscuelaView({
           onClick={() => setSub('directorio')}>
           👥
         </button>
-        <button className={`esc-mob-tab${sub === 'metas' ? ' esc-mob-tab-active' : ''}`}
-          onClick={() => setSub('metas')}
-          style={{ color: sub === 'metas' ? '#f59e0b' : undefined }}>
-          🎯
-        </button>
         {asAdmin && (
           <button className={`esc-mob-tab${sub === 'progreso' ? ' esc-mob-tab-active' : ''}`}
             onClick={() => setSub('progreso')}>
@@ -401,17 +395,6 @@ export default function EscuelaView({
               ? String(esc.sociosColonia.filter(s => s.en_colonia).length)
               : undefined}
           />
-
-          <div style={{ borderTop: `1px solid ${S.border}`, margin: '8px 12px 8px' }} />
-          <div onClick={() => setSub('metas')} style={{
-            display: 'flex', alignItems: 'center', gap: 8,
-            padding: '8px 12px', cursor: 'pointer', borderRadius: 8,
-            background: sub === 'metas' ? 'rgba(245,158,11,0.1)' : 'transparent',
-            color: sub === 'metas' ? S.amber : S.muted,
-            fontWeight: 700, fontSize: 13, transition: 'all 0.12s',
-          }}>
-            🎯 Mi Meta
-          </div>
 
           {asAdmin && (
             <>
@@ -778,48 +761,6 @@ export default function EscuelaView({
               onAprobFase={onAprobFase}
               setAdminSocios={setAdminSocios}
             />
-          )}
-
-          {/* ━━━ MI META ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
-          {sub === 'metas' && (
-            <div>
-              <h2 style={{ fontSize: 17, fontWeight: 900, marginBottom: 8 }}>🎯 Mi Meta</h2>
-              <p style={{ fontSize: 13, color: S.muted, lineHeight: 1.7, marginBottom: 24, maxWidth: 520 }}>
-                Define y rastrea tu meta de ahorro mensual produciendo larva BSF. Cada vez que actualizas tu lote en el Monitor, tu avance se calcula automáticamente.
-              </p>
-
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 14, marginBottom: 24 }}>
-                {[
-                  { emoji: '🎯', title: 'Define tu meta', desc: 'Elige cuánto quieres ahorrar en concentrado por mes. Puede ser en pesos COP, kg de larva, o porcentaje de reducción.' },
-                  { emoji: '📊', title: 'Rastrea tu avance', desc: 'Cada cosecha registrada en el Monitor suma automáticamente a tu progreso del mes.' },
-                  { emoji: '🏆', title: 'Celebra tus logros', desc: 'Comparte tus resultados en el Foro con el grupo cuando alcances tu meta del ciclo.' },
-                ].map((item, i) => (
-                  <div key={i} style={{ background: S.navy2, border: `1px solid ${S.border}`, borderRadius: 14, padding: '20px 18px' }}>
-                    <div style={{ fontSize: '1.8rem', marginBottom: 10 }}>{item.emoji}</div>
-                    <div style={{ fontSize: 13, fontWeight: 800, color: S.text, marginBottom: 6 }}>{item.title}</div>
-                    <p style={{ fontSize: 12, color: S.muted, lineHeight: 1.65, margin: 0 }}>{item.desc}</p>
-                  </div>
-                ))}
-              </div>
-
-              <Link
-                href="/socios?v=enciclopedia&sec=rutas"
-                style={{
-                  display: 'inline-flex', alignItems: 'center', gap: 10,
-                  padding: '14px 28px',
-                  background: 'linear-gradient(135deg, #f59e0b, #d97706)',
-                  color: '#0d1b2a', borderRadius: 10,
-                  fontFamily: 'Montserrat, sans-serif', fontWeight: 900, fontSize: '0.95rem',
-                  textDecoration: 'none',
-                  boxShadow: '0 6px 24px rgba(245,158,11,0.35)',
-                }}
-              >
-                🎯 Ver las rutas de producción
-              </Link>
-              <p style={{ fontSize: 11, color: S.muted, marginTop: 10 }}>
-                Se abre en la Enciclopedia → Rutas de producción. Vuelve aquí con el botón atrás del navegador.
-              </p>
-            </div>
           )}
 
           {/* ━━━ CRONOGRAMA ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}

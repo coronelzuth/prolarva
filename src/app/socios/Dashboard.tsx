@@ -13,9 +13,9 @@ function Dashboard({ lotes, feeds, cosechas, activeLotes, readyLotes, recordator
   onVerProtocolo?: () => void;
 }) {
   const statCard = (num: string, label: string, accent: string) => (
-    <div style={{ ...cardStyle }}>
-      <div style={{ fontSize: 28, fontWeight: 800, color: accent }}>{num}</div>
-      <div style={{ fontSize: 11, color: S.muted, marginTop: 4, fontWeight: 600 }}>{label}</div>
+    <div style={{ background: S.card, border: `1px solid ${S.border}`, borderRadius: 10, padding: '9px 11px' }}>
+      <div style={{ fontSize: 18, fontWeight: 800, color: accent, lineHeight: 1.15 }}>{num}</div>
+      <div style={{ fontSize: 10, color: S.muted, marginTop: 1, fontWeight: 600, lineHeight: 1.3 }}>{label}</div>
     </div>
   );
 
@@ -174,7 +174,7 @@ function Dashboard({ lotes, feeds, cosechas, activeLotes, readyLotes, recordator
         );
       })()}
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(140px,1fr))', gap: 12, marginBottom: 24 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(128px,1fr))', gap: 8, marginBottom: 18 }}>
         {statCard(String(activeLotes.length), 'Lotes activos', S.green)}
         {statCard(String(readyLotes.length),  'Listos para cosechar', S.emerald)}
         {statCard(totalKg.toFixed(1) + ' kg', 'Total cosechado', S.amber)}

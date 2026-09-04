@@ -2,18 +2,20 @@
 
 ## Qué es
 
-Landing de venta del Programa Colonia BSF. Grupal, 4 semanas, $400.000 COP (~$96 USD).
+Landing de venta del Programa Colonia BSF. Grupal, 5 semanas, $400.000 COP (~$95 USD).
 - Arranca: 9 sep 2026
 - URL: `prolarva.co/colonia`
 - Archivo: `src/app/colonia/page.tsx`
 - Color principal: verde `#22c55e`
 
-## Oferta
+## Oferta (datos bloqueados 2026-09-03)
 
-- **Precio:** $400.000 COP
-- **Formato:** 4 clases grupales en vivo
-- **Promesa:** Primera colonia BSF funcionando en 30 días
-- **Cupo:** limitado (urgencia real)
+- **Precio:** $400.000 COP (~$95 USD)
+- **Formato:** 5 semanas · **2 clases en vivo por semana = 10 clases** (contenido + Preguntas y Respuestas), todas grabadas
+- **Temario:** 5 fases — ciclo · manejo · cosecha · reinicio · monitoreo/comercialización
+- **Acompañamiento:** virtual · grupo de WhatsApp hasta **60 días después de la última clase** + App Monitor
+- **Promesa:** Primera colonia BSF funcionando en 5 semanas
+- **Cupo:** 30 por cohorte (urgencia real)
 
 ## 3 Bonos incluidos
 

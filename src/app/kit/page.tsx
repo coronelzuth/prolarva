@@ -515,9 +515,9 @@ export default function Sistema2015Page() {
             </div>
             {/* Filas */}
             {[
-              { label: 'Formato', kit: 'Autoguiado con manual paso a paso', col: '4 clases en vivo semanales con Juliana', kitWin: true },
-              { label: 'Interacción con Juliana', kit: 'Soporte por WhatsApp', col: 'En vivo cada semana — preguntas en tiempo real', kitWin: false },
-              { label: 'Red de contactos', kit: 'Sin comunidad grupal', col: '20 productores que se conocen y colaboran', kitWin: false },
+              { label: 'Formato', kit: 'Autoguiado con manual paso a paso', col: '10 clases en vivo con Juliana (5 semanas · 2/semana)', kitWin: true },
+              { label: 'Interacción con Juliana', kit: 'Soporte por WhatsApp', col: 'En vivo 2 veces por semana — preguntas en tiempo real + WhatsApp 60 días', kitWin: false },
+              { label: 'Red de contactos', kit: 'Sin comunidad grupal', col: '30 productores que se conocen y colaboran', kitWin: false },
               { label: 'Semilla BSF viva', kit: '✅ Incluida', col: '✅ Incluida', kitWin: null },
               { label: 'Grabaciones de clase', kit: '—', col: '✅ Disponibles después de cada sesión', kitWin: false },
               { label: 'Material descargable', kit: '✅ Manual + guías', col: '✅ Fichas y plantillas semanales', kitWin: null },

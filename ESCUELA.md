@@ -1,7 +1,7 @@
 # Escuela ProLarva — Contexto para agentes
 
 Panel de aprendizaje dentro de la Zona de Socios (`/socios` → tab 🎓 Escuela).
-Programa **Colonia**: 4 semanas de clases en vivo para socios inscritos.
+Programa **Colonia**: 5 semanas · 2 clases en vivo por semana (10 clases) para socios inscritos. WhatsApp disponible hasta 60 días después de la última clase.
 
 ---
 

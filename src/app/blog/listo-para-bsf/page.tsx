@@ -76,7 +76,7 @@ const NIVELES = {
     color: '#22c55e',
     colorBg: 'rgba(34,197,94,0.08)',
     colorBorder: 'rgba(34,197,94,0.25)',
-    desc: 'Tienes las condiciones básicas para arrancar una colonia BSF desde ya. El siguiente paso es conseguir tu semilla y montar el sistema. El Programa Colonia te lleva de cero a producción en 4 semanas.',
+    desc: 'Tienes las condiciones básicas para arrancar una colonia BSF desde ya. El siguiente paso es conseguir tu semilla y montar el sistema. El Programa Colonia te lleva de cero a producción en 5 semanas.',
     waMsg: 'Hola Juliana! Hice el test y me salió que estoy listo para empezar BSF. Quiero saber más del Programa Colonia.',
   },
   casi: {

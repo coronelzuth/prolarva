@@ -195,7 +195,7 @@ export default function CuantoPierdesPage() {
                 ¿Listo para empezar a recuperar ese dinero?
               </div>
               <p style={{ fontSize: 14, color: C.muted, lineHeight: 1.65, margin: '0 0 22px' }}>
-                El <strong style={{ color: C.greenL }}>Programa Colonia</strong> te enseña a producir tu propia larva BSF en 4 semanas, desde tu traspatio, con acompañamiento real de Juliana.
+                El <strong style={{ color: C.greenL }}>Programa Colonia</strong> te enseña a producir tu propia larva BSF en 5 semanas, desde tu traspatio, con acompañamiento real de Juliana.
               </p>
               <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
                 <Link href="/colonia" style={{

@@ -280,7 +280,7 @@ export default function SaludColoniaPage() {
                 Acompañamiento real cuando lo necesitas
               </div>
               <p style={{ fontSize: 14, color: C.muted, lineHeight: 1.65, margin: '0 0 20px' }}>
-                En el <strong style={{ color: C.greenL }}>Programa Colonia</strong> tienes a Juliana respondiendo tus dudas durante las 4 semanas — y acceso al foro con otros productores activos.
+                En el <strong style={{ color: C.greenL }}>Programa Colonia</strong> tienes a Juliana respondiendo tus dudas durante las 5 semanas — y el grupo de WhatsApp sigue activo hasta 60 días después de la última clase, además del foro con otros productores.
               </p>
               <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
                 <Link href="/colonia" style={{

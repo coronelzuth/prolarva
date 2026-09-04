@@ -344,7 +344,7 @@ export default function HuevosPage() {
             </div>
             {[
               { label: 'Semilla BSF',         huevos: '✅ 1 gr de huevos incluido',           colonia: '✅ Incluida en el programa' },
-              { label: 'Acompañamiento',       huevos: 'Instrucciones + WhatsApp de soporte',  colonia: '8 clases en vivo con Juliana' },
+              { label: 'Acompañamiento',       huevos: 'Instrucciones + WhatsApp de soporte',  colonia: '10 clases en vivo con Juliana (5 semanas) + WhatsApp 60 días' },
               { label: 'Red de productores',   huevos: '—',                                    colonia: '30 productores activos + grupo' },
               { label: 'App Monitor ProLarva', huevos: '✅ Incluida (obsequio)',                colonia: '✅ Incluida' },
               { label: 'Plantillas tracker',   huevos: 'Próximamente',                         colonia: '✅ Fichas semanales' },

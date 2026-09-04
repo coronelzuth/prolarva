@@ -115,6 +115,12 @@ const SEMANAS = [
     title: 'Ciclo Cerrado',
     items: ['Cómo generar tu propia semilla sin comprar más', 'Montaje de trampas de oviposición', 'Plan de sostenibilidad: cómo mantener el sistema activo solo', 'Preguntas finales + revisión de avances del grupo'],
   },
+  {
+    num: 5,
+    emoji: '📊',
+    title: 'Monitoreo y Comercialización',
+    items: ['Diagnóstico de tu colonia: las señales de que va bien o mal', 'Los números que importan: conversión, kg por semana, ahorro real', 'Cómo vender tu excedente de larva, harina y abono', 'La Red de Productores BSF: qué es y cómo entras'],
+  },
 ];
 
 const TESTIMONIOS = [
@@ -233,12 +239,12 @@ export default function ColoniaPage() {
         </motion.div>
 
         <motion.div {...up(0.05)} style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.35)', borderRadius: 20, padding: '6px 16px', marginBottom: 22, fontSize: '0.8rem', color: C.greenL, fontWeight: 700 }}>
-          🎥 Programa en Vivo · 4 Semanas · 2 Sesiones por Semana
+          🎥 Programa en Vivo · 5 Semanas · 2 Clases por Semana
         </motion.div>
 
         <motion.h1 {...up(0.1)} style={{ fontSize: 'clamp(1.85rem, 4.5vw + 0.5rem, 3.2rem)', fontWeight: 900, margin: '0 auto 22px', maxWidth: 840, lineHeight: 1.1 }}>
           Aprende a Criar Larva BSF{' '}
-          <span style={{ color: C.greenL, textShadow: `0 0 40px ${C.green}60` }}>en 4 Semanas de Clases en Vivo</span>{' '}
+          <span style={{ color: C.greenL, textShadow: `0 0 40px ${C.green}60` }}>en 5 Semanas de Clases en Vivo</span>{' '}
           y Reduce 25% el Concentrado
         </motion.h1>
 
@@ -248,7 +254,7 @@ export default function ColoniaPage() {
 
         <motion.div {...up(0.2)} style={{ display: 'flex', justifyContent: 'center', gap: 36, marginBottom: 40, flexWrap: 'wrap' }}>
           {[
-            { to: 4, suf: ' semanas', label: 'de clases en vivo' },
+            { to: 5, suf: ' semanas', label: 'de clases en vivo' },
             { to: 30, suf: ' cupos', label: 'máximo por grupo' },
             { to: 25, suf: '%', label: 'menos concentrado' },
           ].map((s, i) => (
@@ -318,17 +324,17 @@ export default function ColoniaPage() {
       <section style={{ padding: '80px 20px', background: C.bg }}>
         <div style={{ maxWidth: 860, margin: '0 auto', textAlign: 'center' }}>
           <motion.h2 {...up()} style={{ fontSize: 'clamp(1.4rem, 3vw, 2.1rem)', fontWeight: 900, margin: '0 auto 12px', lineHeight: 1.2, color: C.greenL }}>
-            ProLarva VIVO — Tu Primera Cosecha BSF en 4 Semanas
+            ProLarva VIVO — Tu Primera Cosecha BSF en 5 Semanas
           </motion.h2>
           <motion.p {...up(0.05)} style={{ color: C.muted, maxWidth: 580, margin: '0 auto 44px', fontSize: '0.97rem', lineHeight: 1.65 }}>
             Un programa corto y grupal donde aprendes todo el sistema BSF directamente con Juliana en sesiones en vivo — sin clases grabadas, sin teoría suelta, sin quedarte solo.
           </motion.p>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16 }}>
             {[
-              { emoji: '🎥', title: '8 sesiones en vivo', desc: 'Dos por semana, con Juliana. Preguntas en tiempo real.' },
+              { emoji: '🎥', title: '10 clases en vivo', desc: 'Dos por semana, con Juliana. Preguntas en tiempo real.' },
               { emoji: '👥', title: 'Máximo 30 personas', desc: 'Grupo pequeño para que todos participen de verdad.' },
-              { emoji: '📅', title: '1 mes de duración', desc: 'Intensivo y enfocado. Sin arrastrar el proceso meses.' },
-              { emoji: '📲', title: 'Soporte entre sesiones', desc: 'Grupo privado de productores activos vía WhatsApp.' },
+              { emoji: '📅', title: '5 semanas de duración', desc: 'Intensivo y enfocado. Sin arrastrar el proceso meses.' },
+              { emoji: '📲', title: 'Soporte entre sesiones', desc: 'Grupo privado de productores activos vía WhatsApp, hasta 60 días después de la última clase.' },
             ].map((item, i) => (
               <motion.div key={i} {...up(i * 0.08)} style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: '28px 20px', textAlign: 'center' }}>
                 <div style={{ fontSize: '2.4rem', marginBottom: 12 }}>{item.emoji}</div>
@@ -369,14 +375,14 @@ export default function ColoniaPage() {
         </div>
       </section>
 
-      {/* ── TEMARIO — 4 SEMANAS ── */}
+      {/* ── TEMARIO — 5 SEMANAS ── */}
       <section style={{ padding: '80px 20px', background: C.bg2 }}>
         <div style={{ maxWidth: 900, margin: '0 auto' }}>
           <motion.h2 {...up()} style={{ fontSize: 'clamp(1.4rem, 3vw, 2.1rem)', fontWeight: 900, textAlign: 'center', margin: '0 auto 12px', lineHeight: 1.2, color: C.greenL }}>
             Lo Que Aprendes Semana a Semana
           </motion.h2>
           <motion.p {...up(0.05)} style={{ textAlign: 'center', color: C.muted, maxWidth: 520, margin: '0 auto 48px', fontSize: '0.97rem', lineHeight: 1.6 }}>
-            8 sesiones en vivo — 2 por semana, cada una con un objetivo concreto y aplicable desde el día siguiente
+            10 clases en vivo — 2 por semana, cada una con un objetivo concreto y aplicable desde el día siguiente
           </motion.p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             {SEMANAS.map((s, i) => (
@@ -405,7 +411,7 @@ export default function ColoniaPage() {
           </div>
           <motion.div {...up(0.45)} style={{ marginTop: 24, padding: '16px 24px', background: `linear-gradient(135deg, ${C.green}18, ${C.greenD}08)`, border: `1px solid ${C.green}40`, borderRadius: 14, textAlign: 'center' }}>
             <span style={{ fontSize: '0.97rem', fontWeight: 700, color: C.greenL }}>
-              🎯 Al terminar la semana 4 ya tienes tu primer lote en marcha y sabes cómo sostener el ciclo solo
+              🎯 Para la semana 3 ya tienes tu primera cosecha, y al terminar sabes cómo sostener el ciclo solo y vender tu excedente
             </span>
           </motion.div>
         </div>
@@ -428,10 +434,10 @@ export default function ColoniaPage() {
           </motion.div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: 12, marginBottom: 44 }}>
             {[
-              { emoji: '📡', title: '8 Sesiones en Vivo', desc: '2 por semana con Juliana, preguntas en tiempo real' },
-              { emoji: '🎬', title: 'Grabaciones', desc: 'Disponibles después de cada sesión' },
-              { emoji: '💬', title: 'Grupo WhatsApp', desc: 'Soporte entre sesiones, 30 días activo' },
-              { emoji: '👥', title: 'Grupo de 20', desc: 'Pequeño para que todos participen de verdad' },
+              { emoji: '📡', title: '10 Clases en Vivo', desc: '2 por semana con Juliana, preguntas en tiempo real' },
+              { emoji: '🎬', title: 'Grabaciones', desc: 'Disponibles después de cada clase' },
+              { emoji: '💬', title: 'Grupo WhatsApp', desc: 'Soporte hasta 60 días después de la última clase' },
+              { emoji: '👥', title: 'Grupo de 30', desc: 'Pequeño para que todos participen de verdad' },
             ].map((item, i) => (
               <motion.div key={i} {...up(i * 0.06)} style={{ background: C.card, border: `1px dashed ${C.green}35`, borderRadius: 14, padding: '18px 12px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
                 <div style={{ width: 62, height: 62, borderRadius: 14, background: `linear-gradient(135deg, ${C.green}22, ${C.greenD}08)`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 28 }}>
@@ -498,7 +504,7 @@ export default function ColoniaPage() {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 20 }}>
             {[
               { to: 25, suf: '%', label: 'Menos Concentrado', desc: 'Reducción real del gasto mensual en alimento', d: 0 },
-              { to: 4, suf: ' semanas', label: 'Para Tu Primera Cosecha', desc: 'Del primer día de clases a tu larva produciendo', d: 0.1 },
+              { to: 3, suf: ' semanas', label: 'Para Tu Primera Cosecha', desc: 'Del primer día de clases a tu larva produciendo', d: 0.1 },
               { to: 40, suf: '%', label: 'Proteína Bruta', desc: 'Contenido proteico de la larva madura L5', d: 0.2 },
               { to: 30, suf: ' cupos', label: 'Máximo por Grupo', desc: 'Para que Juliana te pueda atender de verdad', d: 0.3 },
             ].map((stat, i) => (
@@ -577,12 +583,12 @@ export default function ColoniaPage() {
             <div style={{ display: 'inline-block', background: 'rgba(0,0,0,0.25)', border: '1px solid rgba(255,255,255,0.3)', borderRadius: 20, padding: '5px 14px', fontSize: '0.78rem', fontWeight: 700, letterSpacing: '0.04em', textTransform: 'uppercase', marginBottom: 14 }}>
               🔴 Solo 30 cupos — cierre al completar
             </div>
-            <div style={{ fontSize: '0.88rem', opacity: 0.9, marginBottom: 10, fontWeight: 600 }}>4 semanas · Clases en vivo · Todo incluido</div>
+            <div style={{ fontSize: '0.88rem', opacity: 0.9, marginBottom: 10, fontWeight: 600 }}>5 semanas · 10 clases en vivo · Todo incluido</div>
             <div style={{ fontSize: 'clamp(2.4rem, 5vw, 4rem)', fontWeight: 900, marginBottom: 6, lineHeight: 1 }}>$400.000 COP</div>
             <div style={{ fontSize: '1rem', opacity: 0.85 }}>≈ $95 USD · Pago único · Sin mensualidades</div>
           </motion.div>
           <motion.p {...up(0.15)} style={{ color: C.muted, fontSize: '0.95rem', margin: '22px 0 0', lineHeight: 1.6 }}>
-            8 sesiones en vivo + grabaciones + grupo WhatsApp + app + material descargable
+            10 clases en vivo + grabaciones + grupo WhatsApp (60 días) + app + material descargable
           </motion.p>
         </div>
       </section>
@@ -671,8 +677,8 @@ export default function ColoniaPage() {
             </div>
             {/* Filas */}
             {[
-              { label: 'Qué recibes', kit: '1 gr de huevos BSF · llega a tu puerta', col: '8 clases en vivo + material + semilla + comunidad', colWin: true },
-              { label: 'Acompañamiento', kit: '—', col: 'Con Juliana en vivo, 2 sesiones por semana', colWin: true },
+              { label: 'Qué recibes', kit: '1 gr de huevos BSF · llega a tu puerta', col: '10 clases en vivo + material + semilla + comunidad', colWin: true },
+              { label: 'Acompañamiento', kit: '—', col: 'Con Juliana en vivo, 2 clases por semana durante 5 semanas + WhatsApp 60 días', colWin: true },
               { label: 'Red de productores', kit: '—', col: '30 productores activos + grupo WhatsApp', colWin: true },
               { label: 'Semilla BSF', kit: '✅ 1 gr de huevos incluido', col: '✅ Incluida en el programa', colWin: null },
               { label: 'Grabaciones de clase', kit: '—', col: '✅ Disponibles después de cada sesión', colWin: true },
@@ -730,8 +736,8 @@ export default function ColoniaPage() {
           </motion.h2>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 16 }}>
             {[
-              { icon: '🔒', title: 'Garantía Incondicional — 7 Días', desc: 'Si antes de la primera sesión decides que no es para ti, te devolvemos el 100% del dinero. Sin preguntas, sin trámites.', d: 0 },
-              { icon: '🎯', title: 'Garantía de Resultado', desc: 'Si completas las 4 semanas y al terminar no tienes tu primer lote en marcha, Juliana te acompaña sin costo adicional hasta que lo logres.', d: 0.1 },
+              { icon: '🔒', title: 'Garantía Incondicional — 7 Días', desc: 'Si antes de la primera clase decides que no es para ti, te devolvemos el 100% del dinero. Sin preguntas, sin trámites.', d: 0 },
+              { icon: '🎯', title: 'Garantía de Resultado', desc: 'Si completas las 5 semanas y al terminar no tienes tu primer lote en marcha, Juliana te acompaña sin costo adicional hasta que lo logres.', d: 0.1 },
             ].map((g, i) => (
               <motion.div key={i} {...up(g.d)} style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: '28px', display: 'flex', gap: 16 }}>
                 <div style={{ fontSize: '2.2rem', flexShrink: 0 }}>{g.icon}</div>
@@ -820,7 +826,7 @@ export default function ColoniaPage() {
           ¿Listo para Aprender a Criar Tu Propia Proteína?
         </motion.h2>
         <motion.p {...up(0.1)} style={{ fontSize: '1.05rem', color: C.muted, margin: '0 auto 36px', maxWidth: 540, lineHeight: 1.65, position: 'relative' }}>
-          8 sesiones en vivo con Juliana y un grupo de productores colombianos — sales con conocimiento, con tu primer lote en marcha, y con una red de contactos que no consigues en ningún otro curso
+          10 clases en vivo con Juliana y un grupo de productores colombianos — sales con conocimiento, con tu primer lote en marcha, y con una red de contactos que no consigues en ningún otro curso
         </motion.p>
         <motion.div {...up(0.15)} style={{ display: 'flex', gap: 14, justifyContent: 'center', flexWrap: 'wrap', position: 'relative' }}>
           <button

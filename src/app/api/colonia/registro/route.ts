@@ -81,7 +81,7 @@ async function enviarEmail(email: string, nombre: string, codigo: string) {
               Ya estás dentro del Programa Colonia. Aquí tienes todo lo que necesitas para arrancar.
             </p>
             <p style="margin:0 0 28px;font-size:15px;color:#15803d;font-weight:700;line-height:1.7;">
-              En 4 semanas vas a tener tu primera cosecha de larva BSF funcionando desde el traspatio.
+              En 5 semanas vas a tener tu propio sistema de larva BSF funcionando desde el traspatio (tu primera cosecha llega en la semana 3).
             </p>
           </td>
         </tr>
@@ -294,7 +294,22 @@ async function enviarEmail(email: string, nombre: string, codigo: string) {
                   </table>
                 </td>
               </tr>
+              <tr>
+                <td style="padding-top:10px;">
+                  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f9fafb;border-radius:8px;">
+                    <tr>
+                      <td width="48" style="padding:12px 0 12px 14px;font-size:22px;vertical-align:top;">📊</td>
+                      <td style="padding:12px 14px 12px 8px;vertical-align:top;">
+                        <div style="font-size:12px;font-weight:700;color:#16a34a;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:2px;">Semana 5</div>
+                        <div style="font-size:13px;font-weight:700;color:#111827;">Monitoreo y Comercialización</div>
+                        <div style="font-size:12px;color:#6b7280;margin-top:2px;">Los números que importan, cómo vender tu excedente, la Red de Productores BSF</div>
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
             </table>
+            <p style="margin:14px 0 0;font-size:12px;color:#6b7280;line-height:1.6;">Cada semana son 2 clases en vivo (contenido + preguntas). El grupo de WhatsApp queda disponible hasta 60 días después de la última clase.</p>
           </td>
         </tr>
 

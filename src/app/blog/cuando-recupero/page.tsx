@@ -288,7 +288,7 @@ export default function CuandoRecuperoPage() {
                 Empieza a contar ese ahorro desde este mes
               </div>
               <p style={{ fontSize: 14, color: C.muted, lineHeight: 1.65, margin: '0 0 22px' }}>
-                El <strong style={{ color: C.greenL }}>Programa Colonia</strong> incluye el Kit ProLarva 25/15 + 4 semanas de acompañamiento grupal con Juliana para que tu sistema quede funcionando bien desde el arranque.
+                El <strong style={{ color: C.greenL }}>Programa Colonia</strong> incluye el pie de cría + 5 semanas de acompañamiento grupal en vivo con Juliana (2 clases por semana) para que tu sistema quede funcionando bien desde el arranque.
               </p>
               <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
                 <Link href="/colonia" style={{

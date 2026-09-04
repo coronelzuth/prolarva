@@ -55,7 +55,7 @@ escribir saltándose RLS. Si no está, caen a la anon key. **Nunca exponerla al 
 | ~~`/cosecha`~~ | **UNIFICADA 2026-09-03** en la Enciclopedia. Redirect 308 → `/socios?v=enciclopedia&sec=cria` |
 | `/calculadora` | Calculadora BSF completa (wizard 4 pasos) |
 | `/kit` | Landing de venta — Kit ProLarva 25/15, color ámbar (#f59e0b) |
-| `/colonia` | Landing del Programa Colonia — grupal 4 semanas, $400K COP, color verde (#22c55e), sección "Red de Productores" |
+| `/colonia` | Landing del Programa Colonia — grupal 5 semanas · 2 clases/semana (10) · WhatsApp 60 días post última clase · $400.000 COP, color verde (#22c55e), sección "Red de Productores". Datos bloqueados 2026-09-03. |
 | ~~`/preparacion`~~ | **ELIMINADA 2026-08-29** — Módulo 2 quiz. Larvi `ya_sabe` ahora apunta a /cosecha |
 | ~~`/sistema-2015`~~ | **ELIMINADA 2026-08-29** — landing legacy. Redirect 308 → `/kit` en `next.config.ts`. Larvi `faq_compra` apunta a /kit |
 | `/socios` | Zona privada — tracker de lotes, panel Escuela y **Enciclopedia** (sin Larvi ni WhatsApp). Acepta `?v=enciclopedia&sec=<seccion>` para deep-link |

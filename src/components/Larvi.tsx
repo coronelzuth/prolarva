@@ -146,7 +146,7 @@ const tree: Record<string, ConversationNode> = {
   // ============ FAQs - Dudas técnicas ============
   faq_ciclo: {
     message: '**El ciclo son ~18 días:**\n📅 Días 0-2: Huevo — Semilla eclosiona\n📅 Días 3-8: Larva pequeña — Crecen rápido, comen mucho\n📅 Días 9-14: Larva grande — Máximo crecimiento\n📅 Días 15-17: Prepupa — Dejan de comer, se oscurecen\n📅 Día 18+: Cosecha — Listas para tus animales\n\n¿Quieres saber más sobre alguna etapa?',
-    link: '/conocimiento',
+    link: '/socios?v=enciclopedia&sec=ciclo',
     options: [
       { label: 'Ver todas las etapas →', action: 'end' },
       { label: 'Otra pregunta', action: 'faq_menu' },
@@ -154,7 +154,7 @@ const tree: Record<string, ConversationNode> = {
   },
   faq_residuos: {
     message: 'Las larvas comen casi todo:\n✅ Restos de verdura (cáscaras, tallos)\n✅ Frutas vencidas\n✅ Restos de comida cocida (sin exceso de aceite)\n✅ Estiércol fresco (gallinas, cerdos, vaca)\n✅ Hojas secas, aserrín\n✅ Harina, granos, avena\n✅ Sangre, tripería\n\n❌ NO: Plásticos, vidrio, aceite puro, químicos\n\n💡 Consejo: mezcla seco + húmedo en balance 1:1 para evitar olor.',
-    link: '/cosecha',
+    link: '/socios?v=enciclopedia&sec=cria',
     options: [
       { label: 'Ver guía de alimentación →', action: 'end' },
       { label: 'Otra pregunta', action: 'faq_menu' },
@@ -176,7 +176,7 @@ const tree: Record<string, ConversationNode> = {
   },
   faq_olor: {
     message: 'Si se maneja bien, **nada de olor**:\n• Residuos secos (aserrín, estiércol) → cero hedor\n• Residuos húmedos balanceados → olor neutral (como composta)\n• Si huele mal → algo está fuera de balance (lo arreglamos)\n\n💭 Algunos productores dicen: "Más limpio que el gallinero tradicional"',
-    link: '/conocimiento',
+    link: '/socios?v=enciclopedia&sec=ciclo',
     options: [
       { label: 'Ver balance correcto →', action: 'end' },
       { label: 'Otra pregunta', action: 'faq_menu' },
@@ -191,7 +191,7 @@ const tree: Record<string, ConversationNode> = {
   },
   faq_negocio: {
     message: '✅ Sí. Niveles de negocio:\n🎯 **Hobista** (1-2 kits): $50–100 USD/mes | Inversión: $48 USD\n🎯 **Pequeño productor** (5-10 kits): $300–600 USD/mes | Inversión: $240 USD\n🎯 **Mediano** (20+ kits): $1500+ USD/mes | Inversión: $960+ USD\n\n💡 Muchos empiezan como hobista y escalan.',
-    link: '/metas',
+    link: '/socios?v=enciclopedia&sec=rutas',
     options: [
       { label: 'Ver las 3 metas →', action: 'end' },
       { label: 'Otra pregunta', action: 'faq_menu' },
@@ -218,7 +218,7 @@ const tree: Record<string, ConversationNode> = {
   // ============ Helper links ============
   cosecha_link: {
     message: 'Ve a la guía de cosecha — ahí mostramos cómo cosechar y qué hacer después.',
-    link: '/cosecha',
+    link: '/socios?v=enciclopedia&sec=cria',
     options: [{ label: 'Ver guía →', action: 'end' }],
   },
   empezar: {
@@ -241,7 +241,7 @@ const tree: Record<string, ConversationNode> = {
   },
   ya_diagnostico: {
     message: '¡Avanzado! Ve a Metas y elige tu objetivo: alimentar animales, producir harina, o ciclo cerrado. Cada una tiene su guía paso a paso.',
-    link: '/metas',
+    link: '/socios?v=enciclopedia&sec=rutas',
     options: [{ label: 'Elegir mi meta →', action: 'end' }],
   },
   problema: {
@@ -262,12 +262,12 @@ const tree: Record<string, ConversationNode> = {
   },
   prob_comida: {
     message: 'Si el clima está bien, revisa la cantidad y calidad de alimento. Evita alimentos muy ácidos (limón, vinagre) o muy salados. Restos de frutas y verduras funcionan muy bien.',
-    link: '/conocimiento',
+    link: '/socios?v=enciclopedia&sec=ciclo',
     options: [{ label: 'Ver etapas de alimentación →', action: 'end' }],
   },
   prob_temp: {
     message: 'La temperatura es crítica. Con < 22°C el crecimiento se paraliza casi por completo. Considera un cuarto cerrado, bombillo de calor o manta térmica. La BSF necesita 26–32°C.',
-    link: '/conocimiento',
+    link: '/socios?v=enciclopedia&sec=ciclo',
     options: [{ label: 'Ver rangos de temperatura →', action: 'end' }],
   },
   prob_olor: {
@@ -287,7 +287,7 @@ const tree: Record<string, ConversationNode> = {
   },
   prepupa_info: {
     message: '¡No te preocupes! Las larvas marrones, más firmes y quietas son prepupas. Es una etapa normal del ciclo — están en transición a pupa. Dales zona oscura y sustrato seco.',
-    link: '/conocimiento',
+    link: '/socios?v=enciclopedia&sec=ciclo',
     options: [{ label: 'Ver etapa de prepupa →', action: 'end' }],
   },
   muerte_seria: {
@@ -296,7 +296,7 @@ const tree: Record<string, ConversationNode> = {
   },
   cosecha: {
     message: 'Cosecha cuando las larvas están en L5: blancas-crema, gordas, ~2cm y muy activas. Si empiezan a oscurecerse y quietarse, ya están pasando a prepupa — todavía sirven pero baja el valor proteico.',
-    link: '/conocimiento',
+    link: '/socios?v=enciclopedia&sec=ciclo',
     options: [
       { label: '¿Qué hacer después de cosechar?', action: 'post_cosecha' },
       { label: 'Ver etapa L5 en detalle →', action: 'end' },
@@ -304,12 +304,12 @@ const tree: Record<string, ConversationNode> = {
   },
   post_cosecha: {
     message: 'Después de cosechar tienes 3 opciones: dárselas vivas a animales (inmediato), procesarlas en harina (seca, dura meses), o guardar algunas para continuar el ciclo. ¿Cuál es tu objetivo?',
-    link: '/metas',
+    link: '/socios?v=enciclopedia&sec=rutas',
     options: [{ label: 'Ver las 3 metas →', action: 'end' }],
   },
   meta_ayuda: {
     message: 'Las 3 metas son: 🐔 Alimentar animales (más fácil, sin procesamiento), 🌾 Producir harina (más rentable, requiere equipos), ♻️ Ciclo cerrado (más complejo, requiere insectario). ¿Qué buscas?',
-    link: '/metas',
+    link: '/socios?v=enciclopedia&sec=rutas',
     options: [
       { label: 'Quiero lo más sencillo', action: 'meta_sencillo' },
       { label: 'Quiero vender', action: 'meta_venta' },
@@ -318,17 +318,17 @@ const tree: Record<string, ConversationNode> = {
   },
   meta_sencillo: {
     message: 'Para empezar simple: alimentar animales es lo ideal. Cosecharás larvas vivas y las das directamente. Sin equipos adicionales, resultados inmediatos. ¡Perfecta para empezar!',
-    link: '/metas',
+    link: '/socios?v=enciclopedia&sec=rutas',
     options: [{ label: 'Ver guía de esa meta →', action: 'end' }],
   },
   meta_venta: {
     message: 'Para venta, la harina de larva es el producto con mejor margen. 1kg de larvas = ~250g de harina. Necesitas deshidratador (o horno) y molino/licuadora. Hay mercado en tiendas de mascotas y ganadería.',
-    link: '/metas',
+    link: '/socios?v=enciclopedia&sec=rutas',
     options: [{ label: 'Ver guía de producción →', action: 'end' }],
   },
   meta_autonomo: {
     message: 'Ciclo cerrado es el ideal para autonomía total. Requiere insectario y más dedicación al inicio, pero después el sistema se alimenta solo. Es la meta más avanzada y gratificante.',
-    link: '/metas',
+    link: '/socios?v=enciclopedia&sec=rutas',
     options: [{ label: 'Ver guía del ciclo cerrado →', action: 'end' }],
   },
   end: {
@@ -461,8 +461,7 @@ export default function Larvi() {
 }
 
 function getContextGreeting(pathname: string, progress: UserProgress): string | null {
-  if (pathname === '/conocimiento') return '¡Estás aprendiendo sobre BSF! 🧠 ¿Tienes alguna duda sobre las etapas del ciclo?';
-  if (pathname === '/metas') return '¡Eligiendo tu meta! 🎯 ¿No sabes cuál es la mejor para ti? Cuéntame qué buscas.';
+  if (pathname === '/huevos') return '¡Estás viendo la etapa de huevo! 🥚 ¿Tienes alguna duda sobre el ciclo BSF?';
   if (progress.quizCompleted && progress.selectedMeta) return `¡Hola de nuevo! Recuerdo que tu meta es ${progress.selectedMeta}. ¿En qué te ayudo hoy?`;
   return null;
 }

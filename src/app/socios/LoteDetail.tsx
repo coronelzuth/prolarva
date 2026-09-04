@@ -1,7 +1,8 @@
 ﻿'use client';
 import { useState, useRef } from 'react';
 import { daysSince, type Lote, type FeedLog, type Cosecha, type Recordatorio, type Foto } from '@/hooks/useSocios';
-import { S, cardStyle, btnOutline, btnSm, btnPrimary, EmptyState, ProgressBar, Timeline, MiniCalendar, FeedEntry, fmtDate, fmtDateTime, comprimirImagen, inputStyle, labelStyle } from './_shared';
+import { S, cardStyle, btnOutline, btnSm, btnPrimary, EmptyState, FeedEntry, fmtDate, comprimirImagen, inputStyle, labelStyle } from './_shared';
+import CicloVertical from './CicloVertical';
 
 // ─── Recordatorios section ────────────────────────────────────────────────────
 
@@ -181,10 +182,11 @@ function FotosGaleria({ lote, fotos, onAdd, onDelete }: {
 
 // ─── Lote detail ──────────────────────────────────────────────────────────────
 
-function LoteDetail({ lote, feeds, lotes, cosechas, recordatorios, fotos, onBack, onAddFeed, onEdit, onAddRecordatorio, onToggleRecordatorio, onDeleteRecordatorio, onAddFoto, onDeleteFoto, onNewCosecha }: {
+function LoteDetail({ lote, feeds, lotes, cosechas, recordatorios, fotos, onBack, onAddFeed, onEdit, onAdjust, onAddRecordatorio, onToggleRecordatorio, onDeleteRecordatorio, onAddFoto, onDeleteFoto, onNewCosecha }: {
   lote: Lote; feeds: FeedLog[]; lotes: Lote[]; cosechas: Cosecha[];
   recordatorios: Recordatorio[]; fotos: Foto[];
   onBack: () => void; onAddFeed: (loteId: string) => void; onEdit: () => void;
+  onAdjust: (ajustes: Record<string, number>) => void;
   onAddRecordatorio: (r: Omit<Recordatorio, 'id' | 'completado' | 'creadoEn'>) => void;
   onToggleRecordatorio: (id: string) => void;
   onDeleteRecordatorio: (id: string) => void;
@@ -193,15 +195,10 @@ function LoteDetail({ lote, feeds, lotes, cosechas, recordatorios, fotos, onBack
   onNewCosecha: () => void;
 }) {
   const d = daysSince(lote.fecha);
-  const pct = Math.min(Math.round((d / 28) * 100), 100);
   const loteFeds = feeds.filter(f => f.loteId === lote.id);
   const loteRecs = recordatorios.filter(r => r.loteId === lote.id);
   const loteCosechas = cosechas.filter(c => c.loteId === lote.id);
   const kgTotal = loteCosechas.reduce((a, c) => a + c.peso, 0);
-  let daysMsg = '';
-  if (d >= 22 && d <= 28) daysMsg = '✅ ¡Tu lote está listo para cosechar!';
-  else if (d > 28) daysMsg = '⚠️ Pasó la ventana óptima. Revisa si hay prepupas.';
-  else daysMsg = `Faltan aproximadamente ${22 - d} días para la cosecha (Día 22)`;
 
   return (
     <div>
@@ -217,10 +214,7 @@ function LoteDetail({ lote, feeds, lotes, cosechas, recordatorios, fotos, onBack
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(260px,1fr))', gap: 20, marginBottom: 20 }}>
         <div style={cardStyle}>
           <h3 style={{ fontSize: 13, fontWeight: 700, marginBottom: 12 }}>Ciclo de vida</h3>
-          <Timeline days={d} />
-          <ProgressBar pct={pct} />
-          <p style={{ fontSize: 12, color: S.muted, marginTop: 8 }}>{daysMsg}</p>
-          <MiniCalendar lote={lote} />
+          <CicloVertical lote={lote} onAdjust={onAdjust} />
         </div>
         <div style={cardStyle}>
           <h3 style={{ fontSize: 13, fontWeight: 700, marginBottom: 12 }}>Datos del lote</h3>

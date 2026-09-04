@@ -18,13 +18,11 @@ import { FaseModal } from './EscuelaFaseModal';
 
 // Secciones
 import { EscuelaCronograma } from './EscuelaCronograma';
-import { EscuelaForo } from './EscuelaForo';
+import EscuelaComunidad from './EscuelaComunidad';
 import { EscuelaDirectorio } from './EscuelaDirectorio';
 import { EscuelaProgreso } from './EscuelaProgreso';
 
 // ─── EscuelaView ───────────────────────────────────────────────────────────────
-
-const REACTIONS = ['❤️', '🔥', '💡', '🙌'] as const;
 
 export default function EscuelaView({
   socioCode, socioNombre, isAdmin,
@@ -72,24 +70,6 @@ export default function EscuelaView({
   const [tareaText,    setTareaText]    = useState('');
   const [tareaPosting, setTareaPosting] = useState(false);
 
-  // Foro
-  const [foroText,    setForoText]    = useState('');
-  const [posting,     setPosting]     = useState(false);
-  const [foroSuccess, setForoSuccess] = useState(false);
-  const [foroSearch,  setForoSearch]  = useState('');
-
-  // Cajita de Preguntas
-  const [pregText,    setPregText]    = useState('');
-  const [pregSemana,  setPregSemana]  = useState<number>(1);
-  const [pregPosting, setPregPosting] = useState(false);
-  const [pregSuccess, setPregSuccess] = useState(false);
-  const [respDrafts,  setRespDrafts]  = useState<Record<string, string>>({});
-
-  // Respuestas
-  const [replyingTo,  setReplyingTo]  = useState<string | null>(null);
-  const [replyText,   setReplyText]   = useState('');
-  const [replyPosting, setReplyPosting] = useState(false);
-
   // Admin progreso
   const [adminSocios,   setAdminSocios]   = useState<{ code: string; nombre: string; fases_aprobadas: number; fase_en_revision: number }[]>([]);
   const [adminProgreso, setAdminProgreso] = useState<{ socio_code: string; clase_id: string }[]>([]);
@@ -98,24 +78,12 @@ export default function EscuelaView({
   // Códigos de admin (para badge ProLarva)
   const [adminCodes, setAdminCodes] = useState<Set<string>>(new Set());
 
-  // Respuestas colapsadas — expandidas por ID de post
-  const [expandedReplies, setExpandedReplies] = useState<Set<string>>(new Set());
-
   // Preview mode: oculta controles de admin para ver la vista de socio
   const [previewMode, setPreviewMode] = useState(false);
   const asAdmin = isAdmin && !previewMode;
 
-  const SEMANAS = [1, 2, 3, 4, 5];
-
   const clasesActuales = esc.clasesPorSemana(semana).filter(c => c.activa || asAdmin);
   const plantillasActuales = esc.plantillasPorSemana(semana);
-
-  // Nav por semana
-  const navSemanas = SEMANAS.map(s => {
-    const cs = esc.clasesPorSemana(s).filter(c => c.activa || asAdmin);
-    const vis = cs.filter(c => esc.estaVisto(c.id)).length;
-    return { s, total: cs.length, vis, completa: cs.length > 0 && vis === cs.length };
-  });
 
   // Cargar códigos de admin al montar
   useEffect(() => {
@@ -139,46 +107,6 @@ export default function EscuelaView({
       setAdminProgreso(pRes.data ?? []);
     });
   }, [isAdmin, sub]);
-
-  async function handlePublicar() {
-    if (!foroText.trim()) return;
-    setPosting(true);
-    const ok = await esc.publicarPost(foroText, socioNombre);
-    if (ok) { setForoText(''); setForoSuccess(true); setTimeout(() => setForoSuccess(false), 2000); }
-    setPosting(false);
-  }
-
-  async function handleLike(postId: string, tipo: string, authorCode: string) {
-    const post = esc.posts.find(p => p.id === postId);
-    const wasReacted = post?.reactions.some(r => r.socio_code === socioCode && r.tipo === tipo);
-    await esc.toggleLike(postId, tipo);
-    if (!wasReacted && authorCode !== socioCode) {
-      fetch('/api/foro/notify-like', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ to_code: authorCode, from_name: socioNombre, tipo }),
-      }).catch(() => {});
-    }
-  }
-
-  async function handleReply(parentId: string, authorCode: string) {
-    if (!replyText.trim()) return;
-    setReplyPosting(true);
-    const ok = await esc.publicarPost(replyText, socioNombre, parentId);
-    if (ok) {
-      setReplyText('');
-      setReplyingTo(null);
-      setExpandedReplies(prev => new Set([...prev, parentId]));
-      if (authorCode !== socioCode) {
-        fetch('/api/foro/notify-reply', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ to_code: authorCode, from_name: socioNombre, preview: replyText }),
-        }).catch(() => {});
-      }
-    }
-    setReplyPosting(false);
-  }
 
   // ── Nav item helper ──────────────────────────────────────────────────────
   function NavItem({
@@ -211,8 +139,6 @@ export default function EscuelaView({
       </div>
     );
   }
-
-  const inSemana = sub === 'clase' || sub === 'plantillas' || sub === 'tarea';
 
   return (
     <div className="esc-outer">
@@ -422,13 +348,9 @@ export default function EscuelaView({
           onClick={() => setSub('cronograma')}>
           📅 Cronograma
         </button>
-        <button className={`esc-mob-tab${sub === 'foro' ? ' esc-mob-tab-active' : ''}`}
-          onClick={() => setSub('foro')}>
-          💬 Foro
-        </button>
-        <button className={`esc-mob-tab${sub === 'preguntas' ? ' esc-mob-tab-active' : ''}`}
-          onClick={() => setSub('preguntas')}>
-          ❓
+        <button className={`esc-mob-tab${sub === 'comunidad' ? ' esc-mob-tab-active' : ''}`}
+          onClick={() => setSub('comunidad')}>
+          💬 Comunidad
         </button>
         <button className={`esc-mob-tab${sub === 'directorio' ? ' esc-mob-tab-active' : ''}`}
           onClick={() => setSub('directorio')}>
@@ -462,19 +384,13 @@ export default function EscuelaView({
           <div style={{ borderTop: `1px solid ${S.border}`, margin: '8px 12px 8px' }} />
 
           <NavItem
-            label="💬 Foro"
-            active={sub === 'foro'}
-            onClick={() => setSub('foro')}
-            badge={esc.posts.length > 0 ? String(esc.posts.filter(p => !p.parent_id).length) : undefined}
-          />
-          <NavItem
-            label="❓ Preguntas"
-            active={sub === 'preguntas'}
-            onClick={() => setSub('preguntas')}
+            label="💬 Comunidad"
+            active={sub === 'comunidad'}
+            onClick={() => setSub('comunidad')}
             badge={
-              asAdmin
-                ? (esc.preguntas.filter(p => !p.respondida).length > 0 ? String(esc.preguntas.filter(p => !p.respondida).length) : undefined)
-                : (esc.preguntas.length > 0 ? String(esc.preguntas.length) : undefined)
+              asAdmin && esc.preguntas.filter(p => !p.respondida).length > 0
+                ? `${esc.preguntas.filter(p => !p.respondida).length} ❓`
+                : undefined
             }
           />
           <NavItem
@@ -823,180 +739,24 @@ export default function EscuelaView({
             </div>
           )}
 
-          {/* ━━━ FORO ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
-          {sub === 'foro' && (
-            <EscuelaForo
+          {/* ━━━ COMUNIDAD (Foro + Preguntas unificados) ━━━━━ */}
+          {sub === 'comunidad' && (
+            <EscuelaComunidad
               posts={esc.posts}
+              preguntas={esc.preguntas}
               socioCode={socioCode}
               socioNombre={socioNombre}
               asAdmin={asAdmin}
               adminCodes={adminCodes}
-              foroText={foroText}
-              setForoText={setForoText}
-              posting={posting}
-              setPosting={setPosting}
-              foroSuccess={foroSuccess}
-              setForoSuccess={setForoSuccess}
-              foroSearch={foroSearch}
-              setForoSearch={setForoSearch}
-              replyingTo={replyingTo}
-              setReplyingTo={setReplyingTo}
-              replyText={replyText}
-              setReplyText={setReplyText}
-              replyPosting={replyPosting}
-              setReplyPosting={setReplyPosting}
-              expandedReplies={expandedReplies}
-              setExpandedReplies={setExpandedReplies}
               publicarPost={esc.publicarPost}
+              publicarPregunta={esc.publicarPregunta}
+              responderPregunta={esc.responderPregunta}
+              eliminarPregunta={esc.eliminarPregunta}
               toggleLike={esc.toggleLike}
               eliminarPost={esc.eliminarPost}
               fijarPost={esc.fijarPost}
-              handleLike={handleLike}
-              handleReply={handleReply}
-              handlePublicar={handlePublicar}
             />
           )}
-
-          {/* ━━━ CAJITA DE PREGUNTAS ━━━━━━━━━━━━━━━━━━━━━━━━ */}
-          {sub === 'preguntas' && (() => {
-            const ordenadas = [...esc.preguntas].sort((a, b) => {
-              if (asAdmin && a.respondida !== b.respondida) return a.respondida ? 1 : -1;
-              return new Date(b.creado_en).getTime() - new Date(a.creado_en).getTime();
-            });
-            const semLabel = (s: number | null) => s ? `Semana ${s}: ${SEMANAS_INFO[s - 1]?.title ?? ''}` : 'General';
-
-            return (
-              <div>
-                <h2 style={{ fontSize: 17, fontWeight: 800, marginBottom: 6 }}>❓ Cajita de Preguntas</h2>
-                <p style={{ fontSize: 13, color: S.muted, lineHeight: 1.6, marginBottom: 20 }}>
-                  Deja tus dudas durante la semana. Las respondemos en vivo en la segunda sesión (Preguntas y Respuestas).
-                </p>
-
-                {/* Formulario del alumno */}
-                {!asAdmin && (
-                  <div style={{ background: S.navy2, border: `1px solid ${S.border}`, borderRadius: 12, padding: '16px 18px', marginBottom: 24 }}>
-                    <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: S.muted, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6 }}>¿Sobre qué semana?</label>
-                    <select
-                      value={pregSemana}
-                      onChange={e => setPregSemana(Number(e.target.value))}
-                      style={{ ...inputStyle, marginBottom: 12, cursor: 'pointer' }}
-                    >
-                      {SEMANAS.map(s => (
-                        <option key={s} value={s}>{semLabel(s)}</option>
-                      ))}
-                    </select>
-                    <textarea
-                      value={pregText}
-                      onChange={e => setPregText(e.target.value.slice(0, 500))}
-                      placeholder="Escribe tu pregunta para la clase..."
-                      style={{ ...inputStyle, resize: 'vertical', minHeight: 90, marginBottom: 8 }}
-                    />
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <span style={{ fontSize: 11, color: S.muted }}>
-                        {pregSuccess ? <span style={{ color: S.green2, fontWeight: 700 }}>✅ Pregunta enviada</span> : `${pregText.length}/500`}
-                      </span>
-                      <button
-                        style={{ ...btnPrimary, opacity: !pregText.trim() || pregPosting ? 0.5 : 1 }}
-                        disabled={!pregText.trim() || pregPosting}
-                        onClick={async () => {
-                          setPregPosting(true);
-                          const ok = await esc.publicarPregunta(pregText, pregSemana, socioNombre);
-                          if (ok) { setPregText(''); setPregSuccess(true); setTimeout(() => setPregSuccess(false), 2500); }
-                          setPregPosting(false);
-                        }}
-                      >
-                        {pregPosting ? 'Enviando...' : 'Enviar pregunta'}
-                      </button>
-                    </div>
-                  </div>
-                )}
-
-                {asAdmin && (
-                  <div style={{ fontSize: 13, fontWeight: 700, color: S.muted, marginBottom: 12 }}>
-                    {esc.preguntas.filter(p => !p.respondida).length} sin responder · {esc.preguntas.length} en total
-                  </div>
-                )}
-
-                {/* Lista */}
-                {ordenadas.length === 0 ? (
-                  <div style={{ textAlign: 'center', padding: '3.5rem 1rem', color: S.muted }}>
-                    <div style={{ fontSize: '2.6rem', marginBottom: 12 }}>❓</div>
-                    <p style={{ fontSize: 14, fontWeight: 600 }}>Todavía no hay preguntas. Sé el primero.</p>
-                  </div>
-                ) : (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                    {ordenadas.map(q => {
-                      const mia = q.socio_code === socioCode;
-                      return (
-                        <div key={q.id} style={{
-                          background: mia ? 'rgba(34,197,94,0.06)' : S.navy2,
-                          border: `1px solid ${mia ? 'rgba(34,197,94,0.3)' : S.border}`,
-                          borderRadius: 12, padding: '14px 16px',
-                        }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8, flexWrap: 'wrap' }}>
-                            <span style={{ fontSize: 13, fontWeight: 700, color: S.green2 }}>{q.socio_nombre}</span>
-                            {mia && <span style={{ fontSize: 10, color: S.muted }}>(tú)</span>}
-                            <span style={{ fontSize: 10, color: '#475569' }}>{timeAgo(q.creado_en)}</span>
-                            <span style={{ fontSize: 10, color: S.muted, background: 'rgba(148,163,184,0.1)', padding: '2px 8px', borderRadius: 99 }}>
-                              {q.semana ? `Semana ${q.semana}` : 'General'}
-                            </span>
-                            {q.respondida
-                              ? <span style={{ fontSize: 10, fontWeight: 700, color: S.emerald, marginLeft: 'auto' }}>✅ Respondida</span>
-                              : <span style={{ fontSize: 10, fontWeight: 700, color: S.amber, marginLeft: 'auto' }}>⏳ Pendiente</span>}
-                          </div>
-                          <p style={{ fontSize: 13, color: S.text, lineHeight: 1.65, margin: 0, whiteSpace: 'pre-wrap' }}>{q.texto}</p>
-
-                          {q.respuesta && (
-                            <div style={{ marginTop: 10, borderLeft: `3px solid ${S.green}`, paddingLeft: 12 }}>
-                              <div style={{ fontSize: 10, fontWeight: 700, color: S.green, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>Respuesta ProLarva</div>
-                              <p style={{ fontSize: 13, color: S.text, lineHeight: 1.65, margin: 0, whiteSpace: 'pre-wrap' }}>{q.respuesta}</p>
-                            </div>
-                          )}
-
-                          {asAdmin && (
-                            <div style={{ marginTop: 12 }}>
-                              <textarea
-                                value={respDrafts[q.id] ?? q.respuesta ?? ''}
-                                onChange={e => setRespDrafts(d => ({ ...d, [q.id]: e.target.value }))}
-                                placeholder="Escribe la respuesta..."
-                                style={{ ...inputStyle, resize: 'vertical', minHeight: 64, marginBottom: 8, fontSize: 12 }}
-                              />
-                              <div style={{ display: 'flex', gap: 8 }}>
-                                <button
-                                  style={{ ...btnPrimary, fontSize: 12, padding: '7px 16px' }}
-                                  onClick={async () => {
-                                    const txt = respDrafts[q.id] ?? q.respuesta ?? '';
-                                    await esc.responderPregunta(q.id, txt);
-                                  }}
-                                >
-                                  {q.respondida ? 'Actualizar respuesta' : 'Responder'}
-                                </button>
-                                <button
-                                  style={btnDanger}
-                                  onClick={() => { if (confirm('¿Eliminar esta pregunta?')) esc.eliminarPregunta(q.id); }}
-                                >
-                                  🗑️
-                                </button>
-                              </div>
-                            </div>
-                          )}
-
-                          {!asAdmin && mia && !q.respondida && (
-                            <button
-                              style={{ ...btnOutline, fontSize: 11, padding: '4px 10px', marginTop: 10 }}
-                              onClick={() => { if (confirm('¿Eliminar tu pregunta?')) esc.eliminarPregunta(q.id); }}
-                            >
-                              Eliminar mi pregunta
-                            </button>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-            );
-          })()}
 
           {/* ━━━ DIRECTORIO ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
           {sub === 'directorio' && (
@@ -1043,7 +803,7 @@ export default function EscuelaView({
               </div>
 
               <Link
-                href="/metas"
+                href="/socios?v=enciclopedia&sec=rutas"
                 style={{
                   display: 'inline-flex', alignItems: 'center', gap: 10,
                   padding: '14px 28px',
@@ -1054,10 +814,10 @@ export default function EscuelaView({
                   boxShadow: '0 6px 24px rgba(245,158,11,0.35)',
                 }}
               >
-                🎯 Ir a Mi Meta
+                🎯 Ver las rutas de producción
               </Link>
               <p style={{ fontSize: 11, color: S.muted, marginTop: 10 }}>
-                Se abre en la vista completa de metas — puedes volver aquí con el botón atrás del navegador.
+                Se abre en la Enciclopedia → Rutas de producción. Vuelve aquí con el botón atrás del navegador.
               </p>
             </div>
           )}

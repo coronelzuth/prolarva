@@ -7,7 +7,7 @@ const ICONOS = [
   { id: 'desc',       emoji: '📋', label: 'Descripción' },
   { id: 'clase',      emoji: '🎥', label: 'Clase' },
   { id: 'plantillas', emoji: '📄', label: 'Plantillas' },
-  { id: 'preguntas',  emoji: '❓', label: 'Preguntas' },
+  { id: 'reflexion',  emoji: '💭', label: 'Reflexión' },
 ] as const;
 
 type IconoId = typeof ICONOS[number]['id'];
@@ -251,21 +251,21 @@ export function FaseModalAdmin({
             </div>
           )}
 
-          {icono === 'preguntas' && (
+          {icono === 'reflexion' && (
             <div>
               <button onClick={onNuevaTarea}
                 style={{ width: '100%', padding: '9px', marginBottom: 12, background: 'rgba(245,158,11,0.08)', border: '1px dashed rgba(245,158,11,0.35)', borderRadius: 8, color: '#f59e0b', fontSize: 12, fontWeight: 700, cursor: 'pointer', fontFamily: 'Montserrat,sans-serif' }}>
-                + Agregar pregunta
+                + Agregar reflexión
               </button>
               {tareas.length === 0 ? (
-                <p style={{ fontSize: 12, color: '#64748b', textAlign: 'center', padding: '16px 0' }}>Sin preguntas cargadas. Agrega la primera.</p>
+                <p style={{ fontSize: 12, color: '#64748b', textAlign: 'center', padding: '16px 0' }}>Sin reflexión cargada. Agrega la primera.</p>
               ) : tareas.map(t => (
                 <div key={t.id} style={{ background: '#152035', borderRadius: 10, padding: '14px', border: '1px solid rgba(245,158,11,0.2)', marginBottom: 8 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 6 }}>
                     <div style={{ fontSize: 11, fontWeight: 700, color: '#f59e0b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Reflexión para la próxima clase</div>
                     <div style={{ display: 'flex', gap: 4 }}>
                       <button onClick={() => onEditTarea?.(t)} style={{ background: 'rgba(14,165,233,0.1)', border: '1px solid rgba(14,165,233,0.25)', borderRadius: 5, color: '#0ea5e9', fontSize: 10, padding: '3px 8px', cursor: 'pointer', fontFamily: 'Montserrat,sans-serif', fontWeight: 700 }}>✏️</button>
-                      <button onClick={() => { if (confirm('¿Eliminar esta pregunta?')) onEliminarTarea?.(t.id); }} style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 5, color: '#ef4444', fontSize: 10, padding: '3px 8px', cursor: 'pointer', fontFamily: 'Montserrat,sans-serif', fontWeight: 700 }}>🗑️</button>
+                      <button onClick={() => { if (confirm('¿Eliminar esta reflexión?')) onEliminarTarea?.(t.id); }} style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 5, color: '#ef4444', fontSize: 10, padding: '3px 8px', cursor: 'pointer', fontFamily: 'Montserrat,sans-serif', fontWeight: 700 }}>🗑️</button>
                     </div>
                   </div>
                   <p style={{ fontSize: 13, color: '#e2e8f0', lineHeight: 1.6, margin: 0 }}>{t.pregunta}</p>

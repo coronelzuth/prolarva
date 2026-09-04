@@ -1,5 +1,5 @@
 ﻿'use client';
-import { daysSince, getStage, type Lote, type FeedLog } from '@/hooks/useSocios';
+import { daysSince, getStageLote, type Lote, type FeedLog } from '@/hooks/useSocios';
 import { S, cardStyle, btnPrimary, btnOutline, btnSm, btnDanger, EmptyState, Badge, fmtDate } from './_shared';
 
 function LotesView({ lotes, feeds, onViewLote, onNewLote, onDeleteLote }: {
@@ -33,7 +33,7 @@ function LotesView({ lotes, feeds, onViewLote, onNewLote, onDeleteLote }: {
               <tbody>
                 {lotes.map(l => {
                   const d = daysSince(l.fecha);
-                  const stage = getStage(d);
+                  const stage = getStageLote(l);
                   const ready = d >= 22 && d <= 32;
                   const past  = d > 32;
                   return (

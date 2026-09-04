@@ -1,6 +1,6 @@
 ﻿'use client';
 import { useState } from 'react';
-import { daysSince, getStage, type Lote, type FeedLog, type Cosecha, type Recordatorio } from '@/hooks/useSocios';
+import { daysSince, getStageLote, type Lote, type FeedLog, type Cosecha, type Recordatorio } from '@/hooks/useSocios';
 import { S, cardStyle, btnOutline, btnSm, btnPrimary, btnDanger, EmptyState, ProgressBar, FeedEntry, CosechaEntry, type View } from './_shared';
 
 function Dashboard({ lotes, feeds, cosechas, activeLotes, readyLotes, recordatorios, totalKg, avgConv, userName, anuncio, sinEmail, onViewLote, onNav, onVerProtocolo }: {
@@ -192,7 +192,7 @@ function Dashboard({ lotes, feeds, cosechas, activeLotes, readyLotes, recordator
           ) : (
             activeLotes.map(l => {
               const d = daysSince(l.fecha);
-              const stage = getStage(d);
+              const stage = getStageLote(l);
               const pct = Math.min(Math.round((d / 28) * 100), 100);
               return (
                 <div key={l.id} onClick={() => onViewLote(l.id)} style={{ marginBottom: 10, padding: '10px 12px', background: S.navy2, borderRadius: 10, cursor: 'pointer' }}>

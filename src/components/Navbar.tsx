@@ -8,9 +8,6 @@ const navLinks = [
   { href: '/',            label: 'Inicio',       icon: '🏠' },
   { href: '/huevos',       label: 'Huevos BSF',    icon: '🥚' },
   { href: '/colonia',       label: 'Colonia',       icon: '🌱' },
-  { href: '/conocimiento',label: 'Conocimiento',  icon: '🧠', hidden: true },
-  { href: '/metas',       label: 'Mi Meta',       icon: '🎯', hidden: true },
-  { href: '/cosecha',     label: 'Cosecha',       icon: '🌾', hidden: true },
   { href: '/calculadora', label: 'Calculadora',   icon: '🧮' },
   { href: '/blog',        label: 'Blog',           icon: '📖' },
 ];
@@ -27,7 +24,7 @@ export default function Navbar() {
     <nav style={{ background: 'rgba(13,27,42,0.95)', borderBottom: '1px solid rgba(14,165,233,0.2)', backdropFilter: 'blur(12px)', position: 'sticky', top: 0, zIndex: 50 }}>
       <div style={{ maxWidth: 1100, margin: '0 auto', padding: '0 8px', display: 'flex', alignItems: 'center', justifyContent: 'center', height: 60, gap: 0, width: '100%' }}>
         <div className="nav-links-wrap" style={{ display: 'flex', gap: 2, alignItems: 'center', width: '100%' }}>
-          {navLinks.filter(l => !l.hidden).map(link => {
+          {navLinks.map(link => {
             const active = pathname === link.href;
             const isCompleted = link.href !== '/' && link.href !== '/calculadora' && progress.modulesCompleted.includes(link.href.replace('/', ''));
             return (

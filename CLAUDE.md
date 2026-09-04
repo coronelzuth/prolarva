@@ -50,15 +50,15 @@ escribir saltándose RLS. Si no está, caen a la anon key. **Nunca exponerla al 
 | `/` | Home — bienvenida + 5 módulos + botón compartir |
 | `/beneficios` | Intro — beneficios BSF por especie, composición nutricional, ventajas ambientales |
 | `/huevos` | Huevos BSF — página educativa, color azul cielo #0ea5e9, framer-motion |
-| `/conocimiento` | Módulo 1 — ciclo BSF, grid 3×3 de etapas *(oculto del navbar, requiere sesión)* |
-| `/metas` | Módulo 3 — rutas de producción + links a /cosecha y /calculadora *(oculto del navbar)* |
-| `/cosecha` | Guía Práctica — 7 pasos + panel recomendación calculadora al final *(oculto del navbar, requiere sesión)* |
+| ~~`/conocimiento`~~ | **UNIFICADA 2026-09-03** en la Enciclopedia. Redirect 308 → `/socios?v=enciclopedia&sec=ciclo` |
+| ~~`/metas`~~ | **UNIFICADA 2026-09-03** en la Enciclopedia. Redirect 308 → `/socios?v=enciclopedia&sec=rutas` |
+| ~~`/cosecha`~~ | **UNIFICADA 2026-09-03** en la Enciclopedia. Redirect 308 → `/socios?v=enciclopedia&sec=cria` |
 | `/calculadora` | Calculadora BSF completa (wizard 4 pasos) |
 | `/kit` | Landing de venta — Kit ProLarva 25/15, color ámbar (#f59e0b) |
 | `/colonia` | Landing del Programa Colonia — grupal 4 semanas, $400K COP, color verde (#22c55e), sección "Red de Productores" |
 | ~~`/preparacion`~~ | **ELIMINADA 2026-08-29** — Módulo 2 quiz. Larvi `ya_sabe` ahora apunta a /cosecha |
 | ~~`/sistema-2015`~~ | **ELIMINADA 2026-08-29** — landing legacy. Redirect 308 → `/kit` en `next.config.ts`. Larvi `faq_compra` apunta a /kit |
-| `/socios` | Zona privada — tracker de lotes, alimentación, cosechas y panel Escuela (sin Larvi ni WhatsApp) |
+| `/socios` | Zona privada — tracker de lotes, panel Escuela y **Enciclopedia** (sin Larvi ni WhatsApp). Acepta `?v=enciclopedia&sec=<seccion>` para deep-link |
 | `/gracias` | Página post-formulario — confirmación + redirect automático a /calculadora en 4 seg |
 | `/blog` | Hub del blog — cuadrícula filtrable por categoría (Problemas, Nutrición, Manejo). 3 artículos publicados |
 | `/blog/problemas` | 8 problemas comunes en cría BSF — acordeón expandible + botones compartir (copiar enlace / WhatsApp) |
@@ -91,11 +91,14 @@ src/
 │   ├── colonia/page.tsx      # Landing Programa Colonia — color verde #22c55e
 │   ├── socios/page.tsx           # Zona de Socios — solo nav, modales, estado global (~150 líneas)
 │   ├── socios/_shared.ts         # Estilos compartidos: S, btnOutline, inputStyle, Modal, type View
+│   ├── socios/EnciclopediaView.tsx  # Tab Enciclopedia — orquestador (nav interna + 9 secciones)
+│   ├── socios/EnciclopediaSections.tsx # Ciclo, Cría, Rutas, Alimentación, Procesamiento, LowCost, Vocabulario, Galería
+│   ├── socios/EnciclopediaBot.tsx   # Larvi Pro — bot de árbol de decisión embebido
 │   ├── socios/EscuelaView.tsx       # Panel Escuela — orquestador principal (refactorizado)
 │   ├── socios/EscuelaCronograma.tsx # Cronograma de fases
 │   ├── socios/EscuelaDirectorio.tsx # Directorio de socios
 │   ├── socios/EscuelaFaseModal.tsx  # Modal de fase (base)
-│   ├── socios/EscuelaForo.tsx       # Foro estilo Twitter
+│   ├── socios/EscuelaComunidad.tsx  # Tab Comunidad — Foro + Preguntas fusionados (feed mixto)
 │   ├── socios/EscuelaProgreso.tsx   # Tabla de progreso admin
 │   ├── socios/FaseModalAdmin.tsx    # Modal de fase — vista admin
 │   ├── socios/FaseModalSocio.tsx    # Modal de fase — vista socio
@@ -105,6 +108,7 @@ src/
 │   ├── socios/MonitorView.tsx    # Monitor bloqueado/desbloqueado + sub-tabs Lotes/Stats
 │   ├── socios/LotesView.tsx      # Lista de lotes
 │   ├── socios/LoteDetail.tsx     # Detalle de lote con feeds, cosechas, fotos, recordatorios
+│   ├── socios/CicloVertical.tsx  # Timeline VERTICAL del ciclo BSF + ajuste de estimación (estilo app de periodo)
 │   ├── socios/EstadisticasView.tsx # Gráficas de producción y exportación CSV
 │   ├── socios/PerfilView.tsx     # Perfil estilo Instagram con directorio
 │   ├── socios/VentasView.tsx     # Registro de ventas del socio
@@ -122,9 +126,11 @@ src/
 │   └── RequireSocio.tsx      # Guard de ruta — redirige a /socios si no hay sesión activa
 │
 ├── data/
-│   ├── stages.ts             # 8 etapas del ciclo BSF con fotos[] y videos[]
-│   ├── quiz.ts               # Preguntas del diagnóstico de preparación
-│   └── metas.ts              # 3 rutas: pollos, harina, ciclo cerrado
+│   ├── stages.ts             # 8 etapas del ciclo BSF con fotos[] y videos[] (usado por Enciclopedia → Ciclo)
+│   ├── quiz.ts               # ⚠️ HUÉRFANO — era del quiz /preparacion (eliminado)
+│   ├── metas.ts              # 3 rutas: animales, harina, ciclo cerrado (usado por Enciclopedia → Rutas)
+│   ├── enciclopedia.ts       # Glosario, low cost, alimentación, procesamiento, cría paso a paso
+│   └── enciclopedia-bot.ts   # Árbol de conversación de Larvi Pro
 │
 ├── hooks/
 │   ├── useProgress.ts        # Estado global del alumno — localStorage + sync Supabase (device_id)
@@ -173,7 +179,7 @@ Rojo (pérdidas):   #ef4444
 
 ### `Navbar.tsx`
 Links visibles: Inicio / 🥚 Huevos BSF / 🌱 Colonia / Calculadora / Blog + botón 🔐 Socios.
-Links ocultos (`hidden: true`, accesibles por URL directa): Conocimiento / Preparación / Mi Meta / Cosecha.
+Ya no hay links ocultos: Conocimiento / Mi Meta / Cosecha se unificaron en la Enciclopedia (2026-09-03); Preparación se eliminó antes.
 **IMPORTANTE:** Dentro de `/socios` el navbar retorna `null` — no se renderiza. La zona de socios tiene su propia navegación (sidebar desktop + bottom bar móvil).
 **Móvil (<599px):** scroll horizontal, oculta labels, solo íconos.
 
@@ -198,7 +204,7 @@ Cálculo en `useEffect` que se dispara cuando `step === 4`.
 
 ### `socios/page.tsx` + componentes divididos
 Login por email o código de socio. Cuentas admin: `admin.zuth/prolarva2025`, `admin/pl2025`.
-**Nav:** 5 tabs — 🏠 Resumen · 🎓 Escuela · 🔬 Monitor · 💰 Mis Ventas · 👤 Mi Perfil. Admin aparece como botón dentro de Perfil.
+**Nav:** 6 tabs — 🏠 Resumen · 🎓 Escuela · 🔬 Monitor · 📚 Enciclopedia · 💰 Mis Ventas · 👤 Mi Perfil. Admin aparece como botón dentro de Perfil.
 Sidebar sticky a `top: 0`, `height: 100vh` (navbar oculto en /socios).
 **Móvil (<768px):** sidebar oculto → bottom tab bar fijo.
 Estado en `localStorage` via `useSocios`. Arquitectura refactorizada: `page.tsx` (~150 líneas) + 12 archivos separados (ver estructura).
@@ -214,8 +220,8 @@ Estilo Instagram con foto de perfil, campos de perfil público (tipo_produccion 
 
 **Funcionalidades en detalle de lote (`LoteDetail.tsx`):**
 - Botón ✏️ Editar (modal para cambiar nombre/fecha)
-- `MiniCalendar`: strip de hitos + botón "📅 Ver calendario" que despliega grid real Lu–Do con emojis de hitos sobre sus fechas. Si el ciclo cruza dos meses se muestran ambos apilados.
-- Al crear lote: selector de objetivo (⚖️ Cosechar larvas / 🔄 Continuar camada) que ajusta los hitos del MiniCalendar (día 22: cosecha vs prepupa; día 28/40: fin vs mosca).
+- `CicloVertical`: timeline **vertical** del ciclo (5 etapas), etapa actual resaltada, fechas reales por etapa, y ajuste de estimación (−1/+1 día, "Empezó hoy") que recalcula las etapas siguientes — persiste en `Lote.ajustes`. Botón "📅 Ver en el calendario" despliega el grid mensual Lu–Do (`CalendarMonth`) con los hitos ya ajustados.
+- Al crear lote: selector de objetivo (⚖️ Cosechar larvas / 🔄 Continuar camada) que cambia las etiquetas de las 2 últimas etapas del `CicloVertical` (Cosecha/Prepupa vs Prepupa/Mosca adulta).
 - Larvi y WhatsApp NO se renderizan en /socios (ver `FloatingWidgets.tsx`).
 
 ### `cosecha/page.tsx`
@@ -348,7 +354,34 @@ a5cc857  feat: port calculadora BSF a React con paleta de la app
 ## Estado actual
 > **Actualizar esta sección al final de cada sesión de trabajo.**
 
-**Última actualización:** 2026-08-30
+**Última actualización:** 2026-09-04
+
+**Cambios recientes (2026-09-04 — sesión 24 — Timeline vertical del ciclo + ajuste de estimación):**
+- ✅ **Nuevo `src/app/socios/CicloVertical.tsx`** — reemplaza la línea de tiempo **horizontal con scroll** del detalle de lote por un **stepper vertical** (5 etapas de arriba hacia abajo). Riel con nodos ✓/●/○, línea que se rellena según el avance, la etapa actual resaltada en tarjeta verde con "● Ahora · día X de Y". Cada etapa muestra su rango de fechas real calculado. Sin scroll horizontal en ningún lado.
+- ✅ **Ajuste de estimación estilo app de periodo** — en la etapa actual y las siguientes hay "✎ ajustar fecha": botones **−1 día / +1 día**, **"Empezó hoy"**, y "↺ quitar ajuste". Al mover una etapa, todas las siguientes se recalculan solas (arrastre del desfase). Chip ámbar "ajustado +Nd" en las etapas tocadas. Botón "↺ Estimación estándar" para resetear todo.
+- ✅ **Modelo de datos:** `Lote.ajustes?: Record<string, number>` (etapaKey → día real de inicio). Helpers nuevos en `useSocios.ts`: `STAGE_BASE_STARTS`, `loteStarts(ajustes)`, `getStageLote(lote)` (etapa actual considerando ajustes). `updateLote` acepta `ajustes`. `LotesView` y `Dashboard` usan `getStageLote`.
+- ✅ **API `/api/socios/data`** — `lote.update` acepta y sanea `ajustes` (solo pares string→number). `loteToRow` solo manda la columna `ajustes` cuando hay algo (los flujos viejos siguen intactos aunque la migración no se haya corrido).
+- 🔻 **Eliminados de `_shared.tsx`:** `Timeline` y `MiniCalendar` (el grid de calendario mensual `CalendarMonth` se conserva y ahora lo usa `CicloVertical` con "📅 Ver en el calendario"). Único consumidor era `LoteDetail`.
+- 📌 **REQUIERE SQL antes de desplegar:** correr `supabase/lote-ajustes.sql` en Supabase → SQL Editor (`ALTER TABLE lotes ADD COLUMN ajustes JSONB DEFAULT '{}'`). Sin eso, la timeline funciona pero los ajustes no persisten en el servidor (solo en localStorage).
+- ⚠️ **Fuera de alcance:** `readyLotes` / alertas de cosecha / push cron siguen usando el estimado base (día 22–28), no el ajustado. El ajuste por ahora solo mueve la vista del detalle + su calendario.
+- ✅ `tsc` limpio, `next build` OK. **Pendiente:** correr SQL + `vercel --prod --yes`.
+
+**Cambios recientes (2026-09-03 — sesión 23b — Escuela: Foro + Preguntas → Comunidad):**
+- ✅ **Fusión Foro + Cajita de Preguntas** en un solo tab **`💬 Comunidad`** de la Escuela. Nuevo `EscuelaComunidad.tsx` (self-contained, absorbe `EscuelaForo.tsx` que se **eliminó**).
+- ✅ **Composer unificado:** textarea + toggle "❓ Es una pregunta para la clase" → al activarlo aparece selector de semana (1-5 + "General") y el botón pasa a "Enviar pregunta". OFF → `esc.publicarPost`; ON → `esc.publicarPregunta`. Sin migración de DB — siguen las 2 tablas (`foro_posts`, `preguntas_escuela`), se mergean en el feed por fecha.
+- ✅ **Feed mixto:** posts (con reacciones/hilos/fijar) + preguntas (badge ❓ + chip semana + estado ⏳/✅ + respuesta admin inline) intercalados. Filtros `Todo / ❓ Preguntas / ⏳ Sin responder` + búsqueda. Banner admin "N sin responder".
+- ✅ `EscuelaSub`: `'foro'` + `'preguntas'` → `'comunidad'`. Nav sidebar + mobile tabs con 1 solo ítem. Badge = nº pendientes (solo admin).
+- ✅ **FaseModal:** la pestaña "❓ Preguntas" (que en realidad editaba `tareas`) se renombró a **"💭 Reflexión"** (`FaseModalAdmin`, `FaseModalSocio`, `EscuelaCronograma`) para quitar la colisión de nombres.
+- ✅ Notificaciones push de like/reply preservadas (movidas dentro de `EscuelaComunidad`). `tsc` + `next build` OK, verificado en navegador. Deploy prod `dpl_Gmv8LECdA2oDrGnLEmGGBBGTjhAb` → prolarva.co.
+
+**Cambios recientes (2026-09-03 — sesión 23 — Enciclopedia BSF):**
+- ✅ **Nueva tab `📚 Enciclopedia` en `/socios`** (6º ítem del sidebar; móvil = "Wiki"). `view: 'enciclopedia'` en `_shared.tsx` + `NAV_ITEMS` en `SociosSidebar.tsx`. Contenido 100% hardcoded en `src/data/enciclopedia.ts` + `enciclopedia-bot.ts` (sin tablas Supabase).
+- ✅ **9 secciones** con nav interna propia (sidebar desktop + tabs móvil, patrón EscuelaView): 🤖 Larvi Pro (bot de árbol), 🔄 El ciclo (8 etapas, portado de /conocimiento), 🌾 Cría paso a paso (portado de /cosecha), 🎯 Rutas de producción (usa `data/metas.ts`), 🥗 Qué darles / qué NO (de blog/alimentacion-larvas + Documento Maestro), 🏭 Procesamiento (larva viva vs harina), 💸 Low cost (Apéndice C del Documento Maestro), 📖 Vocabulario (~60 términos buscables), 🖼️ Mega galería (**placeholder — 10 categorías, esperan paquete de fotos de Juliana**).
+- ✅ **`/conocimiento`, `/metas`, `/cosecha` unificadas y eliminadas.** Carpetas borradas. Redirects 308 en `next.config.ts` → `/socios?v=enciclopedia&sec=ciclo|rutas|cria`. `sitemap.ts` limpiado. Navbar sin links ocultos. `RequireSocio.tsx` quedó sin usar (no borrado).
+- ✅ **Deep-link:** `/socios` lee `?v=enciclopedia&sec=<seccion>` → `EnciclopediaView initialSection`. Links de Larvi (`faq_ciclo`, `faq_residuos`, metas, cosecha…) y de EscuelaView "Mi Meta" actualizados a la nueva ruta.
+- ⚠️ **OJO Larvi público:** en páginas públicas (home, colonia, kit, blog) los botones de Larvi sobre ciclo/cosecha/rutas ahora mandan a `/socios` → muro de login. Si molesta para conversión, apuntarlos a `/huevos` o `/blog`.
+- 📌 **Pendiente:** paquete de fotos de referencia para la Mega galería (sana/enferma, plagas, sustratos, montajes low cost).
+- ✅ **Build + deploy:** `tsc` limpio, `next build` OK, verificado en navegador (modo demo). Deploy a prod `dpl_4EXonQYttPdwsfYovxsEmW4nWVbg` → prolarva.co. Redirects 308 de `/conocimiento|/metas|/cosecha` verificados en producción.
 
 **Cambios recientes (2026-08-30 — sesión 22 — audit Escuela + arreglos):**
 - ✅ **Bug `codigo` vs `code` en Escuela** — `useEscuela.ts` y `EscuelaView.tsx` consultaban `socios.code` (columna inexistente; la real es `codigo`). Rompía en silencio: Directorio vacío, badges "ProLarva ✓" nunca aparecían, panel Progreso admin sin socios, `toggleColonia` no guardaba. Corregido: `select('codigo,...')` + alias a `.code` en JS. `toggleColonia` ahora `.eq('codigo', code)`.
@@ -514,7 +547,7 @@ a5cc857  feat: port calculadora BSF a React con paleta de la app
 | Tabla | Qué guarda | SQL |
 |---|---|---|
 | `user_progress` | Progreso de módulos por device_id | schema.sql |
-| `lotes` | Lotes de producción por socio_code | schema.sql |
+| `lotes` | Lotes de producción por socio_code (+ col. `ajustes` jsonb desde sesión 24) | schema.sql · **lote-ajustes.sql** |
 | `feed_logs` | Registros de alimentación | schema.sql |
 | `cosechas` | Cosechas registradas | schema.sql |
 | `leads` | Leads del formulario de /landing (nombre + email) | leads.sql |

@@ -22,11 +22,16 @@ const loteToRow = (code: string, l: any) => ({
   id: l.id, socio_code: code, nombre: l.nombre, fecha: l.fecha,
   sustrato: l.sustrato, tipo_sustrato: l.tipoSustrato, huevos: l.huevos,
   temp: l.temp, notas: l.notas, creado_en: l.creadoEn, objetivo: l.objetivo ?? 'cosechar',
+  // Solo se envía la columna `ajustes` cuando hay algo — así los flujos existentes
+  // (crear lote, sync) siguen funcionando aunque la migración SQL aún no se corra.
+  ...(l.ajustes && typeof l.ajustes === 'object' && Object.keys(l.ajustes).length
+    ? { ajustes: l.ajustes } : {}),
 });
 const loteFromRow = (r: any) => ({
   id: r.id, nombre: r.nombre, fecha: r.fecha, sustrato: r.sustrato ?? 0,
   tipoSustrato: r.tipo_sustrato ?? '', huevos: r.huevos ?? '', temp: r.temp ?? null,
   notas: r.notas ?? '', creadoEn: r.creado_en, objetivo: r.objetivo ?? 'cosechar',
+  ajustes: r.ajustes ?? {},
 });
 
 const feedToRow = (code: string, f: any) => ({
@@ -139,6 +144,13 @@ export async function POST(req: NextRequest) {
       const safe: Record<string, unknown> = {};
       if (typeof updates?.nombre === 'string') safe.nombre = updates.nombre;
       if (typeof updates?.fecha === 'string')  safe.fecha = updates.fecha;
+      if (updates?.ajustes && typeof updates.ajustes === 'object' && !Array.isArray(updates.ajustes)) {
+        const clean: Record<string, number> = {};
+        for (const [k, v] of Object.entries(updates.ajustes)) {
+          if (typeof v === 'number' && isFinite(v)) clean[k] = Math.round(v);
+        }
+        safe.ajustes = clean;
+      }
       const { error } = await db.from('lotes').update(safe).eq('id', id).eq('socio_code', code);
       return error ? bad(error.message, 500) : ok();
     }

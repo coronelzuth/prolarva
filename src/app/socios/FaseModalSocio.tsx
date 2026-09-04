@@ -7,7 +7,7 @@ const ICONOS = [
   { id: 'desc',       emoji: '📋', label: 'Descripción' },
   { id: 'clase',      emoji: '🎥', label: 'Clase' },
   { id: 'plantillas', emoji: '📄', label: 'Plantillas' },
-  { id: 'preguntas',  emoji: '❓', label: 'Preguntas' },
+  { id: 'reflexion',  emoji: '💭', label: 'Reflexión' },
 ] as const;
 
 type IconoId = typeof ICONOS[number]['id'];
@@ -182,13 +182,13 @@ export function FaseModalSocio({
             </div>
           )}
 
-          {icono === 'preguntas' && (
+          {icono === 'reflexion' && (
             <div>
               <p style={{ fontSize: 13, color: '#94a3b8', lineHeight: 1.6, marginBottom: 16 }}>
-                ¿Tienes dudas sobre el tema de esta semana? Prepara tus preguntas para la siguiente clase en vivo con Juliana.
+                Piensa en esto durante la semana. Si te queda alguna duda, déjala en la Comunidad marcada como pregunta para la clase en vivo.
               </p>
               {tareas.length === 0 ? (
-                <p style={{ fontSize: 12, color: '#64748b', textAlign: 'center', padding: '16px 0' }}>Las preguntas estarán disponibles pronto.</p>
+                <p style={{ fontSize: 12, color: '#64748b', textAlign: 'center', padding: '16px 0' }}>La reflexión estará disponible pronto.</p>
               ) : tareas.map(t => (
                 <div key={t.id} style={{ background: '#152035', borderRadius: 10, padding: '14px', border: '1px solid rgba(245,158,11,0.2)', marginBottom: 8 }}>
                   <div style={{ fontSize: 11, fontWeight: 700, color: '#f59e0b', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 6 }}>Reflexión para la próxima clase</div>

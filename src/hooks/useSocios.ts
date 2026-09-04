@@ -16,6 +16,10 @@ export interface Lote {
   notas: string;
   creadoEn: string;
   objetivo?: 'cosechar' | 'continuar';
+  /** Ajustes manuales del socio al ciclo estimado — { etapaKey: díaRealDeInicio }.
+   *  Estilo app de periodo: marca cuándo entró de verdad a una etapa y las
+   *  siguientes se recalculan. Ver `loteStarts()`. */
+  ajustes?: Record<string, number>;
 }
 
 export interface FeedLog {
@@ -97,6 +101,47 @@ export function getStage(days: number) {
     if (days >= s.days[0] && days <= s.days[1]) return { ...s, idx: i };
   }
   return { ...BSF_STAGES[BSF_STAGES.length - 1], idx: BSF_STAGES.length - 1 };
+}
+
+/** Día base en que arranca cada etapa (derivado de BSF_STAGES): [0, 5, 15, 22, 29]. */
+export const STAGE_BASE_STARTS: number[] = BSF_STAGES.map(s => s.days[0]);
+
+/**
+ * Días efectivos de inicio de cada etapa para un lote, aplicando los ajustes
+ * manuales del socio. Si marca que una etapa empezó en el día X, el desfase
+ * (X − día base) se arrastra a todas las etapas siguientes que no tengan su
+ * propio ajuste — igual que una app de periodo recalcula el ciclo cuando
+ * registras que te llegó antes o después.
+ */
+export function loteStarts(ajustes?: Record<string, number>): number[] {
+  const a = ajustes ?? {};
+  const starts: number[] = [];
+  let shift = 0;
+  BSF_STAGES.forEach((s, i) => {
+    const base = STAGE_BASE_STARTS[i];
+    let start: number;
+    const aj = a[s.key];
+    if (typeof aj === 'number' && isFinite(aj)) {
+      start = Math.round(aj);
+      shift = start - base;
+    } else {
+      start = base + shift;
+    }
+    if (i > 0) start = Math.max(start, starts[i - 1] + 1);
+    starts.push(start);
+  });
+  return starts;
+}
+
+/** Etapa actual de un lote considerando sus ajustes manuales. */
+export function getStageLote(lote: { fecha: string; ajustes?: Record<string, number> }) {
+  const starts = loteStarts(lote.ajustes);
+  const day = Math.max(0, daysSince(lote.fecha));
+  let idx = 0;
+  for (let i = starts.length - 1; i >= 0; i--) {
+    if (day >= starts[i]) { idx = i; break; }
+  }
+  return { ...BSF_STAGES[idx], idx, starts, day };
 }
 
 export function uid(): string {
@@ -386,7 +431,7 @@ export function useSocios() {
     await postData('lote.delete', { id });
   }, []);
 
-  const updateLote = useCallback(async (id: string, updates: Partial<Pick<Lote, 'nombre' | 'fecha'>>) => {
+  const updateLote = useCallback(async (id: string, updates: Partial<Pick<Lote, 'nombre' | 'fecha' | 'ajustes'>>) => {
     setLotes(prev => { const arr = prev.map(l => l.id === id ? { ...l, ...updates } : l); localSave(KEYS.lotes, arr); return arr; });
     await postData('lote.update', { id, updates });
   }, []);

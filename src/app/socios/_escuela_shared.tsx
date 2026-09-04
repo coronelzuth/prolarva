@@ -4,7 +4,7 @@ import type { TipoDia } from '@/hooks/useEscuela';
 
 // ─── Re-exportar tipos del hook ──────────────────────────────────────────────
 export type { TipoDia };
-export type EscuelaSub = 'clase' | 'plantillas' | 'tarea' | 'foro' | 'progreso' | 'directorio' | 'cronograma' | 'metas' | 'preguntas';
+export type EscuelaSub = 'clase' | 'plantillas' | 'tarea' | 'comunidad' | 'progreso' | 'directorio' | 'cronograma' | 'metas';
 
 // ─── Paleta ──────────────────────────────────────────────────────────────────
 export const S = {

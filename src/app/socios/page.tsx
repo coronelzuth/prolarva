@@ -15,6 +15,7 @@ import EstadisticasView from './EstadisticasView';
 import PerfilView       from './PerfilView';
 import AdminView        from './AdminView';
 import EscuelaView      from './EscuelaView';
+import EnciclopediaView, { type EncSec } from './EnciclopediaView';
 
 import { LoginScreen, RegisterScreen, ResetPasswordScreen } from './AuthScreens';
 import BienvenidaModal    from './BienvenidaModal';
@@ -33,9 +34,12 @@ function SociosInner() {
   const searchParams = useSearchParams();
   const invParam    = searchParams.get('inv')?.toUpperCase() ?? undefined;
   const resetParam  = searchParams.get('reset') ?? undefined;
+  const viewParam   = searchParams.get('v') ?? undefined;
+  const secParam    = (searchParams.get('sec') ?? undefined) as EncSec | undefined;
 
   const [authMode,        setAuthMode]        = useState<'login' | 'register'>(invParam ? 'register' : 'login');
-  const [view,            setView]            = useState<View>('dashboard');
+  const [view,            setView]            = useState<View>(viewParam === 'enciclopedia' ? 'enciclopedia' : 'dashboard');
+  const [encSec,          setEncSec]          = useState<EncSec>(secParam ?? 'inicio');
   const [monitorSub,      setMonitorSub]      = useState<'lotes' | 'stats'>('lotes');
   const [detailLoteId,    setDetailLoteId]    = useState<string | null>(null);
 
@@ -143,11 +147,12 @@ function SociosInner() {
             <MonitorView fasesAprobadas={db.session?.fases_aprobadas ?? 0} isAdmin={db.session?.rol === 'admin'} monitorSub={monitorSub} onSubChange={setMonitorSub} lotes={db.lotes} feeds={db.feeds} onViewLote={viewLote} onNewLote={() => setModalLote(true)} onDeleteLote={db.deleteLote} cosechas={db.cosechas} totalKg={db.totalKg} avgConv={db.avgConv} />
           )}
           {view === 'lote-detail' && detailLote && (
-            <LoteDetail lote={detailLote} feeds={db.feeds} lotes={db.lotes} cosechas={db.cosechas} recordatorios={db.recordatorios} fotos={db.fotos} onBack={() => setView('monitor')} onAddFeed={openFeed} onEdit={() => setEditLote({ id: detailLote.id, nombre: detailLote.nombre, fecha: detailLote.fecha })} onAddRecordatorio={db.addRecordatorio} onToggleRecordatorio={db.toggleRecordatorio} onDeleteRecordatorio={db.deleteRecordatorio} onAddFoto={db.addFoto} onDeleteFoto={db.deleteFoto} onNewCosecha={() => setModalCosecha(true)} />
+            <LoteDetail lote={detailLote} feeds={db.feeds} lotes={db.lotes} cosechas={db.cosechas} recordatorios={db.recordatorios} fotos={db.fotos} onBack={() => setView('monitor')} onAddFeed={openFeed} onEdit={() => setEditLote({ id: detailLote.id, nombre: detailLote.nombre, fecha: detailLote.fecha })} onAdjust={(ajustes) => db.updateLote(detailLote.id, { ajustes })} onAddRecordatorio={db.addRecordatorio} onToggleRecordatorio={db.toggleRecordatorio} onDeleteRecordatorio={db.deleteRecordatorio} onAddFoto={db.addFoto} onDeleteFoto={db.deleteFoto} onNewCosecha={() => setModalCosecha(true)} />
           )}
           {view === 'ventas'  && <VentasView ventas={db.ventasSocios} onAdd={db.addVentaSocio} onDelete={db.deleteVentaSocio} />}
           {view === 'guia'    && <GuiaView />}
           {view === 'escuela' && <EscuelaView socioCode={db.session.code} socioNombre={db.session.name} isAdmin={db.session.rol === 'admin'} fasesAprobadas={db.session.fases_aprobadas ?? 0} faseEnRevision={db.session.fase_en_revision ?? 0} onMarcarFase={handleMarcarFase} onAprobFase={handleAprobFase} />}
+          {view === 'enciclopedia' && <EnciclopediaView initialSection={encSec} />}
           {view === 'perfil'  && (
             <PerfilView session={db.session} lotes={db.lotes} feeds={db.feeds} cosechas={db.cosechas} totalKg={db.totalKg} onUpdateName={db.updateName} onUpdateEmail={db.updateEmail} onChangePassword={changePassword}
               onLaunchTour={() => { localStorage.removeItem('prl-onboarding-done'); setOnboardingStep(0); setTourMinimized(false); setShowOnboarding(true); navTo('dashboard'); }}

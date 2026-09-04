@@ -4,16 +4,17 @@ import { S, btnOutline, type View } from './_shared';
 import type { SocioSession } from '@/hooks/useSocios';
 
 export const NAV_ITEMS: { key: View; icon: string; label: string }[] = [
-  { key: 'dashboard', icon: '🏠', label: 'Resumen' },
-  { key: 'escuela',   icon: '🎓', label: 'Escuela' },
-  { key: 'monitor',   icon: '🔬', label: 'Monitor' },
-  { key: 'ventas',    icon: '💰', label: 'Mis Ventas' },
-  { key: 'perfil',    icon: '👤', label: 'Mi Perfil' },
+  { key: 'dashboard',    icon: '🏠', label: 'Resumen' },
+  { key: 'escuela',      icon: '🎓', label: 'Escuela' },
+  { key: 'monitor',      icon: '🔬', label: 'Monitor' },
+  { key: 'enciclopedia', icon: '📚', label: 'Enciclopedia' },
+  { key: 'ventas',       icon: '💰', label: 'Mis Ventas' },
+  { key: 'perfil',       icon: '👤', label: 'Mi Perfil' },
 ];
 
 const MOBILE_LABELS: Record<string, string> = {
   dashboard: 'Inicio', escuela: 'Escuela',
-  monitor: 'Monitor', ventas: 'Ventas',
+  monitor: 'Monitor', enciclopedia: 'Wiki', ventas: 'Ventas',
   perfil: 'Perfil', admin: 'Admin',
 };
 

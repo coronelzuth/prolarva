@@ -13,10 +13,15 @@ Ruta: `src/app/socios/`
 | `SociosSidebar.tsx` | Sidebar desktop + mobile bottom nav + CSS responsive. Exporta `NAV_ITEMS` |
 | `SpotlightTour.tsx` | Tour onboarding. Exporta `SpotlightTour` + `TOUR_STEPS` |
 | `Dashboard.tsx` | Vista Resumen — alertas, stats, recordatorios, tarjeta Protocolo Anti-Crisis |
-| `EscuelaView.tsx` | Panel Escuela — cronograma, clases, foro, progreso, plantillas |
+| `EscuelaView.tsx` | Panel Escuela — cronograma, clases, comunidad, progreso, plantillas |
+| `EscuelaComunidad.tsx` | Tab Comunidad — Foro + Cajita de Preguntas fusionados en un feed mixto |
+| `EnciclopediaView.tsx` | Tab Enciclopedia — orquestador de 9 secciones (nav interna sidebar+tabs) |
+| `EnciclopediaSections.tsx` | Ciclo, Cría, Rutas, Alimentación, Procesamiento, LowCost, Vocabulario, Galería |
+| `EnciclopediaBot.tsx` | Larvi Pro — bot de árbol embebido (`data/enciclopedia-bot.ts`) |
 | `MonitorView.tsx` | Monitor bloqueado/desbloqueado — lotes y estadísticas |
 | `LotesView.tsx` | Lista de lotes |
-| `LoteDetail.tsx` | Detalle de lote — feeds, cosechas, fotos, recordatorios, calendario |
+| `LoteDetail.tsx` | Detalle de lote — feeds, cosechas, fotos, recordatorios, ciclo |
+| `CicloVertical.tsx` | Timeline vertical del ciclo BSF + ajuste de estimación (−1/+1 día, "empezó hoy") estilo app de periodo; persiste en `Lote.ajustes` |
 | `EstadisticasView.tsx` | Gráficas SVG + export CSV |
 | `PerfilView.tsx` | Perfil estilo Instagram, herramientas, cambiar contraseña |
 | `VentasView.tsx` | Registro de ventas del socio |
@@ -48,7 +53,10 @@ la anon key. `login` devuelve el token; sesiones viejas sin token fuerzan re-log
 
 ## Vistas disponibles (type View en _shared.ts)
 
-`dashboard | escuela | monitor | lote-detail | ventas | guia | perfil | admin | cosecha`
+`dashboard | escuela | monitor | enciclopedia | lote-detail | ventas | guia | perfil | admin | cosecha`
+
+Deep-link a la Enciclopedia: `/socios?v=enciclopedia&sec=<inicio|bot|ciclo|cria|rutas|alimentacion|procesamiento|lowcost|vocabulario|galeria>`.
+Las URLs viejas `/conocimiento`, `/metas`, `/cosecha` redirigen (308) a `sec=ciclo|rutas|cria`.
 
 ## Auth
 

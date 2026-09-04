@@ -1,9 +1,8 @@
 ﻿'use client';
 import React from 'react';
-import { useState } from 'react';
-import { BSF_STAGES, daysSince, getStage, type Lote, type FeedLog, type Cosecha } from '@/hooks/useSocios';
+import { type Lote, type FeedLog, type Cosecha } from '@/hooks/useSocios';
 
-export type View = 'dashboard' | 'monitor' | 'lote-detail' | 'cosecha' | 'guia' | 'admin' | 'perfil' | 'escuela' | 'ventas';
+export type View = 'dashboard' | 'monitor' | 'lote-detail' | 'cosecha' | 'guia' | 'admin' | 'perfil' | 'escuela' | 'ventas' | 'enciclopedia';
 
 // ─── Compresión de imagen cliente ────────────────────────────────────────────
 
@@ -168,30 +167,6 @@ function Modal({ open, onClose, title, children }: { open: boolean; onClose: () 
   );
 }
 
-// ─── Timeline BSF ─────────────────────────────────────────────────────────────
-
-function Timeline({ days }: { days: number }) {
-  const stage = getStage(days);
-  return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 0, background: S.navy2, borderRadius: 10, padding: '10px 12px', overflowX: 'auto' }}>
-      {BSF_STAGES.map((s, i) => {
-        const done    = i < stage.idx;
-        const current = i === stage.idx;
-        return (
-          <div key={s.key} style={{ display: 'flex', alignItems: 'center' }}>
-            <div style={{ textAlign: 'center', padding: '4px 8px', borderRadius: 8, background: current ? 'rgba(34,197,94,0.12)' : 'transparent', minWidth: 60 }}>
-              <div style={{ fontSize: 20 }}>{s.icon}</div>
-              <div style={{ fontSize: 10, fontWeight: 700, marginTop: 2, color: done ? S.emerald : current ? S.green2 : S.muted }}>{s.name}</div>
-              <div style={{ fontSize: 9, color: S.muted, opacity: 0.7 }}>D{s.days[0]}–{s.days[1]}</div>
-            </div>
-            {i < BSF_STAGES.length - 1 && <span style={{ color: S.muted, opacity: 0.4, fontSize: 12, padding: '0 2px' }}>›</span>}
-          </div>
-        );
-      })}
-    </div>
-  );
-}
-
 // ─── Calendar Month Grid ─────────────────────────────────────────────────────
 
 const CAL_MONTHS = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
@@ -248,112 +223,6 @@ function CalendarMonth({ year, month, msMap, startDate, endDate, todayStr }: {
           );
         })}
       </div>
-    </div>
-  );
-}
-
-// ─── Mini calendar ───────────────────────────────────────────────────────────
-
-function MiniCalendar({ lote }: { lote: Lote }) {
-  const [showCal, setShowCal] = useState(false);
-  const today    = new Date();
-  const todayStr = today.toISOString().split('T')[0];
-  const start    = new Date(lote.fecha);
-  const objetivo = lote.objetivo ?? 'cosechar';
-
-  function ms(label: string, icon: string, day: number) {
-    const date = new Date(start);
-    date.setDate(date.getDate() + day);
-    const diffDays = Math.round((today.getTime() - date.getTime()) / 86_400_000);
-    return { label, icon, date, isPast: diffDays > 0, isToday: diffDays === 0, daysAway: -diffDays };
-  }
-
-  const milestones = [
-    ms('Siembra', '🌱', 0),
-    ms('Eclosión', '🥚', 4),
-    ms('Larva', '🐛', 14),
-    objetivo === 'cosechar' ? ms('Cosecha', '⚖️', 22) : ms('Prepupa', '⭐', 22),
-    objetivo === 'cosechar' ? ms('Fin', '✅', 28) : ms('Mosca', '🦋', 40),
-  ];
-
-  const endDate = milestones[milestones.length - 1].date;
-
-  const msMap: Record<string, string[]> = {};
-  for (const m of milestones) {
-    const key = m.date.toISOString().split('T')[0];
-    if (!msMap[key]) msMap[key] = [];
-    msMap[key].push(m.icon);
-  }
-
-  const months: { year: number; month: number }[] = [];
-  let cur = new Date(start.getFullYear(), start.getMonth(), 1);
-  const endMonth = new Date(endDate.getFullYear(), endDate.getMonth(), 1);
-  while (cur <= endMonth) {
-    months.push({ year: cur.getFullYear(), month: cur.getMonth() });
-    cur = new Date(cur.getFullYear(), cur.getMonth() + 1, 1);
-  }
-
-  const fmtShort = (d: Date) => d.toLocaleDateString('es-CO', { day: '2-digit', month: 'short' });
-
-  return (
-    <div style={{ marginTop: 16 }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
-        <div style={{ fontSize: 11, fontWeight: 700, color: S.muted, textTransform: 'uppercase', letterSpacing: '0.06em' }}>📅 Hitos del ciclo</div>
-        <button
-          onClick={() => setShowCal(c => !c)}
-          style={{ background: showCal ? 'rgba(34,197,94,0.12)' : 'transparent', border: `1px solid ${showCal ? S.green : S.border}`, color: showCal ? S.green2 : S.muted, borderRadius: 6, padding: '4px 10px', fontSize: 11, fontWeight: 700, cursor: 'pointer', fontFamily: 'Montserrat, sans-serif' }}
-        >
-          {showCal ? '✕ Cerrar' : '📅 Ver calendario'}
-        </button>
-      </div>
-
-      {/* Milestone strip */}
-      <div style={{ display: 'flex', alignItems: 'flex-start', overflowX: 'auto', paddingBottom: 4 }}>
-        {milestones.map((m, i) => (
-          <div key={m.label} style={{ display: 'flex', alignItems: 'center', flexShrink: 0 }}>
-            <div style={{ textAlign: 'center', minWidth: 64 }}>
-              <div style={{
-                width: 34, height: 34, borderRadius: '50%', margin: '0 auto 4px',
-                background: m.isPast ? 'rgba(16,185,129,0.15)' : m.isToday ? 'rgba(34,197,94,0.2)' : 'rgba(30,48,80,0.8)',
-                border: `2px solid ${m.isPast ? S.emerald : m.isToday ? S.green : S.border}`,
-                display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: m.isPast ? 12 : 15,
-              }}>
-                {m.isPast ? '✓' : m.icon}
-              </div>
-              <div style={{ fontSize: 10, fontWeight: 700, color: m.isPast ? S.emerald : m.isToday ? S.green2 : S.muted, lineHeight: 1.2 }}>{m.label}</div>
-              <div style={{ fontSize: 9, color: '#475569', marginTop: 1 }}>{fmtShort(m.date)}</div>
-              <div style={{ fontSize: 9, color: m.isToday ? S.green : m.isPast ? '#475569' : S.muted, marginTop: 1 }}>
-                {m.isToday ? 'HOY' : m.isPast ? `hace ${Math.abs(m.daysAway)}d` : `en ${m.daysAway}d`}
-              </div>
-            </div>
-            {i < milestones.length - 1 && (
-              <div style={{ width: 18, height: 1, background: S.border, flexShrink: 0, marginBottom: 22 }} />
-            )}
-          </div>
-        ))}
-      </div>
-
-      {/* Expandable calendar grid */}
-      {showCal && (
-        <div style={{ marginTop: 14, background: S.navy2, borderRadius: 12, padding: '14px 12px', border: `1px solid ${S.border}` }}>
-          {months.map(({ year, month }) => (
-            <CalendarMonth
-              key={`${year}-${month}`}
-              year={year} month={month}
-              msMap={msMap}
-              startDate={start} endDate={endDate}
-              todayStr={todayStr}
-            />
-          ))}
-          <div style={{ borderTop: `1px solid rgba(34,197,94,0.1)`, paddingTop: 10, display: 'flex', flexWrap: 'wrap', gap: 10 }}>
-            {milestones.map(m => (
-              <div key={m.label} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 10, color: S.muted }}>
-                <span>{m.icon}</span><span>{m.label}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
     </div>
   );
 }
@@ -579,7 +448,7 @@ export {
   comprimirImagen, fmtDate, fmtDateTime, nowLocal, todayLocal, RESIDUO_ICONS,
   S, inputStyle, labelStyle, cardStyle, btnPrimary, btnOutline, btnDanger, btnSm,
   Badge, Field, ProgressBar, EmptyState, Modal,
-  Timeline, CAL_MONTHS, CAL_DAYS, CalendarMonth, MiniCalendar,
+  CAL_MONTHS, CAL_DAYS, CalendarMonth,
   downloadCSV, generarImagenMes, BarChart, LineChart,
   FeedEntry, CosechaEntry,
 };

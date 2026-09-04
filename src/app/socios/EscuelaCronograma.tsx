@@ -27,7 +27,7 @@ export function EscuelaCronograma({
       {/* Header */}
       <div style={{ marginBottom: 16 }}>
         <h2 style={{ fontSize: 17, fontWeight: 800, margin: 0 }}>📅 Cronograma del programa</h2>
-        <p style={{ fontSize: 12, color: S.muted, margin: '4px 0 0' }}>5 semanas · haz clic en una semana para ver clases, plantillas y preguntas</p>
+        <p style={{ fontSize: 12, color: S.muted, margin: '4px 0 0' }}>5 semanas · haz clic en una semana para ver clases, plantillas y reflexión</p>
       </div>
 
       {/* Barra de progreso de semanas */}

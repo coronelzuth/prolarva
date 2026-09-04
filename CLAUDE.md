@@ -362,9 +362,9 @@ a5cc857  feat: port calculadora BSF a React con paleta de la app
 - ✅ **Modelo de datos:** `Lote.ajustes?: Record<string, number>` (etapaKey → día real de inicio). Helpers nuevos en `useSocios.ts`: `STAGE_BASE_STARTS`, `loteStarts(ajustes)`, `getStageLote(lote)` (etapa actual considerando ajustes). `updateLote` acepta `ajustes`. `LotesView` y `Dashboard` usan `getStageLote`.
 - ✅ **API `/api/socios/data`** — `lote.update` acepta y sanea `ajustes` (solo pares string→number). `loteToRow` solo manda la columna `ajustes` cuando hay algo (los flujos viejos siguen intactos aunque la migración no se haya corrido).
 - 🔻 **Eliminados de `_shared.tsx`:** `Timeline` y `MiniCalendar` (el grid de calendario mensual `CalendarMonth` se conserva y ahora lo usa `CicloVertical` con "📅 Ver en el calendario"). Único consumidor era `LoteDetail`.
-- 📌 **REQUIERE SQL antes de desplegar:** correr `supabase/lote-ajustes.sql` en Supabase → SQL Editor (`ALTER TABLE lotes ADD COLUMN ajustes JSONB DEFAULT '{}'`). Sin eso, la timeline funciona pero los ajustes no persisten en el servidor (solo en localStorage).
+- ✅ **SQL corrido** (`supabase/lote-ajustes.sql` — `ALTER TABLE lotes ADD COLUMN ajustes JSONB DEFAULT '{}'`, 2026-09-04).
 - ⚠️ **Fuera de alcance:** `readyLotes` / alertas de cosecha / push cron siguen usando el estimado base (día 22–28), no el ajustado. El ajuste por ahora solo mueve la vista del detalle + su calendario.
-- ✅ `tsc` limpio, `next build` OK. **Pendiente:** correr SQL + `vercel --prod --yes`.
+- ✅ `tsc` limpio, `next build` OK. **Commit `137d62d` (+ sesiones 23-23b bundled), push a GitHub, deploy prod `dpl_DVDaYb7KDW2MQcsT4LsdVp52WfaA` → prolarva.co (2026-09-04).** Nota: `vercel --prod --yes` dio "Not authorized" transitorio; funcionó con `vercel deploy --prod --yes`.
 
 **Cambios recientes (2026-09-03 — sesión 23b — Escuela: Foro + Preguntas → Comunidad):**
 - ✅ **Fusión Foro + Cajita de Preguntas** en un solo tab **`💬 Comunidad`** de la Escuela. Nuevo `EscuelaComunidad.tsx` (self-contained, absorbe `EscuelaForo.tsx` que se **eliminó**).

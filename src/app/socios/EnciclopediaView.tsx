@@ -47,17 +47,21 @@ export default function EnciclopediaView({ initialSection = 'inicio' }: { initia
         </p>
       </div>
 
-      {/* Tabs móvil */}
-      <div className="enc-mob-tabs">
-        {SECCIONES.map(s => (
-          <button
-            key={s.key}
-            className={`enc-mob-tab${sec === s.key ? ' enc-mob-tab-active' : ''}`}
-            onClick={() => setSec(s.key)}
-          >
-            {s.icon} {s.corto}
-          </button>
-        ))}
+      {/* Nav móvil — selector nativo (sin scroll horizontal) */}
+      <div className="enc-mob-nav">
+        {sec !== 'inicio' && (
+          <button className="enc-idx-btn" onClick={() => setSec('inicio')}>‹ Índice</button>
+        )}
+        <select
+          className="enc-sel"
+          value={sec}
+          onChange={e => setSec(e.target.value as EncSec)}
+        >
+          <option value="inicio">📚 Índice</option>
+          {SECCIONES.map(s => (
+            <option key={s.key} value={s.key}>{s.icon}  {s.label}</option>
+          ))}
+        </select>
       </div>
 
       <div className="enc-wrap">
@@ -134,22 +138,24 @@ export default function EnciclopediaView({ initialSection = 'inicio' }: { initia
           margin-right: 24px; position: sticky; top: 16px;
         }
         .enc-content { flex: 1; min-width: 0; }
-        .enc-mob-tabs { display: none; }
+        .enc-mob-nav { display: none; }
 
         @media (max-width: 860px) {
           .enc-nav { display: none; }
-          .enc-mob-tabs {
-            display: flex; overflow-x: auto; gap: 4px;
-            padding-bottom: 12px; margin-bottom: 4px;
-            scrollbar-width: none; -webkit-overflow-scrolling: touch;
+          .enc-mob-nav { display: flex; gap: 8px; margin-bottom: 16px; }
+          .enc-sel {
+            flex: 1; min-width: 0; padding: 10px 12px; border-radius: 8px;
+            background: rgba(21,32,53,0.85); color: #e2e8f0;
+            border: 1px solid rgba(34,197,94,0.25);
+            font-family: Montserrat, sans-serif; font-weight: 700; font-size: 13px;
+            -webkit-appearance: none; appearance: none;
           }
-          .enc-mob-tabs::-webkit-scrollbar { display: none; }
-          .enc-mob-tab {
-            flex-shrink: 0; padding: 7px 13px; border: none; border-radius: 7px;
-            font-family: Montserrat, sans-serif; font-weight: 700; font-size: 12px;
-            cursor: pointer; background: rgba(21,32,53,0.7); color: #94a3b8; white-space: nowrap;
+          .enc-idx-btn {
+            flex-shrink: 0; padding: 10px 14px; border-radius: 8px;
+            background: transparent; border: 1px solid rgba(34,197,94,0.25);
+            color: #94a3b8; font-family: Montserrat, sans-serif; font-weight: 700;
+            font-size: 12px; cursor: pointer; white-space: nowrap;
           }
-          .enc-mob-tab-active { background: rgba(34,197,94,0.14) !important; color: #4ade80 !important; }
         }
       `}</style>
     </div>

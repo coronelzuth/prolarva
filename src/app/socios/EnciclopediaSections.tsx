@@ -18,6 +18,54 @@ const sectionTitle: React.CSSProperties = { fontSize: 18, fontWeight: 900, margi
 const sectionIntro: React.CSSProperties = { fontSize: 13, color: S.muted, lineHeight: 1.65, marginBottom: 22, maxWidth: 620 };
 const label: React.CSSProperties = { fontSize: 11, fontWeight: 700, letterSpacing: '0.09em', textTransform: 'uppercase', color: '#64748b', marginBottom: 14 };
 
+// Índice de saltos para secciones largas
+function SectionTOC({ items }: { items: { id: string; label: string }[] }) {
+  return (
+    <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 22 }}>
+      {items.map(it => (
+        <button
+          key={it.id}
+          onClick={() => document.getElementById(it.id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+          style={{
+            padding: '5px 11px', borderRadius: 20, fontSize: 11, fontWeight: 700, cursor: 'pointer',
+            fontFamily: 'Montserrat, sans-serif', background: 'rgba(34,197,94,0.08)',
+            color: S.green2, border: '1px solid rgba(34,197,94,0.25)',
+          }}
+        >
+          {it.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+// Comparativa de 2 opciones — tarjetas apiladas (sin scroll horizontal)
+function TwoWayCompare({ a, b, rows }: {
+  a: { label: string; color: string };
+  b: { label: string; color: string };
+  rows: { criterio: string; a: string; b: string }[];
+}) {
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 24 }}>
+      {rows.map((r, i) => (
+        <div key={i} style={{ background: S.navy2, border: `1px solid ${S.border}`, borderRadius: 12, padding: '12px 14px' }}>
+          <div style={{ fontSize: 10.5, fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 9 }}>{r.criterio}</div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: 12 }}>
+            <div>
+              <div style={{ fontSize: 10, fontWeight: 700, color: a.color, marginBottom: 3 }}>{a.label}</div>
+              <div style={{ fontSize: 12, color: '#cbd5e1', lineHeight: 1.5 }}>{r.a}</div>
+            </div>
+            <div>
+              <div style={{ fontSize: 10, fontWeight: 700, color: b.color, marginBottom: 3 }}>{b.label}</div>
+              <div style={{ fontSize: 12, color: '#cbd5e1', lineHeight: 1.5 }}>{r.b}</div>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function Chips({ items, active, onPick }: { items: string[]; active: string; onPick: (v: string) => void }) {
   return (
     <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 18 }}>
@@ -241,11 +289,16 @@ export function CriaSection() {
         Del huevo a la primera cosecha en 18 días. Los 5 pasos de la Meta 1 (alimentar animales) y, después, los 2 pasos para cerrar el ciclo y producir tus propias moscas.
       </p>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+      <SectionTOC items={[
+        { id: 'cria-meta1', label: 'Meta 1 · 5 pasos' },
+        { id: 'cria-cerrado', label: '♻️ Cerrar el ciclo' },
+      ]} />
+
+      <div id="cria-meta1" style={{ display: 'flex', flexDirection: 'column', gap: 10, scrollMarginTop: 16 }}>
         {CRIA_PASOS.map(p => <PasoCard key={p.n} p={p} open={open === p.n} onToggle={() => setOpen(open === p.n ? null : p.n)} />)}
       </div>
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: 16, margin: '36px 0 20px' }}>
+      <div id="cria-cerrado" style={{ display: 'flex', alignItems: 'center', gap: 16, margin: '36px 0 20px', scrollMarginTop: 16 }}>
         <div style={{ flex: 1, height: 1, background: 'rgba(124,58,237,0.25)' }} />
         <div style={{ textAlign: 'center' }}>
           <div style={{ fontSize: 20 }}>♻️</div>
@@ -354,6 +407,13 @@ export function AlimentacionSection() {
         La larva come casi cualquier residuo orgánico, pero la calidad del sustrato define el tamaño, la proteína y el tiempo de producción.
       </p>
 
+      <SectionTOC items={[
+        { id: 'ali-si', label: '✅ Sustratos' },
+        { id: 'ali-no', label: '❌ Prohibido' },
+        { id: 'ali-etapas', label: 'Por etapa' },
+        { id: 'ali-proteina', label: '💪 Proteína' },
+      ]} />
+
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, marginBottom: 26 }}>
         {ALIMENTACION_REGLAS.map((r, i) => (
           <div key={i} style={{ flex: '1 1 180px', background: 'rgba(34,197,94,0.07)', border: '1px solid rgba(34,197,94,0.2)', borderRadius: 12, padding: '12px 14px' }}>
@@ -364,7 +424,7 @@ export function AlimentacionSection() {
         ))}
       </div>
 
-      <div style={label}>✅ Sustratos recomendados</div>
+      <div id="ali-si" style={{ ...label, scrollMarginTop: 16 }}>✅ Sustratos recomendados</div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 28 }}>
         {ALIMENTACION_SI.map((s, i) => {
           const c = NIVEL_COLOR[s.nivel];
@@ -384,7 +444,7 @@ export function AlimentacionSection() {
         })}
       </div>
 
-      <div style={label}>❌ Qué NO echar al criadero</div>
+      <div id="ali-no" style={{ ...label, scrollMarginTop: 16 }}>❌ Qué NO echar al criadero</div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 28 }}>
         {ALIMENTACION_NO.map((n, i) => (
           <div key={i} style={{ display: 'flex', gap: 14, background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.15)', borderRadius: 12, padding: '13px 15px' }}>
@@ -397,7 +457,7 @@ export function AlimentacionSection() {
         ))}
       </div>
 
-      <div style={label}>📊 Porciones y manejo por etapa</div>
+      <div id="ali-etapas" style={{ ...label, scrollMarginTop: 16 }}>📊 Porciones y manejo por etapa</div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginBottom: 28 }}>
         {ALIMENTACION_ETAPAS.map((e, i) => (
           <div key={i} style={{ background: S.navy2, border: `1px solid ${S.border}`, borderLeft: `4px solid ${e.emoji === '⏰' ? '#ef4444' : '#22c55e'}`, borderRadius: 14, overflow: 'hidden' }}>
@@ -425,10 +485,10 @@ export function AlimentacionSection() {
         ))}
       </div>
 
-      <div style={{ background: 'linear-gradient(135deg, rgba(168,85,247,0.08), rgba(59,130,246,0.08))', border: '1px solid rgba(168,85,247,0.2)', borderRadius: 16, padding: '20px 20px' }}>
+      <div id="ali-proteina" style={{ background: 'linear-gradient(135deg, rgba(168,85,247,0.08), rgba(59,130,246,0.08))', border: '1px solid rgba(168,85,247,0.2)', borderRadius: 16, padding: '20px 20px', scrollMarginTop: 16 }}>
         <div style={{ fontSize: 15, fontWeight: 800, color: '#f1f5f9', marginBottom: 6 }}>💪 Cómo subir la proteína de la larva</div>
         <p style={{ fontSize: 12.5, color: S.muted, lineHeight: 1.7, marginBottom: 16 }}>
-          La proteína del tejido de la larva va del 38% al 48% según lo que comió en los últimos días. La puedes "programar":
+          La proteína del tejido de la larva va del 38% al 48% según lo que comió en los últimos días. La puedes “programar”:
         </p>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
           {PROTEINA_NIVELES.map((p, i) => (
@@ -459,28 +519,20 @@ export function ProcesamientoSection() {
         Después de cosechar decides el formato. La larva viva es inmediata y sin equipo; la harina dura meses y se vende. Muchos productores hacen las dos: viva para sus animales, harina con el excedente.
       </p>
 
-      <div style={{ overflowX: 'auto', marginBottom: 24 }}>
-        <table style={{ width: '100%', minWidth: 460, borderCollapse: 'collapse', fontSize: 12 }}>
-          <thead>
-            <tr>
-              <th style={thStyle}></th>
-              <th style={{ ...thStyle, color: '#f59e0b' }}>🐛 Larva viva</th>
-              <th style={{ ...thStyle, color: '#10b981' }}>🌾 Harina seca</th>
-            </tr>
-          </thead>
-          <tbody>
-            {PROCESAMIENTO_COMPARATIVA.map((row, i) => (
-              <tr key={i} style={{ borderTop: `1px solid ${S.border}` }}>
-                <td style={{ ...tdStyle, color: '#64748b', fontWeight: 700 }}>{row.criterio}</td>
-                <td style={tdStyle}>{row.viva}</td>
-                <td style={tdStyle}>{row.harina}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <SectionTOC items={[
+        { id: 'proc-compara', label: 'Comparativa' },
+        { id: 'proc-detalle', label: 'Paso a paso' },
+      ]} />
+
+      <div id="proc-compara" style={{ scrollMarginTop: 16 }}>
+        <TwoWayCompare
+          a={{ label: '🐛 Larva viva', color: '#f59e0b' }}
+          b={{ label: '🌾 Harina seca', color: '#10b981' }}
+          rows={PROCESAMIENTO_COMPARATIVA.map(r => ({ criterio: r.criterio, a: r.viva, b: r.harina }))}
+        />
       </div>
 
-      <div style={{ display: 'flex', gap: 8, marginBottom: 18 }}>
+      <div id="proc-detalle" style={{ display: 'flex', gap: 8, marginBottom: 18, scrollMarginTop: 16 }}>
         {PROCESAMIENTO.map(x => (
           <button
             key={x.id}
@@ -538,9 +590,6 @@ export function ProcesamientoSection() {
   );
 }
 
-const thStyle: React.CSSProperties = { textAlign: 'left', padding: '8px 10px', fontSize: 11, fontWeight: 800, fontFamily: 'Montserrat, sans-serif' };
-const tdStyle: React.CSSProperties = { padding: '9px 10px', color: '#cbd5e1', lineHeight: 1.5, verticalAlign: 'top' };
-
 // ═══ 6. LOW COST ══════════════════════════════════════════════════════════
 
 const DIF_COLOR: Record<string, string> = { 'Muy fácil': '#22c55e', 'Fácil': '#4ade80', 'Media': '#f59e0b' };
@@ -556,7 +605,13 @@ export function LowCostSection() {
         aprovechando que la prepupa migra sola. La única inversión que importa es la semilla.
       </p>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 26 }}>
+      <SectionTOC items={[
+        { id: 'lc-sistemas', label: 'Sistemas' },
+        { id: 'lc-compara', label: 'Comparativa' },
+        { id: 'lc-trucos', label: '💡 Trucos' },
+      ]} />
+
+      <div id="lc-sistemas" style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 26, scrollMarginTop: 16 }}>
         {LOWCOST_SISTEMAS.map(s => {
           const on = open === s.id;
           const dc = DIF_COLOR[s.dificultad];
@@ -581,18 +636,16 @@ export function LowCostSection() {
                   <p style={{ fontSize: 12.5, color: '#cbd5e1', lineHeight: 1.7, marginBottom: 14 }}>{s.principio}</p>
 
                   <div style={{ fontSize: 10, fontWeight: 700, color: '#94a3b8', marginBottom: 8, letterSpacing: '0.06em' }}>🧰 MATERIALES</div>
-                  <div style={{ overflowX: 'auto', marginBottom: 14 }}>
-                    <table style={{ width: '100%', minWidth: 380, borderCollapse: 'collapse', fontSize: 11.5 }}>
-                      <tbody>
-                        {s.materiales.map((m, i) => (
-                          <tr key={i} style={{ borderTop: `1px solid ${S.border}` }}>
-                            <td style={{ padding: '7px 8px', color: '#f1f5f9', fontWeight: 600 }}>{m.item}</td>
-                            <td style={{ padding: '7px 8px', color: '#94a3b8' }}>{m.spec}</td>
-                            <td style={{ padding: '7px 8px', color: '#4ade80', fontWeight: 700, whiteSpace: 'nowrap' }}>{m.costo}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 7, marginBottom: 14 }}>
+                    {s.materiales.map((m, i) => (
+                      <div key={i} style={{ display: 'flex', justifyContent: 'space-between', gap: 10, alignItems: 'baseline', borderBottom: `1px solid ${S.border}`, paddingBottom: 7, fontSize: 11.5 }}>
+                        <div style={{ minWidth: 0 }}>
+                          <span style={{ color: '#f1f5f9', fontWeight: 600 }}>{m.item}</span>
+                          <span style={{ color: '#64748b' }}> · {m.spec}</span>
+                        </div>
+                        <span style={{ color: '#4ade80', fontWeight: 700, whiteSpace: 'nowrap', flexShrink: 0 }}>{m.costo}</span>
+                      </div>
+                    ))}
                   </div>
 
                   <div style={{ fontSize: 10, fontWeight: 700, color: '#4ade80', marginBottom: 8, letterSpacing: '0.06em' }}>🔧 CONSTRUCCIÓN Y USO</div>
@@ -611,28 +664,35 @@ export function LowCostSection() {
         })}
       </div>
 
-      <div style={label}>Comparativa rápida</div>
-      <div style={{ overflowX: 'auto', marginBottom: 24 }}>
-        <table style={{ width: '100%', minWidth: 560, borderCollapse: 'collapse', fontSize: 11.5 }}>
-          <thead>
-            <tr>{['Sistema', 'Animal', 'Inversión', 'Mantenim.', 'Produce', 'Dificultad'].map(h => <th key={h} style={thStyle}>{h}</th>)}</tr>
-          </thead>
-          <tbody>
-            {LOWCOST_COMPARATIVA.map((r, i) => (
-              <tr key={i} style={{ borderTop: `1px solid ${S.border}` }}>
-                <td style={{ ...tdStyle, color: '#f1f5f9', fontWeight: 600 }}>{r.sistema}</td>
-                <td style={tdStyle}>{r.animal}</td>
-                <td style={{ ...tdStyle, color: '#4ade80', fontWeight: 700 }}>{r.inversion}</td>
-                <td style={tdStyle}>{r.mantenimiento}</td>
-                <td style={tdStyle}>{r.produccion}</td>
-                <td style={tdStyle}>{r.dificultad}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <div id="lc-compara" style={{ ...label, scrollMarginTop: 16 }}>Comparativa rápida</div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: 10, marginBottom: 24 }}>
+        {LOWCOST_COMPARATIVA.map((r, i) => {
+          const dc = DIF_COLOR[r.dificultad] ?? S.muted;
+          return (
+            <div key={i} style={{ background: S.navy2, border: `1px solid ${S.border}`, borderRadius: 12, padding: '13px 15px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginBottom: 10 }}>
+                <span style={{ fontSize: 13, fontWeight: 800, color: '#f1f5f9' }}>{r.sistema}</span>
+                <span style={{ fontSize: 9, fontWeight: 800, padding: '2px 8px', borderRadius: 6, background: `${dc}18`, color: dc, flexShrink: 0, textTransform: 'uppercase' }}>{r.dificultad}</span>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(96px, 1fr))', gap: 9 }}>
+                {[
+                  ['Animal', r.animal],
+                  ['Inversión', r.inversion],
+                  ['Mantenim.', r.mantenimiento],
+                  ['Produce', r.produccion],
+                ].map(([k, v], j) => (
+                  <div key={j}>
+                    <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase', color: '#64748b', marginBottom: 2 }}>{k}</div>
+                    <div style={{ fontSize: 11.5, fontWeight: 600, color: k === 'Inversión' ? '#4ade80' : '#cbd5e1', lineHeight: 1.4 }}>{v}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          );
+        })}
       </div>
 
-      <div style={{ background: 'rgba(34,197,94,0.07)', border: '1px solid rgba(34,197,94,0.2)', borderRadius: 14, padding: '16px 18px' }}>
+      <div id="lc-trucos" style={{ background: 'rgba(34,197,94,0.07)', border: '1px solid rgba(34,197,94,0.2)', borderRadius: 14, padding: '16px 18px', scrollMarginTop: 16 }}>
         <div style={{ fontSize: 12, fontWeight: 800, color: S.green2, marginBottom: 10 }}>💡 Trucos para gastar aún menos</div>
         {LOWCOST_TIPS.map((t, i) => (
           <div key={i} style={{ display: 'flex', gap: 8, marginBottom: 6, fontSize: 12, color: '#94a3b8', lineHeight: 1.6 }}><span style={{ color: '#22c55e', flexShrink: 0 }}>✓</span><span>{t}</span></div>

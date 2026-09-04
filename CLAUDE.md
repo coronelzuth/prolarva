@@ -366,6 +366,11 @@ a5cc857  feat: port calculadora BSF a React con paleta de la app
   - **Protocolo Anti-Crisis** → descartable (✕ → `localStorage prl-proto-dismissed`).
   - Subtítulo del home = fecha real ("Jueves, 3 de septiembre").
   - ⏭️ **Pendiente (no hecho):** banner de próxima clase en vivo con countdown en el home — necesita levantar `useEscuela` a `page.tsx` o un endpoint (config_escuela está cerrado a la anon key).
+- ✅ **Enciclopedia (Wiki) — pase de UX (parte 1):**
+  - **Sin scroll horizontal:** las 3 tablas comparativas (Procesamiento `TwoWayCompare`, Low cost comparativa + materiales) pasaron de `<table overflow-x>` a **tarjetas apiladas**. Se eliminaron `thStyle`/`tdStyle`.
+  - **Secciones largas con índice:** nuevo `SectionTOC` (chips de salto con `scrollIntoView`) + anclas `id`+`scrollMarginTop` en Alimentación (4), Low cost (3), Cría (2), Procesamiento (2).
+  - **Nav móvil:** el strip horizontal de 9 tabs (`enc-mob-tabs`) → **`<select>` nativo** + botón "‹ Índice". Sidebar desktop sin cambios. `SECCIONES[].corto` quedó sin uso.
+  - ⏭️ **Pendiente Wiki (parte 2):** deep-link `?sec=` al cambiar sección, pulido del modal de "El ciclo" (scroll-lock + `✕`), regex de acentos del buscador, búsqueda global.
 - ✅ **Escuela — pestaña "🎯 Mi Meta" eliminada.** Las rutas de producción ya viven en la Enciclopedia (Wiki → `sec=rutas`). Se quitó el sub-tab `metas` de `EscuelaView` (sidebar + mobile tabs + bloque de contenido) y el valor `'metas'` de `EscuelaSub` en `_escuela_shared.tsx`.
 - ✅ **`LotesView.tsx` — tabla → tarjetas verticales.** La lista de lotes del Monitor era una `<table>` con **scroll horizontal en móvil**; ahora es un grid de tarjetas (`minmax(300px,1fr)`). Cada tarjeta: nombre + estado, "Sembrado … · Día N", mini-stepper de 5 etapas (barras + emojis, actual resaltada), "etapa N de 5", sustrato y botones Ver/Eliminar. Toda la tarjeta es tappable → detalle.
 - ✅ **Nuevo `src/app/socios/CicloVertical.tsx`** — reemplaza la línea de tiempo **horizontal con scroll** del detalle de lote por un **stepper vertical** (5 etapas de arriba hacia abajo). Riel con nodos ✓/●/○, línea que se rellena según el avance, la etapa actual resaltada en tarjeta verde con "● Ahora · día X de Y". Cada etapa muestra su rango de fechas real calculado. Sin scroll horizontal en ningún lado.

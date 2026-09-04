@@ -357,6 +357,15 @@ a5cc857  feat: port calculadora BSF a React con paleta de la app
 **Última actualización:** 2026-09-04
 
 **Cambios recientes (2026-09-04 — sesión 24 — Timeline vertical del ciclo + ajuste de estimación):**
+- ✅ **Home (Dashboard) — pase de UX:**
+  - **Consistencia con el timeline:** las alertas de cosecha (🚨/⚖️/⏳) y el stat "Listos para cosechar" ya **respetan los ajustes** del lote. Nuevos helpers en `useSocios.ts`: `cosechaEstado(lote)` (`lejos|proximo|listo|vencido`) y `diasHastaCosecha(lote)`. `readyLotes` usa `cosechaEstado === 'listo'`. También aplica al aviso del home público (`src/app/page.tsx`).
+  - **`LoteCard.tsx`** (nuevo) — tarjeta de lote única para `LotesView` (con footer Ver/Eliminar). Exporta `StageStepper` (5 segmentos + emojis), reusado en el bloque "Lotes en curso" del home (versión pill compacta, `size="sm"`). Se acabó tener 2-3 diseños para "en qué etapa va".
+  - **Stat cards tappables** → Monitor (Activos/Listos) o Estadísticas (Cosechado/Conversión). Prop nueva `onNavMonitor(sub)` en Dashboard.
+  - **Acción rápida en alertas:** botón "Cosechar" abre `ModalCosecha` **con el lote preseleccionado** (`prefillLoteId` + `key` remount, patrón de `ModalAlimentacion`). "⏳ Alimentar" abre alimentación prefill.
+  - **"Actividad reciente"** → colapsable (cerrada por defecto, muestra el conteo).
+  - **Protocolo Anti-Crisis** → descartable (✕ → `localStorage prl-proto-dismissed`).
+  - Subtítulo del home = fecha real ("Jueves, 3 de septiembre").
+  - ⏭️ **Pendiente (no hecho):** banner de próxima clase en vivo con countdown en el home — necesita levantar `useEscuela` a `page.tsx` o un endpoint (config_escuela está cerrado a la anon key).
 - ✅ **Escuela — pestaña "🎯 Mi Meta" eliminada.** Las rutas de producción ya viven en la Enciclopedia (Wiki → `sec=rutas`). Se quitó el sub-tab `metas` de `EscuelaView` (sidebar + mobile tabs + bloque de contenido) y el valor `'metas'` de `EscuelaSub` en `_escuela_shared.tsx`.
 - ✅ **`LotesView.tsx` — tabla → tarjetas verticales.** La lista de lotes del Monitor era una `<table>` con **scroll horizontal en móvil**; ahora es un grid de tarjetas (`minmax(300px,1fr)`). Cada tarjeta: nombre + estado, "Sembrado … · Día N", mini-stepper de 5 etapas (barras + emojis, actual resaltada), "etapa N de 5", sustrato y botones Ver/Eliminar. Toda la tarjeta es tappable → detalle.
 - ✅ **Nuevo `src/app/socios/CicloVertical.tsx`** — reemplaza la línea de tiempo **horizontal con scroll** del detalle de lote por un **stepper vertical** (5 etapas de arriba hacia abajo). Riel con nodos ✓/●/○, línea que se rellena según el avance, la etapa actual resaltada en tarjeta verde con "● Ahora · día X de Y". Cada etapa muestra su rango de fechas real calculado. Sin scroll horizontal en ningún lado.

@@ -144,6 +144,29 @@ export function getStageLote(lote: { fecha: string; ajustes?: Record<string, num
   return { ...BSF_STAGES[idx], idx, starts, day };
 }
 
+/**
+ * Clasificación de un lote respecto a la ventana de cosecha, considerando los
+ * ajustes manuales del socio (la fuente de verdad para las alertas del Home y
+ * el stat "Listos para cosechar").
+ *   'lejos'   — todavía falta
+ *   'proximo' — a ≤4 días de entrar a la ventana
+ *   'listo'   — en la ventana óptima (etapa Prepupa/Cosecha)
+ *   'vencido' — ya se pasó
+ */
+export function cosechaEstado(lote: { fecha: string; ajustes?: Record<string, number> }): 'lejos' | 'proximo' | 'listo' | 'vencido' {
+  const s = getStageLote(lote);
+  if (s.idx >= 4) return 'vencido';
+  if (s.idx === 3) return 'listo';
+  if (s.idx === 2 && s.starts[3] - s.day <= 4) return 'proximo';
+  return 'lejos';
+}
+
+/** Días (efectivos) hasta que el lote entra a la ventana de cosecha. Negativo = ya pasó. */
+export function diasHastaCosecha(lote: { fecha: string; ajustes?: Record<string, number> }): number {
+  const s = getStageLote(lote);
+  return s.starts[3] - s.day;
+}
+
 export function uid(): string {
   return Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
 }
@@ -568,7 +591,7 @@ export function useSocios() {
   // ─── Computed ──────────────────────────────────────────────────────────────
 
   const activeLotes = lotes.filter(l => daysSince(l.fecha) <= 32);
-  const readyLotes  = lotes.filter(l => { const d = daysSince(l.fecha); return d >= 22 && d <= 28; });
+  const readyLotes  = lotes.filter(l => cosechaEstado(l) === 'listo');
   const totalKg     = cosechas.reduce((a, c) => a + c.peso, 0);
   const convs       = cosechas.filter(c => c.sustratoTotal > 0).map(c => (c.peso / c.sustratoTotal) * 100);
   const avgConv     = convs.length ? convs.reduce((a, b) => a + b, 0) / convs.length : null;

@@ -59,11 +59,12 @@ function SociosInner() {
   const [toast,            setToast]            = useState('');
 
   // Modal states
-  const [modalLote,     setModalLote]     = useState(false);
-  const [modalFeed,     setModalFeed]     = useState(false);
-  const [modalCosecha,  setModalCosecha]  = useState(false);
-  const [prefillLoteId, setPrefillLoteId] = useState<string | null>(null);
-  const [editLote,      setEditLote]      = useState<{ id: string; nombre: string; fecha: string } | null>(null);
+  const [modalLote,       setModalLote]       = useState(false);
+  const [modalFeed,       setModalFeed]       = useState(false);
+  const [modalCosecha,    setModalCosecha]    = useState(false);
+  const [prefillLoteId,   setPrefillLoteId]   = useState<string | null>(null);
+  const [cosechaPrefill,  setCosechaPrefill]  = useState<string | null>(null);
+  const [editLote,        setEditLote]        = useState<{ id: string; nombre: string; fecha: string } | null>(null);
 
   function showToast(msg: string) { setToast(msg); setTimeout(() => setToast(''), 2000); }
 
@@ -141,7 +142,7 @@ function SociosInner() {
 
         <div className="socios-content">
           {view === 'dashboard' && (
-            <Dashboard lotes={db.lotes} feeds={db.feeds} cosechas={db.cosechas} activeLotes={db.activeLotes} readyLotes={db.readyLotes} recordatorios={db.recordatorios} totalKg={db.totalKg} avgConv={db.avgConv} userName={db.session.name} anuncio={anuncio} sinEmail={db.session.code !== 'DEMO' && !db.session.email} onViewLote={viewLote} onNav={navTo} onVerProtocolo={() => setShowProtocolo(true)} />
+            <Dashboard lotes={db.lotes} feeds={db.feeds} cosechas={db.cosechas} activeLotes={db.activeLotes} readyLotes={db.readyLotes} recordatorios={db.recordatorios} totalKg={db.totalKg} avgConv={db.avgConv} userName={db.session.name} anuncio={anuncio} sinEmail={db.session.code !== 'DEMO' && !db.session.email} onViewLote={viewLote} onNav={navTo} onNavMonitor={(sub) => { setMonitorSub(sub); navTo('monitor'); }} onCosechar={(id) => { setCosechaPrefill(id); setModalCosecha(true); }} onAlimentar={openFeed} onVerProtocolo={() => setShowProtocolo(true)} />
           )}
           {view === 'monitor' && (
             <MonitorView fasesAprobadas={db.session?.fases_aprobadas ?? 0} isAdmin={db.session?.rol === 'admin'} monitorSub={monitorSub} onSubChange={setMonitorSub} lotes={db.lotes} feeds={db.feeds} onViewLote={viewLote} onNewLote={() => setModalLote(true)} onDeleteLote={db.deleteLote} cosechas={db.cosechas} totalKg={db.totalKg} avgConv={db.avgConv} />
@@ -188,9 +189,11 @@ function SociosInner() {
         onSave={async (data) => { await db.addFeed(data as FeedLog); showToast('✅ Alimentación registrada'); }}
       />
       <ModalCosecha
+        key={cosechaPrefill ?? 'none'}
         open={modalCosecha}
         lotes={db.lotes}
-        onClose={() => setModalCosecha(false)}
+        prefillLoteId={cosechaPrefill}
+        onClose={() => { setModalCosecha(false); setCosechaPrefill(null); }}
         onSave={async (data) => { await db.addCosecha(data as Cosecha); showToast('✅ Cosecha registrada'); }}
       />
 

@@ -1,36 +1,55 @@
-﻿'use client';
+'use client';
 import { useState } from 'react';
-import { daysSince, getStageLote, type Lote, type FeedLog, type Cosecha, type Recordatorio } from '@/hooks/useSocios';
-import { S, cardStyle, btnOutline, btnSm, btnPrimary, btnDanger, EmptyState, ProgressBar, FeedEntry, CosechaEntry, type View } from './_shared';
+import { daysSince, getStageLote, cosechaEstado, diasHastaCosecha, type Lote, type FeedLog, type Cosecha, type Recordatorio } from '@/hooks/useSocios';
+import { S, cardStyle, btnOutline, btnSm, btnPrimary, btnDanger, EmptyState, FeedEntry, CosechaEntry, type View } from './_shared';
+import { StageStepper } from './LoteCard';
 
-function Dashboard({ lotes, feeds, cosechas, activeLotes, readyLotes, recordatorios, totalKg, avgConv, userName, anuncio, sinEmail, onViewLote, onNav, onVerProtocolo }: {
+function Dashboard({ lotes, feeds, cosechas, activeLotes, readyLotes, recordatorios, totalKg, avgConv, userName, anuncio, sinEmail, onViewLote, onNav, onNavMonitor, onCosechar, onAlimentar, onVerProtocolo }: {
   lotes: Lote[]; feeds: FeedLog[]; cosechas: Cosecha[];
   activeLotes: Lote[]; readyLotes: Lote[]; recordatorios: Recordatorio[];
   totalKg: number; avgConv: number | null; userName: string;
   anuncio?: string | null;
   sinEmail?: boolean;
   onViewLote: (id: string) => void; onNav: (v: View) => void;
+  onNavMonitor?: (sub: 'lotes' | 'stats') => void;
+  onCosechar: (loteId: string) => void;
+  onAlimentar: (loteId: string) => void;
   onVerProtocolo?: () => void;
 }) {
-  const statCard = (num: string, label: string, accent: string) => (
-    <div style={{ background: S.card, border: `1px solid ${S.border}`, borderRadius: 10, padding: '9px 11px' }}>
+  const [anuncioDismissed, setAnuncioDismissed] = useState(false);
+  const [showActividad,    setShowActividad]    = useState(false);
+  const [protoDismissed,   setProtoDismissed]   = useState(() => {
+    try { return localStorage.getItem('prl-proto-dismissed') === '1'; } catch { return false; }
+  });
+  const [hoy] = useState(() => {
+    const s = new Date().toLocaleDateString('es-CO', { weekday: 'long', day: 'numeric', month: 'long' });
+    return s.charAt(0).toUpperCase() + s.slice(1);
+  });
+
+  const irMonitor = (sub: 'lotes' | 'stats') => (onNavMonitor ? onNavMonitor(sub) : onNav('monitor'));
+
+  const statCard = (num: string, label: string, accent: string, onClick?: () => void) => (
+    <div onClick={onClick} style={{ background: S.card, border: `1px solid ${S.border}`, borderRadius: 10, padding: '9px 11px', cursor: onClick ? 'pointer' : 'default' }}>
       <div style={{ fontSize: 18, fontWeight: 800, color: accent, lineHeight: 1.15 }}>{num}</div>
       <div style={{ fontSize: 10, color: S.muted, marginTop: 1, fontWeight: 600, lineHeight: 1.3 }}>{label}</div>
     </div>
   );
 
-  // Clasificar lotes por urgencia de cosecha
-  const lotesVencidos  = lotes.filter(l => daysSince(l.fecha) > 28);
-  const lotesUrgentes  = lotes.filter(l => { const d = daysSince(l.fecha); return d >= 22 && d <= 28; });
-  const lotesPróximos  = lotes.filter(l => { const d = daysSince(l.fecha); return d >= 18 && d < 22; });
+  // Clasificación de cosecha — usa las etapas efectivas (respeta los ajustes del timeline)
+  const lotesVencidos = lotes.filter(l => cosechaEstado(l) === 'vencido');
+  const lotesUrgentes = lotes.filter(l => cosechaEstado(l) === 'listo');
+  const lotesPróximos = lotes.filter(l => cosechaEstado(l) === 'proximo');
 
-  const [anuncioDismissed, setAnuncioDismissed] = useState(false);
+  function dismissProto() {
+    try { localStorage.setItem('prl-proto-dismissed', '1'); } catch {}
+    setProtoDismissed(true);
+  }
 
   return (
     <div>
-      <div style={{ marginBottom: 28 }}>
+      <div style={{ marginBottom: 24 }}>
         <h1 style={{ fontSize: 22, fontWeight: 900 }}>¡Hola, {userName.split(' ')[0]}! 🪲</h1>
-        <p style={{ color: S.muted, fontSize: 13, marginTop: 4 }}>Resumen de tu producción BSF de hoy</p>
+        <p style={{ color: S.muted, fontSize: 13, marginTop: 4 }}>{hoy}</p>
       </div>
 
       {/* Banner sin email */}
@@ -70,50 +89,50 @@ function Dashboard({ lotes, feeds, cosechas, activeLotes, readyLotes, recordator
         </div>
       )}
 
-      {/* Notificaciones — vencidos primero */}
+      {/* ── Alertas de cosecha — vencidos primero ── */}
       {lotesVencidos.map(l => {
-        const d = daysSince(l.fecha);
+        const s = getStageLote(l);
         return (
           <div key={l.id} onClick={() => onViewLote(l.id)} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', borderRadius: 12, background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.35)', marginBottom: 10, cursor: 'pointer' }}>
             <span style={{ fontSize: 22 }}>🚨</span>
-            <div style={{ flex: 1 }}>
+            <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ fontSize: 13, fontWeight: 700, color: S.red }}>{l.nombre} — ¡Ventana de cosecha vencida!</div>
-              <div style={{ fontSize: 11, color: S.muted, marginTop: 2 }}>Día {d} — ya pasaron los 28 días óptimos. Las larvas se están encapando.</div>
+              <div style={{ fontSize: 11, color: S.muted, marginTop: 2 }}>Día {s.day} — ya pasó la ventana óptima. Las larvas se están encapando.</div>
             </div>
-            <button onClick={e => { e.stopPropagation(); onViewLote(l.id); }} style={{ ...btnDanger, flexShrink: 0, fontSize: 11 }}>Registrar igual</button>
+            <button onClick={e => { e.stopPropagation(); onCosechar(l.id); }} style={{ ...btnDanger, flexShrink: 0, fontSize: 11 }}>Registrar igual</button>
           </div>
         );
       })}
 
       {lotesUrgentes.map(l => {
-        const d = daysSince(l.fecha);
+        const s = getStageLote(l);
         return (
           <div key={l.id} onClick={() => onViewLote(l.id)} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', borderRadius: 12, background: 'rgba(16,185,129,0.09)', border: '1.5px solid rgba(16,185,129,0.4)', marginBottom: 10, cursor: 'pointer' }}>
             <span style={{ fontSize: 22 }}>⚖️</span>
-            <div style={{ flex: 1 }}>
+            <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ fontSize: 13, fontWeight: 700, color: S.green2 }}>{l.nombre} — ¡Lista para cosechar!</div>
-              <div style={{ fontSize: 11, color: S.muted, marginTop: 2 }}>Día {d} de 28 — estás en la ventana óptima. No esperes más.</div>
+              <div style={{ fontSize: 11, color: S.muted, marginTop: 2 }}>Día {s.day} — estás en la ventana óptima. No esperes más.</div>
             </div>
-            <button onClick={e => { e.stopPropagation(); onViewLote(l.id); }} style={{ ...btnPrimary, ...btnSm, flexShrink: 0, fontSize: 11 }}>Registrar cosecha</button>
+            <button onClick={e => { e.stopPropagation(); onCosechar(l.id); }} style={{ ...btnPrimary, ...btnSm, flexShrink: 0, fontSize: 11 }}>Cosechar</button>
           </div>
         );
       })}
 
       {lotesPróximos.map(l => {
-        const d = daysSince(l.fecha);
-        const diasRestantes = 22 - d;
+        const restan = Math.max(1, diasHastaCosecha(l));
         return (
           <div key={l.id} onClick={() => onViewLote(l.id)} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', borderRadius: 12, background: 'rgba(245,158,11,0.07)', border: '1px solid rgba(245,158,11,0.3)', marginBottom: 10, cursor: 'pointer' }}>
             <span style={{ fontSize: 22 }}>⏳</span>
-            <div style={{ flex: 1 }}>
-              <div style={{ fontSize: 13, fontWeight: 700, color: S.amber }}>{l.nombre} — Cosecha en {diasRestantes} día{diasRestantes !== 1 ? 's' : ''}</div>
-              <div style={{ fontSize: 11, color: S.muted, marginTop: 2 }}>Día {d} — prepárate. Alista tu colador, báscula y canastas.</div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: 13, fontWeight: 700, color: S.amber }}>{l.nombre} — Cosecha en {restan} día{restan !== 1 ? 's' : ''}</div>
+              <div style={{ fontSize: 11, color: S.muted, marginTop: 2 }}>Alista tu colador, báscula y canastas.</div>
             </div>
+            <button onClick={e => { e.stopPropagation(); onAlimentar(l.id); }} style={{ ...btnOutline, ...btnSm, flexShrink: 0, fontSize: 11 }}>🌿 Alimentar</button>
           </div>
         );
       })}
 
-      {/* Recordatorios — todos los pendientes */}
+      {/* ── Recordatorios ── */}
       {(() => {
         const acciones = recordatorios
           .filter(r => !r.completado)
@@ -128,8 +147,8 @@ function Dashboard({ lotes, feeds, cosechas, activeLotes, readyLotes, recordator
 
         if (acciones.length === 0) return null;
 
-        const urgentes  = acciones.filter(a => a.diff <= 0);
-        const proximas  = acciones.filter(a => a.diff > 0);
+        const urgentes = acciones.filter(a => a.diff <= 0);
+        const proximas = acciones.filter(a => a.diff > 0);
 
         return (
           <div style={{ ...cardStyle, marginBottom: 20 }}>
@@ -174,101 +193,85 @@ function Dashboard({ lotes, feeds, cosechas, activeLotes, readyLotes, recordator
         );
       })()}
 
+      {/* ── Stats (tappables) ── */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(128px,1fr))', gap: 8, marginBottom: 18 }}>
-        {statCard(String(activeLotes.length), 'Lotes activos', S.green)}
-        {statCard(String(readyLotes.length),  'Listos para cosechar', S.emerald)}
-        {statCard(totalKg.toFixed(1) + ' kg', 'Total cosechado', S.amber)}
-        {statCard(avgConv ? avgConv.toFixed(1) + '%' : '—', 'Conversión promedio', '#38bdf8')}
+        {statCard(String(activeLotes.length), 'Lotes activos', S.green, () => irMonitor('lotes'))}
+        {statCard(String(readyLotes.length),  'Listos para cosechar', S.emerald, () => irMonitor('lotes'))}
+        {statCard(totalKg.toFixed(1) + ' kg', 'Total cosechado', S.amber, () => irMonitor('stats'))}
+        {statCard(avgConv ? avgConv.toFixed(1) + '%' : '—', 'Conversión promedio', '#38bdf8', () => irMonitor('stats'))}
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(280px,1fr))', gap: 20 }}>
-        <div style={cardStyle}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
+      {/* ── Lotes en curso ── */}
+      {lotes.length > 0 && (
+        <div style={{ marginBottom: 20 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
             <h3 style={{ fontSize: 13, fontWeight: 700 }}>Lotes en curso</h3>
-            <button style={{ ...btnOutline, ...btnSm }} onClick={() => onNav('monitor')}>Ver todos</button>
+            <button style={{ ...btnOutline, ...btnSm }} onClick={() => irMonitor('lotes')}>Ver todos</button>
           </div>
           {activeLotes.length === 0 ? (
-            <EmptyState icon="📦" text="No hay lotes activos todavía" />
+            <div style={cardStyle}><EmptyState icon="📦" text="No hay lotes activos todavía" /></div>
           ) : (
-            activeLotes.map(l => {
-              const d = daysSince(l.fecha);
-              const stage = getStageLote(l);
-              const pct = Math.min(Math.round((d / 28) * 100), 100);
-              return (
-                <div key={l.id} onClick={() => onViewLote(l.id)} style={{ marginBottom: 10, padding: '10px 12px', background: S.navy2, borderRadius: 10, cursor: 'pointer' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
-                    <strong style={{ fontSize: 13 }}>{l.nombre}</strong>
-                    <span style={{ fontSize: 11, color: S.muted }}>Día {d} · {stage.icon} {stage.name}</span>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 8 }}>
+              {activeLotes.map(l => {
+                const d = daysSince(l.fecha);
+                const stage = getStageLote(l);
+                return (
+                  <div key={l.id} onClick={() => onViewLote(l.id)} style={{ padding: '10px 12px', background: S.navy2, borderRadius: 10, cursor: 'pointer', display: 'flex', flexDirection: 'column', gap: 7 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 8 }}>
+                      <strong style={{ fontSize: 13, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{l.nombre}</strong>
+                      <span style={{ fontSize: 11, color: S.muted, flexShrink: 0 }}>Día {d} · {stage.icon} {stage.name}</span>
+                    </div>
+                    <StageStepper idx={stage.idx} size="sm" />
                   </div>
-                  <ProgressBar pct={pct} />
-                </div>
-              );
-            })
+                );
+              })}
+            </div>
           )}
         </div>
+      )}
 
-        <div style={cardStyle}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
-            <h3 style={{ fontSize: 13, fontWeight: 700 }}>Actividad reciente</h3>
-            <button style={{ ...btnOutline, ...btnSm }} onClick={() => onNav('monitor')}>Ver mis lotes</button>
+      {/* ── Actividad reciente (colapsable) ── */}
+      {(feeds.length > 0 || cosechas.length > 0) && (() => {
+        const items = [
+          ...feeds.map(f => ({ type: 'feed' as const, fecha: f.fecha, data: f })),
+          ...cosechas.map(c => ({ type: 'cosecha' as const, fecha: c.fecha, data: c })),
+        ].sort((a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime());
+        return (
+          <div style={{ ...cardStyle, marginBottom: 20 }}>
+            <div onClick={() => setShowActividad(v => !v)} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer' }}>
+              <h3 style={{ fontSize: 13, fontWeight: 700 }}>Actividad reciente <span style={{ color: S.muted, fontWeight: 500 }}>· {items.length}</span></h3>
+              <span style={{ color: S.muted, fontSize: 12 }}>{showActividad ? '▲' : '▼'}</span>
+            </div>
+            {showActividad && (
+              <div style={{ marginTop: 14 }}>
+                {items.slice(0, 6).map(item =>
+                  item.type === 'feed'
+                    ? <FeedEntry key={`f-${item.data.id}`} feed={item.data as FeedLog} lotes={lotes} />
+                    : <CosechaEntry key={`c-${item.data.id}`} cosecha={item.data as Cosecha} lotes={lotes} />
+                )}
+              </div>
+            )}
           </div>
-          {feeds.length === 0 && cosechas.length === 0 ? (
-            <EmptyState icon="🌿" text="Sin actividad registrada todavía" />
-          ) : (() => {
-            const items = [
-              ...feeds.map(f => ({ type: 'feed' as const, fecha: f.fecha, data: f })),
-              ...cosechas.map(c => ({ type: 'cosecha' as const, fecha: c.fecha, data: c })),
-            ].sort((a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime()).slice(0, 3);
-            return items.map(item =>
-              item.type === 'feed'
-                ? <FeedEntry key={`f-${item.data.id}`} feed={item.data as FeedLog} lotes={lotes} />
-                : <CosechaEntry key={`c-${item.data.id}`} cosecha={item.data as Cosecha} lotes={lotes} />
-            );
-          })()}
-        </div>
-      </div>
+        );
+      })()}
 
-      {/* ── Protocolo Anti-Crisis — tarjeta permanente ── */}
-      {onVerProtocolo && (
+      {/* ── Protocolo Anti-Crisis (descartable) ── */}
+      {onVerProtocolo && !protoDismissed && (
         <div
           onClick={onVerProtocolo}
-          style={{
-            marginTop: 20,
-            padding: '18px 20px',
-            borderRadius: 16,
-            background: 'linear-gradient(135deg, rgba(245,158,11,0.08) 0%, rgba(245,158,11,0.04) 100%)',
-            border: '1.5px solid rgba(245,158,11,0.35)',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 16,
-            transition: 'border-color 0.2s',
-          }}
+          style={{ marginTop: 4, padding: '16px 18px', borderRadius: 16, background: 'linear-gradient(135deg, rgba(245,158,11,0.08) 0%, rgba(245,158,11,0.04) 100%)', border: '1.5px solid rgba(245,158,11,0.35)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 14 }}
         >
-          <div style={{
-            width: 48, height: 48, borderRadius: 12, flexShrink: 0,
-            background: 'rgba(245,158,11,0.15)',
-            border: '1px solid rgba(245,158,11,0.3)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: 24,
-          }}>🛡️</div>
+          <div style={{ width: 42, height: 42, borderRadius: 12, flexShrink: 0, background: 'rgba(245,158,11,0.15)', border: '1px solid rgba(245,158,11,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 21 }}>🛡️</div>
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 3 }}>
-              <span style={{ fontSize: 14, fontWeight: 800, color: '#fde68a' }}>Protocolo Anti-Crisis BSF</span>
-              <span style={{
-                fontSize: 9, fontWeight: 700,
-                background: 'rgba(245,158,11,0.15)',
-                border: '1px solid rgba(245,158,11,0.3)',
-                color: '#fbbf24',
-                padding: '2px 7px', borderRadius: 20,
-                flexShrink: 0,
-              }}>BONO · $67 USD</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 2, flexWrap: 'wrap' }}>
+              <span style={{ fontSize: 13, fontWeight: 800, color: '#fde68a' }}>Protocolo Anti-Crisis BSF</span>
+              <span style={{ fontSize: 9, fontWeight: 700, background: 'rgba(245,158,11,0.15)', border: '1px solid rgba(245,158,11,0.3)', color: '#fbbf24', padding: '2px 7px', borderRadius: 20, flexShrink: 0 }}>BONO · $67 USD</span>
             </div>
-            <div style={{ fontSize: 12, color: '#94a3b8', lineHeight: 1.5 }}>
+            <div style={{ fontSize: 11, color: '#94a3b8', lineHeight: 1.5 }}>
               Diagnóstico inmediato para los 7 problemas críticos: temperatura, humedad, oviposición, mortalidad y más.
             </div>
           </div>
-          <div style={{ fontSize: 18, color: '#f59e0b', flexShrink: 0 }}>→</div>
+          <button onClick={e => { e.stopPropagation(); dismissProto(); }} style={{ background: 'none', border: 'none', color: S.muted, cursor: 'pointer', fontSize: 15, flexShrink: 0, padding: 4 }}>✕</button>
         </div>
       )}
     </div>

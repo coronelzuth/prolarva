@@ -8,11 +8,12 @@ type CosechaInput = Omit<Cosecha, 'id'>;
 interface Props {
   open: boolean;
   lotes: Lote[];
+  prefillLoteId?: string | null;
   onClose: () => void;
   onSave: (data: CosechaInput) => Promise<void>;
 }
 
-export default function ModalCosecha({ open, lotes, onClose, onSave }: Props) {
+export default function ModalCosecha({ open, lotes, prefillLoteId, onClose, onSave }: Props) {
   const [error,  setError]  = useState('');
   const [saving, setSaving] = useState(false);
 
@@ -25,7 +26,8 @@ export default function ModalCosecha({ open, lotes, onClose, onSave }: Props) {
 
   useEffect(() => {
     if (open && cFecha.current) cFecha.current.value = todayLocal();
-  }, [open]);
+    if (open && prefillLoteId && cLote.current) cLote.current.value = prefillLoteId;
+  }, [open, prefillLoteId]);
 
   async function handleSave() {
     const loteId = cLote.current?.value ?? '';

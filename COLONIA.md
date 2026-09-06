@@ -3,7 +3,7 @@
 ## Qué es
 
 Landing de venta del Programa Colonia BSF. Grupal, 5 semanas, $400.000 COP (~$95 USD).
-- Arranca: 9 sep 2026
+- Arranca: 8 nov 2026 (movido desde 9 sep el 2026-09-05)
 - URL: `prolarva.co/colonia`
 - Archivo: `src/app/colonia/page.tsx`
 - Color principal: verde `#22c55e`

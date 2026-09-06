@@ -93,7 +93,7 @@ async function enviarEmail(email: string, nombre: string, codigo: string) {
               <tr>
                 <td style="padding:20px 24px;text-align:center;">
                   <div style="font-size:11px;font-weight:700;color:#bbf7d0;letter-spacing:0.14em;text-transform:uppercase;margin-bottom:6px;">Fecha de inicio</div>
-                  <div style="font-size:26px;font-weight:900;color:#ffffff;">📅 9 de septiembre, 2026</div>
+                  <div style="font-size:26px;font-weight:900;color:#ffffff;">📅 8 de noviembre, 2026</div>
                   <div style="font-size:12px;color:#86efac;margin-top:6px;">Marca la fecha en tu calendario — ahí empieza todo</div>
                 </td>
               </tr>

@@ -354,7 +354,11 @@ a5cc857  feat: port calculadora BSF a React con paleta de la app
 ## Estado actual
 > **Actualizar esta sección al final de cada sesión de trabajo.**
 
-**Última actualización:** 2026-09-04
+**Última actualización:** 2026-09-05
+
+**Cambios recientes (2026-09-05 — fecha de la cohorte Colonia movida):**
+- 📅 La cohorte del Programa Colonia se movió de **9 sep → 8 nov 2026**. En el código solo el email de registro tenía la fecha hardcodeada: `src/app/api/colonia/registro/route.ts` actualizado a "8 de noviembre, 2026". La landing `/colonia` no tiene fecha (solo "30 cupos"), no requiere cambio.
+- ✅ **Desplegado a producción** — `dpl_GshiWvbEWpt34bfe23Q4kHJYrMq7`, aliased a prolarva.co, build OK / tsc limpio (2026-09-05). Nota: `vercel deploy --prod --yes` dio "Not authorized" en el 1er intento (transitorio); funcionó al reintentar de una.
 
 **Cambios recientes (2026-09-04 — sesión 24 — Timeline vertical del ciclo + ajuste de estimación):**
 - ✅ **Home (Dashboard) — pase de UX:**

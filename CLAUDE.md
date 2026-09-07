@@ -311,8 +311,8 @@ interface Stage {
 ## Pendientes conocidos
 
 - [ ] **Fotos reales** — infraestructura lista en `stages.ts`, Juliana debe proveer archivos para `public/fotos/`
-- [x] **Videos reales** — todas las 8 etapas tienen videos en `public/fotos/` (ver tabla abajo)
-- [ ] **URL del VSL** — campo listo en `/landing`, falta el link cuando el video esté listo
+- [ ] **⚠️ VIDEOS DE `public/fotos/` — TODOS 404 EN PRODUCCIÓN (pendiente 2026-09-06)** — el deploy del 5 sep los borró (Vercel CLI respeta `.gitignore`, que excluye `*.mp4`). Ya hay `.vercelignore` para que suban, y `vsl-colonia.mp4` ya está OK. Faltan: la galería de `/colonia` (`neonatos/estadios/biglarvae.mp4`) y los ~15 de la Enciclopedia (`data/stages.ts`: huevos, huevos2_web, neonatos, neonato_1dia, estadios, biglarvae, grandes, prepupas, prepupas2, pupas…). **Los archivos con esos nombres NO están en la PC.** Sí hay clips crudos con otros nombres en `HUB PROLARVA\03 - B-Rolls y Recursos\Selfies\` (larvas, 4 kilos, final pollo, todos pollos, video galpon, producto final pollo) y `08 - Curso Cero a Experto - 1x1\FOTOS CLASE 1\` (larvas sanas, migracion, mosca 17, pupa 52 a 1.07, video pupa, comun vs soldado). **Juliana organiza el mapeo nombre→clip 2026-09-07**; luego: optimizar a web (H.264 720–1080p, CRF 24, mudo si son loops), renombrar exacto, poner en `public/fotos/`, `vercel deploy --prod --yes`.
+- [x] **URL del VSL** — VSL de 7:45 montada en el hero de `/colonia` (2026-09-06). Archivo `public/fotos/vsl-colonia.mp4` (gitignored, live en prod).
 - [x] **Exportar leads en CSV** — Tab Leads en AdminView con lista + CSV export. Tabla `leads` SQL en `supabase/leads.sql` (ejecutar en Supabase)
 - [ ] **Google Analytics 4** — instalar para tener datos históricos de visitas al blog dentro del panel admin. Vercel Analytics plan gratuito no expone API de lectura. GA4 es gratuito y tiene API. Requiere: crear propiedad en analytics.google.com, agregar script en `layout.tsx`, crear API route que consulte GA4 Reporting API y mostrar en tab Blog del AdminView.
 

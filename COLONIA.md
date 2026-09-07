@@ -35,7 +35,7 @@ Landing de venta del Programa Colonia BSF. Grupal, 5 semanas, $400.000 COP (~$95
 
 Al comprar el programa, el admin crea un código de invitación desde `AdminView` → tab Invitaciones.
 El socio se registra en `prolarva.co/socios` con ese código.
-Accede a: Escuela (cronograma 4 semanas), Monitor (se desbloquea en Fase 3), Bonos.
+Accede a: Escuela (cronograma 5 semanas · 10 clases), Monitor (se desbloquea en Fase 3), Bonos.
 
 ## Flujo de inscripción actual
 

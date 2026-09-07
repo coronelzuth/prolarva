@@ -49,6 +49,7 @@ export default function CalculadoraPage() {
   const [mort, setMort]   = useState(5);
   const [slBSF, setSlBSF] = useState(25);
   const [ajOpen, setAjOpen] = useState(false);
+  const [ajAplicado, setAjAplicado] = useState(false);
 
   const [nombre, setNombre] = useState('');
   const [waNum, setWaNum]   = useState('');
@@ -120,6 +121,15 @@ export default function CalculadoraPage() {
           n_animales: nAnim,
           perdida_cop: result?.totalPerd ?? 0,
           tipo_cta: tipo,
+          // datos del lote (los que el productor ajusta)
+          precio_bulto: pBulto,
+          bulto_kg: bultoKg,
+          dias_ciclo: dias,
+          precio_venta: pAnim,
+          mortalidad: mort,
+          pct_bsf: slBSF,
+          perdida_anual_cop: result?.perdAcum ?? 0,
+          datos_ajustados: datosAjustados,
         }),
       }).catch(() => {});
     }
@@ -141,6 +151,7 @@ export default function CalculadoraPage() {
   }
 
   const espD = esp ? E[esp] : null;
+  const datosAjustados = !!espD && (dias !== espD.dias || pAnim !== espD.pA || slBSF !== espD.df || mort !== 5);
   const slBg = (val: number, mn: number, mx: number) => {
     const p = ((val - mn) / (mx - mn)) * 100;
     return `linear-gradient(to right, #22c55e ${p}%, #1e3050 ${p}%)`;
@@ -223,6 +234,12 @@ export default function CalculadoraPage() {
           <div>
             <button onClick={() => goTo(1)} style={{ background: 'none', border: 'none', color: C.muted, fontSize: 13, fontWeight: 600, cursor: 'pointer', padding: '0 0 14px', fontFamily: 'inherit' }}>← Cambiar datos</button>
 
+            {ajAplicado && (
+              <div style={{ background: 'rgba(34,197,94,0.12)', border: '1px solid rgba(34,197,94,0.35)', borderRadius: 10, padding: '10px 12px', marginBottom: 12, fontSize: 13, fontWeight: 700, color: C.green, textAlign: 'center' }}>
+                ✅ Recalculado con tus datos
+              </div>
+            )}
+
             {/* Hero pérdida */}
             <div style={{ background: 'linear-gradient(135deg,#7B1200,#C62828)', borderRadius: 16, padding: '22px 18px', textAlign: 'center', color: '#fff', marginBottom: 12 }}>
               <div style={{ fontSize: 10, letterSpacing: '.8px', textTransform: 'uppercase', opacity: .75, marginBottom: 8 }}>Sin BSF en tu granja</div>
@@ -273,26 +290,32 @@ export default function CalculadoraPage() {
               {ajOpen && (
                 <div style={{ padding: '0 16px 16px' }}>
                   <Fg label="Días que dura tu ciclo" hint={espD.h}>
-                    <input type="number" value={dias} onChange={e => setDias(+e.target.value)} min={1} max={365} style={inp} />
+                    <input type="number" value={dias} onChange={e => { setDias(+e.target.value); setAjAplicado(false); }} min={1} max={365} style={inp} />
                   </Fg>
                   <Fg label={`¿A cuánto vendes cada ${espD.nom}?`} hint="precio en pie">
-                    <Pfx><input type="number" value={pAnim} onChange={e => setPAnim(+e.target.value)} min={1} style={inpPfx} /></Pfx>
+                    <Pfx><input type="number" value={pAnim} onChange={e => { setPAnim(+e.target.value); setAjAplicado(false); }} min={1} style={inpPfx} /></Pfx>
                   </Fg>
                   <Fg label="Mortalidad actual" hint="% que se pierden por ciclo">
-                    <input type="number" value={mort} onChange={e => setMort(+e.target.value)} min={0} max={80} step={0.5} style={inp} />
+                    <input type="number" value={mort} onChange={e => { setMort(+e.target.value); setAjAplicado(false); }} min={0} max={80} step={0.5} style={inp} />
                   </Fg>
-                  <Fg label="¿Qué % de la dieta reemplazarías con BSF?" noMb>
+                  <Fg label="¿Qué % de la dieta reemplazarías con BSF?">
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
                       <span style={{ fontSize: 11, color: C.muted }}>Nivel recomendado por ciencia</span>
                       <span style={{ background: C.greenD, color: '#fff', fontSize: 15, fontWeight: 800, padding: '3px 12px', borderRadius: 20 }}>{slBSF}%</span>
                     </div>
-                    <input type="range" min={espD.mn} max={espD.mx} value={slBSF} step={5} onChange={e => setSlBSF(+e.target.value)}
+                    <input type="range" min={espD.mn} max={espD.mx} value={slBSF} step={5} onChange={e => { setSlBSF(+e.target.value); setAjAplicado(false); }}
                       style={{ width: '100%', height: 6, borderRadius: 3, outline: 'none', WebkitAppearance: 'none', border: 'none', padding: 0, cursor: 'pointer', background: slBg(slBSF, espD.mn, espD.mx) }} />
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 5, fontSize: 10, color: C.muted }}>
                       <span>{espD.mn}%</span>
                       <span>{espD.mx}% (máx. {espD.pl})</span>
                     </div>
                   </Fg>
+                  <button
+                    onClick={() => { setAjAplicado(true); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                    style={{ width: '100%', marginTop: 16, padding: 13, background: ajAplicado ? 'rgba(34,197,94,0.15)' : 'linear-gradient(135deg,#22c55e,#16a34a)', color: ajAplicado ? C.green : '#fff', border: ajAplicado ? '2px solid rgba(34,197,94,0.4)' : 'none', borderRadius: 11, fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}
+                  >
+                    {ajAplicado ? '✅ Datos aplicados — mira tu resultado arriba' : '✅ Aplicar mis datos y ver el resultado'}
+                  </button>
                 </div>
               )}
             </div>

@@ -144,6 +144,14 @@ interface Lead {
   estado: string;
   notas_crm: string;
   creado_en: string;
+  precio_bulto?: number;
+  bulto_kg?: number;
+  dias_ciclo?: number;
+  precio_venta?: number;
+  mortalidad?: number;
+  pct_bsf?: number;
+  perdida_anual_cop?: number;
+  datos_ajustados?: boolean;
 }
 
 interface Venta {
@@ -488,8 +496,8 @@ function AdminView({ adminCode, onBack, onLogout }: { adminCode: string; onBack:
             <div style={{ display: 'flex', gap: 8 }}>
               <button
                 onClick={() => {
-                  const hdrs = ['Fecha', 'Nombre', 'WhatsApp', 'Especie', 'Animales', 'Pérdida COP', 'CTA'];
-                  const rows = leads.map(l => [fmtDate(l.creado_en), l.nombre, l.whatsapp, l.especie, String(l.n_animales), String(l.perdida_cop), l.tipo_cta]);
+                  const hdrs = ['Fecha', 'Nombre', 'WhatsApp', 'Especie', 'Animales', 'Pérdida COP', 'Pérdida año COP', 'CTA', 'Precio bulto', 'Kg bulto', 'Días ciclo', 'Precio venta', 'Mortalidad %', '% BSF', 'Ajustó datos'];
+                  const rows = leads.map(l => [fmtDate(l.creado_en), l.nombre, l.whatsapp, l.especie, String(l.n_animales), String(l.perdida_cop), String(l.perdida_anual_cop ?? ''), l.tipo_cta, String(l.precio_bulto ?? ''), String(l.bulto_kg ?? ''), String(l.dias_ciclo ?? ''), String(l.precio_venta ?? ''), String(l.mortalidad ?? ''), String(l.pct_bsf ?? ''), l.datos_ajustados ? 'sí' : 'no']);
                   downloadCSV(rows, hdrs, `prolarva-leads-${new Date().toISOString().slice(0, 10)}.csv`);
                 }}
                 style={{ ...btnOutline, ...btnSm }}
@@ -544,6 +552,19 @@ function AdminView({ adminCode, onBack, onLogout }: { adminCode: string; onBack:
                     </div>
                     {expanded && (
                       <div style={{ marginTop: 12, paddingTop: 12, borderTop: `1px solid ${S.border}` }}>
+                        {(lead.dias_ciclo || lead.precio_bulto || lead.precio_venta) ? (
+                          <div style={{ marginBottom: 10, padding: '8px 10px', background: 'rgba(255,255,255,0.03)', borderRadius: 8, fontSize: 11, color: S.muted, lineHeight: 1.7 }}>
+                            <div style={{ fontWeight: 700, color: S.text, marginBottom: 2 }}>
+                              Datos del productor {lead.datos_ajustados ? '· ✏️ ajustados por él' : '· (valores por defecto)'}
+                            </div>
+                            {!!lead.precio_bulto && <span>Bulto: {new Intl.NumberFormat('es-CO').format(lead.precio_bulto)} COP / {lead.bulto_kg || '?'} kg · </span>}
+                            {!!lead.dias_ciclo && <span>Ciclo: {lead.dias_ciclo} días · </span>}
+                            {!!lead.precio_venta && <span>Venta: {new Intl.NumberFormat('es-CO').format(lead.precio_venta)} COP · </span>}
+                            {lead.mortalidad != null && <span>Mortalidad: {lead.mortalidad}% · </span>}
+                            {!!lead.pct_bsf && <span>% BSF: {lead.pct_bsf}% · </span>}
+                            {!!lead.perdida_anual_cop && <span>Pérdida año: {new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(lead.perdida_anual_cop)}</span>}
+                          </div>
+                        ) : null}
                         <div style={{ marginBottom: 8 }}>
                           <label style={labelStyle}>Estado CRM</label>
                           <select

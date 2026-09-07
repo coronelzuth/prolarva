@@ -10,7 +10,16 @@ CREATE TABLE IF NOT EXISTS leads (
   n_animales  INTEGER DEFAULT 0,
   perdida_cop INTEGER DEFAULT 0,
   tipo_cta    TEXT DEFAULT '',
-  creado_en   TIMESTAMPTZ DEFAULT NOW()
+  creado_en   TIMESTAMPTZ DEFAULT NOW(),
+  -- datos del lote que el productor ajusta en la calculadora (ver leads-datos-lote.sql)
+  precio_bulto      INTEGER DEFAULT 0,
+  bulto_kg          INTEGER DEFAULT 0,
+  dias_ciclo        INTEGER DEFAULT 0,
+  precio_venta      INTEGER DEFAULT 0,
+  mortalidad        NUMERIC DEFAULT 0,
+  pct_bsf           INTEGER DEFAULT 0,
+  perdida_anual_cop BIGINT  DEFAULT 0,
+  datos_ajustados   BOOLEAN DEFAULT false
 );
 
 ALTER TABLE leads ENABLE ROW LEVEL SECURITY;

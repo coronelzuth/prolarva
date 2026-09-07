@@ -53,7 +53,7 @@ escribir saltándose RLS. Si no está, caen a la anon key. **Nunca exponerla al 
 | ~~`/conocimiento`~~ | **UNIFICADA 2026-09-03** en la Enciclopedia. Redirect 308 → `/socios?v=enciclopedia&sec=ciclo` |
 | ~~`/metas`~~ | **UNIFICADA 2026-09-03** en la Enciclopedia. Redirect 308 → `/socios?v=enciclopedia&sec=rutas` |
 | ~~`/cosecha`~~ | **UNIFICADA 2026-09-03** en la Enciclopedia. Redirect 308 → `/socios?v=enciclopedia&sec=cria` |
-| `/calculadora` | Calculadora BSF completa (wizard 4 pasos) |
+| `/calculadora` | Calculadora de pérdida BSF — **lead magnet principal** · 2 pantallas (datos → resultado en rojo) · CTA a cupo Curso Colonia |
 | `/kit` | Landing de venta — Kit ProLarva 25/15, color ámbar (#f59e0b) |
 | `/colonia` | Landing del Programa Colonia — grupal 5 semanas · 2 clases/semana (10) · WhatsApp 60 días post última clase · $400.000 COP, color verde (#22c55e), sección "Red de Productores". Datos bloqueados 2026-09-03. |
 | ~~`/preparacion`~~ | **ELIMINADA 2026-08-29** — Módulo 2 quiz. Larvi `ya_sabe` ahora apunta a /cosecha |
@@ -195,12 +195,12 @@ Mini-calculadora embebida al final de `/metas`. Solo 3 inputs: especie, gasto me
 Muestra ahorro mensual y anual. No reemplaza a `/calculadora`.
 
 ### `calculadora/page.tsx`
-Wizard completo de 4 pasos portado a React (NO es un iframe).
-- Step 1: Seleccionar especie (pollos/cerdos/peces)
-- Step 2: Datos del lote (animales, días, precios, mortalidad)
-- Step 3: Config BSF (modo compra vs kit, % reemplazo, precio BSF)
-- Step 4: Resultados — hero pérdida, desglose, con BSF, beneficios, kit timeline, CTA WhatsApp
-Cálculo en `useEffect` que se dispara cuando `step === 4`.
+**Lead magnet principal del funnel** (ver `wiki/lead-magnet.md`). 2 pantallas, React nativo (NO iframe). Reescrita 2026-09-07 (antes era wizard de 4 pasos).
+- Pantalla 1: especie (pollos/cerdos/peces) + nº de animales + precio del bulto de concentrado (selector `BULTOS` 40/45/30/25 kg → `pConc = pBulto / bultoKg`)
+- Pantalla 2: hero pérdida (rojo) + acumulado del año + desglose (mortalidad / FCR) + línea de contraste verde ("recuperarías ~$X") + `<details>` "Ajustar datos" (días, precio venta, mortalidad, `slBSF` %) + CTA único → cupo Curso Colonia + link chico "comprar BSF ya" + compartir
+- Defaults finos prellenados por especie en `handleEspecie` (dias, pAnim, slBSF). `PBSF_PROPIO = 3000` fijo (producción propia con el Kit)
+- Cálculo en `useEffect` cuando `step === 2`. Mismo modelo que la versión vieja (perdMort + perdFCR)
+- Lead → `/api/leads/guardar` (`fuente: 'calculadora'`, `tipo_cta: 'colonia' | 'pedido'`)
 
 ### `socios/page.tsx` + componentes divididos
 Login por email o código de socio. Cuentas admin: `admin.zuth/prolarva2025`, `admin/pl2025`.
@@ -354,7 +354,16 @@ a5cc857  feat: port calculadora BSF a React con paleta de la app
 ## Estado actual
 > **Actualizar esta sección al final de cada sesión de trabajo.**
 
-**Última actualización:** 2026-09-06
+**Última actualización:** 2026-09-07
+
+**Cambios recientes (2026-09-07 — Calculadora → lead magnet de 2 pantallas):**
+- ✅ **`/calculadora` reescrita de wizard de 4 pasos a 2 pantallas.** Es el **lead magnet principal** del funnel (Funnel Fase 2, ejercicio F100K Módulo 1). `wiki/lead-magnet.md` actualizado con la decisión (promesa, formato, palabra clave `COLONIA`, puente al curso).
+  - **Pantalla 1:** especie + nº animales + precio del bulto de concentrado, con selector de kg por bulto (`BULTOS = [40,45,30,25]`, varía por zona) → `pConc = pBulto / bultoKg`.
+  - **Pantalla 2:** hero de pérdida en rojo (sin cambios de fórmula) + desglose + línea de contraste verde + `<details>` "Ajustar datos" (días, precio venta, mortalidad, % reemplazo) + **CTA único** → "Quiero mi cupo en el Curso Colonia" (8 nov), link secundario "comprar BSF ya".
+  - **Eliminado:** paso 3 "Config BSF", modo comprar/Kit (ahora `PBSF_PROPIO = 3000` fijo), timeline del Kit, grid de 6 beneficios, el CTA "primer pedido de BSF" como botón primario.
+  - Lead sigue guardándose en `/api/leads/guardar` (`fuente: 'calculadora'`, `tipo_cta` ahora `'colonia' | 'pedido'`).
+  - `tsc` limpio. **Commit `297cdb4`, push a GitHub, deploy prod `dpl_21sz6UECcsnXE4F4koQed5Dfpmpc` → prolarva.co/calculadora verificado 200.** 1er `vercel --prod --yes` dio "Not authorized" transitorio; OK con `vercel deploy --prod --yes`.
+  - ⏭️ **Pendiente:** campo "¿Ya crías BSF?" (Sí/No) + campo oculto `origen` (palabra clave del video) en la captura; botón de captura reutilizable para los lead magnets del blog.
 
 **Cambios recientes (2026-09-06 — VSL de Colonia en el player):**
 - ✅ **VSL grupal montada en `/colonia`.** Reemplazado el placeholder "Video explicativo · Próximamente" por un `<video controls preload="none" poster="/fotos/vsl-colonia-poster.jpg">` con `<source src="/fotos/vsl-colonia.mp4">`.

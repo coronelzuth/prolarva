@@ -12,7 +12,7 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const {
-      nombre, whatsapp, fuente = 'calculadora', especie = '', n_animales = 0, perdida_cop = 0, tipo_cta = '',
+      nombre, whatsapp, email = '', fuente = 'calculadora', especie = '', n_animales = 0, perdida_cop = 0, tipo_cta = '',
       precio_bulto = 0, bulto_kg = 0, dias_ciclo = 0, precio_venta = 0, mortalidad = 0, pct_bsf = 0,
       perdida_anual_cop = 0, datos_ajustados = false,
     } = body;
@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
     if (!db) return NextResponse.json({ error: 'Error de configuración' }, { status: 500 });
 
     const id = crypto.randomUUID();
-    const base = { id, nombre, whatsapp, fuente, especie, n_animales, perdida_cop, tipo_cta };
+    const base = { id, nombre: nombre ?? '', whatsapp: whatsapp ?? '', email: email ?? '', fuente, especie, n_animales, perdida_cop, tipo_cta };
     const full = {
       ...base,
       precio_bulto, bulto_kg, dias_ciclo, precio_venta, mortalidad, pct_bsf, perdida_anual_cop, datos_ajustados,

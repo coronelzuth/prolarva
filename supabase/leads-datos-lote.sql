@@ -32,6 +32,12 @@ ALTER TABLE leads ADD COLUMN IF NOT EXISTS pct_bsf           INTEGER  DEFAULT 0;
 ALTER TABLE leads ADD COLUMN IF NOT EXISTS perdida_anual_cop BIGINT   DEFAULT 0;   -- pérdida acumulada del año (COP)
 ALTER TABLE leads ADD COLUMN IF NOT EXISTS datos_ajustados   BOOLEAN  DEFAULT false; -- tocó el panel "Ajustar datos"
 
+-- Columnas NOT NULL sin default que rompían el insert de la calculadora
+-- (el formulario solo pide nombre + WhatsApp, no email)
+ALTER TABLE leads ALTER COLUMN email  SET DEFAULT '';
+ALTER TABLE leads ALTER COLUMN nombre SET DEFAULT '';
+UPDATE leads SET email = '' WHERE email IS NULL;
+
 -- El servidor entra con service_role
 GRANT ALL ON public.leads TO service_role;
 

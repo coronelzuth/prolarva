@@ -354,7 +354,17 @@ a5cc857  feat: port calculadora BSF a React con paleta de la app
 ## Estado actual
 > **Actualizar esta sección al final de cada sesión de trabajo.**
 
-**Última actualización:** 2026-09-05
+**Última actualización:** 2026-09-06
+
+**Cambios recientes (2026-09-06 — VSL de Colonia en el player):**
+- ✅ **VSL grupal montada en `/colonia`.** Reemplazado el placeholder "Video explicativo · Próximamente" por un `<video controls preload="none" poster="/fotos/vsl-colonia-poster.jpg">` con `<source src="/fotos/vsl-colonia.mp4">`.
+  - **Ubicación:** dentro del HERO, entre la fila de stats y el botón "Quiero Acceso al Programa" (estructura VSL: titular → subhead → stats → video → CTA). Ya NO es una `<section>` aparte.
+  - `preload="none"` → el mp4 (40 MB) NO se descarga hasta que el visitante le da play. Protege la cuota de Data Transfer de Vercel.
+  - Contenedor a `aspectRatio: '32 / 17'` (proporción real del video, 1920×1020) — sin barras negras. NO es 16:9.
+- 📹 **Origen del video:** editado en CapCut (proyecto `0906`, puros cortes), reconstruido con FFmpeg desde el master `Downloads/VSL-Colonia-FINAL-audiomejorado.mp4` para evitar la doble compresión de CapCut. 37 tramos, 7:45, H.264 CRF 18, 30 fps CFR. El master trae 1 frame corrupto + DTS roto (viene del paso de "audio mejorado"); se ve un parpadeo mínimo cerca del 3:01.
+- **Nuevo `.vercelignore`** — el Vercel CLI 59.x respeta `.gitignore` cuando no hay `.vercelignore`, así que el deploy del 5 sep subió SIN ningún `/public/fotos/*.mp4` (todos 404 en prod). El `.vercelignore` replica `.gitignore` pero **sin** la línea `/public/fotos/*.mp4`, para que esos videos (que siguen fuera de git) sí suban en el deploy CLI. `vsl-colonia-poster.jpg` (130 KB) sí va en git.
+- ✅ **Desplegado a producción (2026-09-06)** — `dpl_6j9u1NsnvGXwwQ8ziNz1Q8KYnDfT`, live en prolarva.co. Verificado: `/fotos/vsl-colonia.mp4` → 200 (41.7 MB), `/colonia` sirve el `<video>` nuevo. 1er intento dio "Not authorized" (transitorio), OK al reintentar.
+- ⚠️ **Los demás `/fotos/*.mp4` siguen 404 en producción** (galería de `/colonia`: `neonatos/estadios/biglarvae.mp4`; y todos los videos de la Enciclopedia en `data/stages.ts`). Los archivos con ESOS nombres exactos no están en esta PC. Sí hay clips crudos con otros nombres en `HUB PROLARVA\03 - B-Rolls y Recursos\Selfies\` y `08 - Curso Cero a Experto - 1x1\FOTOS CLASE 1\`. Falta el mapeo nombre→clip de Juliana para optimizarlos, renombrarlos y meterlos en `public/fotos/`.
 
 **Cambios recientes (2026-09-05 — fecha de la cohorte Colonia movida):**
 - 📅 La cohorte del Programa Colonia se movió de **9 sep → 8 nov 2026**. En el código solo el email de registro tenía la fecha hardcodeada: `src/app/api/colonia/registro/route.ts` actualizado a "8 de noviembre, 2026". La landing `/colonia` no tiene fecha (solo "30 cupos"), no requiere cambio.

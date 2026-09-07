@@ -1,0 +1,23 @@
+# Igual que .gitignore PERO sin excluir /public/fotos/*.mp4
+# Vercel CLI, si existe este archivo, ignora .gitignore y usa solo este.
+# Los videos de public/fotos/ SÍ deben subir en el deploy (no van en git).
+
+/node_modules
+/.pnp
+.pnp.*
+.yarn/*
+/coverage
+/.next/
+/out/
+/build
+.DS_Store
+*.pem
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+.env*
+.vercel
+*.tsbuildinfo
+next-env.d.ts
+.impeccable/

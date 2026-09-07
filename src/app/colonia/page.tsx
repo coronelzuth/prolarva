@@ -267,7 +267,25 @@ export default function ColoniaPage() {
           ))}
         </motion.div>
 
-        <motion.div {...up(0.25)} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
+        {/* ── VSL ── */}
+        <motion.div {...up(0.22)} style={{ maxWidth: 660, margin: '0 auto 36px' }}>
+          <div style={{ position: 'relative', borderRadius: 16, overflow: 'hidden', background: '#0a111c', border: `1px solid ${C.border}`, aspectRatio: '32 / 17', boxShadow: '0 24px 60px rgba(0,0,0,0.5)' }}>
+            <video
+              controls
+              playsInline
+              preload="none"
+              poster="/fotos/vsl-colonia-poster.jpg"
+              style={{ width: '100%', height: '100%', display: 'block', objectFit: 'cover' }}
+            >
+              <source src="/fotos/vsl-colonia.mp4" type="video/mp4" />
+            </video>
+          </div>
+          <p style={{ color: `${C.muted}99`, fontSize: '0.78rem', textAlign: 'center', margin: '10px 0 0' }}>
+            ▶ Mira cómo funciona el programa · 7 min
+          </p>
+        </motion.div>
+
+        <motion.div {...up(0.28)} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
           <button
             onClick={openForm}
             style={{ display: 'inline-flex', alignItems: 'center', gap: 10, padding: '18px 38px', background: `linear-gradient(135deg,${C.green},${C.greenD})`, color: '#fff', borderRadius: 10, fontFamily: 'inherit', fontWeight: 900, fontSize: '1.05rem', cursor: 'pointer', border: 'none', boxShadow: `0 8px 36px ${C.green}45`, letterSpacing: '0.02em' }}>
@@ -277,22 +295,6 @@ export default function ColoniaPage() {
             💬 Tengo preguntas — hablar con Juliana
           </a>
         </motion.div>
-      </section>
-
-      {/* ── VIDEO PLACEHOLDER ── */}
-      <section style={{ padding: '0 20px 68px', background: C.bg }}>
-        <div style={{ maxWidth: 720, margin: '0 auto' }}>
-          <motion.div {...up(0.3)} style={{ position: 'relative', borderRadius: 16, overflow: 'hidden', background: '#0a111c', border: `1px solid ${C.border}`, aspectRatio: '16/9', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 24px 60px rgba(0,0,0,0.45)' }}>
-            <div style={{ textAlign: 'center' }}>
-              <div style={{ width: 80, height: 80, borderRadius: '50%', background: 'rgba(34,197,94,0.12)', border: `2px solid rgba(34,197,94,0.35)`, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 18px' }}>
-                <span style={{ fontSize: '2.2rem', marginLeft: 6, color: C.greenL }}>▶</span>
-              </div>
-              <p style={{ color: C.muted, fontSize: '0.88rem', margin: '0 0 6px', fontWeight: 700 }}>ProLarva VIVO — El Programa</p>
-              <p style={{ color: `${C.muted}70`, fontSize: '0.75rem', margin: 0 }}>Video explicativo · Próximamente</p>
-            </div>
-            <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at 50% 50%, rgba(34,197,94,0.05) 0%, transparent 70%)', pointerEvents: 'none' }} />
-          </motion.div>
-        </div>
       </section>
 
       {/* ── PROBLEMA ── */}

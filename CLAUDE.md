@@ -307,6 +307,7 @@ interface Stage {
 - Primera carga: si la tabla está vacía, popula todos los guiones automáticamente
 - Campos editables: estado, fecha_programada, plataforma, NC, ángulo, contenido, notas
 - **IMPORTANTE:** Ejecutar `supabase/guiones_cms.sql` en Supabase → SQL Editor antes de usar
+- ✅ **BUG RESUELTO 2026-09-09 — los guiones no persistían (ni al recargar ni entre dispositivos).** `updateGuion` hacía `upsert({ id, ...changes })` con solo los campos editados; Postgres lo intenta como INSERT y revienta con `23502 null value in column "numero"` (numero/codigo/titulo/tipo son NOT NULL sin default). El error se **tragaba** (no se leía `.error`): la UI mostraba "guardado" pero la fila nunca cambiaba. Fix en `useGuionesCms.ts`: `updateGuion`/`createGuion` mandan la **fila completa** (helper `guionToRow`), `load()` ahora incluye TODAS las filas de la DB —no solo las de `GUIONES_BASE`, antes los guiones nuevos se perdían al recargar—, y los errores de guardado se exponen en `state.error`. Commit `68673ee`, deploy `dpl_A88QAWbPdTXfURqTq19RUewSJz8N`. Tabla `guiones_cms`: RLS y GRANTs OK (nunca fueron el problema).
 
 ## Pendientes conocidos
 
@@ -354,7 +355,16 @@ a5cc857  feat: port calculadora BSF a React con paleta de la app
 ## Estado actual
 > **Actualizar esta sección al final de cada sesión de trabajo.**
 
-**Última actualización:** 2026-09-08
+**Última actualización:** 2026-09-09
+
+**Cambios recientes (2026-09-09 — CMS de contenido: los guiones no se guardaban):**
+- ✅ **BUG RESUELTO — nada persistía en `/contenido` ni en Admin → Contenido, desde ningún dispositivo.** `updateGuion` en `useGuionesCms.ts` hacía `upsert` parcial (`{ id, ...changes }`) → Postgres lo trata como INSERT → `23502 null value in column "numero"` (numero/codigo/titulo/tipo NOT NULL sin default). El error se tragaba: la UI decía "💾 Guardar cambios" OK pero al recargar todo volvía al estado base. Reproducido contra la API REST con la anon key (HTTP 400). La tabla `guiones_cms`, su RLS y sus GRANTs estaban bien — no era el bug de RLS-solo-SELECT.
+- **Fix (`src/hooks/useGuionesCms.ts`):**
+  - `updateGuion` y `createGuion` ahora mandan la **fila completa** vía `upsert` (helper `guionToRow`), tomando el guión ya actualizado de `guionesRef` (ref siempre-fresca).
+  - `load()` ahora hace merge de **todas** las filas de la DB, no solo las que están en `GUIONES_BASE` (helper `rowToGuion`). Antes, cualquier guión creado desde el botón "+ Nuevo guión" (id = `crypto.randomUUID()`) desaparecía al recargar aunque se hubiera guardado.
+  - `createGuion` ya no hace el insert dentro del updater de `setState` (era impuro, doble-disparo en StrictMode); errores de guardado ahora se exponen en `state.error`.
+- `tsc` limpio + `next build` OK. **Commit `68673ee`, push a GitHub, deploy prod `dpl_A88QAWbPdTXfURqTq19RUewSJz8N` → prolarva.co/contenido verificado 200.** 2 "Not authorized" transitorios antes de que pasara (patrón conocido).
+- Prueba end-to-end contra la API: upsert de fila completa sobre un guión existente → HTTP 200, persiste al releer. Guión de prueba `E6` restaurado a sus valores originales.
 
 **Cambios recientes (2026-09-08 — Calculadora: números transparentes + prueba del piloto):**
 - Pase de credibilidad sobre la calculadora de 2 pantallas (feedback del BOT "Million Dollar Specialist" con el brief de contexto). **La fórmula NO se tocó**; solo copy, orden y un bloque nuevo.

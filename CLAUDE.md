@@ -53,7 +53,7 @@ escribir saltándose RLS. Si no está, caen a la anon key. **Nunca exponerla al 
 | ~~`/conocimiento`~~ | **UNIFICADA 2026-09-03** en la Enciclopedia. Redirect 308 → `/socios?v=enciclopedia&sec=ciclo` |
 | ~~`/metas`~~ | **UNIFICADA 2026-09-03** en la Enciclopedia. Redirect 308 → `/socios?v=enciclopedia&sec=rutas` |
 | ~~`/cosecha`~~ | **UNIFICADA 2026-09-03** en la Enciclopedia. Redirect 308 → `/socios?v=enciclopedia&sec=cria` |
-| `/calculadora` | Calculadora de pérdida BSF — **lead magnet principal** · 2 pantallas (datos → resultado en rojo) · CTA a cupo Curso Colonia |
+| `/calculadora` | Calculadora de pérdida BSF — **lead magnet principal** · 2 pantallas (datos → resultado en rojo, desglose etiquetado dato/estimado + bloque de prueba del lote piloto) · CTA "Quiero aprender a hacerlo" → Curso Colonia |
 | `/kit` | Landing de venta — Kit ProLarva 25/15, color ámbar (#f59e0b) |
 | `/colonia` | Landing del Programa Colonia — grupal 5 semanas · 2 clases/semana (10) · WhatsApp 60 días post última clase · $400.000 COP, color verde (#22c55e), sección "Red de Productores". Datos bloqueados 2026-09-03. |
 | ~~`/preparacion`~~ | **ELIMINADA 2026-08-29** — Módulo 2 quiz. Larvi `ya_sabe` ahora apunta a /cosecha |
@@ -354,7 +354,18 @@ a5cc857  feat: port calculadora BSF a React con paleta de la app
 ## Estado actual
 > **Actualizar esta sección al final de cada sesión de trabajo.**
 
-**Última actualización:** 2026-09-07
+**Última actualización:** 2026-09-08
+
+**Cambios recientes (2026-09-08 — Calculadora: números transparentes + prueba del piloto):**
+- Pase de credibilidad sobre la calculadora de 2 pantallas (feedback del BOT "Million Dollar Specialist" con el brief de contexto). **La fórmula NO se tocó**; solo copy, orden y un bloque nuevo.
+  - **Pantalla 1:** `<h1>` "¿Cuánta plata se te va cada ciclo por no producir tu propia larva BSF?" (titular de resultado, no instrucción) + "sin registro para ver el resultado". "¿Qué crías?" → "Paso 1 · ¿Qué crías?".
+  - **Hero (rojo, se queda):** "Sin BSF en tu granja" → "Sin producir tu propia larva BSF"; "estás dejando ir" → "se te va, más o menos"; agregado "· estimado con tus datos".
+  - **Desglose "¿De dónde sale ese número?":** reordenado — **concentrado primero** (tag "📊 Con el precio de bulto que pusiste" = dato duro) vs **mortalidad segundo** (tag "📈 Estimado con datos de campo") + nota al pie que separa dato de estimado.
+  - **Línea verde reescrita** para no contradecir el hero: antes "recuperarías ~$X" (chocaba con el número grande); ahora "descontando lo que cuesta criarla, te quedas con ~$X de esa plata" (neto). Si `recup < 1000` → "el ahorro está sobre todo en menos muertes".
+  - **Bloque nuevo "🧪 Esto no salió de una fórmula de internet"** — lote piloto Cúcuta 42 días + link `Ver el lote piloto en @prolarva.co →` (`https://instagram.com/prolarva.co` — cambiar por una historia destacada/reel cuando Juliana lo indique).
+  - **CTA de menor fricción:** "Deja de perder esa plata" → "¿Quieres aprender a producirla tú?"; botón "Quiero mi cupo en el Curso Colonia" → "Quiero aprender a hacerlo". Mensajes de WhatsApp (`buildMsg`) y de compartir (`compartir`) alineados al nuevo lenguaje.
+  - **NO implementado del BOT (decisión de Juliana):** reframe rojo→verde "oportunidad" (choca con "apúntale a la pérdida"); pedir WhatsApp ANTES del resultado (con audiencia fría quema confianza — se revisa cuando haya tráfico); segmentación por especie en el seguimiento (es la automatización del DM, Funnel Fase 3).
+  - `tsc` limpio + `next build` OK. **Commit `e5e4f43`, push a GitHub, deploy prod `dpl_diwiS9agEuTiLWRMvc4Spn5LDPtS` → prolarva.co/calculadora verificado 200.** 1er `vercel deploy --prod --yes` dio "Not authorized" transitorio; OK al reintentar.
 
 **Cambios recientes (2026-09-07 — Calculadora → lead magnet de 2 pantallas):**
 - ✅ **`/calculadora` reescrita de wizard de 4 pasos a 2 pantallas.** Es el **lead magnet principal** del funnel (Funnel Fase 2, ejercicio F100K Módulo 1). `wiki/lead-magnet.md` actualizado con la decisión (promesa, formato, palabra clave `COLONIA`, puente al curso).

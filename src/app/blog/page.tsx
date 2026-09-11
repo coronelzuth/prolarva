@@ -21,7 +21,7 @@ const C = {
   purpleL: '#c084fc',
 };
 
-const CATEGORIES = ['Todos', 'Problemas', 'Nutrición', 'Manejo', 'Herramientas'] as const;
+const CATEGORIES = ['Todos', 'Problemas', 'Nutrición', 'Manejo', 'Negocio', 'Herramientas'] as const;
 type Cat = typeof CATEGORIES[number];
 
 const resources = [
@@ -112,6 +112,19 @@ const resources = [
     items: 'Interactivo',
     readTime: '3 min',
     href: '/blog/salud-colonia',
+    accent: C.amber,
+    accentBg: 'rgba(245,158,11,0.08)',
+    accentBorder: 'rgba(245,158,11,0.2)',
+  },
+  {
+    id: 'salidas-economicas',
+    category: 'Negocio' as Cat,
+    emoji: '💰',
+    title: '5 formas de ganar plata con la mosca soldado negra',
+    desc: 'Huevos, frass, larva deshidratada, harina y larva viva: qué es cada salida, a quién se la vendes y cómo empezar a producirla.',
+    items: '5 salidas',
+    readTime: '6 min',
+    href: '/blog/salidas-economicas',
     accent: C.amber,
     accentBg: 'rgba(245,158,11,0.08)',
     accentBorder: 'rgba(245,158,11,0.2)',

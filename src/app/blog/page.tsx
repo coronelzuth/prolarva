@@ -34,6 +34,7 @@ const resources = [
     items: '8 problemas',
     readTime: '10 min',
     href: '/blog/problemas',
+    date: '2026-07-23',
     accent: C.red,
     accentBg: 'rgba(239,68,68,0.08)',
     accentBorder: 'rgba(239,68,68,0.2)',
@@ -47,6 +48,7 @@ const resources = [
     items: '5 especies',
     readTime: '5 min',
     href: '/blog/raciones',
+    date: '2026-07-23',
     accent: C.green,
     accentBg: 'rgba(34,197,94,0.08)',
     accentBorder: 'rgba(34,197,94,0.2)',
@@ -60,6 +62,7 @@ const resources = [
     items: '4 etapas',
     readTime: '7 min',
     href: '/blog/alimentacion-larvas',
+    date: '2026-07-23',
     accent: C.purple,
     accentBg: 'rgba(168,85,247,0.08)',
     accentBorder: 'rgba(168,85,247,0.2)',
@@ -73,6 +76,7 @@ const resources = [
     items: 'Interactivo',
     readTime: '2 min',
     href: '/blog/cuanto-pierdes',
+    date: '2026-08-03',
     accent: C.red,
     accentBg: 'rgba(239,68,68,0.08)',
     accentBorder: 'rgba(239,68,68,0.2)',
@@ -86,6 +90,7 @@ const resources = [
     items: 'Interactivo',
     readTime: '3 min',
     href: '/blog/listo-para-bsf',
+    date: '2026-08-03',
     accent: C.blue,
     accentBg: 'rgba(59,130,246,0.08)',
     accentBorder: 'rgba(59,130,246,0.2)',
@@ -99,6 +104,7 @@ const resources = [
     items: 'Interactivo',
     readTime: '2 min',
     href: '/blog/racion-exacta',
+    date: '2026-08-03',
     accent: C.green,
     accentBg: 'rgba(34,197,94,0.08)',
     accentBorder: 'rgba(34,197,94,0.2)',
@@ -112,19 +118,7 @@ const resources = [
     items: 'Interactivo',
     readTime: '3 min',
     href: '/blog/salud-colonia',
-    accent: C.amber,
-    accentBg: 'rgba(245,158,11,0.08)',
-    accentBorder: 'rgba(245,158,11,0.2)',
-  },
-  {
-    id: 'salidas-economicas',
-    category: 'Negocio' as Cat,
-    emoji: '💰',
-    title: '5 formas de ganar plata con la mosca soldado negra',
-    desc: 'Huevos, frass, larva deshidratada, harina y larva viva: qué es cada salida, a quién se la vendes y cómo empezar a producirla.',
-    items: '5 salidas',
-    readTime: '6 min',
-    href: '/blog/salidas-economicas',
+    date: '2026-08-03',
     accent: C.amber,
     accentBg: 'rgba(245,158,11,0.08)',
     accentBorder: 'rgba(245,158,11,0.2)',
@@ -138,18 +132,42 @@ const resources = [
     items: 'Interactivo',
     readTime: '2 min',
     href: '/blog/cuando-recupero',
+    date: '2026-08-03',
     accent: C.purple,
     accentBg: 'rgba(168,85,247,0.08)',
     accentBorder: 'rgba(168,85,247,0.2)',
   },
+  {
+    id: 'salidas-economicas',
+    category: 'Negocio' as Cat,
+    emoji: '💰',
+    title: '5 formas de ganar plata con la mosca soldado negra',
+    desc: 'Huevos, frass, larva deshidratada, harina y larva viva: qué es cada salida, a quién se la vendes y cómo empezar a producirla.',
+    items: '5 salidas',
+    readTime: '6 min',
+    href: '/blog/salidas-economicas',
+    date: '2026-09-11',
+    accent: C.amber,
+    accentBg: 'rgba(245,158,11,0.08)',
+    accentBorder: 'rgba(245,158,11,0.2)',
+  },
 ];
+
+const mostRecentId = resources.reduce((a, b) => (a.date > b.date ? a : b)).id;
+
+const SORTS = ['Recientes', 'A-Z'] as const;
+type Sort = typeof SORTS[number];
 
 export default function BlogHub() {
   const [active, setActive] = useState<Cat>('Todos');
+  const [sort, setSort] = useState<Sort>('Recientes');
 
-  const filtered = active === 'Todos'
+  const filtered = (active === 'Todos'
     ? resources
-    : resources.filter(r => r.category === active);
+    : resources.filter(r => r.category === active)
+  ).slice().sort((a, b) =>
+    sort === 'Recientes' ? (a.date > b.date ? -1 : 1) : a.title.localeCompare(b.title)
+  );
 
   return (
     <main style={{ background: C.bg, minHeight: '100vh' }}>
@@ -226,8 +244,36 @@ export default function BlogHub() {
             );
           })}
 
-          <div style={{ marginLeft: 'auto', fontSize: 13, color: C.muted2, display: 'flex', alignItems: 'center' }}>
+        </div>
+
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 16, flexWrap: 'wrap', gap: 10 }}>
+          <div style={{ fontSize: 13, color: C.muted2 }}>
             {filtered.length} {filtered.length === 1 ? 'guía' : 'guías'}
+          </div>
+
+          <div style={{ display: 'flex', gap: 6, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 10, padding: 4 }}>
+            {SORTS.map(s => {
+              const isActive = sort === s;
+              return (
+                <button
+                  key={s}
+                  onClick={() => setSort(s)}
+                  style={{
+                    padding: '6px 14px',
+                    borderRadius: 7,
+                    fontSize: 12,
+                    fontWeight: isActive ? 700 : 500,
+                    cursor: 'pointer',
+                    border: 'none',
+                    background: isActive ? 'rgba(34,197,94,0.18)' : 'transparent',
+                    color: isActive ? C.greenL : C.muted2,
+                    transition: 'all 0.2s',
+                  }}
+                >
+                  {s === 'Recientes' ? '🕒 Recientes' : 'A-Z'}
+                </button>
+              );
+            })}
           </div>
         </div>
       </div>
@@ -244,6 +290,7 @@ export default function BlogHub() {
         {filtered.map(r => (
           <Link key={r.id} href={r.href} style={{ textDecoration: 'none' }}>
             <div style={{
+              position: 'relative',
               background: C.card,
               border: `1px solid ${r.accentBorder}`,
               borderRadius: 16,
@@ -263,6 +310,19 @@ export default function BlogHub() {
                 (e.currentTarget as HTMLElement).style.boxShadow = 'none';
               }}
             >
+              {r.id === mostRecentId && (
+                <div style={{
+                  position: 'absolute', top: 12, right: 12, zIndex: 1,
+                  background: C.green, color: C.deep,
+                  fontSize: 10, fontWeight: 800,
+                  letterSpacing: '0.5px', textTransform: 'uppercase',
+                  padding: '4px 10px', borderRadius: 20,
+                  boxShadow: '0 2px 10px rgba(34,197,94,0.4)',
+                }}>
+                  🆕 Más reciente
+                </div>
+              )}
+
               {/* Thumbnail */}
               <div style={{
                 background: r.accentBg,

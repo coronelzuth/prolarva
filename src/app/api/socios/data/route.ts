@@ -106,7 +106,10 @@ export async function POST(req: NextRequest) {
     // ── Sincronizar todo ──────────────────────────────────────────────────
     case 'sync': {
       const [lo, fe, co, re, fo, ve] = await Promise.all(
-        TABLAS_DATOS.map(t => db.from(t).select('*').eq('socio_code', code)),
+        TABLAS_DATOS.map(t => {
+          const q = db.from(t).select('*').eq('socio_code', code);
+          return t === 'lotes' ? q.order('creado_en', { ascending: true }) : q;
+        }),
       );
       const local = payload.local ?? {};
 

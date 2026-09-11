@@ -355,7 +355,16 @@ a5cc857  feat: port calculadora BSF a React con paleta de la app
 ## Estado actual
 > **Actualizar esta sección al final de cada sesión de trabajo.**
 
-**Última actualización:** 2026-09-09
+**Última actualización:** 2026-09-11
+
+**Cambios recientes (2026-09-11 — Funnel Fase 3: campo BSF, origen y captura reutilizable del blog):**
+- ✅ **Calculadora:** nuevo toggle "¿Ya crías larva BSF?" (Sí / No, todavía) en el CTA de captura, antes de nombre/WhatsApp. `origen` se lee de `?origen=` en la URL (palabra clave del video que trajo la visita) y viaja con el lead.
+- ✅ **Nuevo `src/components/LeadCapture.tsx`** — botón de captura reutilizable (nombre + WhatsApp + toggle BSF, guarda en `leads`, abre WhatsApp con mensaje armado, lee `origen` de la URL). Cableado en los 3 artículos del blog documentados arriba (`/blog/problemas`, `/blog/raciones`, `/blog/alimentacion-larvas`), reemplazando sus botones de WhatsApp sin captura. Los otros 5 artículos del blog (`salud-colonia`, `racion-exacta`, `listo-para-bsf`, `cuando-recupero`, `cuanto-pierdes`) siguen con su CTA de solo-link a `/colonia` — no se tocaron.
+- ✅ **`/api/leads/guardar`** acepta `ya_cria_bsf` y `origen`, con fallback en 2 pasos si esas columnas o las del lote aún no existen en la tabla.
+- ✅ **AdminView → tab Leads** muestra `origen` + `ya_cria_bsf` por lead y en el CSV export.
+- ✅ **`supabase/leads-origen-bsf.sql` corrido en Supabase** (2026-09-11, confirmado por Juliana) — `ya_cria_bsf` y `origen` ya se guardan en cada lead nuevo.
+- `tsc` limpio + `next build` OK. Commit `241c8eb`, push a GitHub, deploy prod `dpl_CPQCHaKakMbyn9cwn48xY1WC3eFp` → prolarva.co/calculadora y los 3 blogs verificados 200. 1er `vercel --prod --yes` dio "Not authorized" transitorio; OK con `vercel deploy --prod --yes`.
+- ⏭️ **Sigue pendiente (Fase 3, no hecho):** el DM automático por palabra clave en Instagram.
 
 **Cambios recientes (2026-09-09 — CMS de contenido: los guiones no se guardaban):**
 - ✅ **BUG RESUELTO — nada persistía en `/contenido` ni en Admin → Contenido, desde ningún dispositivo.** `updateGuion` en `useGuionesCms.ts` hacía `upsert` parcial (`{ id, ...changes }`) → Postgres lo trata como INSERT → `23502 null value in column "numero"` (numero/codigo/titulo/tipo NOT NULL sin default). El error se tragaba: la UI decía "💾 Guardar cambios" OK pero al recargar todo volvía al estado base. Reproducido contra la API REST con la anon key (HTTP 400). La tabla `guiones_cms`, su RLS y sus GRANTs estaban bien — no era el bug de RLS-solo-SELECT.
@@ -389,7 +398,7 @@ a5cc857  feat: port calculadora BSF a React con paleta de la app
 - ✅ **BUG RESUELTO 2026-09-07 — la captura de leads estaba rota en producción.** `POST /api/leads/guardar` devolvía `Could not find the 'especie' column of 'leads' in the schema cache` y **ningún lead de la calculadora se guardaba** (el botón de WhatsApp igual abre, así que no se notaba). Dos causas: (1) schema cache de PostgREST desactualizado; (2) la tabla `leads` tenía `email` NOT NULL sin default y el formulario no lo manda. **Fix:** `supabase/leads-datos-lote.sql` corrido en Supabase (ADD COLUMN IF NOT EXISTS de todo + `email/nombre SET DEFAULT ''` + `NOTIFY pgrst 'reload schema'`) + la API ahora manda `email: ''`. Verificado en prod: `{"success":true}` con todos los campos del lote. Deploy `prolarva-huhgtm5dm` (commit `c796ebe`).
   - ⚠️ La tabla `leads` real difiere de `supabase/leads.sql`: `id` es `uuid` (no TEXT), tiene `created_at` **y** `creado_en`, y `email` NOT NULL. Columnas legacy agregadas a mano.
   - 🗑️ Fila de prueba a borrar: `DELETE FROM leads WHERE nombre = '__PRUEBA_BORRAR__';`
-  - ⏭️ **Pendiente:** campo "¿Ya crías BSF?" (Sí/No) + campo oculto `origen` (palabra clave del video) en la captura; botón de captura reutilizable para los lead magnets del blog.
+  - ✅ **Hecho (2026-09-11):** campo "¿Ya crías BSF?" (Sí/No) + campo oculto `origen` (palabra clave del video) en la captura; botón de captura reutilizable para los lead magnets del blog (`LeadCapture.tsx`). Ver "Cambios recientes (2026-09-11)" arriba.
 
 **Cambios recientes (2026-09-06 — VSL de Colonia en el player):**
 - ✅ **VSL grupal montada en `/colonia`.** Reemplazado el placeholder "Video explicativo · Próximamente" por un `<video controls preload="none" poster="/fotos/vsl-colonia-poster.jpg">` con `<source src="/fotos/vsl-colonia.mp4">`.

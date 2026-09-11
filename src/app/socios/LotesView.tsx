@@ -25,9 +25,11 @@ function LotesView({ lotes, feeds, onViewLote, onNewLote, onDeleteLote }: {
         </div>
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 14 }}>
-          {lotes.map(l => (
-            <LoteCard key={l.id} lote={l} onView={onViewLote} onDelete={onDeleteLote} />
-          ))}
+          {[...lotes]
+            .sort((a, b) => (a.creadoEn ?? '').localeCompare(b.creadoEn ?? ''))
+            .map(l => (
+              <LoteCard key={l.id} lote={l} onView={onViewLote} onDelete={onDeleteLote} />
+            ))}
         </div>
       )}
     </div>

@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
     const {
       nombre, whatsapp, email = '', fuente = 'calculadora', especie = '', n_animales = 0, perdida_cop = 0, tipo_cta = '',
       precio_bulto = 0, bulto_kg = 0, dias_ciclo = 0, precio_venta = 0, mortalidad = 0, pct_bsf = 0,
-      perdida_anual_cop = 0, datos_ajustados = false,
+      perdida_anual_cop = 0, datos_ajustados = false, ya_cria_bsf = '', origen = '',
     } = body;
 
     if (!nombre && !whatsapp) {
@@ -26,14 +26,19 @@ export async function POST(req: NextRequest) {
 
     const id = crypto.randomUUID();
     const base = { id, nombre: nombre ?? '', whatsapp: whatsapp ?? '', email: email ?? '', fuente, especie, n_animales, perdida_cop, tipo_cta };
-    const full = {
+    const conLote = {
       ...base,
       precio_bulto, bulto_kg, dias_ciclo, precio_venta, mortalidad, pct_bsf, perdida_anual_cop, datos_ajustados,
     };
+    const full = { ...conLote, ya_cria_bsf, origen };
 
     let { error } = await db.from('leads').insert(full);
     if (error) {
-      // Las columnas nuevas quizás aún no existen — reintenta con lo básico.
+      // Las columnas `ya_cria_bsf`/`origen` quizás aún no existen — reintenta sin ellas.
+      ({ error } = await db.from('leads').insert(conLote));
+    }
+    if (error) {
+      // Las columnas del lote tampoco existen — reintenta con lo básico.
       ({ error } = await db.from('leads').insert(base));
     }
 

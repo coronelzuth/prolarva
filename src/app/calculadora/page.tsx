@@ -53,9 +53,21 @@ export default function CalculadoraPage() {
 
   const [nombre, setNombre] = useState('');
   const [waNum, setWaNum]   = useState('');
+  const [criaBsf, setCriaBsf] = useState<'si' | 'no' | null>(null);
+  const [origen, setOrigen] = useState('');
   const [confVisible, setConfVisible] = useState(false);
   const [copied, setCopied] = useState(false);
   const [result, setResult] = useState<CalcResult | null>(null);
+
+  // palabra clave del video que trajo la visita, ej: prolarva.co/calculadora?origen=v12
+  useEffect(() => {
+    try {
+      const p = new URLSearchParams(window.location.search);
+      setOrigen(p.get('origen') || '');
+    } catch {
+      /* noop */
+    }
+  }, []);
 
   const pConc = bultoKg > 0 ? pBulto / bultoKg : 0;
 
@@ -130,6 +142,8 @@ export default function CalculadoraPage() {
           pct_bsf: slBSF,
           perdida_anual_cop: result?.perdAcum ?? 0,
           datos_ajustados: datosAjustados,
+          ya_cria_bsf: criaBsf ?? '',
+          origen,
         }),
       }).catch(() => {});
     }
@@ -347,6 +361,22 @@ export default function CalculadoraPage() {
               <div style={{ color: C.amber, fontSize: 15, fontWeight: 800, marginBottom: 5 }}>¿Quieres aprender a producirla tú? 🌱</div>
               <div style={{ fontSize: 12, color: C.muted, marginBottom: 14, lineHeight: 1.5 }}>
                 En el <strong style={{ color: C.text }}>Curso Colonia</strong> te enseño a montar tu propia colonia de larva BSF en 5 semanas — en vivo y con acompañamiento. Próxima cohorte: <strong style={{ color: C.text }}>8 de noviembre</strong>. Déjame tus datos y te cuento cómo va.
+              </div>
+              <div style={{ marginBottom: 12 }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: C.text, marginBottom: 6 }}>¿Ya crías larva BSF?</div>
+                <div style={{ display: 'flex', gap: 8 }}>
+                  {(['si', 'no'] as const).map(v => (
+                    <button key={v} onClick={() => setCriaBsf(v)} style={{
+                      flex: 1, border: `2px solid ${criaBsf === v ? C.amber : 'rgba(245,158,11,0.3)'}`,
+                      background: criaBsf === v ? 'rgba(245,158,11,0.15)' : C.card2,
+                      color: criaBsf === v ? C.amber : C.muted,
+                      borderRadius: 10, padding: '9px 0', fontSize: 13, fontWeight: 700,
+                      cursor: 'pointer', fontFamily: 'inherit',
+                    }}>
+                      {v === 'si' ? 'Sí' : 'No, todavía'}
+                    </button>
+                  ))}
+                </div>
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 12 }}>
                 <input type="text" placeholder="Tu nombre" value={nombre} onChange={e => setNombre(e.target.value)} style={{ ...inp, border: '2px solid rgba(245,158,11,0.3)' }} />

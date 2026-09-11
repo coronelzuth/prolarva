@@ -152,6 +152,8 @@ interface Lead {
   pct_bsf?: number;
   perdida_anual_cop?: number;
   datos_ajustados?: boolean;
+  ya_cria_bsf?: string;
+  origen?: string;
 }
 
 interface Venta {
@@ -496,8 +498,8 @@ function AdminView({ adminCode, onBack, onLogout }: { adminCode: string; onBack:
             <div style={{ display: 'flex', gap: 8 }}>
               <button
                 onClick={() => {
-                  const hdrs = ['Fecha', 'Nombre', 'WhatsApp', 'Especie', 'Animales', 'Pérdida COP', 'Pérdida año COP', 'CTA', 'Precio bulto', 'Kg bulto', 'Días ciclo', 'Precio venta', 'Mortalidad %', '% BSF', 'Ajustó datos'];
-                  const rows = leads.map(l => [fmtDate(l.creado_en), l.nombre, l.whatsapp, l.especie, String(l.n_animales), String(l.perdida_cop), String(l.perdida_anual_cop ?? ''), l.tipo_cta, String(l.precio_bulto ?? ''), String(l.bulto_kg ?? ''), String(l.dias_ciclo ?? ''), String(l.precio_venta ?? ''), String(l.mortalidad ?? ''), String(l.pct_bsf ?? ''), l.datos_ajustados ? 'sí' : 'no']);
+                  const hdrs = ['Fecha', 'Nombre', 'WhatsApp', 'Fuente', 'Origen', 'Ya cría BSF', 'Especie', 'Animales', 'Pérdida COP', 'Pérdida año COP', 'CTA', 'Precio bulto', 'Kg bulto', 'Días ciclo', 'Precio venta', 'Mortalidad %', '% BSF', 'Ajustó datos'];
+                  const rows = leads.map(l => [fmtDate(l.creado_en), l.nombre, l.whatsapp, l.fuente, l.origen ?? '', l.ya_cria_bsf ?? '', l.especie, String(l.n_animales), String(l.perdida_cop), String(l.perdida_anual_cop ?? ''), l.tipo_cta, String(l.precio_bulto ?? ''), String(l.bulto_kg ?? ''), String(l.dias_ciclo ?? ''), String(l.precio_venta ?? ''), String(l.mortalidad ?? ''), String(l.pct_bsf ?? ''), l.datos_ajustados ? 'sí' : 'no']);
                   downloadCSV(rows, hdrs, `prolarva-leads-${new Date().toISOString().slice(0, 10)}.csv`);
                 }}
                 style={{ ...btnOutline, ...btnSm }}
@@ -538,6 +540,13 @@ function AdminView({ adminCode, onBack, onLogout }: { adminCode: string; onBack:
                         {lead.especie && (
                           <div style={{ fontSize: 11, color: S.muted, marginTop: 2 }}>
                             {lead.n_animales} {lead.especie} · pérdida: {new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(lead.perdida_cop)}
+                          </div>
+                        )}
+                        {(lead.ya_cria_bsf || lead.origen) && (
+                          <div style={{ fontSize: 11, color: S.muted, marginTop: 2 }}>
+                            {lead.ya_cria_bsf && <span>{lead.ya_cria_bsf === 'si' ? '🪲 ya cría BSF' : '🌱 nueva/o en BSF'}</span>}
+                            {lead.ya_cria_bsf && lead.origen && ' · '}
+                            {lead.origen && <span>origen: <strong style={{ color: S.text }}>{lead.origen}</strong></span>}
                           </div>
                         )}
                         {lead.notas_crm && <div style={{ fontSize: 11, color: S.muted, fontStyle: 'italic', marginTop: 3 }}>📝 {lead.notas_crm}</div>}

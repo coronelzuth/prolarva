@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import LeadCapture from '@/components/LeadCapture';
 
 const C = {
   bg:     '#0d1b2a',
@@ -460,26 +461,15 @@ export default function RacionesPage() {
             }}>
               Ir a la calculadora →
             </Link>
-            <a
-              href="https://wa.me/573223212293?text=Hola%20Juliana%2C%20quiero%20saber%20cu%C3%A1nto%20larva%20dar%20a%20mis%20animales"
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{
-                display: 'inline-block',
-                background: 'rgba(255,255,255,0.07)',
-                border: '1px solid rgba(255,255,255,0.15)',
-                color: C.text,
-                fontWeight: 700,
-                fontSize: 15,
-                padding: '14px 28px',
-                borderRadius: 10,
-                textDecoration: 'none',
-              }}
-            >
-              Preguntarle a Juliana
-            </a>
           </div>
         </div>
+
+        <LeadCapture
+          fuente="blog_raciones"
+          titulo="¿Prefieres preguntarle directo a Juliana?"
+          texto="Cuéntale cuántos animales tienes y qué crías, y te dice exactamente cuánta larva darles."
+          waMensaje="quiero saber cuánto larva dar a mis animales"
+        />
       </div>
 
       <style>{`

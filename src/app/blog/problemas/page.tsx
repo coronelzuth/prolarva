@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import LeadCapture from '@/components/LeadCapture';
 
 const C = {
   bg:     '#0d1b2a',
@@ -275,36 +276,12 @@ export default function ProblemasPage() {
         })}
 
         {/* CTA */}
-        <div style={{
-          background: `linear-gradient(135deg, ${C.card}, ${C.card2})`,
-          border: '1px solid rgba(34,197,94,0.2)',
-          borderRadius: 16, padding: '36px 28px',
-          textAlign: 'center', marginTop: 40,
-        }}>
-          <h3 style={{ fontSize: 20, fontWeight: 800, color: C.text2, marginBottom: 10 }}>
-            ¿Tienes otro problema en tu granja?
-          </h3>
-          <p style={{ color: C.muted, fontSize: 14, lineHeight: 1.65, maxWidth: 480, margin: '0 auto 26px' }}>
-            Escríbeme y te ayudo a diagnosticar qué está pasando con tu colonia. El Kit ProLarva 25/15 incluye acompañamiento para que no te quedes sola en el proceso.
-          </p>
-          <a
-            href="https://wa.me/573223212293?text=Hola%20Juliana%2C%20tengo%20un%20problema%20con%20mi%20colonia%20BSF"
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{
-              display: 'inline-block',
-              background: C.green,
-              color: C.deep,
-              fontWeight: 800,
-              fontSize: 15,
-              padding: '14px 34px',
-              borderRadius: 10,
-              textDecoration: 'none',
-            }}
-          >
-            Escribirle a Juliana →
-          </a>
-        </div>
+        <LeadCapture
+          fuente="blog_problemas"
+          titulo="¿Tienes otro problema en tu granja?"
+          texto="Escríbeme y te ayudo a diagnosticar qué está pasando con tu colonia. El Kit ProLarva 25/15 incluye acompañamiento para que no te quedes sola en el proceso."
+          waMensaje="tengo un problema con mi colonia BSF"
+        />
       </div>
 
       <style>{`

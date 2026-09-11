@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import LeadCapture from '@/components/LeadCapture';
 
 const C = {
   bg:     '#0d1b2a',
@@ -509,50 +510,27 @@ export default function AlimentacionLarvasPage() {
         </div>
 
         {/* CTA */}
-        <div style={{
-          background: `linear-gradient(135deg, ${C.card}, ${C.card2})`,
-          border: '1px solid rgba(34,197,94,0.2)',
-          borderRadius: 16, padding: '36px 28px',
-          textAlign: 'center',
-        }}>
-          <h3 style={{ fontSize: 20, fontWeight: 800, color: C.text2, marginBottom: 10 }}>
-            ¿Tienes dudas sobre el sustrato de tu criadero?
-          </h3>
-          <p style={{ color: C.muted, fontSize: 14, lineHeight: 1.65, maxWidth: 480, margin: '0 auto 26px' }}>
-            Cuéntale a Juliana qué materiales tienes disponibles en tu zona y te dice cómo combinarlos para sacarle el máximo a tu camada.
-          </p>
-          <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
-            <a
-              href="https://wa.me/573223212293?text=Hola%20Juliana%2C%20tengo%20una%20duda%20sobre%20c%C3%B3mo%20alimentar%20mis%20larvas%20BSF"
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{
-                display: 'inline-block',
-                background: C.green,
-                color: C.deep,
-                fontWeight: 800,
-                fontSize: 15,
-                padding: '14px 28px',
-                borderRadius: 10,
-                textDecoration: 'none',
-              }}
-            >
-              Preguntarle a Juliana →
-            </a>
-            <Link href="/blog/raciones" style={{
-              display: 'inline-block',
-              background: 'rgba(255,255,255,0.07)',
-              border: '1px solid rgba(255,255,255,0.15)',
-              color: C.text,
-              fontWeight: 700,
-              fontSize: 15,
-              padding: '14px 28px',
-              borderRadius: 10,
-              textDecoration: 'none',
-            }}>
-              Ver raciones por animal
-            </Link>
-          </div>
+        <LeadCapture
+          fuente="blog_alimentacion_larvas"
+          titulo="¿Tienes dudas sobre el sustrato de tu criadero?"
+          texto="Cuéntale a Juliana qué materiales tienes disponibles en tu zona y te dice cómo combinarlos para sacarle el máximo a tu camada."
+          waMensaje="tengo una duda sobre cómo alimentar mis larvas BSF"
+        />
+
+        <div style={{ textAlign: 'center', marginTop: 16 }}>
+          <Link href="/blog/raciones" style={{
+            display: 'inline-block',
+            background: 'rgba(255,255,255,0.07)',
+            border: '1px solid rgba(255,255,255,0.15)',
+            color: C.text,
+            fontWeight: 700,
+            fontSize: 14,
+            padding: '12px 26px',
+            borderRadius: 10,
+            textDecoration: 'none',
+          }}>
+            Ver raciones por animal
+          </Link>
         </div>
       </div>
 

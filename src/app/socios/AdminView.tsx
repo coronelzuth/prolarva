@@ -167,6 +167,14 @@ interface Venta {
   creado_en: string;
 }
 
+interface TripwireLeccion {
+  n: 1 | 2 | 3;
+  titulo: string;
+  duracion: string;
+  video_url: string;
+  disponible: boolean;
+}
+
 interface TripwireAlumno {
   id: string;
   codigo: string;
@@ -212,6 +220,11 @@ function AdminView({ adminCode, onBack, onLogout }: { adminCode: string; onBack:
   const [generatingTw, setGeneratingTw] = useState(false);
   const [twError, setTwError]         = useState('');
   const [copiedTw, setCopiedTw]       = useState<string | null>(null);
+  const [twLecciones, setTwLecciones]   = useState<TripwireLeccion[]>([]);
+  const [loadingTwLec, setLoadingTwLec] = useState(false);
+  const [savingTwLecN, setSavingTwLecN] = useState<number | null>(null);
+  const [twLecOk, setTwLecOk]           = useState<number | null>(null);
+  const [twLecError, setTwLecError]     = useState('');
 
   // ── Blog stats state ──────────────────────────────────────────────────────
   type BlogStat = { slug: string; views: number; last_viewed_at: string };
@@ -302,6 +315,29 @@ function AdminView({ adminCode, onBack, onLogout }: { adminCode: string; onBack:
     navigator.clipboard.writeText(link).catch(() => {});
     setCopiedTw(codigo);
     setTimeout(() => setCopiedTw(null), 2000);
+  }
+
+  async function cargarTwLecciones() {
+    setLoadingTwLec(true);
+    try {
+      const res  = await fetch('/api/tripwire/lecciones');
+      const data = await res.json();
+      if (Array.isArray(data.lecciones)) setTwLecciones(data.lecciones);
+    } finally { setLoadingTwLec(false); }
+  }
+
+  function editarTwLeccion(n: number, campo: keyof TripwireLeccion, valor: string | boolean) {
+    setTwLecciones(prev => prev.map(l => l.n === n ? { ...l, [campo]: valor } : l));
+  }
+
+  async function guardarTwLeccion(leccion: TripwireLeccion) {
+    setSavingTwLecN(leccion.n); setTwLecError('');
+    try {
+      const res  = await fetch('/api/tripwire/lecciones', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ adminCode, ...leccion }) });
+      const data = await res.json();
+      if (data.success) { setTwLecOk(leccion.n); setTimeout(() => setTwLecOk(null), 2000); }
+      else setTwLecError(data.error ?? 'Error al guardar');
+    } finally { setSavingTwLecN(null); }
   }
 
   async function cargarBlog() {
@@ -417,6 +453,7 @@ function AdminView({ adminCode, onBack, onLogout }: { adminCode: string; onBack:
     cargarVentas();
     cargarGlobalStats();
     cargarTripwireAlumnos();
+    cargarTwLecciones();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -897,6 +934,52 @@ function AdminView({ adminCode, onBack, onLogout }: { adminCode: string; onBack:
       {/* Tab: Tripwire (Mini-Curso "Arranca tu Colonia BSF") */}
       {tab === 'tripwire' && (
         <div>
+          <h3 style={{ fontSize: 14, fontWeight: 800, margin: '0 0 10px' }}>📹 Contenido de las 3 lecciones</h3>
+          {loadingTwLec ? (
+            <p style={{ color: S.muted, fontSize: 13 }}>Cargando...</p>
+          ) : twLecciones.length === 0 ? (
+            <div style={{ ...cardStyle, textAlign: 'center', padding: '1.5rem', color: S.muted, marginBottom: 24 }}>
+              <p style={{ fontSize: 13, margin: 0 }}>Falta correr <code>supabase/tripwire-lecciones.sql</code> en Supabase para activar este editor.</p>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 24 }}>
+              {twLecciones.map(l => (
+                <div key={l.n} style={cardStyle}>
+                  <div style={{ fontSize: 11, color: S.green2, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 10 }}>
+                    Lección {l.n} de 3
+                  </div>
+                  <Field label="Título">
+                    <input style={inputStyle} value={l.titulo} onChange={e => editarTwLeccion(l.n, 'titulo', e.target.value)} />
+                  </Field>
+                  <div style={{ display: 'flex', gap: 10 }}>
+                    <div style={{ flex: 1 }}>
+                      <Field label="Duración">
+                        <input style={inputStyle} value={l.duracion} onChange={e => editarTwLeccion(l.n, 'duracion', e.target.value)} placeholder="6–8 min" />
+                      </Field>
+                    </div>
+                    <div style={{ flex: 2 }}>
+                      <Field label="URL del video">
+                        <input style={inputStyle} value={l.video_url} onChange={e => editarTwLeccion(l.n, 'video_url', e.target.value)} placeholder="/fotos/tripwire-leccion-1.mp4" />
+                      </Field>
+                    </div>
+                  </div>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: S.text, marginBottom: 12, cursor: 'pointer' }}>
+                    <input type="checkbox" checked={l.disponible} onChange={e => editarTwLeccion(l.n, 'disponible', e.target.checked)} />
+                    Video listo — mostrarlo a los alumnos
+                  </label>
+                  <button
+                    style={{ ...btnPrimary, ...btnSm, opacity: savingTwLecN === l.n ? 0.6 : 1 }}
+                    onClick={() => guardarTwLeccion(l)}
+                    disabled={savingTwLecN === l.n}
+                  >
+                    {savingTwLecN === l.n ? 'Guardando...' : twLecOk === l.n ? '✓ Guardado' : 'Guardar'}
+                  </button>
+                </div>
+              ))}
+              {twLecError && <p style={{ color: S.red, fontSize: 12 }}>{twLecError}</p>}
+            </div>
+          )}
+
           <div style={{ marginBottom: 20 }}>
             <button style={btnPrimary} onClick={() => setShowTwModal(true)}>+ Generar acceso</button>
             <p style={{ fontSize: 11, color: S.muted, marginTop: 6 }}>

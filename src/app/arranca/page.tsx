@@ -16,10 +16,12 @@ interface TwSession {
   coloniaCanjeado: boolean;
 }
 
-const LECCIONES: { n: 1 | 2 | 3; titulo: string; duracion: string; videoUrl: string; disponible: boolean }[] = [
-  { n: 1, titulo: 'El ciclo y por qué esto es dinero',                    duracion: '6–8 min', videoUrl: '/fotos/tripwire-leccion-1.mp4', disponible: false },
-  { n: 2, titulo: 'Arma tu sistema mínimo sin ahogarla',                  duracion: '6–8 min', videoUrl: '/fotos/tripwire-leccion-2.mp4', disponible: false },
-  { n: 3, titulo: 'Lo que viene — y por qué no deberías hacerlo solo',    duracion: '5–6 min', videoUrl: '/fotos/tripwire-leccion-3.mp4', disponible: false },
+interface Leccion { n: 1 | 2 | 3; titulo: string; duracion: string; videoUrl: string; disponible: boolean }
+
+const LECCIONES_FALLBACK: Leccion[] = [
+  { n: 1, titulo: 'El ciclo y por qué esto es dinero',                    duracion: '6–8 min', videoUrl: '', disponible: false },
+  { n: 2, titulo: 'Arma tu sistema mínimo sin ahogarla',                  duracion: '6–8 min', videoUrl: '', disponible: false },
+  { n: 3, titulo: 'Lo que viene — y por qué no deberías hacerlo solo',    duracion: '5–6 min', videoUrl: '', disponible: false },
 ];
 
 function campoDe(n: 1 | 2 | 3): 'l1' | 'l2' | 'l3' {
@@ -35,6 +37,7 @@ function ArrancaInner() {
   const [codigoInput, setCodigoInput] = useState(codeParam);
   const [loggingIn, setLoggingIn]     = useState(false);
   const [loginError, setLoginError]   = useState('');
+  const [lecciones, setLecciones]     = useState<Leccion[]>(LECCIONES_FALLBACK);
 
   useEffect(() => {
     try {
@@ -42,6 +45,17 @@ function ArrancaInner() {
       if (raw) setSession(JSON.parse(raw));
     } catch { /* localStorage no disponible */ }
     setLoaded(true);
+
+    fetch('/api/tripwire/lecciones')
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data.lecciones) && data.lecciones.length > 0) {
+          setLecciones(data.lecciones.map((l: { n: 1 | 2 | 3; titulo: string; duracion: string; video_url: string; disponible: boolean }) => ({
+            n: l.n, titulo: l.titulo, duracion: l.duracion, videoUrl: l.video_url, disponible: l.disponible,
+          })));
+        }
+      })
+      .catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -139,7 +153,7 @@ function ArrancaInner() {
           <div style={{ width: `${(vistas / 3) * 100}%`, height: '100%', background: 'linear-gradient(90deg,#22c55e,#16a34a)', transition: 'width .4s' }} />
         </div>
 
-        {LECCIONES.map(l => {
+        {lecciones.map(l => {
           const vista = session[campoDe(l.n)];
           return (
             <div key={l.n} style={{ ...cardStyle, marginBottom: 16 }}>

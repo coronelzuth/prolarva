@@ -1,11 +1,14 @@
 'use client';
+import { useState } from 'react';
 import type { DiaCronograma } from '@/hooks/useEscuela';
 import { S, SEMANAS_INFO, esHoy } from './_escuela_shared';
+import { TripwirePanel } from './TripwirePanel';
 
 interface EscuelaCronogramaProps {
   cronograma: DiaCronograma[];
   asAdmin: boolean;
   isAdmin: boolean;
+  adminCode: string;
   fasesAprobadas: number;
   faseEnRevision: number;
   // clic en una semana abre el FaseModal con todo el detalle
@@ -16,9 +19,10 @@ interface EscuelaCronogramaProps {
 }
 
 export function EscuelaCronograma({
-  cronograma, asAdmin, isAdmin, fasesAprobadas, faseEnRevision,
+  cronograma, asAdmin, isAdmin, adminCode, fasesAprobadas, faseEnRevision,
   setFaseMod, setEditDia, setModalDia,
 }: EscuelaCronogramaProps) {
+  const [panel, setPanel] = useState<'grupal' | 'tripwire'>('grupal');
   const dias = cronograma.filter(d => d.activo || asAdmin);
   const hoyEnSemana = (s: number) => dias.some(d => d.semana === s && esHoy(d.fecha));
 
@@ -30,6 +34,29 @@ export function EscuelaCronograma({
         <p style={{ fontSize: 12, color: S.muted, margin: '4px 0 0' }}>5 semanas · haz clic en una semana para ver clases, plantillas y reflexión</p>
       </div>
 
+      {/* Grupal / Tripwire — solo admin */}
+      {asAdmin && (
+        <div style={{ display: 'flex', gap: 6, marginBottom: 18 }}>
+          {([['grupal', '🌱 Grupal'], ['tripwire', '🎓 Tripwire']] as const).map(([key, label]) => (
+            <button
+              key={key}
+              onClick={() => setPanel(key)}
+              style={{
+                padding: '7px 14px', borderRadius: 8, fontSize: 12, fontWeight: 700,
+                fontFamily: 'Montserrat, sans-serif', cursor: 'pointer',
+                background: panel === key ? 'linear-gradient(135deg, #22c55e, #16a34a)' : 'transparent',
+                color: panel === key ? '#fff' : S.muted,
+                border: panel === key ? 'none' : `1.5px solid ${S.border}`,
+              }}
+            >{label}</button>
+          ))}
+        </div>
+      )}
+
+      {panel === 'tripwire' && asAdmin ? (
+        <TripwirePanel adminCode={adminCode} />
+      ) : (
+      <>
       {/* Barra de progreso de semanas */}
       {!isAdmin && (
         <div style={{ marginBottom: 20 }}>
@@ -108,6 +135,8 @@ export function EscuelaCronograma({
           );
         })}
       </div>
+      </>
+      )}
     </div>
   );
 }

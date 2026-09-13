@@ -769,6 +769,7 @@ export default function EscuelaView({
               cronograma={esc.cronograma}
               asAdmin={asAdmin}
               isAdmin={isAdmin}
+              adminCode={socioCode}
               fasesAprobadas={fasesAprobadas}
               faseEnRevision={faseEnRevision}
               setFaseMod={setFaseMod}

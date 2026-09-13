@@ -114,6 +114,7 @@ src/
 │   ├── socios/PerfilView.tsx     # Perfil estilo Instagram con directorio
 │   ├── socios/VentasView.tsx     # Registro de ventas del socio
 │   ├── socios/AdminView.tsx      # Panel admin: socios, leads, ventas, invitaciones, blog
+│   ├── socios/TripwirePanel.tsx  # Editor del Mini-Curso Tripwire (lecciones + accesos) — vive dentro de Escuela → Cronograma, no en AdminView
 │   ├── socios/AuthScreens.tsx    # Login, Register, ResetPassword
 │   ├── socios/CosechaView.tsx    # Vista cosecha + GuiaView
 │   └── gracias/page.tsx          # Página de confirmación post-formulario
@@ -317,7 +318,7 @@ interface Stage {
 - [x] **URL del VSL** — VSL de 7:45 montada en el hero de `/colonia` (2026-09-06). Archivo `public/fotos/vsl-colonia.mp4` (gitignored, live en prod).
 - [x] **Exportar leads en CSV** — Tab Leads en AdminView con lista + CSV export. Tabla `leads` SQL en `supabase/leads.sql` (ejecutar en Supabase)
 - [ ] **Google Analytics 4** — instalar para tener datos históricos de visitas al blog dentro del panel admin. Vercel Analytics plan gratuito no expone API de lectura. GA4 es gratuito y tiene API. Requiere: crear propiedad en analytics.google.com, agregar script en `layout.tsx`, crear API route que consulte GA4 Reporting API y mostrar en tab Blog del AdminView.
-- [ ] **Classroom `/arranca` (Tripwire) — falta para poder vender:** (1) correr `supabase/tripwire.sql` en Supabase; (2) grabar las 3 lecciones (programado 2026-09-14) y subir los .mp4 a `public/fotos/tripwire-leccion-{1,2,3}.mp4`, luego poner `disponible: true` en `LECCIONES` (`src/app/arranca/page.tsx`); (3) opcional a futuro — conectar `/api/socios/register` para que revise `tripwire_alumnos` por WhatsApp/código y marque `colonia_canjeado` solo, en vez de coordinar el descuento a mano.
+- [ ] **Classroom `/arranca` (Tripwire) — falta para poder vender:** (1) correr `supabase/tripwire-lecciones.sql` en Supabase (`tripwire.sql` ya está corrido); (2) grabar las 3 lecciones (programado 2026-09-14), subir cada .mp4 a `public/fotos/tripwire-leccion-{1,2,3}.mp4` y hacer `vercel --prod --yes`, luego en Admin → tab Tripwire poner la URL del video y marcar "video listo" (ya NO requiere tocar código); (3) opcional a futuro — conectar `/api/socios/register` para que revise `tripwire_alumnos` por WhatsApp/código y marque `colonia_canjeado` solo, en vez de coordinar el descuento a mano.
 
 ---
 
@@ -357,7 +358,18 @@ a5cc857  feat: port calculadora BSF a React con paleta de la app
 ## Estado actual
 > **Actualizar esta sección al final de cada sesión de trabajo.**
 
-**Última actualización:** 2026-09-12
+**Última actualización:** 2026-09-13
+
+**Cambios recientes (2026-09-13 — Tripwire: favicon Larvi + editor de lecciones desde Admin):**
+- ✅ **Favicon cambiado a la mascota Larvi** — `src/app/favicon.ico` regenerado desde `public/larvi-mascota.png` (multi-tamaño 16 a 256px, con transparencia, vía PIL). Commit `fb229a8`, deploy `dpl_4Mv83yZxyMHetmf2dpyeDJgHqifd`.
+- ✅ **Nueva tabla `tripwire_lecciones`** (`supabase/tripwire-lecciones.sql`) — título, duración, `video_url` y `disponible` de cada una de las 3 lecciones, antes hardcodeados en `src/app/arranca/page.tsx`.
+- ✅ **Nueva API `/api/tripwire/lecciones`** — `GET` público (lo usa `/arranca` para armar el classroom) y `POST` admin-only para actualizar una lección.
+- ✅ **Admin → tab Tripwire** ahora tiene arriba un editor de las 3 lecciones (título, duración, URL del video, checkbox "video listo") — Juliana ya puede publicar un video nuevo (poniendo la URL y marcando disponible) **sin pedirme que toque código ni redeploy**, siempre que el video ya esté accesible en alguna URL (puede seguir siendo `/fotos/tripwire-leccion-N.mp4` si lo sube ella con `vercel --prod --yes`, o cualquier otra URL pública).
+- `/arranca/page.tsx` ya no tiene el array `LECCIONES` hardcodeado — hace `fetch('/api/tripwire/lecciones')` al cargar; si la tabla no existe todavía cae a `LECCIONES_FALLBACK` (mismos títulos, sin video, `disponible: false`) así no se rompe nada mientras no se corra la migración.
+- ✅ **`supabase/tripwire-lecciones.sql` corrido en Supabase** (2026-09-13, confirmado por Juliana).
+- Se generó un código real de prueba **`ARR-LHKR5W`** (insertado directo en `tripwire_alumnos` vía service role, no por la UI) para que Juliana probara `/arranca` en producción.
+- `tsc` limpio + `next build` OK. Commit `68503d2`, push a GitHub, deploy prod `dpl_94MrrCk7DUSznMUw2mTvDCD1bFtr`.
+- 🔁 **Reubicado el mismo día (feedback de Juliana: "mucha fricción para editar algo separado"):** el editor de Tripwire (lecciones + generar accesos + lista de alumnos) se movió de Admin → Centro de Mando → tab suelto, a vivir **dentro de Escuela → Cronograma**, como un segundo panel junto al del programa Grupal. Nuevo componente `src/app/socios/TripwirePanel.tsx` (toda la lógica que antes estaba en `AdminView.tsx`, ahora standalone con su propio `adminCode` prop). `EscuelaCronograma.tsx` gana un toggle "🌱 Grupal / 🎓 Tripwire" visible solo cuando `asAdmin` (admin y NO en "vista de socio"). El tab "🎓 Tripwire" de `AdminView.tsx` se eliminó por completo (ya no hay 2 lugares para lo mismo). Los estudiantes del tripwire siguen entrando por `/arranca` con su código — esto solo cambia dónde Juliana ADMINISTRA el contenido.
 
 **Cambios recientes (2026-09-12 — Classroom del Tripwire en `/arranca`):**
 - ✅ **Nueva ruta `/arranca`** — classroom standalone para el Mini-Curso Tripwire "Arranca tu Colonia BSF" ($19.900 COP), separado a propósito de `/socios` (audiencia y acceso distintos, ver decisión abajo). Login solo por código (`ARR-XXXXXX`, sin password) contra la tabla nueva `tripwire_alumnos`. Acepta `?c=<codigo>` para auto-login desde el link compartido por WhatsApp. Sin Navbar ni Larvi/WhatsApp flotantes (mismo trato que `/socios`, editado en `Navbar.tsx` y `FloatingWidgets.tsx`).

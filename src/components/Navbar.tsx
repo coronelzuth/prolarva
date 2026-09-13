@@ -18,7 +18,7 @@ export default function Navbar() {
 
   const isSocios = pathname.startsWith('/socios');
 
-  if (isSocios) return null;
+  if (isSocios || pathname.startsWith('/arranca')) return null;
 
   return (
     <nav style={{ background: 'rgba(13,27,42,0.95)', borderBottom: '1px solid rgba(14,165,233,0.2)', backdropFilter: 'blur(12px)', position: 'sticky', top: 0, zIndex: 50 }}>

@@ -7,7 +7,7 @@ import PWAInstallBanner from './PWAInstallBanner';
 
 export default function FloatingWidgets() {
   const path = usePathname();
-  if (path === '/socios' || path === '/contenido') return null;
+  if (path === '/socios' || path === '/contenido' || path === '/arranca') return null;
   return (
     <>
       <PWAInstallBanner />

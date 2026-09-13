@@ -65,6 +65,7 @@ escribir saltándose RLS. Si no está, caen a la anon key. **Nunca exponerla al 
 | `/blog/raciones` | Raciones por animal y etapa — selector de especie (pollos/gallinas/cerdos/peces), tablas, tips + compartir |
 | `/blog/alimentacion-larvas` | Qué comen las larvas BSF — sustratos, porciones por etapa del ciclo, qué evitar, variación proteica + compartir |
 | `/contenido` | Gestor de contenido (#gestorcontenido) — 90 guiones, filtros, tab Hoy, calendario, editor. **Guard admin desde 2026-08-29** (redirige a `/socios` si `prl-session.rol !== 'admin'`). ⚠️ `GUIONES_BASE` sigue en el bundle client (`data/guiones.ts`) — protegido de visitantes casuales, no de quien inspeccione el JS. También embebido en Admin → tab Contenido. |
+| `/arranca` | **NUEVO 2026-09-12** — Classroom del Mini-Curso Tripwire "Arranca tu Colonia BSF" ($19.900 COP, pago manual por Nequi). Login solo por código (sin password) contra tabla `tripwire_alumnos`. Sin Navbar ni Larvi/WhatsApp flotantes (mismo trato que `/socios`). Acepta `?c=<codigo>` para auto-login desde el link que se comparte por WhatsApp. |
 
 ---
 
@@ -316,6 +317,7 @@ interface Stage {
 - [x] **URL del VSL** — VSL de 7:45 montada en el hero de `/colonia` (2026-09-06). Archivo `public/fotos/vsl-colonia.mp4` (gitignored, live en prod).
 - [x] **Exportar leads en CSV** — Tab Leads en AdminView con lista + CSV export. Tabla `leads` SQL en `supabase/leads.sql` (ejecutar en Supabase)
 - [ ] **Google Analytics 4** — instalar para tener datos históricos de visitas al blog dentro del panel admin. Vercel Analytics plan gratuito no expone API de lectura. GA4 es gratuito y tiene API. Requiere: crear propiedad en analytics.google.com, agregar script en `layout.tsx`, crear API route que consulte GA4 Reporting API y mostrar en tab Blog del AdminView.
+- [ ] **Classroom `/arranca` (Tripwire) — falta para poder vender:** (1) correr `supabase/tripwire.sql` en Supabase; (2) grabar las 3 lecciones (programado 2026-09-14) y subir los .mp4 a `public/fotos/tripwire-leccion-{1,2,3}.mp4`, luego poner `disponible: true` en `LECCIONES` (`src/app/arranca/page.tsx`); (3) opcional a futuro — conectar `/api/socios/register` para que revise `tripwire_alumnos` por WhatsApp/código y marque `colonia_canjeado` solo, en vez de coordinar el descuento a mano.
 
 ---
 
@@ -355,7 +357,16 @@ a5cc857  feat: port calculadora BSF a React con paleta de la app
 ## Estado actual
 > **Actualizar esta sección al final de cada sesión de trabajo.**
 
-**Última actualización:** 2026-09-11
+**Última actualización:** 2026-09-12
+
+**Cambios recientes (2026-09-12 — Classroom del Tripwire en `/arranca`):**
+- ✅ **Nueva ruta `/arranca`** — classroom standalone para el Mini-Curso Tripwire "Arranca tu Colonia BSF" ($19.900 COP), separado a propósito de `/socios` (audiencia y acceso distintos, ver decisión abajo). Login solo por código (`ARR-XXXXXX`, sin password) contra la tabla nueva `tripwire_alumnos`. Acepta `?c=<codigo>` para auto-login desde el link compartido por WhatsApp. Sin Navbar ni Larvi/WhatsApp flotantes (mismo trato que `/socios`, editado en `Navbar.tsx` y `FloatingWidgets.tsx`).
+- **Por qué ruta separada y no un rol dentro de `/socios`:** el tripwire es autoestudio de bajo costo, sin fases/Monitor/Ventas/Perfil — meterlo en `/socios` obligaba a ocultar tabs por rol. La tabla `tripwire_alumnos` (con `whatsapp` + `colonia_canjeado`) además deja lista la prueba de pago que pedía `Leccion_03.md` del mini-curso para validar el descuento antes de aplicarlo en Colonia (esa automatización en el registro de Colonia AÚN NO está conectada — por ahora el canje se coordina a mano por WhatsApp).
+- **3 lecciones** — títulos y duración tomados de `11- Curso Grupal\Mini-Curso Tripwire\Leccion_0{1,2,3}.md`. **Videos sin grabar todavía** (grabación programada 2026-09-14): cada lección tiene `disponible: false` en `LECCIONES` (`src/app/arranca/page.tsx`) y muestra placeholder "🎬 Video en producción". Cuando Juliana suba los .mp4 a `public/fotos/tripwire-leccion-{1,2,3}.mp4`, cambiar cada flag a `true`.
+- **Nuevas API routes:** `/api/tripwire/{login,marcar-vista,crear,listar}` — `crear` y `listar` son admin-only (usan `getServerSupabase()` + `esAdmin()` de `src/lib/supabaseServer.ts`).
+- **AdminView → nuevo tab 🎓 Tripwire** — botón "+ Generar acceso" (nombre + WhatsApp → genera código y copia `https://prolarva.co/arranca?c=CODIGO` al portapapeles, mismo patrón que Invitaciones) + lista de alumnos con progreso (X/3 lecciones) y badge si ya canjeó el descuento en Colonia.
+- ⚠️ **Pendiente antes de vender el mini-curso:** correr `supabase/tripwire.sql` en Supabase (crea la tabla + policies + grants). Sin eso, `/api/tripwire/login` responde "Código inválido" para cualquier código.
+- `tsc` limpio + `next build` OK (incluye `/arranca` en la lista de rutas estáticas). Probado en dev con Playwright: `/arranca` renderiza el login, el submit dispara `/api/tripwire/login` contra Supabase real y muestra el error "Código inválido" correctamente (tabla aún no creada). No desplegado a producción todavía.
 
 **Cambios recientes (2026-09-11 — Funnel Fase 3: campo BSF, origen y captura reutilizable del blog):**
 - ✅ **Calculadora:** nuevo toggle "¿Ya crías larva BSF?" (Sí / No, todavía) en el CTA de captura, antes de nombre/WhatsApp. `origen` se lee de `?origen=` en la URL (palabra clave del video que trajo la visita) y viaja con el lead.
